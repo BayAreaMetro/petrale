@@ -1,0 +1,15 @@
+building_type,description
+HS,single family residential
+HT,townhomes
+HM,multi family residential
+OF,office
+HO,hotel
+SC,school
+IL,light industrial
+IW,warehouse
+IH,heavy industrial
+RS,retail general
+RB,retail big box
+MR,mixed use residential focused
+MT,mixed use industiral focused
+ME,mixed use employment focused
