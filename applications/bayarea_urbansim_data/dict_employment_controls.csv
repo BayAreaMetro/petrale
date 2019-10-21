@@ -1,0 +1,6 @@
+name, type, required
+year, int, y
+e1, int, y
+e2, int, y
+
+AND REPEAT THROUGH Es

@@ -1,0 +1,17 @@
+name, type, required
+year, int, y
+q1s1w0, int, y
+q1s1w1
+q1s2w0
+q1s2w1
+q1s2w2
+q1s3w0
+q1s3w1
+q1s3w2
+q1s3w3
+q1s4w0
+q1s4w1
+q1s4w2
+q1s4w3
+
+AND REPEAT THROUGH Qs
