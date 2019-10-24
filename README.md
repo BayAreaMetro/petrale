@@ -5,9 +5,10 @@ This repository contains land use/urban economics data and related code for Bay 
 
 * applications: the various products and analyses supported by basis
 * basemap: information on the current state of buildings and their inhabitants
-* control totals: region-wide forecasts for households and employment
+* incoming: 
 * policies: information on existing local and regional land use policies
-* scripts: code to modify or integrate datasets
+* regional: region-wide forecasts for households and employment
+* travel: 
 * zones: various boundary files and related data for TAZs, MAZs, Jurisdictions, PDAs, etc; geographic lookups
 
 
