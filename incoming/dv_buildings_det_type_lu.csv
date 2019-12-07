@@ -5,7 +5,7 @@ HM, multi family residential, HM, multi family residential, HM
 MH, mobile home, HM, multi family residential, HM
 SR, single room occupancy, HM, multi family residential, HM
 AL, assisted living, GQ, group quarters, HM
-DM, dorm, GQ, group quarters, HM
+DM, dorm or shelter, GQ, group quarters, HM
 CM, condo or apt common area, VP, vacant permanently, VP
 OF, office, OF, office, OF
 GV, gov, OF, office, OF
@@ -27,6 +27,6 @@ PG, parking garage, PG, parking garage, PA2
 VA, vacant, VA, vacant, VA
 LR, golf course or other low density rec use, RS, retail general, RS
 VP, vacant permanently such as park or transport net, VP, vacant permanently, VP 
-OT, other or unknown, OT, other or unkown, O
+OT, other or unknown, OT, other or unkown, OT
 IN, institutional, OF, office, OF
 RF, retail food or drink, RS, retail, RS
