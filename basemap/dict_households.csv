@@ -1,4 +1,4 @@
-b'household_id',
+b'household_id', used_in_baus, 
 taz,
 serialno,
 puma5,
