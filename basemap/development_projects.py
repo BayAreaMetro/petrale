@@ -42,7 +42,7 @@ arcpy.SpatialJoin_analysis(rfmu1619, p10, rfmu1619p10JOIN)
 # full list development_projects_id,raw_id,building_name,site_name,action,scen0,scen1,scen2,scen3,scen4,scen5,scen6,scen7,scen10,scen11,scen12,scen15,address,city,zip,county,x,y,geom_id,year_built,duration,building_type_id,building_type,building_sqft,non_residential_sqft,residential_units,unit_ave_sqft,tenure,rent_type,stories,parking_spaces,Average Weighted Rent,rent_ave_sqft,rent_ave_unit,last_sale_year,last_sale_price,source,edit_date,editor,version
 # AddField(in_table, field_name, field_type, {field_precision}, {field_scale}, {field_length}, {field_alias}, {field_is_nullable}, {field_is_required}, {field_domain})
 
-arcpy.AddField_management(ttt_cs1620_p10, development_projects_id, "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, development_projects_id, "SHORT")
 
 #arcpy.CalculateField_management(in_table, field, expression)
 
