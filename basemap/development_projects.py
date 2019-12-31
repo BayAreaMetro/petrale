@@ -29,8 +29,8 @@ rfother1115p10JOIN = "ttt_rfother1115_p10"
 # spatial joins
 
 arcpy.SpatialJoin_analysis(cs1620, p10, cs1620p10JOIN)
-arcpy.SpatialJoin_analysis(rfsfr1619, p10, rfsfr1619p10JOIN)
-arcpy.SpatialJoin_analysis(rfmu1619, p10, rfmu1619p10JOIN)
+#arcpy.SpatialJoin_analysis(rfsfr1619, p10, rfsfr1619p10JOIN)
+#arcpy.SpatialJoin_analysis(rfmu1619, p10, rfmu1619p10JOIN)
 
 # possibly collapse on geomid or do all as adds but first demollish those geomids in separate step but that must be manual 
 
@@ -57,4 +57,4 @@ arcpy.AddField_management(cs1620p10JOIN, "development_projects_id", "SHORT")
 
 # export csv
 
-arcpy.Delete_management(rfsfr1619p10JOIN)
+#arcpy.Delete_management(rfsfr1619p10JOIN)
