@@ -47,7 +47,7 @@ arcpy.SpatialJoin_analysis(cs1620, p10, cs1620p10JOIN)
 
 arcpy.AddField_management(cs1620p10JOIN, "development_projects_id", "SHORT")
 arcpy.AddField_management(cs1620p10JOIN, "raw_id", "LONG")
-arcpy.AddField_management(cs1620p10JOIN, "building_name", "TEXT",,,50)
+arcpy.AddField_management(cs1620p10JOIN, "building_name", "TEXT","","",50)
 arcpy.AddField_management(cs1620p10JOIN, "site_name", "SHORT")
 arcpy.AddField_management(cs1620p10JOIN, "action", "SHORT")
 arcpy.AddField_management(cs1620p10JOIN, "scen0", "SHORT")
