@@ -23,7 +23,6 @@ arcpy.SpatialJoin_analysis(cs1620, p10, cs1620p10JOIN)
 arcpy.AddField_management(inFeatures, fieldName1, "DOUBLE", 
                           fieldPrecision, fieldScale)
 
-arcpy.AddField_management(inFeatures, fieldName1, "DOUBLE", 
-                          fieldPrecision, fieldScale)
+arcpy.CalculateField_management(in_table, field, expression)
 
 
