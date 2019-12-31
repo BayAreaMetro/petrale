@@ -36,7 +36,7 @@ arcpy.SpatialJoin_analysis(cs1620, p10, cs1620p10JOIN)
 
 
 # rename any conflicting field names
-# arcpy.AlterField_management(cs1620p10JOIN, "building_name", "cs_building_name")
+arcpy.AlterField_management(cs1620p10JOIN, "building_name", "cs_building_name")
 
 # add fields and calc values
 # full list development_projects_id,raw_id,building_name,site_name,action,scen0,scen1,scen2,scen3,scen4,scen5,scen6,scen7,scen10,scen11,scen12,scen15,
