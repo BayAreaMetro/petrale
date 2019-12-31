@@ -30,7 +30,7 @@ rfother1115p10JOIN = "ttt_rfother1115_p10"
 
 arcpy.SpatialJoin_analysis(cs1620, p10, cs1620p10JOIN)
 
-# possibly collape on geomid
+# possibly collapse on geomid or do all as adds but first demollish those geomids in separate step
 
 
 # add fields and calc values
