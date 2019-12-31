@@ -39,10 +39,47 @@ arcpy.SpatialJoin_analysis(cs1620, p10, cs1620p10JOIN)
 # arcpy.AlterField_management(fc, field.name, 'ELEVATION', 'Elevation in Metres')
 
 # add fields and calc values
-# full list development_projects_id,raw_id,building_name,site_name,action,scen0,scen1,scen2,scen3,scen4,scen5,scen6,scen7,scen10,scen11,scen12,scen15,address,city,zip,county,x,y,geom_id,year_built,duration,building_type_id,building_type,building_sqft,non_residential_sqft,residential_units,unit_ave_sqft,tenure,rent_type,stories,parking_spaces,Average Weighted Rent,rent_ave_sqft,rent_ave_unit,last_sale_year,last_sale_price,source,edit_date,editor,version
+# full list development_projects_id,raw_id,building_name,site_name,action,scen0,scen1,scen2,scen3,scen4,scen5,scen6,scen7,scen10,scen11,scen12,scen15,
+# address,city,zip,county,x,y,geom_id,year_built,duration,building_type_id,building_type,building_sqft,non_residential_sqft,
+# residential_units,unit_ave_sqft,tenure,rent_type,stories,parking_spaces,Average Weighted Rent,rent_ave_sqft,rent_ave_unit,
+# last_sale_year,last_sale_price,source,edit_date,editor,version
 # AddField(in_table, field_name, field_type, {field_precision}, {field_scale}, {field_length}, {field_alias}, {field_is_nullable}, {field_is_required}, {field_domain})
 
 arcpy.AddField_management(cs1620p10JOIN, "development_projects_id", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "raw_id", "LONG")
+arcpy.AddField_management(cs1620p10JOIN, "building_name", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "site_name", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "action", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "scen0", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "address", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "city", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "zip", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "county", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "x", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "y", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "geom_id", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "year_built", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "duration", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "building_type_id", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "building_type", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "building_sqft", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "non_residential_sqft", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "residential_units", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "unit_ave_sqft", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "tenure", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "rent_type", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "stories", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "parking_spaces", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "Average Weighted Rent", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "rent_ave_sqft", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "rent_ave_unit", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "last_sale_year", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "last_sale_price", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "source", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "edit_date", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "editor", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "version", "SHORT")
+
 
 #arcpy.CalculateField_management(in_table, field, expression)
 
