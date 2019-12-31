@@ -1,20 +1,36 @@
 ﻿# coding: utf-8
 import arcpy
 
+
 # set enviro
 arcpy.env.workspace = "E:/baydata/smelt.gdb"
 
+
 # set vars
+p10 = "p10"
 
 cs1620 = "cs1620"
-p10 = "p10"
 cs1620p10JOIN = "ttt_cs1620_p10"
+rfsfr1619 = "rf19_sfr1619"
+rfsfr1619p10JOIN = "ttt_rfsfr1619_p10"
+rfmu1619 = "rf19_multiunit1619"
+rfmu1619p10JOIN = "ttt_rfmu1619_p10"
+
+cs1115 = "cs1115"
+cs1115p10JOIN = "ttt_cs1115_p10"
+rfsfr1115 = "rf19_sfr1115"
+rfsfr1115p10JOIN = "ttt_rfsfr1115_p10"
+rfcondo1115 = "rf19_condounits1115"
+rfcondo1115p10JOIN = "ttt_rfcondo1115_p10"
+rfother1115 = "rf19_othertypes1115"
+rfother1115p10JOIN = "ttt_rfother1115_p10"
 
 
 # spatial joins
 
 arcpy.SpatialJoin_analysis(cs1620, p10, cs1620p10JOIN)
 
+# possibly collape on geomid
 
 
 # add fields and calc values
