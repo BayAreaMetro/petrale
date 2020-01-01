@@ -77,7 +77,7 @@ arcpy.AddField_management(cs1620p10JOIN, "rent_ave_unit", "SHORT")
 arcpy.AddField_management(cs1620p10JOIN, "last_sale_year", "SHORT")
 arcpy.AddField_management(cs1620p10JOIN, "last_sale_price", "SHORT")
 arcpy.AddField_management(cs1620p10JOIN, "source", "TEXT","","",10)
-arcpy.AddField_management(cs1620p10JOIN, "edit_date", "SHORT")
+arcpy.AddField_management(cs1620p10JOIN, "edit_date", "DATE")
 arcpy.AddField_management(cs1620p10JOIN, "editor", "TEXT","","",50)
 arcpy.AddField_management(cs1620p10JOIN, "version", "SHORT")
 
