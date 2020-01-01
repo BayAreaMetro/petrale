@@ -34,6 +34,7 @@ arcpy.SpatialJoin_analysis(cs1620, p10, cs1620p10JOIN)
 
 # possibly collapse on geomid or do all as adds but first demollish those geomids in separate step but that must be manual 
 
+# OR JUST RENAME ALL VARS FIRST AND MERGE THEN CLEAN 
 
 # rename any conflicting field names
 arcpy.AlterField_management(cs1620p10JOIN, "building_name", "cs_building_name")
