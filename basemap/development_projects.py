@@ -40,6 +40,8 @@ arcpy.AlterField_management(cs1620p10JOIN, "building_name", "cs_building_name")
 arcpy.AlterField_management(cs1620p10JOIN, "city", "cs_city")
 arcpy.AlterField_management(cs1620p10JOIN, "rent_type", "cs_rent_type")
 arcpy.AlterField_management(cs1620p10JOIN, "year_built", "cs_year_built")
+arcpy.AlterField_management(cs1620p10JOIN, "last_sale_price", "cs_last_sale_price")
+arcpy.AlterField_management(cs1620p10JOIN, "last_sale_date", "cs_sale_date")
 arcpy.AlterField_management(cs1620p10JOIN, "Average_Weighted_Rent", "cs_average_weighted_rent")
 arcpy.AlterField_management(cs1620p10JOIN, "x", "p_x") # this is from the parcel centroid
 arcpy.AlterField_management(cs1620p10JOIN, "y", "p_y") # this is from the parcel centroid
