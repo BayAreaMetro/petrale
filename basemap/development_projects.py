@@ -91,7 +91,7 @@ arcpy.AddField_management(cs1620p10JOIN, "editor", "TEXT","","",50)
 arcpy.AddField_management(cs1620p10JOIN, "version", "SHORT")
 
 
-#arcpy.CalculateField_management(in_table, field, expression)
+arcpy.CalculateField_management(cs1620p10JOIN, "residential_units", "!Number of Units!")
 
 
 # delete all those other fields
