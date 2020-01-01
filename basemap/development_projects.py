@@ -40,6 +40,7 @@ arcpy.AlterField_management(cs1620p10JOIN, "building_name", "cs_building_name")
 arcpy.AlterField_management(cs1620p10JOIN, "city", "cs_city")
 arcpy.AlterField_management(cs1620p10JOIN, "x", "p_x") # this is from the parcel centroid
 arcpy.AlterField_management(cs1620p10JOIN, "y", "p_y") # this is from the parcel centroid
+arcpy.AlterField_management(cs1620p10JOIN, "geom_id", "p_geom_id") # this is from the parcel 
 
 # add fields and calc values
 # full list development_projects_id,raw_id,building_name,site_name,action,scen0,scen1,scen2,scen3,scen4,scen5,scen6,scen7,scen10,scen11,scen12,scen15,
