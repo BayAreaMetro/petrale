@@ -93,6 +93,8 @@ arcpy.AddField_management(cs1620p10JOIN, "version", "SHORT")
 
 arcpy.CalculateField_management(cs1620p10JOIN, "residential_units", '!Number Of Units!')
 
+#scen is by info in file originally
+#do xy from parcel centroids cause captures cleaning
 
 # delete all those other fields
 
@@ -101,6 +103,10 @@ arcpy.CalculateField_management(cs1620p10JOIN, "residential_units", '!Number Of 
 # fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 # arcpy.DeleteField_management(fc, fields2Delete)
 
+
+# merge shapefiles into 1
+
+# manual scen mods
 
 # export csv
 
