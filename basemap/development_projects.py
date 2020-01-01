@@ -91,7 +91,7 @@ arcpy.AddField_management(cs1620p10JOIN, "editor", "TEXT","","",50)
 arcpy.AddField_management(cs1620p10JOIN, "version", "SHORT")
 
 
-arcpy.CalculateField_management(cs1620p10JOIN, "residential_units", '!Number Of Units!')
+arcpy.CalculateField_management(cs1620p10JOIN, "residential_units", '!Number_Of_Units!')
 
 #scen is by info in file originally
 #do xy from parcel centroids cause captures cleaning
