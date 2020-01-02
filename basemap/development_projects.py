@@ -114,8 +114,8 @@ arcpy.CalculateField_management(cs1620p10JOIN, "residential_units", '!Number_Of_
 arcpy.CalculateField_management(cs1620p10JOIN, "unit_ave_sqft", '!Avg_Unit_SF!')
 arcpy.CalculateField_management(cs1620p10JOIN, "tenure", )
 arcpy.CalculateField_management(cs1620p10JOIN, "rent_type", '!cs_rent_type!') # need to clean
-#arcpy.CalculateField_management(cs1620p10JOIN, "stories", )
-arcpy.CalculateField_management(cs1620p10JOIN, "parking_spaces", )
+arcpy.CalculateField_management(cs1620p10JOIN, "stories", '!Number_Of_Stories!')
+arcpy.CalculateField_management(cs1620p10JOIN, "parking_spaces", '!Number_Of_Parking_Spaces!')
 arcpy.CalculateField_management(cs1620p10JOIN, "Average Weighted Rent", '!cs_average_weighted_rent!')
 arcpy.CalculateField_management(cs1620p10JOIN, "rent_ave_sqft", )
 arcpy.CalculateField_management(cs1620p10JOIN, "rent_ave_unit", )
