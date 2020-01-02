@@ -108,13 +108,13 @@ arcpy.CalculateField_management(cs1620p10JOIN, "year_built", '!cs_year_built!')
 #arcpy.CalculateField_management(cs1620p10JOIN, "duration", )
 #arcpy.CalculateField_management(cs1620p10JOIN, "building_type_id", )
 arcpy.CalculateField_management(cs1620p10JOIN, "building_type", '!det_bldg_type!')
-arcpy.CalculateField_management(cs1620p10JOIN, "building_sqft", )
-arcpy.CalculateField_management(cs1620p10JOIN, "non_residential_sqft", )
+arcpy.CalculateField_management(cs1620p10JOIN, "building_sqft", '!Rentable_Building_Area!') # how often null for res
+arcpy.CalculateField_management(cs1620p10JOIN, "non_residential_sqft", '!Rentable_Building_Area!') # need to zero out for res
 arcpy.CalculateField_management(cs1620p10JOIN, "residential_units", '!Number_Of_Units!')
-arcpy.CalculateField_management(cs1620p10JOIN, "unit_ave_sqft", )
+arcpy.CalculateField_management(cs1620p10JOIN, "unit_ave_sqft", '!Avg_Unit_SF!')
 arcpy.CalculateField_management(cs1620p10JOIN, "tenure", )
 arcpy.CalculateField_management(cs1620p10JOIN, "rent_type", '!cs_rent_type!') # need to clean
-arcpy.CalculateField_management(cs1620p10JOIN, "stories", )
+#arcpy.CalculateField_management(cs1620p10JOIN, "stories", )
 arcpy.CalculateField_management(cs1620p10JOIN, "parking_spaces", )
 arcpy.CalculateField_management(cs1620p10JOIN, "Average Weighted Rent", '!cs_average_weighted_rent!')
 arcpy.CalculateField_management(cs1620p10JOIN, "rent_ave_sqft", )
@@ -140,7 +140,7 @@ arcpy.CalculateField_management(cs1620p10JOIN, "version", )
 # merge shapefiles into 1
 
 
-arcpy.CalculateField_management(ALL, "development_projects_id", "SHORT")
+#arcpy.CalculateField_management(ALL, "development_projects_id", ) #create
 
 # manual scen mods
 
