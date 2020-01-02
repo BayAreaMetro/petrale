@@ -92,7 +92,39 @@ arcpy.AddField_management(cs1620p10JOIN, "editor", "TEXT","","",50)
 arcpy.AddField_management(cs1620p10JOIN, "version", "SHORT")
 
 
+arcpy.CalculateField_management(cs1620p10JOIN, "raw_id", 9999)
+arcpy.CalculateField_management(cs1620p10JOIN, "building_name", '!cs_building_name!')
+arcpy.CalculateField_management(cs1620p10JOIN, "site_name", '!Building_Park!')
+arcpy.CalculateField_management(cs1620p10JOIN, "action", "add")
+arcpy.CalculateField_management(cs1620p10JOIN, "scen0", "0")
+arcpy.CalculateField_management(cs1620p10JOIN, "address", )
+arcpy.CalculateField_management(cs1620p10JOIN, "city", )
+arcpy.CalculateField_management(cs1620p10JOIN, "zip", )
+arcpy.CalculateField_management(cs1620p10JOIN, "county", )
+arcpy.CalculateField_management(cs1620p10JOIN, "x", )
+arcpy.CalculateField_management(cs1620p10JOIN, "y", )
+arcpy.CalculateField_management(cs1620p10JOIN, "geom_id", )
+arcpy.CalculateField_management(cs1620p10JOIN, "year_built", )
+arcpy.CalculateField_management(cs1620p10JOIN, "duration", )
+arcpy.CalculateField_management(cs1620p10JOIN, "building_type_id", )
+arcpy.CalculateField_management(cs1620p10JOIN, "building_type", )
+arcpy.CalculateField_management(cs1620p10JOIN, "building_sqft", )
+arcpy.CalculateField_management(cs1620p10JOIN, "non_residential_sqft", )
 arcpy.CalculateField_management(cs1620p10JOIN, "residential_units", '!Number_Of_Units!')
+arcpy.CalculateField_management(cs1620p10JOIN, "unit_ave_sqft", )
+arcpy.CalculateField_management(cs1620p10JOIN, "tenure", )
+arcpy.CalculateField_management(cs1620p10JOIN, "rent_type", )
+arcpy.CalculateField_management(cs1620p10JOIN, "stories", )
+arcpy.CalculateField_management(cs1620p10JOIN, "parking_spaces", )
+arcpy.CalculateField_management(cs1620p10JOIN, "Average Weighted Rent",")
+arcpy.CalculateField_management(cs1620p10JOIN, "rent_ave_sqft", )
+arcpy.CalculateField_management(cs1620p10JOIN, "rent_ave_unit", )
+arcpy.CalculateField_management(cs1620p10JOIN, "last_sale_year", )
+arcpy.CalculateField_management(cs1620p10JOIN, "last_sale_price", )
+arcpy.CalculateField_management(cs1620p10JOIN, "source", )
+arcpy.CalculateField_management(cs1620p10JOIN, "edit_date", )
+arcpy.CalculateField_management(cs1620p10JOIN, "editor", )
+arcpy.CalculateField_management(cs1620p10JOIN, "version", )
 
 #scen is by info in file originally
 #do xy from parcel centroids cause captures cleaning
@@ -106,6 +138,9 @@ arcpy.CalculateField_management(cs1620p10JOIN, "residential_units", '!Number_Of_
 
 
 # merge shapefiles into 1
+
+
+arcpy.CalculateField_management(ALL, "development_projects_id", "SHORT")
 
 # manual scen mods
 
