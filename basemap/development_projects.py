@@ -92,7 +92,7 @@ arcpy.AddField_management(cs1620p10JOIN, "editor", "TEXT","","",50)
 arcpy.AddField_management(cs1620p10JOIN, "version", "SHORT")
 
 
-arcpy.CalculateField_management(cs1620p10JOIN, "raw_id", 9999)
+arcpy.CalculateField_management(cs1620p10JOIN, "raw_id", '!PropertyID!')
 arcpy.CalculateField_management(cs1620p10JOIN, "building_name", '!cs_building_name!')
 arcpy.CalculateField_management(cs1620p10JOIN, "site_name", '!Building_Park!')
 arcpy.CalculateField_management(cs1620p10JOIN, "action", "add")
@@ -112,7 +112,7 @@ arcpy.CalculateField_management(cs1620p10JOIN, "building_sqft", '!Rentable_Build
 arcpy.CalculateField_management(cs1620p10JOIN, "non_residential_sqft", '!Rentable_Building_Area!') # need to zero out for res
 arcpy.CalculateField_management(cs1620p10JOIN, "residential_units", '!Number_Of_Units!')
 arcpy.CalculateField_management(cs1620p10JOIN, "unit_ave_sqft", '!Avg_Unit_SF!')
-arcpy.CalculateField_management(cs1620p10JOIN, "tenure", )
+arcpy.CalculateField_management(cs1620p10JOIN, "tenure", "Rent")
 arcpy.CalculateField_management(cs1620p10JOIN, "rent_type", '!cs_rent_type!') # need to clean
 arcpy.CalculateField_management(cs1620p10JOIN, "stories", '!Number_Of_Stories!')
 arcpy.CalculateField_management(cs1620p10JOIN, "parking_spaces", '!Number_Of_Parking_Spaces!')
@@ -121,9 +121,9 @@ arcpy.CalculateField_management(cs1620p10JOIN, "rent_ave_sqft", )
 arcpy.CalculateField_management(cs1620p10JOIN, "rent_ave_unit", )
 arcpy.CalculateField_management(cs1620p10JOIN, "last_sale_year", '!cs_sale_date!') #need to make into year
 arcpy.CalculateField_management(cs1620p10JOIN, "last_sale_price", '!cs_last_sale_price'!)
-arcpy.CalculateField_management(cs1620p10JOIN, "source", )
-arcpy.CalculateField_management(cs1620p10JOIN, "edit_date", )
-arcpy.CalculateField_management(cs1620p10JOIN, "editor", )
+arcpy.CalculateField_management(cs1620p10JOIN, "source", "cs")
+arcpy.CalculateField_management(cs1620p10JOIN, "edit_date", "Jan 2020")
+arcpy.CalculateField_management(cs1620p10JOIN, "editor", "MKR")
 arcpy.CalculateField_management(cs1620p10JOIN, "version", )
 
 #scen is by info in file originally
