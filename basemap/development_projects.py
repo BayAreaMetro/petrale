@@ -96,7 +96,7 @@ arcpy.CalculateField_management(cs1620p10JOIN, "raw_id", '!PropertyID!')
 arcpy.CalculateField_management(cs1620p10JOIN, "building_name", '!cs_building_name!')
 arcpy.CalculateField_management(cs1620p10JOIN, "site_name", '!Building_Park!')
 arcpy.CalculateField_management(cs1620p10JOIN, "action", "add")
-arcpy.CalculateField_management(cs1620p10JOIN, "scen0", "0")
+arcpy.CalculateField_management(cs1620p10JOIN, "scen0", "1") # these are committed so 1 for all scens 
 arcpy.CalculateField_management(cs1620p10JOIN, "address", '!Building_Adress!')
 arcpy.CalculateField_management(cs1620p10JOIN, "city", '!cs_city!')
 arcpy.CalculateField_management(cs1620p10JOIN, "zip", '!Zip!')
@@ -137,7 +137,13 @@ arcpy.CalculateField_management(cs1620p10JOIN, "version", )
 # arcpy.DeleteField_management(fc, fields2Delete)
 
 
-# merge shapefiles into 1
+# merge shapefiles into 1 for committed dev proj
+
+
+# bring in oppsites and set scens as in gis file
+
+# then merge committed with oppsites for a single shapefile 
+
 
 
 #arcpy.CalculateField_management(ALL, "development_projects_id", ) #create
