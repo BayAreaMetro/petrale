@@ -1,1 +1,45 @@
-
+variable, definition, type, required in BAUS simulation
+development_projects_id, , ,yes
+raw_id, , ,no
+building_name, , ,no
+site_name, , ,no
+action, , ,yes
+scen0, , ,yes
+scen1, , ,yes
+scen2, , ,yes
+scen3, , ,yes
+scen4, , ,yes
+scen5, , ,yes
+scen6, , ,yes
+scen7, , ,yes
+scen10, , ,yes
+scen11, , ,yes
+scen12, , ,yes
+scen15, , ,yes
+address , ,yes
+city, , ,no
+zip, , ,no
+county, , ,no
+x, , ,no
+y, , ,no
+geom_id, , ,yes
+year_built, , ,yes
+duration, , ,no
+building_type_id, , ,no????
+building_type, , ,yes
+building_sqft, , ,no???
+non_residential_sqft, , ,yes
+residential_units, , ,yes
+unit_ave_sqft, , ,no???
+tenure,rent_type, , ,no
+stories, , ,no
+parking_spaces, , ,no
+Average Weighted Rent, , ,no
+rent_ave_sqft, , ,no
+rent_ave_unit, , ,no
+last_sale_year, , ,no
+last_sale_price, , ,no
+source, , ,no
+edit_date, , ,no
+editor, , ,no
+version, , ,no
