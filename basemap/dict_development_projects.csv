@@ -31,7 +31,8 @@ building_sqft, , ,no???
 non_residential_sqft, , ,yes
 residential_units, , ,yes
 unit_ave_sqft, , ,no???
-tenure,rent_type, , ,no
+tenure, , ,no
+rent_type, , ,no
 stories, , ,no
 parking_spaces, , ,no
 Average Weighted Rent, , ,no
