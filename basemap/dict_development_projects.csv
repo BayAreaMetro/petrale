@@ -16,7 +16,7 @@ scen10, , ,yes
 scen11, , ,yes
 scen12, , ,yes
 scen15, , ,yes
-address , ,yes
+address, , ,yes
 city, , ,no
 zip, , ,no
 county, , ,no
