@@ -39,4 +39,10 @@ zone_id, taz22, maz, school districts
 
 
 ### Output the Resultant Data to the H5
-This process creates csv file with 
+This process creates csv files:
+* parcels.csv
+* buildings.csv
+* households.csv
+* jobs.csv
+* residential_units????
+These are then processed in the BAUS preprocessing model
