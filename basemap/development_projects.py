@@ -25,6 +25,7 @@ rfcondo1115p10JOIN = "ttt_rfcondo1115_p10"
 rfother1115 = "rf19_othertypes1115"
 rfother1115p10JOIN = "ttt_rfother1115_p10"
 
+basis_pipeline = "basis_pipeline"
 
 # spatial joins
 
