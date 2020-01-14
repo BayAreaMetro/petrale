@@ -27,6 +27,9 @@ rfother1115p10JOIN = "ttt_rfother1115_p10"
 
 basis_pipeline = "basis_pipeline"
 
+
+# NEED TO SELECT ONLY RECORDS WITH VAR INCL = 1 IF EXISTS
+
 # spatial joins
 
 arcpy.SpatialJoin_analysis(cs1620, p10, cs1620p10JOIN)
