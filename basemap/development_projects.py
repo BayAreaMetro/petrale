@@ -18,7 +18,8 @@ arcpy.env.workspace = "E:/baydata/smelt.gdb"
 # 9 export a csv file with buildings to build and demolish
 
 
-# set vars
+# SET VARS
+# input
 p10 = "p10" # 2010 parcels
 
 cs1620 = "cs1620" # costar data  2016-2020
@@ -45,7 +46,13 @@ manual_dpp10JOIN = "ttt_manualdp_p10"
 
 # opp_sites
 
-# demolish
+# manual_demolish
+
+# output
+# pipeline shp
+# development_projects shp
+# development_projects csv
+# demolish csv
 
 
 # 1 SPATIAL JOINS
@@ -173,16 +180,21 @@ arcpy.CalculateField_management(cs1620p10JOIN, "version", )
 
 
 
-# 7 remove duplicates by manually or automatically switching incl to 0 or another code
+# 7 REMOVE DUPLICATES
+# manually: go ahead and recode a 1 to 0 in the GIS file to not use a record 
+
+# automatically switching incl to 0 or another code using hierarchy
+# keep multiple points on same parcel from WITHIN the same dataset but don't add additional from lower datasets
+# manual_dp is best, then cs, then BASIS, then redfin SFD, then all other redfin, then oppsites 
 
 
 
-# 8 build a shapefile of buildings to demolish
+# 8 BUILDINGS TO DEMOLISH
 
 # list of all geomids that build then subtract out manual list
 # auto calc demolish
 # bring in manual demolish
-
+# export csv
 
 
 
