@@ -10,10 +10,11 @@ arcpy.env.workspace = "E:/baydata/smelt.gdb"
 # 1 spatially join parcels to each point file of new buildings
 # 2 recompute all fields in each point file so that they exactly the same schema 
 # 3 clean out old fields 
-# 4 merge point files into one shapefile including only records w incl=1
-# 5 run diagnostics
-# 6 remove duplicates by manually or automatically switching incl to 0 or another code
-# 8 build a second shapefile of buildings to demolish
+# 4 merge point files into one shapefile (pipeline) including only records w incl=1
+# 5 merge point file of opportunity sites with pipeline to form development_projects
+# 6 run diagnostics
+# 7 remove duplicates by manually or automatically switching incl to 0 or another code
+# 8 build a shapefile of buildings to demolish
 # 9 export a csv file with buildings to build and demolish
 
 
@@ -37,8 +38,14 @@ rfother1115 = "rf19_othertypes1115" # redfin other data 2011-2015
 rfother1115p10JOIN = "ttt_rfother1115_p10"
 
 basis_pipeline = "basis_pipeline" # BASIS pipleline data
+basis_pipelinep10JOIN = "ttt_basispipeline_p10"
 
-# manual_dp = " # manually maintained pipeline data
+manual_dp = "manual_dp_20200113" # manually maintained pipeline data
+manual_dpp10JOIN = "ttt_manualdp_p10"
+
+# opp_sites
+
+# demolish
 
 
 # 1 SPATIAL JOINS
@@ -115,8 +122,8 @@ arcpy.CalculateField_management(cs1620p10JOIN, "address", '!Building_Adress!')
 arcpy.CalculateField_management(cs1620p10JOIN, "city", '!cs_city!')
 arcpy.CalculateField_management(cs1620p10JOIN, "zip", '!Zip!')
 arcpy.CalculateField_management(cs1620p10JOIN, "county", '!County_Name!')
-arcpy.CalculateField_management(cs1620p10JOIN, "x", '!p_x!')
-arcpy.CalculateField_management(cs1620p10JOIN, "y", '!p_y!')
+arcpy.CalculateField_management(cs1620p10JOIN, "x", '!p_x!') # do xy from parcel centroids cause captures cleaning
+arcpy.CalculateField_management(cs1620p10JOIN, "y", '!p_y!') # do xy from parcel centroids cause captures cleaning
 arcpy.CalculateField_management(cs1620p10JOIN, "geom_id", '!p_geom_id!')
 arcpy.CalculateField_management(cs1620p10JOIN, "year_built", '!cs_year_built!')
 #arcpy.CalculateField_management(cs1620p10JOIN, "duration", )
@@ -140,18 +147,21 @@ arcpy.CalculateField_management(cs1620p10JOIN, "edit_date", "Jan 2020")
 arcpy.CalculateField_management(cs1620p10JOIN, "editor", "MKR")
 arcpy.CalculateField_management(cs1620p10JOIN, "version", )
 
-#scen is by info in file originally
-#do xy from parcel centroids cause captures cleaning
 
-# 3 DELETE OTHER FIELDS
+# 3 DELETE OTHER FIELDS AND TEMP FILES
 
 # FCfields = [f.name for f in arcpy.ListFields(fc)]
 # DontDeleteFields = ['Shape_STArea__', 'Shape_STLength__', 'STATE', 'FIPS', 'Shape',  'Shape_Length', 'Shape_Area', 'AreaFT']
 # fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 # arcpy.DeleteField_management(fc, fields2Delete)
 
+# delete temporary join files
+# arcpy.Delete_management(rfsfr1619p10JOIN)
+
 
 # 4 MERGE ALL INCL=1 POINTS INTO A SINGLE SHP FILE
+
+
 
 
 # bring in oppsites and set scens as in gis file
@@ -164,6 +174,6 @@ arcpy.CalculateField_management(cs1620p10JOIN, "version", )
 
 # manual scen mods
 
-# export csv
+# EXPORT CSV
 
-#arcpy.Delete_management(rfsfr1619p10JOIN)
+
