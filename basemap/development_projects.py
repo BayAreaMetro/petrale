@@ -1,31 +1,44 @@
 ﻿# coding: utf-8
 import arcpy
 
-
 # set enviro
 arcpy.env.workspace = "E:/baydata/smelt.gdb"
 
 
-# set vars
-p10 = "p10"
+# This script brings together many different datasets that each offer some info
+# on development in the region from 2011 on. Overall approach is to:
+# 1 spatially join parcels to each point file of new buildings
+# 2 recompute all fields in each point file so that they exactly the same schema 
+# 3 clean out old fields 
+# 4 merge point files into one shapefile
+# 5 run diagnostics
+# 6 remove duplicates
+# 8 builld a second shapefile of buildings to demolish
+# 9 export a csv file with buildings to build and demolish
 
-cs1620 = "cs1620"
-cs1620p10JOIN = "ttt_cs1620_p10"
-rfsfr1619 = "rf19_sfr1619"
+
+# set vars
+p10 = "p10" # 2010 parcels
+
+cs1620 = "cs1620" # costar data  2016-2020
+cs1620p10JOIN = "ttt_cs1620_p10" 
+rfsfr1619 = "rf19_sfr1619" # redfin SFD data 2016-2019
 rfsfr1619p10JOIN = "ttt_rfsfr1619_p10"
-rfmu1619 = "rf19_multiunit1619"
+rfmu1619 = "rf19_multiunit1619" # redin MFD data 2016-2019
 rfmu1619p10JOIN = "ttt_rfmu1619_p10"
 
-cs1115 = "cs1115"
+cs1115 = "cs1115" # costar data  2011-2015
 cs1115p10JOIN = "ttt_cs1115_p10"
-rfsfr1115 = "rf19_sfr1115"
+rfsfr1115 = "rf19_sfr1115" # redfin SFD data 2011-2015
 rfsfr1115p10JOIN = "ttt_rfsfr1115_p10"
-rfcondo1115 = "rf19_condounits1115"
+rfcondo1115 = "rf19_condounits1115" # redfin condo data 2011-2015
 rfcondo1115p10JOIN = "ttt_rfcondo1115_p10"
-rfother1115 = "rf19_othertypes1115"
+rfother1115 = "rf19_othertypes1115" # redfin other data 2011-2015
 rfother1115p10JOIN = "ttt_rfother1115_p10"
 
-basis_pipeline = "basis_pipeline"
+basis_pipeline = "basis_pipeline" # BASIS pipleline data
+
+# manual_dp = " # manually maintained pipeline data
 
 
 # NEED TO SELECT ONLY RECORDS WITH VAR INCL = 1 IF EXISTS
