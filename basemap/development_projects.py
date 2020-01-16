@@ -10,10 +10,10 @@ arcpy.env.workspace = "E:/baydata/smelt.gdb"
 # 1 spatially join parcels to each point file of new buildings
 # 2 recompute all fields in each point file so that they exactly the same schema 
 # 3 clean out old fields 
-# 4 merge point files into one shapefile
+# 4 merge point files into one shapefile including only records w incl=1
 # 5 run diagnostics
-# 6 remove duplicates
-# 8 builld a second shapefile of buildings to demolish
+# 6 remove duplicates by manually or automatically switching incl to 0 or another code
+# 8 build a second shapefile of buildings to demolish
 # 9 export a csv file with buildings to build and demolish
 
 
@@ -41,17 +41,14 @@ basis_pipeline = "basis_pipeline" # BASIS pipleline data
 # manual_dp = " # manually maintained pipeline data
 
 
-# NEED TO SELECT ONLY RECORDS WITH VAR INCL = 1 IF EXISTS
-
-# spatial joins
+# 1 SPATIAL JOINS
 
 arcpy.SpatialJoin_analysis(cs1620, p10, cs1620p10JOIN)
 #arcpy.SpatialJoin_analysis(rfsfr1619, p10, rfsfr1619p10JOIN)
 #arcpy.SpatialJoin_analysis(rfmu1619, p10, rfmu1619p10JOIN)
 
-# possibly collapse on geomid or do all as adds but first demollish those geomids in separate step but that must be manual 
 
-# OR JUST RENAME ALL VARS FIRST AND MERGE THEN CLEAN 
+# 2 VARIABLE CLEANING 
 
 # rename any conflicting field names
 arcpy.AlterField_management(cs1620p10JOIN, "building_name", "cs_building_name")
@@ -146,7 +143,7 @@ arcpy.CalculateField_management(cs1620p10JOIN, "version", )
 #scen is by info in file originally
 #do xy from parcel centroids cause captures cleaning
 
-# delete all those other fields
+# 3 DELETE OTHER FIELDS
 
 # FCfields = [f.name for f in arcpy.ListFields(fc)]
 # DontDeleteFields = ['Shape_STArea__', 'Shape_STLength__', 'STATE', 'FIPS', 'Shape',  'Shape_Length', 'Shape_Area', 'AreaFT']
@@ -154,7 +151,7 @@ arcpy.CalculateField_management(cs1620p10JOIN, "version", )
 # arcpy.DeleteField_management(fc, fields2Delete)
 
 
-# merge shapefiles into 1 for committed dev proj
+# 4 MERGE ALL INCL=1 POINTS INTO A SINGLE SHP FILE
 
 
 # bring in oppsites and set scens as in gis file
