@@ -159,21 +159,37 @@ arcpy.CalculateField_management(cs1620p10JOIN, "version", )
 # arcpy.Delete_management(rfsfr1619p10JOIN)
 
 
-# 4 MERGE ALL INCL=1 POINTS INTO A SINGLE SHP FILE
+# 4 MERGE ALL INCL=1 POINTS INTO A SINGLE SHP FILE CALLED PIPELINE
 
 
 
 
-# bring in oppsites and set scens as in gis file
+# 5 MERGE OPPSITES SHP WITH PIPELINE TO GET DEVELOPMENT PROJECTS
+# NOTE THAT OPPSITES HAS SCEN SET IN GIS FILE
 
-# then merge committed with oppsites for a single shapefile 
+
+# 6 DIAGNOSTICS
+
+
+
+
+# 7 remove duplicates by manually or automatically switching incl to 0 or another code
+
+
+
+# 8 build a shapefile of buildings to demolish
+
+# list of all geomids that build then subtract out manual list
+# auto calc demolish
+# bring in manual demolish
+
+
 
 
 
 #arcpy.CalculateField_management(ALL, "development_projects_id", ) #create
 
-# manual scen mods
 
-# EXPORT CSV
+# 9 EXPORT CSV W BUILDINGS TO BUILD AND DEMOLISH
 
 
