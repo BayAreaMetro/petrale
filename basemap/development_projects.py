@@ -44,9 +44,8 @@ basis_pipelinep10JOIN = "ttt_basispipeline_p10"
 manual_dp = "manual_dp_20200113" # manually maintained pipeline data
 manual_dpp10JOIN = "ttt_manualdp_p10"
 
-# opp_sites
+opp_sites = "oppsites_20200116" # opportunity sites that keep their scen status from gis file
 
-# manual_demolish
 
 # output
 # pipeline shp
@@ -193,7 +192,6 @@ arcpy.CalculateField_management(cs1620p10JOIN, "version", )
 
 # list of all geomids that build then subtract out manual list
 # auto calc demolish
-# bring in manual demolish
 # export csv
 
 
