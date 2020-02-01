@@ -1,4 +1,5 @@
 ﻿# coding: utf-8
+
 import arcpy
 
 # set enviro
@@ -59,9 +60,9 @@ l = []
 
 ### for costar data
 ### create a list of feature class
-cs = [cs1620, cs1115]
+cs = [cs1115,cs1620]
 for fc in cs:
-	joinFN = 'ttt_' + arcpy.Describe(fc).name + '_p10'
+	joinFN = 'ttt_' + arcpy.Describe(fc).name + '__p10'
 	### 1 SPATIAL JOINS
 	arcpy.SpatialJoin_analysis(fc, p10, joinFN)
 	### 2 VARIABLE CLEANING 
@@ -69,6 +70,7 @@ for fc in cs:
 	# rename any conflicting field names
 	arcpy.AlterField_management(joinFN, "building_name", "cs_building_name")
 	arcpy.AlterField_management(joinFN, "city", "cs_city")
+	arcpy.AlterField_management(joinFN, "Zip", "cs_zip")
 	arcpy.AlterField_management(joinFN, "rent_type", "cs_rent_type")
 	arcpy.AlterField_management(joinFN, "year_built", "cs_year_built")
 	arcpy.AlterField_management(joinFN, "last_sale_price", "cs_last_sale_price")
@@ -86,16 +88,14 @@ for fc in cs:
 
 	arcpy.AddField_management(joinFN, "development_projects_id", "SHORT")
 	arcpy.AddField_management(joinFN, "raw_id", "LONG")
-	arcpy.AddField_management(joinFN, "building_name", "TEXT","","",50)
+	arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
 	arcpy.AddField_management(joinFN, "site_name", "TEXT","","",50)
 	arcpy.AddField_management(joinFN, "action", "TEXT","","",10)
 	arcpy.AddField_management(joinFN, "scen0", "SHORT")
 	arcpy.AddField_management(joinFN, "scen1", "SHORT") ### added this line, seems like we have two scenarios
 	arcpy.AddField_management(joinFN, "address", "TEXT","","",200)
 	arcpy.AddField_management(joinFN, "city", "TEXT","","",50)
-	if not arcpy.ListFields(joinFN, "zip"):
-		arcpy.AddField_management(joinFN, "zip", "LONG")
-	arcpy.AddField_management(joinFN, "zip", "LONG")
+	arcpy.AddField_management(joinFN, "zip",  "TEXT","","",50) ## this is changed from LONG to TEXT because cs1115 file has some text formatted zipcode with "-"
 	arcpy.AddField_management(joinFN, "county", "TEXT","","",50)
 	arcpy.AddField_management(joinFN, "x", "FLOAT")
 	arcpy.AddField_management(joinFN, "y", "FLOAT")
@@ -132,7 +132,7 @@ for fc in cs:
 	arcpy.CalculateField_management(joinFN, "scen0", 1) # these are committed so 1 for all scens 
 	arcpy.CalculateField_management(joinFN, "address", '!Building_Address!')
 	arcpy.CalculateField_management(joinFN, "city", '!cs_city!')
-	arcpy.CalculateField_management(joinFN, "zip", '!Zip!')
+	arcpy.CalculateField_management(joinFN, "zip", '!cs_zip!')
 	arcpy.CalculateField_management(joinFN, "county", '!County_Name!')
 	arcpy.CalculateField_management(joinFN, "x", '!p_x!') 
 	arcpy.CalculateField_management(joinFN, "y", '!p_y!') 
@@ -174,7 +174,7 @@ for fc in cs:
 ### create a list of feature class
 rf = [rfsfr1619, rfmu1619, rfsfr1115, rfcondo1115, rfother1115]
 for fc in rf:
-	joinFN = 'ttt_' + arcpy.Describe(fc).name + '_p10'
+	joinFN = 'ttt_' + arcpy.Describe(fc).name + '__p10'
 	### 1 SPATIAL JOINS
 	arcpy.SpatialJoin_analysis(fc, p10, joinFN)
 	### 2 VARIABLE CLEANING 
@@ -196,14 +196,14 @@ for fc in rf:
 
 	arcpy.AddField_management(joinFN, "development_projects_id", "SHORT")
 	arcpy.AddField_management(joinFN, "raw_id", "LONG")
-	arcpy.AddField_management(joinFN, "building_name", "TEXT","","",50)
+	arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
 	arcpy.AddField_management(joinFN, "site_name", "TEXT","","",50)
 	arcpy.AddField_management(joinFN, "action", "TEXT","","",10)
 	arcpy.AddField_management(joinFN, "scen0", "SHORT")
 	arcpy.AddField_management(joinFN, "scen1", "SHORT") ### added this line, seems like we have two scenarios
 	arcpy.AddField_management(joinFN, "address", "TEXT","","",200)
 	arcpy.AddField_management(joinFN, "city", "TEXT","","",50)
-	arcpy.AddField_management(joinFN, "zip", "LONG")
+	arcpy.AddField_management(joinFN, "zip", "TEXT","","",50)
 	arcpy.AddField_management(joinFN, "county", "TEXT","","",50)
 	arcpy.AddField_management(joinFN, "x", "FLOAT")
 	arcpy.AddField_management(joinFN, "y", "FLOAT")
@@ -301,7 +301,7 @@ arcpy.AddField_management(joinFN, "scen0", "SHORT")
 arcpy.AddField_management(joinFN, "scen1", "SHORT") ### added this line, seems like we have two scenarios
 arcpy.AddField_management(joinFN, "address", "TEXT","","",200)
 arcpy.AddField_management(joinFN, "city", "TEXT","","",50)
-arcpy.AddField_management(joinFN, "zip", "LONG")
+arcpy.AddField_management(joinFN, "zip", "TEXT","","",50)
 arcpy.AddField_management(joinFN, "county", "TEXT","","",50)
 arcpy.AddField_management(joinFN, "x", "FLOAT")
 arcpy.AddField_management(joinFN, "y", "FLOAT")
@@ -391,7 +391,7 @@ arcpy.AddField_management(joinFN, "raw_id", "LONG")
 arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
 arcpy.AddField_management(joinFN, "scen0", "SHORT")
 arcpy.AddField_management(joinFN, "scen1", "SHORT") ### added this line, seems like we have two scenarios
-arcpy.AddField_management(joinFN, "zip", "LONG")
+arcpy.AddField_management(joinFN, "zip", "TEXT","","",50)
 arcpy.AddField_management(joinFN, "x", "FLOAT")
 arcpy.AddField_management(joinFN, "y", "FLOAT")
 arcpy.AddField_management(joinFN, "geom_id", "TEXT","","",50)
@@ -469,7 +469,7 @@ arcpy.AddField_management(joinFN, "development_projects_id", "SHORT")
 arcpy.AddField_management(joinFN, "raw_id", "LONG")
 arcpy.AddField_management(joinFN, "scen0", "SHORT")
 #arcpy.AddField_management(joinFN, "scen1", "SHORT") ### added this line, seems like we have two scenarios
-arcpy.AddField_management(joinFN, "zip", "LONG")
+arcpy.AddField_management(joinFN, "zip", "TEXT","","",50)
 arcpy.AddField_management(joinFN, "x", "FLOAT")
 arcpy.AddField_management(joinFN, "y", "FLOAT")
 arcpy.AddField_management(joinFN, "geom_id", "TEXT","","",50)
