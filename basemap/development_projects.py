@@ -148,7 +148,13 @@ for fc in cs:
 	arcpy.CalculateField_management(joinFN, "tenure", "'Rent'")
 	arcpy.CalculateField_management(joinFN, "rent_type", '!cs_rent_type!') # need to clean
 	arcpy.CalculateField_management(joinFN, "stories", '!Number_Of_Stories!')
-	arcpy.CalculateField_management(joinFN, "parking_spaces", '!Number_Of_Parking_Spaces!')
+	#there is a worng parking space value is one of the tables
+	with arcpy.da.UpdateCursor(joinFN, ["Number_Of_Parking_Spaces","parking_spaces"]) as cursor:
+    		for row in cursor:
+    			if len(str((row[0]))) <= 5: ##short integer has value less than 32700
+    				row[1] = row[0]
+    				cursor.updateRow(row)
+	#arcpy.CalculateField_management(joinFN, "parking_spaces", '!Number_Of_Parking_Spaces!')
 	arcpy.CalculateField_management(joinFN, "average_weighted_rent", '!cs_average_weighted_rent!')
 	#arcpy.CalculateField_management(joinFN, "rent_ave_sqft", )
 	#arcpy.CalculateField_management(joinFN, "rent_ave_unit", )
@@ -515,22 +521,21 @@ DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "bui
 fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 arcpy.DeleteField_management(joinFN, fields2Delete)
 
-l.append(joinFN)
-
-arcpy.Merge_management(l, 'merged_file')
-
-# delete temporary join files
-# arcpy.Delete_management(rfsfr1619p10JOIN)
-
 
 # 4 MERGE ALL INCL=1 POINTS INTO A SINGLE SHP FILE CALLED PIPELINE
-
-
-
+#all non opp sites should be in the list l
+arcpy.Merge_management(l, 'pipeline')
 
 # 5 MERGE OPPSITES SHP WITH PIPELINE TO GET DEVELOPMENT PROJECTS
 # NOTE THAT OPPSITES HAS SCEN SET IN GIS FILE
 
+arcpy.Merge_management([pipeline,'ttt_opp_p10'], 'development_project')
+
+# delete temporary join files
+# arcpy.Delete_management(rfsfr1619p10JOIN)
+for fc in development_project:
+  if arcpy.Exists(fc):
+    arcpy.Delete_management(fc)
 
 # 6 DIAGNOSTICS
 
