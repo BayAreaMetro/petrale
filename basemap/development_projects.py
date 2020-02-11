@@ -3,8 +3,8 @@
 import arcpy
 
 # set enviro
-#arcpy.env.workspace = "E:/baydata/smelt.gdb"
-arcpy.env.workspace = "D:/Users/blu/Box/baydata/smelt/2020 01 16/smelt.gdb"
+arcpy.env.workspace = "E:/baydata/smelt.gdb"
+#arcpy.env.workspace = "D:/Users/blu/Box/baydata/smelt/2020 01 16/smelt.gdb"
 
 # This script brings together many different datasets that each offer some info
 # on development in the region from 2011 on. Overall approach is to:
