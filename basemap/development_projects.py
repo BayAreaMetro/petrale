@@ -529,11 +529,11 @@ arcpy.Merge_management(l, 'pipeline')
 # 5 MERGE OPPSITES SHP WITH PIPELINE TO GET DEVELOPMENT PROJECTS
 # NOTE THAT OPPSITES HAS SCEN SET IN GIS FILE
 
-arcpy.Merge_management(['pipeline','ttt_opp_p10'], 'development_project')
+arcpy.Merge_management(['pipeline','ttt_opp_p10'], 'development_projects')
 
 # delete temporary join files
 # arcpy.Delete_management(rfsfr1619p10JOIN)
-for fc in 'development_project':
+for fc in 'development_projects':
   if arcpy.Exists(fc):
     arcpy.Delete_management(fc)
 
