@@ -6,9 +6,9 @@ import arcpy
 # set enviro
 #arcpy.env.workspace = "E:/baydata/smelt.gdb"
 if os.getenv("USERNAME")=="lzorn":
-	arcpy.env.workspace = "M:/Data/GIS layers/UrbanSim smelt/2020 01 16/smelt.gdb"
+	arcpy.env.workspace = "M:/Data/GIS layers/UrbanSim smelt/2020 02 24/smelt.gdb"
 elif os.getenv("USERNAME")=="blu":
-	arcpy.env.workspace = "D:/Users/blu/Box/baydata/smelt/2020 01 16/smelt.gdb"
+	arcpy.env.workspace = "D:/Users/blu/Box/baydata/smelt/2020 02 24/smelt.gdb"
 else:
 	arcpy.env.workspace = "E:/baydata/smelt.gdb"
 
@@ -31,7 +31,7 @@ else:
 
 # SET VARS
 # input
-p10 = "p10" # 2010 parcels, polygon feature class
+p10_pba50 = "p10_pba50" # 2010 parcels, polygon feature class
 
 ### costar data
 cs1620 = "cs1620" # costar data  2016-2020, point feature class
@@ -49,7 +49,7 @@ rfother1115 = "rf19_othertypes1115" # redfin other data 2011-2015
 basis_pipeline = "basis_pipeline_20200113" 
 
 ### manually maintained pipeline data
-manual_dp = "manual_dp_20200113" 
+manual_dp = "manual_dp_20200131" 
 
 # opportunity sites that keep their scen status from gis file
 opp_sites = "oppsites_20200116" 
@@ -75,7 +75,7 @@ dev_projects_temp_layers = []
 ### create a list of feature class
 cs = [cs1115,cs1620]
 for fc in cs:
-	joinFN = 'ttt_' + arcpy.Describe(fc).name + '__p10'
+	joinFN = 'ttt_' + arcpy.Describe(fc).name + '__p10_pba50'
 	dev_projects_temp_layers.append(joinFN)
 
 	# check if it exists already with rows-- if it does, skip
@@ -89,8 +89,8 @@ for fc in cs:
 		pass
 
 	### 1 SPATIAL JOINS
-	print("Creating layer {} by spatial joining costar ({}) and parcels ({})".format(joinFN, fc, p10))
-	arcpy.SpatialJoin_analysis(fc, p10, joinFN)
+	print("Creating layer {} by spatial joining costar ({}) and parcels ({})".format(joinFN, fc, p10_pba50))
+	arcpy.SpatialJoin_analysis(fc, p10_pba50, joinFN)
 	### 2 VARIABLE CLEANING 
 	
 	# rename any conflicting field names
@@ -105,13 +105,13 @@ for fc in cs:
 	arcpy.AlterField_management(joinFN, "x", "p_x") # this is from the parcel centroid
 	arcpy.AlterField_management(joinFN, "y", "p_y") # this is from the parcel centroid
 	arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id") # this is from the parcel 
+
 	# add fields and calc values
 	# full list development_projects_id,raw_id,building_name,site_name,action,scen0,scen1,
 	# address,city,zip,county,x,y,geom_id,year_built,duration,building_type_id,building_type,building_sqft,non_residential_sqft,
 	# residential_units,unit_ave_sqft,tenure,rent_type,stories,parking_spaces,Average Weighted Rent,rent_ave_sqft,rent_ave_unit,
 	# last_sale_year,last_sale_price,source,edit_date,editor,version
 	# AddField(in_table, field_name, field_type, {field_precision}, {field_scale}, {field_length}, {field_alias}, {field_is_nullable}, {field_is_required}, {field_domain})
-
 	arcpy.AddField_management(joinFN, "development_projects_id", "SHORT")
 	arcpy.AddField_management(joinFN, "raw_id", "LONG")
 	arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
@@ -174,7 +174,7 @@ for fc in cs:
 	arcpy.CalculateField_management(joinFN, "tenure", "'Rent'")
 	arcpy.CalculateField_management(joinFN, "rent_type", '!cs_rent_type!') # need to clean
 	arcpy.CalculateField_management(joinFN, "stories", '!Number_Of_Stories!')
-	#there is a worng parking space value is one of the tables
+	#there is a worng parking space value is one of the tables, so adding this to work around
 	with arcpy.da.UpdateCursor(joinFN, ["Number_Of_Parking_Spaces","parking_spaces"]) as cursor:
     		for row in cursor:
     			if len(str((row[0]))) <= 5: ##short integer has value less than 32700
@@ -191,12 +191,18 @@ for fc in cs:
 	arcpy.CalculateField_management(joinFN, "editor", "'MKR'")
 	#arcpy.CalculateField_management(joinFN, "version", )
 
-	# 3 DELETE OTHER FIELDS AND TEMP FILES
+	#remove row where incl = 1
+	with arcpy.da.UpdateCursor(joinFN, "incl") as cursor:
+    for row in cursor:
+        if row[0] = 0:
+            cursor.deleteRow()
+
+	### 3 DELETE OTHER FIELDS AND TEMP FILES
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
 	#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
 	DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", "scen0",  "address",  "city",  "zip",  "county", "x", "y",
 	"geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
-	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "edit_date", "editor", "Shape",  "Shape_Length", "Shape_Area"]
+	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 	arcpy.DeleteField_management(joinFN, fields2Delete)
 	
@@ -204,7 +210,7 @@ for fc in cs:
 ### create a list of feature class
 rf = [rfsfr1619, rfmu1619, rfsfr1115, rfcondo1115, rfother1115]
 for fc in rf:
-	joinFN = 'ttt_' + arcpy.Describe(fc).name + '__p10'
+	joinFN = 'ttt_' + arcpy.Describe(fc).name + '__p10_pba50'
 	dev_projects_temp_layers.append(joinFN)
 
 	# check if it exists already with rows-- if it does, skip
@@ -218,8 +224,8 @@ for fc in rf:
 		pass
 
 	### 1 SPATIAL JOINS
-	print("Creating layer {} by spatial joining redfin ({}) and parcels ({})".format(joinFN, fc, p10))
-	arcpy.SpatialJoin_analysis(fc, p10, joinFN)
+	print("Creating layer {} by spatial joining redfin ({}) and parcels ({})".format(joinFN, fc, p10_pba50))
+	arcpy.SpatialJoin_analysis(fc, p10_pba50, joinFN)
 	### 2 VARIABLE CLEANING 
 	
 	# rename any conflicting field names
@@ -230,13 +236,13 @@ for fc in rf:
 	arcpy.AlterField_management(joinFN, "x", "p_x") # this is from the parcel centroid
 	arcpy.AlterField_management(joinFN, "y", "p_y") # this is from the parcel centroid
 	arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id") # this is from the parcel 
+
 	# add fields and calc values
 	# full list development_projects_id,raw_id,building_name,site_name,action,scen0,scen1,
 	# address,city,zip,county,x,y,geom_id,year_built,duration,building_type_id,building_type,building_sqft,non_residential_sqft,
 	# residential_units,unit_ave_sqft,tenure,rent_type,stories,parking_spaces,Average Weighted Rent,rent_ave_sqft,rent_ave_unit,
 	# last_sale_year,last_sale_price,source,edit_date,editor,version
 	# AddField(in_table, field_name, field_type, {field_precision}, {field_scale}, {field_length}, {field_alias}, {field_is_nullable}, {field_is_required}, {field_domain})
-
 	arcpy.AddField_management(joinFN, "development_projects_id", "SHORT")
 	arcpy.AddField_management(joinFN, "raw_id", "LONG")
 	arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
@@ -301,8 +307,13 @@ for fc in rf:
 	arcpy.CalculateField_management(joinFN, "edit_date", "'Jan 2020'")
 	arcpy.CalculateField_management(joinFN, "editor", "'MKR'")
 	
+	#remove row where incl = 1
+	with arcpy.da.UpdateCursor(joinFN, "incl") as cursor:
+		for row in cursor:
+			if row[0] = 0:
+            	cursor.deleteRow()
 
-	# 3 DELETE OTHER FIELDS AND TEMP FILES
+	### 3 DELETE OTHER FIELDS AND TEMP FILES
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
 	#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
 	DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", "scen0",  "address",  "city",  "zip",  "county", "x", "y",
@@ -313,7 +324,7 @@ for fc in rf:
 
 
 ### for BASIS pipeline data
-joinFN = 'ttt_basispp_p10'
+joinFN = 'ttt_basispp_p10_pba50'
 dev_projects_temp_layers.append(joinFN)
 
 # check if it exists already with rows-- if it does, skip
@@ -325,8 +336,8 @@ except:
 	# go ahead and create it
 
 	### 1 SPATIAL JOINS
-	print("Creating layer {} by spatial joining BASIS pipeline data ({}) and parcels ({})".format(joinFN, basis_pipeline, p10))
-	arcpy.SpatialJoin_analysis(basis_pipeline, p10, joinFN)
+	print("Creating layer {} by spatial joining BASIS pipeline data ({}) and parcels ({})".format(joinFN, basis_pipeline, p10_pba50))
+	arcpy.SpatialJoin_analysis(basis_pipeline, p10_pba50, joinFN)
 	### 2 VARIABLE CLEANING 
 	
 	# rename any conflicting field names
@@ -338,20 +349,19 @@ except:
 	arcpy.AlterField_management(joinFN, "x", "p_x") # this is from the parcel centroid
 	arcpy.AlterField_management(joinFN, "y", "p_y") # this is from the parcel centroid
 	arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id") # this is from the parcel 
+	
 	# add fields and calc values
 	# full list development_projects_id,raw_id,building_name,site_name,action,scen0,scen1,
 	# address,city,zip,county,x,y,geom_id,year_built,duration,building_type_id,building_type,building_sqft,non_residential_sqft,
 	# residential_units,unit_ave_sqft,tenure,rent_type,stories,parking_spaces,Average Weighted Rent,rent_ave_sqft,rent_ave_unit,
 	# last_sale_year,last_sale_price,source,edit_date,editor,version
 	# AddField(in_table, field_name, field_type, {field_precision}, {field_scale}, {field_length}, {field_alias}, {field_is_nullable}, {field_is_required}, {field_domain})
-	
 	arcpy.AddField_management(joinFN, "development_projects_id", "SHORT")
 	arcpy.AddField_management(joinFN, "raw_id", "LONG")
 	arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
 	arcpy.AddField_management(joinFN, "site_name", "TEXT","","",50)
 	arcpy.AddField_management(joinFN, "action", "TEXT","","",10)
 	arcpy.AddField_management(joinFN, "scen0", "SHORT")
-	arcpy.AddField_management(joinFN, "scen1", "SHORT") ### added this line, seems like we have two scenarios
 	arcpy.AddField_management(joinFN, "address", "TEXT","","",200)
 	arcpy.AddField_management(joinFN, "city", "TEXT","","",50)
 	arcpy.AddField_management(joinFN, "zip", "TEXT","","",50)
@@ -403,17 +413,23 @@ except:
 	arcpy.CalculateField_management(joinFN, "edit_date", "'Jan 2020'")
 	#arcpy.CalculateField_management(joinFN, "version", )
 
-	# 3 DELETE OTHER FIELDS
+	#remove row where incl = 1
+	with arcpy.da.UpdateCursor(joinFN, "incl") as cursor:
+		for row in cursor:
+			if row[0] = 0:
+            	cursor.deleteRow()
+
+	### 3 DELETE OTHER FIELDS
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
 	#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
 	DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", "scen0",  "address",  "city",  "zip",  "county", "x", "y",
 	"geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
-	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "edit_date", "editor", "Shape",  "Shape_Length", "Shape_Area"]
+	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 	arcpy.DeleteField_management(joinFN, fields2Delete)
 
 #Manual
-joinFN = 'ttt_manual_p10'
+joinFN = 'ttt_manual_p10_pba50'
 dev_projects_temp_layers.append(joinFN)
 
 try:
@@ -423,8 +439,8 @@ try:
 except:
 	# go ahead and create it
 	### 1 SPATIAL JOINS
-	print("Creating layer {} by spatial joining manual pipeline data ({}) and parcels ({})".format(joinFN, manual_dp, p10))
-	arcpy.SpatialJoin_analysis(manual_dp, p10, joinFN)
+	print("Creating layer {} by spatial joining manual pipeline data ({}) and parcels ({})".format(joinFN, manual_dp, p10_pba50))
+	arcpy.SpatialJoin_analysis(manual_dp, p10_pba50, joinFN)
 	# rename any conflicting field names
 	
 	arcpy.AlterField_management(joinFN, "building_name", "m_building_name")
@@ -439,13 +455,13 @@ except:
 	arcpy.AlterField_management(joinFN, "x", "p_x") # this is from the parcel centroid
 	arcpy.AlterField_management(joinFN, "y", "p_y") # this is from the parcel centroid
 	arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id") # this is from the parcel 
+	
 	# add fields and calc values
 	# full list development_projects_id,raw_id,building_name,site_name,action,scen0,scen1,
 	# address,city,zip,county,x,y,geom_id,year_built,duration,building_type_id,building_type,building_sqft,non_residential_sqft,
 	# residential_units,unit_ave_sqft,tenure,rent_type,stories,parking_spaces,Average Weighted Rent,rent_ave_sqft,rent_ave_unit,
 	# last_sale_year,last_sale_price,source,edit_date,editor,version
 	# AddField(in_table, field_name, field_type, {field_precision}, {field_scale}, {field_length}, {field_alias}, {field_is_nullable}, {field_is_required}, {field_domain})
-	
 	arcpy.AddField_management(joinFN, "development_projects_id", "SHORT")
 	arcpy.AddField_management(joinFN, "raw_id", "LONG")
 	arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
@@ -469,6 +485,8 @@ except:
 	arcpy.AddField_management(joinFN, "edit_date", "DATE")
 	arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
 	arcpy.AddField_management(joinFN, "version", "SHORT")
+	if not arcpy.ListFields(joinFN, "incl"):
+		arcpy.AddField_management(joinFN, "incl", "SHORT")
 	
 	arcpy.CalculateField_management(joinFN, "raw_id", '!manual_dp_id!')
 	arcpy.CalculateField_management(joinFN, "building_name", '!m_building_name!')
@@ -493,16 +511,38 @@ except:
 	arcpy.CalculateField_management(joinFN, "editor", "'MKR'")
 	#arcpy.CalculateField_management(joinFN, "version", )
 	
+	#remove row where incl = 1
+	with arcpy.da.UpdateCursor(joinFN, "incl") as cursor:
+		for row in cursor:
+			if row[0] = 0:
+            	cursor.deleteRow()	
+	
+	### 3 DELETE OTHER FIELDS
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
 	#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
 	DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", "scen0",  "address",  "city",  "zip",  "county", "x", "y",
 	"geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
-	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "edit_date", "editor", "Shape",  "Shape_Length", "Shape_Area"]
+	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 	arcpy.DeleteField_management(joinFN, fields2Delete)
 
+### 4 MERGE ALL INCL=1 POINTS INTO A SINGLE SHP FILE CALLED PIPELINE
+### For now, every file in that temp layer list should only contain records where incl = 1 
+pipeline_fc = "pipeline"
+print("Merging feature classes {} into {}".format(dev_projects_temp_layers, pipeline_fc))
+# if this exists already, delete it
+if arcpy.Exists(pipeline_fc): arcpy.Delete_management(pipeline_fc)
+#merge
+arcpy.Merge_management(dev_projects_temp_layers, pipeline_fc)
+count = arcpy.GetCount_management(pipeline_fc)
+print("  Results in {} rows in {}".format(int(count[0]), pipeline_fc))
+
+#export csv to folder -- remember to change fold path when run on other machines
+arcpy.TableToTable_conversion(pipeline_fc, 'D:/Users/blu/Box/baydata/basemap', "pipeline.csv")
+
+### 5 MERGE OPPSITES SHP WITH PIPELINE TO GET DEVELOPMENT PROJECTS 
 #opportunity sites
-joinFN = 'ttt_opp_p10'
+joinFN = 'ttt_opp_p10_pba50'
 dev_projects_temp_layers.append(joinFN)
 
 try:
@@ -511,8 +551,8 @@ try:
 		print("Found layer {} with {} rows -- skipping creation".format(joinFN, int(count[0])))
 except:
 	# go ahead and create it
-	print("Creating layer {} by spatial joining opps sites data ({}) and parcels ({})".format(joinFN, opp_sites, p10))
-	arcpy.SpatialJoin_analysis(opp_sites, p10, joinFN)
+	print("Creating layer {} by spatial joining opps sites data ({}) and parcels ({})".format(joinFN, opp_sites, p10_pba50))
+	arcpy.SpatialJoin_analysis(opp_sites, p10_pba50, joinFN)
 	
 	arcpy.AlterField_management(joinFN, "year_built", "o_year_built")
 	arcpy.AlterField_management(joinFN, "last_sale_price", "o_last_sale_price")
@@ -553,9 +593,9 @@ except:
 	arcpy.AddField_management(joinFN, "edit_date", "DATE")
 	arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
 	arcpy.AddField_management(joinFN, "version", "SHORT")
-	arcpy.AddField_management(joinFN, "incl", "SHORT")
 	
-	arcpy.CalculateField_management(joinFN, "scen0", 0) # these are committed so 1 for all scens 
+	# NOTE THAT OPPSITES HAS SCEN SET IN GIS FILE
+	arcpy.CalculateField_management(joinFN, "scen0", 0) # committed projects are 1, opp sites are 0 for now.
 	#arcpy.CalculateField_management(joinFN, "zip", '!o_zip!')
 	arcpy.CalculateField_management(joinFN, "x", '!p_x!') 
 	arcpy.CalculateField_management(joinFN, "y", '!p_y!') 
@@ -571,19 +611,16 @@ except:
 	arcpy.CalculateField_management(joinFN, "source", "'opp'")
 	arcpy.CalculateField_management(joinFN, "edit_date", "'Jan 2020'")
 	arcpy.CalculateField_management(joinFN, "editor", "'MKR'")
-	arcpy.CalculateField_management(joinFN, "incl", 0)
 	
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
 	#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
 	DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", "scen0",  "address",  "city",  "zip",  "county", "x", "y",
 	"geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
-	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "edit_date", "editor", "Shape",  "Shape_Length", "Shape_Area"]
+	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 	arcpy.DeleteField_management(joinFN, fields2Delete)
 
-
-# 4 MERGE ALL INCL=1 POINTS INTO A SINGLE SHP FILE CALLED PIPELINE
-#all non opp sites should be in the list dev_projects_temp_layers
+#all non opp sites should be in the list dev_projects_temp_layers already
 devproj_fc = "development_project"
 print("Merging feature classes {} into {}".format(dev_projects_temp_layers, devproj_fc))
 # if this exists already, delete it
@@ -593,11 +630,7 @@ arcpy.Merge_management(dev_projects_temp_layers, devproj_fc)
 count = arcpy.GetCount_management(devproj_fc)
 print("  Results in {} rows in {}".format(int(count[0]), devproj_fc))
 
-# 5 MERGE OPPSITES SHP WITH PIPELINE TO GET DEVELOPMENT PROJECTS
-# NOTE THAT OPPSITES HAS SCEN SET IN GIS FILE
-
 # delete temporary join files
-# arcpy.Delete_management(rfsfr1619p10JOIN)
 for temp_fc in dev_projects_temp_layers:
   if arcpy.Exists(temp_fc):
     arcpy.Delete_management(temp_fc)
