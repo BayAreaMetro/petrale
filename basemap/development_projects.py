@@ -630,6 +630,10 @@ arcpy.Merge_management(dev_projects_temp_layers, devproj_fc)
 count = arcpy.GetCount_management(devproj_fc)
 print("  Results in {} rows in {}".format(int(count[0]), devproj_fc))
 
+#export csv to folder -- remember to change fold path when run on other machines
+arcpy.TableToTable_conversion(devproj_fc, 'D:/Users/blu/Box/baydata/basemap', "development_project.csv")
+
+
 # delete temporary join files
 for temp_fc in dev_projects_temp_layers:
   if arcpy.Exists(temp_fc):
