@@ -654,11 +654,9 @@ for temp_fc in dev_projects_temp_layers:
 
 
 
-# 8 BUILDINGS TO DEMOLISH
+# 8 BUILDINGS TO ADD INSTEAD OF BUILD
 
-# list of all geomids that build then subtract out manual list
-# auto calc demolish
-# export csv
+# change a short list of activity to add
 
 
 
