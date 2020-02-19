@@ -6,9 +6,9 @@ import arcpy
 # set enviro
 #arcpy.env.workspace = "E:/baydata/smelt.gdb"
 if os.getenv("USERNAME")=="lzorn":
-	arcpy.env.workspace = "M:/Data/GIS layers/UrbanSim smelt/2020 02 24/smelt.gdb"
+	arcpy.env.workspace = "M:/Data/GIS layers/UrbanSim smelt/2020 02 14/smelt.gdb"
 elif os.getenv("USERNAME")=="blu":
-	arcpy.env.workspace = "D:/Users/blu/Box/baydata/smelt/2020 02 24/smelt.gdb"
+	arcpy.env.workspace = "D:/Users/blu/Box/baydata/smelt/2020 02 14/smelt.gdb"
 else:
 	arcpy.env.workspace = "E:/baydata/smelt.gdb"
 
@@ -52,7 +52,7 @@ basis_pipeline = "basis_pipeline_20200113"
 manual_dp = "manual_dp_20200131" 
 
 # opportunity sites that keep their scen status from gis file
-opp_sites = "oppsites_20200116" 
+opp_sites = "oppsites_20200214" 
 
 print("workspace: ",arcpy.env.workspace)
 for dataset in arcpy.ListDatasets():
@@ -191,11 +191,11 @@ for fc in cs:
 	arcpy.CalculateField_management(joinFN, "editor", "'MKR'")
 	#arcpy.CalculateField_management(joinFN, "version", )
 
-	#remove row where incl = 1
+	#remove row where incl != 1
 	with arcpy.da.UpdateCursor(joinFN, "incl") as cursor:
-    for row in cursor:
-        if row[0] = 0:
-            cursor.deleteRow()
+		for row in cursor:
+			if row[0] != 1:
+				cursor.deleteRow()
 
 	### 3 DELETE OTHER FIELDS AND TEMP FILES
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
@@ -307,11 +307,11 @@ for fc in rf:
 	arcpy.CalculateField_management(joinFN, "edit_date", "'Jan 2020'")
 	arcpy.CalculateField_management(joinFN, "editor", "'MKR'")
 	
-	#remove row where incl = 1
+	#remove row where incl != 1
 	with arcpy.da.UpdateCursor(joinFN, "incl") as cursor:
 		for row in cursor:
-			if row[0] = 0:
-            	cursor.deleteRow()
+			if row[0] != 1:
+				cursor.deleteRow()
 
 	### 3 DELETE OTHER FIELDS AND TEMP FILES
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
@@ -413,11 +413,11 @@ except:
 	arcpy.CalculateField_management(joinFN, "edit_date", "'Jan 2020'")
 	#arcpy.CalculateField_management(joinFN, "version", )
 
-	#remove row where incl = 1
+	#remove row where incl != 1
 	with arcpy.da.UpdateCursor(joinFN, "incl") as cursor:
 		for row in cursor:
-			if row[0] = 0:
-            	cursor.deleteRow()
+			if row[0] != 1:
+				cursor.deleteRow()
 
 	### 3 DELETE OTHER FIELDS
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
@@ -511,11 +511,11 @@ except:
 	arcpy.CalculateField_management(joinFN, "editor", "'MKR'")
 	#arcpy.CalculateField_management(joinFN, "version", )
 	
-	#remove row where incl = 1
+	#remove row where incl != 1
 	with arcpy.da.UpdateCursor(joinFN, "incl") as cursor:
 		for row in cursor:
-			if row[0] = 0:
-            	cursor.deleteRow()	
+			if row[0] != 1:
+				cursor.deleteRow()	
 	
 	### 3 DELETE OTHER FIELDS
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
@@ -558,6 +558,7 @@ except:
 	arcpy.AlterField_management(joinFN, "last_sale_price", "o_last_sale_price")
 	arcpy.AlterField_management(joinFN, "last_sale_year", "o_sale_date")
 	arcpy.AlterField_management(joinFN, "stories", "o_stories")
+
 	arcpy.AlterField_management(joinFN, "scen0", "o_scen0")
 	arcpy.AlterField_management(joinFN, "duration", "o_duration")
 	arcpy.AlterField_management(joinFN, "parking_spaces", "o_parking_spaces")
@@ -571,7 +572,6 @@ except:
 	arcpy.AlterField_management(joinFN, "y", "p_y") # this is from the parcel centroid
 	arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id") 
 	
-	arcpy.AddField_management(joinFN, "development_projects_id", "SHORT")
 	arcpy.AddField_management(joinFN, "raw_id", "LONG")
 	arcpy.AddField_management(joinFN, "scen0", "SHORT")
 	#arcpy.AddField_management(joinFN, "scen1", "SHORT") ### added this line, seems like we have two scenarios
