@@ -2,15 +2,38 @@
 
 import os, sys
 import arcpy
+import logging
 
-# set enviro
-#arcpy.env.workspace = "E:/baydata/smelt.gdb"
+#log file setup
+if os.getenv("USERNAME")=="lzorn":
+	LOG_FILE = "M:/Data/GIS layers/UrbanSim smelt/2020 02 14/devproj.log"
+elif os.getenv("USERNAME")=="blu":
+	LOG_FILE = "D:/Users/blu/Box/baydata/smelt/2020 02 14/devproj.log"
+else:
+	LOG_FILE = "E:/baydata/devproj.log"
+# create logger
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+# console handler
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+ch.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p'))
+logger.addHandler(ch)
+# file handler
+fh = logging.FileHandler(LOG_FILE, mode='w')
+fh.setLevel(logging.DEBUG)
+fh.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p'))
+logger.addHandler(fh)
+
+
+# set working environment
 if os.getenv("USERNAME")=="lzorn":
 	arcpy.env.workspace = "M:/Data/GIS layers/UrbanSim smelt/2020 02 14/smelt.gdb"
 elif os.getenv("USERNAME")=="blu":
 	arcpy.env.workspace = "D:/Users/blu/Box/baydata/smelt/2020 02 14/smelt.gdb"
 else:
 	arcpy.env.workspace = "E:/baydata/smelt.gdb"
+
 
 # This script brings together many different datasets that each offer some info
 # on development in the region from 2011 on. Overall approach is to:
@@ -44,7 +67,6 @@ rfsfr1115 = "rf19_sfr1115" # redfin SFD data 2011-2015
 rfcondo1115 = "rf19_condounits1115" # redfin condo data 2011-2015
 rfother1115 = "rf19_othertypes1115" # redfin other data 2011-2015
 
-
 ### BASIS pipleline data
 basis_pipeline = "basis_pipeline_20200113" 
 
@@ -54,16 +76,26 @@ manual_dp = "manual_dp_20200131"
 # opportunity sites that keep their scen status from gis file
 opp_sites = "oppsites_20200214" 
 
-print("workspace: ",arcpy.env.workspace)
+logging.info("workspace: {}".format(arcpy.env.workspace))
 for dataset in arcpy.ListDatasets():
-	print("  dataset: ",dataset)
-	print("    feature classes: ", arcpy.ListFeatureClasses(feature_dataset=dataset))
+	logging.info("  dataset: {}".format(dataset))
+	logging.info("    feature classes: {} ".format(arcpy.ListFeatureClasses(feature_dataset=dataset)))
 
-print("  feature classes: ",arcpy.ListFeatureClasses())
-print("  tables: ",arcpy.ListTables())
+logging.info("  feature classes: {} ".format(arcpy.ListFeatureClasses()))
+logging.info("  tables: {} ".format(arcpy.ListTables()))
 
 #get an empty list to add feature class to so that they can be merged in the end all together
 dev_projects_temp_layers = []
+
+#set up a process to make sure all incl = 1 records are in the results (also need to make sure that the feature class has column "incl")
+def countRow (fc):
+	if  arcpy.ListFields(fc, "incl"):
+		arcpy.MakeTableView_management(fc,"fcInc1","incl = 1")
+		count = arcpy.GetCount_management("fcInc1")
+		result = int(count[0])
+		return result
+	else:
+		print("incl is not a variable in this file")
 
 # output
 # pipeline shp
@@ -75,6 +107,8 @@ dev_projects_temp_layers = []
 ### create a list of feature class
 cs = [cs1115,cs1620]
 for fc in cs:
+	countOne = countRow(fc)
+	logging.info("Feature Class {} has {} of records with incl = 1".format(fc, countOne))
 	joinFN = 'ttt_' + arcpy.Describe(fc).name + '__p10_pba50'
 	dev_projects_temp_layers.append(joinFN)
 
@@ -197,6 +231,16 @@ for fc in cs:
 			if row[0] != 1:
 				cursor.deleteRow()
 
+	#check all incl = 1 records are included 
+	countOne = countRow(fc)
+	logging.info("Feature Class {} has {} of records with incl = 1".format(fc, countOne))
+	countTwo = countRow(joinFN)
+	if countTwo == countOne:
+		logging.info('All records with incl = 1 in feature class {} is included in the temp file'.format(fc))
+	else:
+		logging.debug('Something is wrong in the code, please check')
+
+
 	### 3 DELETE OTHER FIELDS AND TEMP FILES
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
 	#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
@@ -208,7 +252,8 @@ for fc in cs:
 	
 ### for redfin data
 ### create a list of feature class
-rf = [rfsfr1619, rfmu1619, rfsfr1115, rfcondo1115, rfother1115]
+#rf = [rfsfr1619, rfmu1619, rfsfr1115, rfcondo1115, rfother1115]
+rf = [rfsfr1619,  rfsfr1115]
 for fc in rf:
 	joinFN = 'ttt_' + arcpy.Describe(fc).name + '__p10_pba50'
 	dev_projects_temp_layers.append(joinFN)
@@ -312,6 +357,14 @@ for fc in rf:
 		for row in cursor:
 			if row[0] != 1:
 				cursor.deleteRow()
+
+	countOne = countRow(fc)
+	logging.info("Feature Class {} has {} of records with incl = 1".format(fc, countOne))
+	countTwo = countRow(joinFN)
+	if countTwo == countOne:
+		logging.info('All records with incl = 1 in feature class {} is included in the temp file'.format(fc))
+	else:
+		logging.debug('Something is wrong in the code, please check')
 
 	### 3 DELETE OTHER FIELDS AND TEMP FILES
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
@@ -419,6 +472,15 @@ except:
 			if row[0] != 1:
 				cursor.deleteRow()
 
+	#check all incl = 1 records are included 
+	countOne = countRow(basis_pipeline)
+	logging.info("Feature Class {} has {} of records with incl = 1".format(basis_pipeline, countOne))
+	countTwo = countRow(joinFN)
+	if countTwo == countOne:
+		logging.info('All records with incl = 1 in feature class {} is included in the temp file'.format(basis_pipeline))
+	else:
+		logging.debug('Something is wrong in the code, please check')
+
 	### 3 DELETE OTHER FIELDS
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
 	#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
@@ -516,6 +578,15 @@ except:
 		for row in cursor:
 			if row[0] != 1:
 				cursor.deleteRow()	
+
+	#check to make sure that the number of remaining records in the temp file (which should still have var incl) is the same as the raw file
+	countOne = countRow(manual_dp)
+	logging.info("Feature Class {} has {} of records with incl = 1".format(manual_dp, countOne))
+	countTwo = countRow(joinFN)
+	if countTwo == countOne:
+		logging.info('All records with incl = 1 in feature class {} is included in the temp file'.format(manual_dp))
+	else:
+		logging.debug('Something is wrong in the code, please check')
 	
 	### 3 DELETE OTHER FIELDS
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
@@ -525,6 +596,12 @@ except:
 	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 	arcpy.DeleteField_management(joinFN, fields2Delete)
+
+	countTwo = countRow(joinFN)
+	if countTwo = countOne:
+		logging.info('All records with incl = 1 in feature class {} is included in the temp file'.format(manual_dp_20200131))
+	else:
+		logging.debug('Something is wrong in the code, please check')
 
 ### 4 MERGE ALL INCL=1 POINTS INTO A SINGLE SHP FILE CALLED PIPELINE
 ### For now, every file in that temp layer list should only contain records where incl = 1 
