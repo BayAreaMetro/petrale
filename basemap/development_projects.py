@@ -701,9 +701,17 @@ arcpy.Merge_management(dev_projects_temp_layers, devproj_fc)
 count = arcpy.GetCount_management(devproj_fc)
 logging.info("  Results in {} rows in {}".format(int(count[0]), devproj_fc))
 
+#assign unique incremental development_id
+i = 1
+with arcpy.da.UpdateCursor(devproj_fc, "development_projects_id") as cursor:
+		for row in cursor:
+			if i <= int(count[0]) :
+				row[0] = i
+				i  = i + 1
+				cursor.updateRow(row)
+
 #export csv to folder -- remember to change fold path when run on other machines
 arcpy.TableToTable_conversion(devproj_fc, 'D:/Users/blu/Desktop', "development_project.csv")
-
 
 # delete temporary join files
 for temp_fc in dev_projects_temp_layers:
@@ -711,17 +719,50 @@ for temp_fc in dev_projects_temp_layers:
     arcpy.Delete_management(temp_fc)
     logging.info("Deleting temporary layer {}".format(temp_fc))
 
+#adding the two map files into a new gdb
+#first create that new gdb -- right now save and locally and upload manually
+out_folder_path = "D:/Users/blu/Documents/ArcGIS"
+out_name = "devproj.gdb"
+arcpy.CreateFileGDB_management(out_folder_path, out_name)
+
+#second, move file to the new gdb
+fcs = [pipeline_fc, devproj_fc]
+for fc in fcs:
+	arcpy.FeatureClassToFeatureClass_conversion(fc, out_folder_path + "/" + out_name, arcpy.Describe(fc).name)
+
 # 6 DIAGNOSTICS
-####not tested
 
 #number of units total by year
-#arcpy.Statistics_analysis(devproj_fc, "res_stats", [["residential_units", "SUM"]], "year_built")
+arcpy.Statistics_analysis(devproj_fc, 'res_stats_y', [["residential_units", "SUM"]], "year_built")
+#then calculate the total 
+arcpy.Statistics_analysis(devproj_fc, 'res_stats_a', [["residential_units", "SUM"]])
+#get the total result and write into log
+cursor = arcpy.SearchCursor('res_stats_a','','', 'SUM_residential_units')
+row = cursor.next()
+sum_value = row.getValue('SUM_residential_units')
+logging.info("Total number of residential units in the development project file is {} units".format(int(sum_value)))
 
 #number of nonres sqft by year
-#arcpy.Statistics_analysis(devproj_fc, "nonres_stats", [["non_residential_sqft", "SUM"]], "year_built")
+arcpy.Statistics_analysis(devproj_fc, 'nonres_stats_y', [["non_residential_sqft", "SUM"]], "year_built")
+#then calculate the total 
+arcpy.Statistics_analysis(devproj_fc, 'nonres_stats_a', [["non_residential_sqft", "SUM"]])
+#get the total result and write into log
+cursor = arcpy.SearchCursor('nonres_stats_a','','', 'SUM_non_residential_sqfts')
+row = cursor.next()
+sum_value = row.getValue('SUM_non_residential_sqft')
+logging.info("Total number of non residential square footage in the development project file is {} square feet".format(int(sum_value)))
 
 #count parcels with more than one points on them
-#arcpy.Statistics_analysis(devproj_fc, "parcel_pnts", [["development_projects_id", "COUNT"]], "geom_id")
+arcpy.Statistics_analysis(devproj_fc, "parcel_pnts", [["development_projects_id", "COUNT"]], "geom_id")
+parcel_points = 'parcel_pnts'
+#there are projects with geom_id null, so in order to count, delete those first
+with arcpy.da.UpdateCursor(parcel_points, "geom_id") as cursor:
+	for row in cursor:
+		if row[0] is None:
+			cursor.deleteRow()	
+arcpy.MakeTableView_management(parcel_points,"parcelCount","COUNT_development_projects_id > 1")
+countParcel = arcpy.GetCount_management("parcelCount")
+logging.info("There are {} of parcels with multiple project points (more than 1) on them".format(countParcel))
 #countparcel = arcpy.GetCount_management("parcel_pnts")
 
 
