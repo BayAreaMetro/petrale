@@ -747,7 +747,7 @@ arcpy.Statistics_analysis(devproj_fc, 'nonres_stats_y', [["non_residential_sqft"
 #then calculate the total 
 arcpy.Statistics_analysis(devproj_fc, 'nonres_stats_a', [["non_residential_sqft", "SUM"]])
 #get the total result and write into log
-cursor = arcpy.SearchCursor('nonres_stats_a','','', 'SUM_non_residential_sqfts')
+cursor = arcpy.SearchCursor('nonres_stats_a','','', 'SUM_non_residential_sqft')
 row = cursor.next()
 sum_value = row.getValue('SUM_non_residential_sqft')
 logging.info("Total number of non residential square footage in the development project file is {} square feet".format(int(sum_value)))
@@ -805,7 +805,7 @@ if  "8016918253805" not in pList_pipeline:
 	pList_pipeline.append('8016918253805')
 if "9551692992638" not in pList_pipeline:
 	pList_pipeline.append('9551692992638')
-with arcpy.da.UpdateCursor(pipeline, ["geom_id","action"]) as cursor:
+with arcpy.da.UpdateCursor(pipeline_fc, ["geom_id","action"]) as cursor:
     		for row in cursor:
     			if row[0] in pList_pipeline: 
     				row[1] = 'add'
