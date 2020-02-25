@@ -242,7 +242,7 @@ for fc in cs:
 	### 3 DELETE OTHER FIELDS AND TEMP FILES
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
 	#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
-	DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", "scen0",  "address",  "city",  "zip",  "county", "x", "y",
+	DontDeleteFields = ["OBJECTID","Shape","PARCEL_ID", "ZONE_ID","development_projects_id", "raw_id", "building_name", "site_name",  "action", "scen0",  "address",  "city",  "zip",  "county", "x", "y",
 	"geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
 	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
@@ -369,7 +369,7 @@ for fc in rf:
 	### 3 DELETE OTHER FIELDS AND TEMP FILES
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
 	#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
-	DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", "scen0",  "address",  "city",  "zip",  "county", "x", "y",
+	DontDeleteFields = ["OBJECTID","Shape","PARCEL_ID", "ZONE_ID","development_projects_id", "raw_id", "building_name", "site_name",  "action", "scen0",  "address",  "city",  "zip",  "county", "x", "y",
 	"geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
 	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
@@ -484,7 +484,7 @@ except:
 	### 3 DELETE OTHER FIELDS
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
 	#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
-	DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", "scen0",  "address",  "city",  "zip",  "county", "x", "y",
+	DontDeleteFields = ["OBJECTID","Shape","PARCEL_ID", "ZONE_ID","development_projects_id", "raw_id", "building_name", "site_name",  "action", "scen0",  "address",  "city",  "zip",  "county", "x", "y",
 	"geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
 	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
@@ -591,7 +591,7 @@ except:
 	### 3 DELETE OTHER FIELDS
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
 	#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
-	DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", "scen0",  "address",  "city",  "zip",  "county", "x", "y",
+	DontDeleteFields = ["OBJECTID","Shape","PARCEL_ID", "ZONE_ID","development_projects_id", "raw_id", "building_name", "site_name",  "action", "scen0",  "address",  "city",  "zip",  "county", "x", "y",
 	"geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
 	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
@@ -685,7 +685,7 @@ except:
 	
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
 	#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
-	DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", "scen0",  "address",  "city",  "zip",  "county", "x", "y",
+	DontDeleteFields = ["OBJECTID","Shape","PARCEL_ID", "ZONE_ID","development_projects_id", "raw_id", "building_name", "site_name",  "action", "scen0",  "address",  "city",  "zip",  "county", "x", "y",
 	"geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
 	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
@@ -752,18 +752,41 @@ row = cursor.next()
 sum_value = row.getValue('SUM_non_residential_sqft')
 logging.info("Total number of non residential square footage in the development project file is {} square feet".format(int(sum_value)))
 
-#count parcels with more than one points on them
-arcpy.Statistics_analysis(devproj_fc, "parcel_pnts", [["development_projects_id", "COUNT"]], "geom_id")
-parcel_points = 'parcel_pnts'
+#count parcels with more than one points on them - pipeline
+#first, there is no development projects id for them, so set value for that
+count = arcpy.GetCount_management(pipeline_fc)
+i = 1
+with arcpy.da.UpdateCursor(pipeline_fc, "development_projects_id") as cursor:
+		for row in cursor:
+			if i <= int(count[0]) :
+				row[0] = i
+				i  = i + 1
+				cursor.updateRow(row)
+
+arcpy.Statistics_analysis(pipeline_fc, "p_pipeline", [["development_projects_id", "COUNT"]], "geom_id")
+p_pipeline = 'p_pipeline'
 #there are projects with geom_id null, so in order to count, delete those first
-with arcpy.da.UpdateCursor(parcel_points, "geom_id") as cursor:
+with arcpy.da.UpdateCursor(p_pipeline, "geom_id") as cursor:
 	for row in cursor:
 		if row[0] is None:
 			cursor.deleteRow()	
-arcpy.MakeTableView_management(parcel_points,"parcelCount","COUNT_development_projects_id > 1")
-countParcel = arcpy.GetCount_management("parcelCount")
-logging.info("There are {} of parcels with multiple project points (more than 1) on them".format(countParcel))
-#countparcel = arcpy.GetCount_management("parcel_pnts")
+arcpy.MakeTableView_management(p_pipeline,"ppCount","COUNT_development_projects_id > 1")
+ppCount = 'ppCount'
+countParcelP = arcpy.GetCount_management(ppCount)
+logging.info("There are {} of parcels with multiple project points (more than 1) on them in the pipeline file".format(countParcelP))
+
+#count parcels with more than one points on them - development projects
+arcpy.Statistics_analysis(devproj_fc, "p_dev", [["development_projects_id", "COUNT"]], "geom_id")
+p_dev = 'p_dev'
+#there are projects with geom_id null, so in order to count, delete those first
+with arcpy.da.UpdateCursor(p_dev, "geom_id") as cursor:
+	for row in cursor:
+		if row[0] is None:
+			cursor.deleteRow()	
+arcpy.MakeTableView_management(p_dev,"pdCount","COUNT_development_projects_id > 1")
+pdCount = 'pdCount'
+countParcelD = arcpy.GetCount_management(pdCount)
+logging.info("There are {} of parcels with multiple project points (more than 1) on them".format(countParcelD))
 
 
 # 7 REMOVE DUPLICATES
@@ -774,15 +797,37 @@ logging.info("There are {} of parcels with multiple project points (more than 1)
 # manual_dp is best, then cs, then BASIS, then redfin SFD, then all other redfin, then oppsites 
 
 
-
 # 8 BUILDINGS TO ADD INSTEAD OF BUILD
-
 # change a short list of activity to add
+# first doing it for the pipeline file
+pList_pipeline= [row[0] for row in arcpy.da.SearchCursor(ppCount, 'geom_id')]
+if  "8016918253805" not in pList_pipeline:
+	pList_pipeline.append('8016918253805')
+if "9551692992638" not in pList_pipeline:
+	pList_pipeline.append('9551692992638')
+with arcpy.da.UpdateCursor(pipeline, ["geom_id","action"]) as cursor:
+    		for row in cursor:
+    			if row[0] in pList_pipeline: 
+    				row[1] = 'add'
+    				cursor.updateRow(row)
+# second doing it for the development project file
+pList_dev= [row[0] for row in arcpy.da.SearchCursor(pdCount, 'geom_id')]
+if  "8016918253805" not in pList_pipeline:
+	pList_dev.append('8016918253805')
+if "9551692992638" not in pList_pipeline:
+	pList_dev.append('9551692992638')
+with arcpy.da.UpdateCursor(devproj_fc, ["geom_id","action"]) as cursor:
+    		for row in cursor:
+    			if row[0] in pList_dev: 
+    				row[1] = 'add'
+    				cursor.updateRow(row)
 
+arcpy.TableToTable_conversion(pipeline_fc, 'D:/Users/blu/Desktop', "pipeline_wActionAdd.csv")
+arcpy.TableToTable_conversion(devproj_fc, 'D:/Users/blu/Desktop', "development_project_wActionAdd.csv")
+fcs = [pipeline_fc, devproj_fc]
+for fc in fcs:
+	arcpy.FeatureClassToFeatureClass_conversion(fc, out_folder_path + "/" + out_name, arcpy.Describe(fc).name + 'wActionAdd')
 
-
-
-#arcpy.CalculateField_management(ALL, "development_projects_id", ) #create
 
 
 # 9 EXPORT CSV W BUILDINGS TO BUILD AND DEMOLISH
