@@ -6,9 +6,9 @@ import logging
 
 #log file setup
 if os.getenv("USERNAME")=="lzorn":
-	LOG_FILE = "M:/Data/GIS layers/UrbanSim smelt/2020 02 14/devproj.log"
+	LOG_FILE = "M:/Data/GIS layers/UrbanSim smelt/2020 02 24/devproj.log"
 elif os.getenv("USERNAME")=="blu":
-	LOG_FILE = "D:/Users/blu/Box/baydata/smelt/2020 02 14/devproj.log"
+	LOG_FILE = "D:/Users/blu/Desktop/devproj.log"
 else:
 	LOG_FILE = "E:/baydata/devproj.log"
 # create logger
@@ -28,9 +28,9 @@ logger.addHandler(fh)
 
 # set working environment
 if os.getenv("USERNAME")=="lzorn":
-	arcpy.env.workspace = "M:/Data/GIS layers/UrbanSim smelt/2020 02 14/smelt.gdb"
+	arcpy.env.workspace = "M:/Data/GIS layers/UrbanSim smelt/2020 02 24/smelt.gdb"
 elif os.getenv("USERNAME")=="blu":
-	arcpy.env.workspace = "D:/Users/blu/Box/baydata/smelt/2020 02 14/smelt.gdb"
+	arcpy.env.workspace = "D:/Users/blu/Box/baydata/smelt/2020 02 24/smelt.gdb"
 else:
 	arcpy.env.workspace = "E:/baydata/smelt.gdb"
 
@@ -123,7 +123,7 @@ for fc in cs:
 		pass
 
 	### 1 SPATIAL JOINS
-	print("Creating layer {} by spatial joining costar ({}) and parcels ({})".format(joinFN, fc, p10_pba50))
+	logging.info("Creating layer {} by spatial joining costar ({}) and parcels ({})".format(joinFN, fc, p10_pba50))
 	arcpy.SpatialJoin_analysis(fc, p10_pba50, joinFN)
 	### 2 VARIABLE CLEANING 
 	
@@ -232,8 +232,6 @@ for fc in cs:
 				cursor.deleteRow()
 
 	#check all incl = 1 records are included 
-	countOne = countRow(fc)
-	logging.info("Feature Class {} has {} of records with incl = 1".format(fc, countOne))
 	countTwo = countRow(joinFN)
 	if countTwo == countOne:
 		logging.info('All records with incl = 1 in feature class {} is included in the temp file'.format(fc))
@@ -252,9 +250,10 @@ for fc in cs:
 	
 ### for redfin data
 ### create a list of feature class
-#rf = [rfsfr1619, rfmu1619, rfsfr1115, rfcondo1115, rfother1115]
-rf = [rfsfr1619,  rfsfr1115]
+rf = [rfsfr1619, rfmu1619, rfsfr1115, rfcondo1115, rfother1115]
 for fc in rf:
+	countOne = countRow(fc)
+	logging.info("Feature Class {} has {} of records with incl = 1".format(fc, countOne))
 	joinFN = 'ttt_' + arcpy.Describe(fc).name + '__p10_pba50'
 	dev_projects_temp_layers.append(joinFN)
 
@@ -269,7 +268,7 @@ for fc in rf:
 		pass
 
 	### 1 SPATIAL JOINS
-	print("Creating layer {} by spatial joining redfin ({}) and parcels ({})".format(joinFN, fc, p10_pba50))
+	logging.info("Creating layer {} by spatial joining redfin ({}) and parcels ({})".format(joinFN, fc, p10_pba50))
 	arcpy.SpatialJoin_analysis(fc, p10_pba50, joinFN)
 	### 2 VARIABLE CLEANING 
 	
@@ -336,7 +335,10 @@ for fc in rf:
 	arcpy.CalculateField_management(joinFN, "y", '!p_y!') 
 	arcpy.CalculateField_management(joinFN, "geom_id", '!p_geom_id!')
 	arcpy.CalculateField_management(joinFN, "year_built", '!rf_year_built!')
-	#arcpy.CalculateField_management(joinFN, "building_type", '!det_bldg_type!') #building type is not defined for redfin data
+	if 'sfr' in arcpy.Describe(fc).name:
+		arcpy.CalculateField_management(joinFN, "building_type", "'HS'")
+	else:
+		arcpy.CalculateField_management(joinFN, "building_type", "'HM'")
 	arcpy.CalculateField_management(joinFN, "building_sqft", '!SQFT!') # how often null for res
 	arcpy.CalculateField_management(joinFN, "non_residential_sqft", 0) # seems redfin data are all residential
 	arcpy.CalculateField_management(joinFN, "residential_units", '!UNITS!')
@@ -358,8 +360,6 @@ for fc in rf:
 			if row[0] != 1:
 				cursor.deleteRow()
 
-	countOne = countRow(fc)
-	logging.info("Feature Class {} has {} of records with incl = 1".format(fc, countOne))
 	countTwo = countRow(joinFN)
 	if countTwo == countOne:
 		logging.info('All records with incl = 1 in feature class {} is included in the temp file'.format(fc))
@@ -377,6 +377,8 @@ for fc in rf:
 
 
 ### for BASIS pipeline data
+countOne = countRow(basis_pipeline)
+logging.info("Feature Class {} has {} of records with incl = 1".format(basis_pipeline, countOne))
 joinFN = 'ttt_basispp_p10_pba50'
 dev_projects_temp_layers.append(joinFN)
 
@@ -389,7 +391,7 @@ except:
 	# go ahead and create it
 
 	### 1 SPATIAL JOINS
-	print("Creating layer {} by spatial joining BASIS pipeline data ({}) and parcels ({})".format(joinFN, basis_pipeline, p10_pba50))
+	logging.info("Creating layer {} by spatial joining BASIS pipeline data ({}) and parcels ({})".format(joinFN, basis_pipeline, p10_pba50))
 	arcpy.SpatialJoin_analysis(basis_pipeline, p10_pba50, joinFN)
 	### 2 VARIABLE CLEANING 
 	
@@ -456,7 +458,7 @@ except:
 	arcpy.CalculateField_management(joinFN, "y", '!p_y!') 
 	arcpy.CalculateField_management(joinFN, "geom_id", '!p_geom_id!')
 	arcpy.CalculateField_management(joinFN, "year_built", '!b_year_built!')
-	##arcpy.CalculateField_management(joinFN, "building_type", '!building_t!') ##this need to translate to two-letter type code
+	arcpy.CalculateField_management(joinFN, "building_type", '!building_type_det!')
 	arcpy.CalculateField_management(joinFN, "building_sqft", '!building_s!') # how often null for res
 	arcpy.CalculateField_management(joinFN, "non_residential_sqft", '!non_reside!') # need to zero out for res
 	arcpy.CalculateField_management(joinFN, "residential_units", '!residentia!')
@@ -473,8 +475,6 @@ except:
 				cursor.deleteRow()
 
 	#check all incl = 1 records are included 
-	countOne = countRow(basis_pipeline)
-	logging.info("Feature Class {} has {} of records with incl = 1".format(basis_pipeline, countOne))
 	countTwo = countRow(joinFN)
 	if countTwo == countOne:
 		logging.info('All records with incl = 1 in feature class {} is included in the temp file'.format(basis_pipeline))
@@ -491,6 +491,8 @@ except:
 	arcpy.DeleteField_management(joinFN, fields2Delete)
 
 #Manual
+countOne = countRow(manual_dp)
+logging.info("Feature Class {} has {} of records with incl = 1".format(manual_dp, countOne))
 joinFN = 'ttt_manual_p10_pba50'
 dev_projects_temp_layers.append(joinFN)
 
@@ -501,7 +503,7 @@ try:
 except:
 	# go ahead and create it
 	### 1 SPATIAL JOINS
-	print("Creating layer {} by spatial joining manual pipeline data ({}) and parcels ({})".format(joinFN, manual_dp, p10_pba50))
+	logging.info("Creating layer {} by spatial joining manual pipeline data ({}) and parcels ({})".format(joinFN, manual_dp, p10_pba50))
 	arcpy.SpatialJoin_analysis(manual_dp, p10_pba50, joinFN)
 	# rename any conflicting field names
 	
@@ -580,8 +582,6 @@ except:
 				cursor.deleteRow()	
 
 	#check to make sure that the number of remaining records in the temp file (which should still have var incl) is the same as the raw file
-	countOne = countRow(manual_dp)
-	logging.info("Feature Class {} has {} of records with incl = 1".format(manual_dp, countOne))
 	countTwo = countRow(joinFN)
 	if countTwo == countOne:
 		logging.info('All records with incl = 1 in feature class {} is included in the temp file'.format(manual_dp))
@@ -597,25 +597,19 @@ except:
 	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 	arcpy.DeleteField_management(joinFN, fields2Delete)
 
-	countTwo = countRow(joinFN)
-	if countTwo = countOne:
-		logging.info('All records with incl = 1 in feature class {} is included in the temp file'.format(manual_dp_20200131))
-	else:
-		logging.debug('Something is wrong in the code, please check')
-
 ### 4 MERGE ALL INCL=1 POINTS INTO A SINGLE SHP FILE CALLED PIPELINE
 ### For now, every file in that temp layer list should only contain records where incl = 1 
 pipeline_fc = "pipeline"
-print("Merging feature classes {} into {}".format(dev_projects_temp_layers, pipeline_fc))
+logging.info("Merging feature classes {} into {}".format(dev_projects_temp_layers, pipeline_fc))
 # if this exists already, delete it
 if arcpy.Exists(pipeline_fc): arcpy.Delete_management(pipeline_fc)
 #merge
 arcpy.Merge_management(dev_projects_temp_layers, pipeline_fc)
 count = arcpy.GetCount_management(pipeline_fc)
-print("  Results in {} rows in {}".format(int(count[0]), pipeline_fc))
+logging.info("  Results in {} rows in {}".format(int(count[0]), pipeline_fc))
 
 #export csv to folder -- remember to change fold path when run on other machines
-arcpy.TableToTable_conversion(pipeline_fc, 'D:/Users/blu/Box/baydata/basemap', "pipeline.csv")
+arcpy.TableToTable_conversion(pipeline_fc, 'D:/Users/blu/Desktop', "pipeline.csv")
 
 ### 5 MERGE OPPSITES SHP WITH PIPELINE TO GET DEVELOPMENT PROJECTS 
 #opportunity sites
@@ -628,7 +622,7 @@ try:
 		print("Found layer {} with {} rows -- skipping creation".format(joinFN, int(count[0])))
 except:
 	# go ahead and create it
-	print("Creating layer {} by spatial joining opps sites data ({}) and parcels ({})".format(joinFN, opp_sites, p10_pba50))
+	logging.info("Creating layer {} by spatial joining opps sites data ({}) and parcels ({})".format(joinFN, opp_sites, p10_pba50))
 	arcpy.SpatialJoin_analysis(opp_sites, p10_pba50, joinFN)
 	
 	arcpy.AlterField_management(joinFN, "year_built", "o_year_built")
@@ -699,27 +693,36 @@ except:
 
 #all non opp sites should be in the list dev_projects_temp_layers already
 devproj_fc = "development_project"
-print("Merging feature classes {} into {}".format(dev_projects_temp_layers, devproj_fc))
+logging.info("Merging feature classes {} into {}".format(dev_projects_temp_layers, devproj_fc))
 # if this exists already, delete it
 if arcpy.Exists(devproj_fc): arcpy.Delete_management(devproj_fc)
 
 arcpy.Merge_management(dev_projects_temp_layers, devproj_fc)
 count = arcpy.GetCount_management(devproj_fc)
-print("  Results in {} rows in {}".format(int(count[0]), devproj_fc))
+logging.info("  Results in {} rows in {}".format(int(count[0]), devproj_fc))
 
 #export csv to folder -- remember to change fold path when run on other machines
-arcpy.TableToTable_conversion(devproj_fc, 'D:/Users/blu/Box/baydata/basemap', "development_project.csv")
+arcpy.TableToTable_conversion(devproj_fc, 'D:/Users/blu/Desktop', "development_project.csv")
 
 
 # delete temporary join files
 for temp_fc in dev_projects_temp_layers:
   if arcpy.Exists(temp_fc):
     arcpy.Delete_management(temp_fc)
-    print("Deleting temporary layer {}".format(temp_fc))
+    logging.info("Deleting temporary layer {}".format(temp_fc))
 
 # 6 DIAGNOSTICS
+####not tested
 
+#number of units total by year
+#arcpy.Statistics_analysis(devproj_fc, "res_stats", [["residential_units", "SUM"]], "year_built")
 
+#number of nonres sqft by year
+#arcpy.Statistics_analysis(devproj_fc, "nonres_stats", [["non_residential_sqft", "SUM"]], "year_built")
+
+#count parcels with more than one points on them
+#arcpy.Statistics_analysis(devproj_fc, "parcel_pnts", [["development_projects_id", "COUNT"]], "geom_id")
+#countparcel = arcpy.GetCount_management("parcel_pnts")
 
 
 # 7 REMOVE DUPLICATES
