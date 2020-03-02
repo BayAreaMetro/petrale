@@ -1,32 +1,32 @@
-building_type_det, detailed description, building_type, type description, old_bldg_typle
-HS, single family residential, HS, single family residential, HS 
-HT, townhomes, HT, townhomes, HT
-HM, multi family residential, HM, multi family residential, HM
-MH, mobile home, HM, multi family residential, HM
-SR, single room occupancy, HM, multi family residential, HM
-AL, assisted living, GQ, group quarters, HM
-DM, dorm or shelter, GQ, group quarters, HM
-CM, condo or apt common area, VP, vacant permanently, VP
-OF, office, OF, office, OF
-GV, gov, OF, office, OF
-HP, hospital, OF, office, OF
-HO, hotel, HO, hotel, HO
-SC, k12 school, SC, school, SC
-UN, college or university, SC, school, SC
-IL, light industrial, IL, light industrial, IL
-FP, food processing and wineries, IL, light industrial, IL
-IW, warehouse or logistics, IW, warehouse or logistics, IW
-IH, heavy industrial, IH, heavy industrial, IH
-RS, retail general, RS, retail general, RS
-RB, retail big box or regional, RB, retail big box or regional, RB
-MR, mixed use residential focused, MR, mixed use residential focused, MR
-MT, mixed use industrial focused, MT, mixed use industrial focused, MR
-ME, mixed use employment focused, ME, mixed use employment focused, ME
-PA, parking lot, VA, vacant, PA
-PG, parking garage, PG, parking garage, PA2
-VA, vacant, VA, vacant, VA
-LR, golf course or other low density rec use, RS, retail general, RS
-VP, vacant permanently such as park or transport net, VP, vacant permanently, VP 
-OT, other or unknown, OT, other or unkown, OT
-IN, institutional, OF, office, OF
-RF, retail food or drink, RS, retail, RS
+building_type_det, detailed description, building_type, type description, old_bldg_type, 
+HS, single family residential, HS, single family residential, HS, 
+HT, townhomes, HT, townhomes, HT, 
+HM, multi family residential, HM, multi family residential, HM, 3
+MH, mobile home, HM, multi family residential, HM, 3
+SR, single room occupancy, HM, multi family residential, HM, 3
+AL, assisted living, GQ, group quarters, HM, 3
+DM, dorm or shelter, GQ, group quarters, HM, 3
+CM, condo or apt common area, VP, vacant permanently, VP, 0
+OF, office, OF, office, OF, 4
+GV, gov, OF, office, OF, 4
+HP, hospital, OF, office, OF, 4
+HO, hotel, HO, hotel, HO, 5
+SC, k12 school, SC, school, SC, 6
+UN, college or university, SC, school, SC, 6
+IL, light industrial, IL, light industrial, IL, 7
+FP, food processing and wineries, IL, light industrial, IL, 7
+IW, warehouse or logistics, IW, warehouse or logistics, IW, 8
+IH, heavy industrial, IH, heavy industrial, IH, 9
+RS, retail general, RS, retail general, RS, 10
+RB, retail big box or regional, RB, retail big box or regional, RB, 11
+MR, mixed use residential focused, MR, mixed use residential focused, MR, 12
+MT, mixed use industrial focused, MT, mixed use industrial focused, MT, 13
+ME, mixed use employment focused, ME, mixed use employment focused, ME, 14
+PA, parking lot, VA, vacant, PA, 15
+PG, parking garage, PG, parking garage, PA2, 16
+VA, vacant, VA, vacant, VA, 0
+LR, golf course or other low density rec use, RS, retail general, RS, 10 
+VP, vacant permanently such as park or transport net, VP, vacant permanently, VP, 0 
+OT, other or unknown, OT, other or unkown, OT, 0
+IN, institutional, OF, office, OF, 4
+RF, retail food or drink, RS, retail, RS, 
