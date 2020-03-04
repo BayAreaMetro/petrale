@@ -29,9 +29,9 @@ if os.getenv("USERNAME")=="lzorn":
 	SMELT_GDB           = os.path.join(WORKING_DIR,"smelt.gdb")
 	WORKSPACE_GDB       = "workspace_{}.GDB".format(NOW) # scratch
 elif os.getenv("USERNAME")=="blu":
-	WORKING_DIR         = "D:\\Users\\blu\\Desktop"
+	WORKING_DIR         = "D:\\Users\\blu\\Documents\\ArcGIS\\Projects\\DevPrj\\2020 02 24"
 	LOG_FILE            = os.path.join(WORKING_DIR,"devproj_{}.log".format(NOW))
-	SMELT_GDB           = "D:\\Users\\blu\\Box\\baydata\\smelt\\2020 02 24\\smelt.gdb"
+	SMELT_GDB           = "D:\\Users\\blu\\Documents\\ArcGIS\\Projects\\DevPrj\\2020 02 24\\smelt.gdb"
 	WORKSPACE_GDB       = "workspace_{}.GDB".format(NOW) # scratch
 else:
 	WORKING_DIR         = "E:\\baydata"
@@ -609,9 +609,7 @@ if __name__ == '__main__':
 	count = arcpy.GetCount_management(pipeline_fc)
 	logger.info("  Results in {} rows in {}".format(int(count[0]), pipeline_fc))
 	
-	#export csv to folder -- remember to change fold path when run on other machines
-	arcpy.TableToTable_conversion(pipeline_fc, WORKING_DIR, "pipeline_{}.csv".format(NOW))
-	logger.info("Wrote {}".format(os.path.join(WORKING_DIR,"pipeline_{}.csv".format(NOW))))
+
 	
 	### 5 MERGE OPPSITES SHP WITH PIPELINE TO GET DEVELOPMENT PROJECTS 
 	#opportunity sites
@@ -710,24 +708,9 @@ if __name__ == '__main__':
 					i  = i + 1
 					cursor.updateRow(row)
 	
-	#export csv to folder -- remember to change fold path when run on other machines
-	arcpy.TableToTable_conversion(devproj_fc, WORKING_DIR, "development_projects_{}.csv".format(NOW))
-	logger.info("Wrote {}".format(os.path.join(WORKING_DIR,"development_project_{}.csv".format(NOW))))
-	
 	# it's no longer necessary to delete temporary spatial join layers since they're in the temporary WORKSPACE_GDB
 
-	#adding the two map files into a new gdb
-	#first create that new gdb -- right now save and locally and upload manually
-	out_name = "devproj_{}.gdb".format(NOW)
-	arcpy.CreateFileGDB_management(WORKING_DIR, out_name)
-	logger.info("Created {}".format(out_name))
-	
-	#second, move file to the new gdb
-	fcs = [pipeline_fc, devproj_fc]
-	for fc in fcs:
-		arcpy.FeatureClassToFeatureClass_conversion(fc, os.path.join(WORKING_DIR, out_name), 
-		                                            arcpy.Describe(fc).name)
-	
+
 	# 6 DIAGNOSTICS
 	
 	#number of units total by year
@@ -822,19 +805,309 @@ if __name__ == '__main__':
 	    				row[1] = 'add'
 	    				cursor.updateRow(row)
 	
-	arcpy.TableToTable_conversion(pipeline_fc, WORKING_DIR, "pipeline_wActionAdd_{}.csv".format(NOW))
-	logger.info("Wrote {}".format(os.path.join(WORKING_DIR, "pipeline_wActionAdd_{}.csv".format(NOW))))
+	#we are only keeping one set of data. move this blolock of code to the end
+	#export csv to folder -- remember to change fold path when run on other machines
+	arcpy.TableToTable_conversion(pipeline_fc, WORKING_DIR, "pipeline_{}.csv".format(NOW))
+	logger.info("Wrote {}".format(os.path.join(WORKING_DIR,"pipeline_{}.csv".format(NOW))))
 	
-	arcpy.TableToTable_conversion(devproj_fc,  WORKING_DIR, "development_project_wActionAdd_{}.csv".format(NOW))
-	logger.info("Wrote {}".format(os.path.join(WORKING_DIR, "development_project_wActionAdd_{}.csv".format(NOW))))
+	#export csv to folder -- remember to change fold path when run on other machines
+	arcpy.TableToTable_conversion(devproj_fc, WORKING_DIR, "development_projects_{}.csv".format(NOW))
+	logger.info("Wrote {}".format(os.path.join(WORKING_DIR,"development_project_{}.csv".format(NOW))))
 	
+	#adding the two map files into a new gdb
+	#first create that new gdb -- right now save and locally and upload manually
+	out_name = "devproj_{}.gdb".format(NOW)
+	arcpy.CreateFileGDB_management(WORKING_DIR, out_name)
+	logger.info("Created {}".format(out_name))
+	
+	#second, move file to the new gdb
 	fcs = [pipeline_fc, devproj_fc]
 	for fc in fcs:
-		arcpy.FeatureClassToFeatureClass_conversion(fc, os.path.join(WORKING_DIR,out_name),
-		                                            arcpy.Describe(fc).name + 'wActionAdd')
+		arcpy.FeatureClassToFeatureClass_conversion(fc, os.path.join(WORKING_DIR, out_name), 
+		                                            arcpy.Describe(fc).name)
+	
 	
 	
 	
 	# 9 EXPORT CSV W BUILDINGS TO BUILD AND DEMOLISH
+	# 9 adding 2011-2015 projects to buildings
+	pipeline = 'pipeline' 
+	arcpy.FeatureClassToFeatureClass_conversion(pipeline, arcpy.env.workspace, 
+                                            'p1115', "year_built >= 2011 AND year_built <= 2015")
+	p1115 = 'p1115'
+	arcpy.AlterField_management(p1115, "PARCEL_ID", "b_PARCEL_ID")
+	arcpy.AlterField_management(p1115, "residential_units", "b_residential_units")
+	arcpy.AlterField_management(p1115, "unit_ave_sqft", "b_unit_ave_sqft")
+	arcpy.AlterField_management(p1115, "building_sqft", "b_building_sqft")
+	arcpy.AlterField_management(p1115, "year_built", "b_year_built")
+	arcpy.AlterField_management(p1115, "stories", "b_stories")
+
+	arcpy.AddField_management(p1115, "building_id", "LONG")
+	arcpy.AddField_management(p1115, "parcel_id", "LONG")
+	arcpy.AddField_management(p1115, "development_type_id", "LONG")
+	arcpy.AddField_management(p1115, "improvement_value", "DOUBLE")
+	arcpy.AddField_management(p1115, "residential_units", "LONG")
+	arcpy.AddField_management(p1115, "residential_sqft", "LONG")
+	arcpy.AddField_management(p1115, "sqft_per_unit", "DOUBLE")
+	arcpy.AddField_management(p1115, "non_residential_sqft", "LONG")
+	arcpy.AddField_management(p1115, "building_sqft", "DOUBLE")
+	arcpy.AddField_management(p1115, "nonres_rent_per_sqft", "DOUBLE")
+	arcpy.AddField_management(p1115, "res_price_per_sqft", "DOUBLE")
+	arcpy.AddField_management(p1115, "stories", "LONG")
+	arcpy.AddField_management(p1115, "year_built", "LONG")
+	arcpy.AddField_management(p1115, "redfin_sale_price", "DOUBLE")
+	arcpy.AddField_management(p1115, "redfin_sale_year", "DOUBLE")
+	arcpy.AddField_management(p1115, "redfin_home_type", "TEXT","","","800")
+	arcpy.AddField_management(p1115, "costar_property_type", "TEXT","","","800")
+	arcpy.AddField_management(p1115, "costar_rent", "TEXT","","","800")
+	arcpy.AddField_management(p1115, "building_type_id", "LONG")
+
+	#arcpy.CalculateField_management(p1115, "building_id", )
+	arcpy.CalculateField_management(p1115, "parcel_id", "!b_PARCEL_ID!")
+	#arcpy.CalculateField_management(p1115, "development_type_id",)
+	#arcpy.CalculateField_management(p1115, "improvement_value",)
+	arcpy.CalculateField_management(p1115, "residential_units", "!b_residential_units!")
+	#arcpy.CalculateField_management(p1115, "residential_sqft", )
+	arcpy.CalculateField_management(p1115, "sqft_per_unit", "!b_unit_ave_sqft!")
+	#arcpy.CalculateField_management(p1115, "non_residential_sqft",)
+	arcpy.CalculateField_management(p1115, "building_sqft", "!b_building_sqft!")
+	#arcpy.CalculateField_management(p1115, "nonres_rent_per_sqft", )
+	#arcpy.CalculateField_management(p1115, "res_price_per_sqft", )
+	arcpy.CalculateField_management(p1115, "stories", "!b_stories!")
+	arcpy.CalculateField_management(p1115, "year_built", "!b_year_built!")
+	arcpy.CalculateField_management(p1115, "redfin_sale_price", "!last_sale_price!")
+	#arcpy.CalculateField_management(p1115, "redfin_sale_year", "!last_sale_year!")
+	#arcpy.CalculateField_management(p1115, "redfin_home_type", )
+	#arcpy.CalculateField_management(p1115, "costar_property_type", )
+	arcpy.CalculateField_management(p1115, "costar_rent", "!average_weighted_rent!")
+
+	with arcpy.da.UpdateCursor(p1115, ["building_type","building_type_id", 'development_type_id']) as cursor:
+    			for row in cursor:
+        			if row[0] == 'VP':
+        				row[1] = 0
+        				row[2] = 20 
+        			if row[0] == 'VA':
+        				row[1] = 0
+        				row[2] = 21 
+        			if row[0] == 'OT':
+        				row[1] = 0     			       			       			
+        			elif row[0] == 'HS':
+        				row[1] = 1
+        				row[2] = 1
+        			elif row[0] == 'HT':
+        				row[1] = 2
+        			elif row[0] == 'HM':
+        				row[1] = 3
+        				row[2] = 2
+        			elif row[0] == 'OF':
+        				row[1] = 4
+        				row[2] = 10
+        			elif row[0] == 'HO':
+        				row[1] = 5
+        				row[2] = 9
+        			elif row[0] == 'SC':
+        				row[1] = 6
+        				row[2] = 17
+        			elif row[0] == 'IL':
+        				row[1] = 7
+        				row[2] = 14
+        			elif row[0] == 'IW':
+        				row[1] = 8
+        				row[2] = 13
+        			elif row[0] == 'IH':
+        				row[1] = 9
+        				row[2] = 15
+        			elif row[0] == 'RS':
+        				row[1] = 10
+        				row[2] = 7
+        			elif row[0] == 'RB':
+        				row[1] = 11
+        				row[2] = 8
+        			elif row[0] == 'MR':
+        				row[1] = 12
+        				row[2] = 5
+        			elif row[0] == 'MT':
+        				row[1] = 13
+        			elif row[0] == 'ME':
+        				row[1] = 14
+        				row[2] = 11
+        			elif row[0] == 'PA':
+        				row[1] = 15
+        				row[2] = 23
+        			elif row[0] == 'PA2':
+        				row[1] = 16
+        			elif row[0] == 'PG':
+        				row[1] = 16
+        				row[2] = 23
+        			cursor.updateRow(row)
 
 
+	arcpy.FeatureClassToFeatureClass_conversion(p1115, arcpy.env.workspace,'p1115_add', "action = 'add'")
+	arcpy.FeatureClassToFeatureClass_conversion(p1115, arcpy.env.workspace,'p1115_build', "action = 'build'")
+
+	p1115_add = 'p1115_add'
+	p1115_build = 'p1115_build'
+
+	FCfields = [f.name for f in arcpy.ListFields(p1115_add)]
+	DontDeleteFields = ["OBJECTID","Shape","building_id","parcel_id","development_type_id", "improvement_value", "residential_units", "residential_sqft",  "sqft_per_unit", 
+	"non_residential_sqft","building_sqft","nonres_rent_per_sqft","res_price_per_sqft","stories","year_built", "redfin_sale_price","redfin_sale_year",
+	"redfin_home_type","costar_property_type","costar_rent","building_type","building_type_id"]
+	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
+	arcpy.DeleteField_management(p1115_add, fields2Delete)
+	arcpy.DeleteField_management(p1115_build, fields2Delete) #because the two dataset should have the same structure
+
+	b10_smelt = os.path.join(SMELT_GDB, "b10")
+	arcpy.TableToTable_conversion(b10_smelt, arcpy.env.workspace,'b10')
+	b10 = 'b10'
+	arcpy.AddField_management(b10, "building_type", "TEXT","","","800")
+	arcpy.AddField_management(b10, "building_type_id", "LONG")
+
+	with arcpy.da.UpdateCursor(b10, ["development_type_id","building_type","building_type_id"]) as cursor:
+    			for row in cursor:
+        			if row[0] == 1:
+        				row[1] = "HS"
+        				row[2] = 1
+        			elif row[0] == 2:
+        				row[1] = 'HM'
+        				row[2] = 3
+        			elif row[0] == 3:
+        				row[1] = 'HM'
+        				row[2] = 3
+        			elif row[0] == 4:
+        				row[1] = 'HM'
+        				row[2] = 3
+        			elif row[0] == 5:
+        				row[1] = 'MR'
+        				row[2] = 12
+        			elif row[0] == 6:
+        				row[1] = 'HM'
+        				row[2] = 3
+        			elif row[0] == 7:
+        				row[1] = 'RS'
+        				row[2] = 10
+        			elif row[0] == 8:
+        				row[1] = 'RB'
+        				row[2] = 11
+        			elif row[0] == 9:
+        				row[1] = 'HO'
+        				row[2] = 5
+        			elif row[0] == 10:
+        				row[1] = 'OF'
+        				row[2] = 4
+        			elif row[0] == 11:
+        				row[1] = 'ME'
+        				row[2] = 14
+        			elif row[0] == 12:
+        				row[1] = 'OF'
+        				row[2] = 4
+        			elif row[0] == 13:
+        				row[1] = 'IW'
+        				row[2] = 8
+        			elif row[0] == 14:
+        				row[1] = 'IL'
+        				row[2] = 7
+        			elif row[0] == 15:
+        				row[1] = 'IH'
+        				row[2] = 9
+        			elif row[0] == 16:
+        				row[1] == 'IL'
+        				row[2] = 7
+        			elif row[0] == 17:
+        				row[1] = 'SC'
+        				row[2] = 6
+        			elif row[0] == 18:
+        				row[1] = 'SC'
+        				row[2] = 6
+        			elif row[0] == 19:
+        				row[1] = 'OF'
+        				row[2] = 4
+        			elif row[0] == 20:
+        				row[1] = 'VP'
+        				row[2] = 0
+        			elif row[0] == 21:
+        				row[1] = 'VA'
+        				row[2] = 0
+        			elif row[0] == 22:
+        				row[1] = 'PG'
+        				row[2] = 16
+        			elif row[0] == 23:
+        				row[1] = 'PA'
+        				row[2] = 15
+        			elif row[0] == 24:
+        				row[1] = 'VP'
+        				row[2] = 0
+        			elif row[0] == 25:
+        				row[1] = 'VA'
+        				row[2] = 0
+        			cursor.updateRow(row)
+
+	arcpy.DeleteField_management(b10, 'id')
+
+	#the approach is:
+	#1. simply merge the projects with action == add
+	#2. find out the parcel ids where projects would be built in p1115_build, then remove those parcels in b10, the merge the build file
+	#need to build some diagnostic stuff to compare what was there that gets removed, and what's added
+
+	#part 1: add the projects
+	b10_p1115_part1 = 'b10_p1115_part1'
+	mergeList = [b10,p1115_add]
+	arcpy.Merge_management(mergeList, b10_p1115_part1)
+
+	#create a copy of the merged file for diagnostics
+	arcpy.TableToTable_conversion(b10_p1115_part1, arcpy.env.workspace,'b10_p1115_part1_copy')
+
+	#part 2: remove and merge
+	parcelBuildList = [row[0] for row in arcpy.da.SearchCursor(p1115_build, 'parcel_id')]
+	with arcpy.da.UpdateCursor(b10_p1115_part1, "parcel_id") as cursor:
+		for row in cursor:
+			if row[0] in parcelBuildList:
+				cursor.deleteRow()
+
+	rawp10_b15_pba50 = 'rawp10_b15_pba50_{}'.format(NOW)[0:26] #delete ".time" part, because that dot breaks it.
+	mergeList2 = [b10_p1115_part1,p1115_build]
+	arcpy.Merge_management(mergeList2, rawp10_b15_pba50)
+
+	#diagnotics using the copy
+	b10_p1115_part1_copy = 'b10_p1115_part1_copy'
+	with arcpy.da.UpdateCursor(b10_p1115_part1_copy, "parcel_id") as cursor:
+		for row in cursor:
+			if row[0] not in parcelBuildList:
+				cursor.deleteRow()
+
+		del cursor, row
+
+	arcpy.Statistics_analysis(b10_p1115_part1_copy, 'removed_units', [["residential_units", "SUM"]])
+	cursor = arcpy.SearchCursor('removed_units','','', 'SUM_residential_units')
+	row = cursor.next()
+	sum_value1 = row.getValue('SUM_residential_units')
+
+	arcpy.Statistics_analysis(b10_p1115_part1_copy, 'removed_nonres', [["non_residential_sqft", "SUM"]])
+	cursor = arcpy.SearchCursor('removed_nonres','','', 'SUM_non_residential_sqft')
+	row = cursor.next()
+	sum_value2 = row.getValue('SUM_non_residential_sqft')
+
+	arcpy.Statistics_analysis(p1115_build, 'built_units', [["residential_units", "SUM"]])
+	cursor = arcpy.SearchCursor('built_units','','', 'SUM_residential_units')
+	row = cursor.next()
+	sum_value3 = row.getValue('SUM_residential_units')
+
+	arcpy.Statistics_analysis(p1115_build, 'built_nonres', [["non_residential_sqft", "SUM"]])
+	cursor = arcpy.SearchCursor('built_nonres','','', 'SUM_non_residential_sqft')
+	row = cursor.next()
+	sum_value4 = row.getValue('SUM_non_residential_sqft')
+
+	if sum_value1 >= sum_value3:
+		logger.info("There is a net decrease of {} units from {} units to {} units after incorporating the 'built' projects".format(sum_value1 - sum_value3, sum_value1, sum_value3))
+	else:
+		logger.info("There is a net increase of {} units from {} units to {} units after incorporating the 'built' projects".format(sum_value3 - sum_value1,sum_value1, sum_value3))
+	if sum_value2 >= sum_value4:
+		logger.info("There is a net decrease of {} square feet of nonresidential from {} sqft to {} sqft  after incorporating the 'built' projects".format(sum_value2 - sum_value4, sum_value2, sum_value4))
+	else:
+		logger.info("There is a net increase of {} square feet of nonresidential from {} sqft  to {} sqft  after incorporating the 'built' projects".format(sum_value4 - sum_value2, sum_value2, sum_value4))
+
+	#ideally we want net increase of units and nonresidential sqft, so for now use that as a test
+	if (sum_value1 < sum_value3) & (sum_value2 < sum_value4):
+		arcpy.TableToTable_conversion(rawp10_b15_pba50, WORKING_DIR, "buildings_{}.csv".format(NOW))
+		logger.info("Transform {} to building table".format(rawp10_b15_pba50))
+	else:
+		logger.info("Something is wrong")
