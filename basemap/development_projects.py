@@ -1,4 +1,5 @@
 # coding: utf-8
+#
 # This script brings together many different datasets that each offer some info
 # on development in the region from 2011 on. Overall approach is to:
 # 1 spatially join parcels to each point file of new buildings
@@ -12,7 +13,17 @@
 # 9 export a csv file with buildings to build and demolish
 #
 # outputs:
-# 
+#  file geodataase, devproj_[datestr].gdb, including
+#    1. pipeline feature class, includes real build events of what has been built since 2011
+#    2. development_projects feature class, includes pipeline plus opportunity sites, which
+#       are scenario-specific
+#  flat files:
+#    3. csv version of pipeline
+#    4. csv version of development_projects
+#    5. log file
+#
+# Since this script relies on arcpy, for a windows machine with ArcGIS Pro installed,
+# set PATH=C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3
 
 import os, sys, time
 import arcpy
@@ -66,7 +77,7 @@ basis_pipeline = os.path.join(SMELT_GDB, "basis_pipeline_20200228")
 ### manually maintained pipeline data
 manual_dp   = os.path.join(SMELT_GDB, "manual_dp_20200131")
 
-### basis pb new data
+### basis parcel/building new data
 basis_pb_new = os.path.join(SMELT_GDB, "basis_pb_new_20200312")
 
 # opportunity sites that keep their scen status from gis file
