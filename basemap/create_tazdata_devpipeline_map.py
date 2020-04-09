@@ -10,7 +10,7 @@
 # for arcpy:
 # set PATH=C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3
 
-import logging,os,sys,time
+import logging,os,re,sys,time
 import numpy, pandas
 
 NOW = time.strftime("%Y%b%d.%H%M")
@@ -36,6 +36,9 @@ if os.getenv("USERNAME")=="lzorn":
     EMPLOYMENT_FILE       = "X:\\petrale\\applications\\travel_model_lu_inputs\\2015\\TAZ1454 2015 Land Use.csv"
     OUTPUT_DIR            = os.path.join(URBANSIM_LOCAL_DIR, "map_data")
     LOG_FILE              = os.path.join(OUTPUT_DIR, "create_tazdata_devpipeline_map_{}.log".format(NOW))
+
+    # building types
+    BUILDING_TYPE_FILE    = "X:\\petrale\\incoming\\dv_buildings_det_type_lu.csv"
 
     # geodatabase for arcpy and map
     WORKSPACE_GDB         = "C:\\Users\\lzorn\\Documents\\UrbanSim_InputMapping\\UrbanSim_InputMapping.gdb"
@@ -128,6 +131,14 @@ if __name__ == '__main__':
     taz_sd_county_df = pandas.merge(left=taz_sd_county_df, right=COUNTY_ID_NAME_DF)
     logger.debug("taz_sd_county_df head:\n{}".format(taz_sd_county_df.head()))
 
+    ####################################
+    building_types_df = pandas.read_csv(BUILDING_TYPE_FILE, skipinitialspace=True)
+    building_types_df.set_index("building_type_det", inplace=True)
+    logger.info("Read {}:\n{}".format(BUILDING_TYPE_FILE, building_types_df))
+
+    BUILDING_TYPE_TO_DESC = building_types_df["detailed description"].to_dict()
+    BUILDING_TYPE_TO_DESC["all"] = "all"
+    logger.info("BUILDING_TYPE_TO_DESC: {}".format(BUILDING_TYPE_TO_DESC))
     ####################################
     tm_lu_df = pandas.read_csv(EMPLOYMENT_FILE)
     logger.info("Read {}; head:\n{}".format(EMPLOYMENT_FILE, tm_lu_df.head()))
@@ -292,95 +303,222 @@ if __name__ == '__main__':
     # merge zone_piv_df and zone_piv_agg_df
     zone_piv_df = pandas.merge(left=zone_piv_df, right=zone_piv_agg_df, left_on="zone_id", right_on="zone_id", how="outer")
 
-    # drop columns with zero sums
-    # drop_cols = []
-    # for col in zone_piv_df.columns.values:
-    #     if zone_piv_df[col].sum() == 0: drop_cols.append(col)
-    # logger.info("Dropping {} columns with zero sums".format(len(drop_cols)))
-    # logger.debug("{}".format(drop_cols))
-    # zone_piv_df.drop(columns=drop_cols, inplace=True)
+    # will create 4 datasets
+    KEEP_COLUMNS_BY_DATASET = {
+        "base_res": ["zone_id","source",
+            "buildings 0000-2000 DM residential_units",
+            "buildings 0000-2000 HS residential_units",
+            "buildings 0000-2000 HT residential_units",
+            "buildings 0000-2000 HM residential_units",
+            "buildings 0000-2000 MR residential_units",
+            "buildings 0000-2000 all residential_units",
 
-    # keep only these
-    keep_columns = ["zone_id","source",
-        # 2015 HU count
-        "buildings 0000-2015 all residential_units",
-        # 2015 Commercial Square Feet
-        "buildings 0000-2015 all non_residential_sqft",
+            "buildings 2001-2010 DM residential_units",
+            "buildings 2001-2010 HS residential_units",
+            "buildings 2001-2010 HT residential_units",
+            "buildings 2001-2010 HM residential_units",
+            "buildings 2001-2010 MR residential_units",
+            "buildings 2001-2010 all residential_units",
 
-        # residential untils built from 2016 on
-        "pipeline 2016-2020 HS residential_units",
-        "pipeline 2016-2020 HT residential_units",
-        "pipeline 2016-2020 HM residential_units",
-        "pipeline 2016-2020 MR residential_units",
-        "pipeline 2016-2020 all residential_units",
+            "buildings 2011-2015 DM residential_units",
+            "buildings 2011-2015 HS residential_units",
+            "buildings 2011-2015 HT residential_units",
+            "buildings 2011-2015 HM residential_units",
+            "buildings 2011-2015 MR residential_units",
+            "buildings 2011-2015 all residential_units",
 
-        "pipeline 2021-2030 HS residential_units",
-        "pipeline 2021-2030 HT residential_units",
-        "pipeline 2021-2030 HM residential_units",
-        "pipeline 2021-2030 MR residential_units",
-        "pipeline 2021-2030 all residential_units",
+            "buildings 0000-2015 DM residential_units",
+            "buildings 0000-2015 HS residential_units",
+            "buildings 0000-2015 HT residential_units",
+            "buildings 0000-2015 HM residential_units",
+            "buildings 0000-2015 MR residential_units",
+            # 2015 HU count
+            "buildings 0000-2015 all residential_units",
+        ],
+        "base_nonres": ["zone_id","source",
+            "buildings 0000-2000 all non_residential_sqft",
+            "buildings 2001-2010 all non_residential_sqft",
+            "buildings 2011-2015 all non_residential_sqft",
 
-        "pipeline 2031-2050 HS residential_units",
-        "pipeline 2031-2050 HT residential_units",
-        "pipeline 2031-2050 HM residential_units",
-        "pipeline 2031-2050 MR residential_units",
-        "pipeline 2031-2050 all residential_units",
+            # 2015 Commercial Square Feet
+            "buildings 0000-2015 AL non_residential_sqft",
+            "buildings 0000-2015 CM non_residential_sqft",
+            "buildings 0000-2015 DM non_residential_sqft",
+            "buildings 0000-2015 FP non_residential_sqft",
+            "buildings 0000-2015 GV non_residential_sqft",
+            "buildings 0000-2015 HM non_residential_sqft",
+            "buildings 0000-2015 HO non_residential_sqft",
+            "buildings 0000-2015 HP non_residential_sqft",
+            "buildings 0000-2015 HS non_residential_sqft",
+            "buildings 0000-2015 HT non_residential_sqft",
+            "buildings 0000-2015 IH non_residential_sqft",
+            "buildings 0000-2015 IL non_residential_sqft",
+            "buildings 0000-2015 IN non_residential_sqft",
+            "buildings 0000-2015 IW non_residential_sqft",
+            "buildings 0000-2015 LR non_residential_sqft",
+            "buildings 0000-2015 ME non_residential_sqft",
+            "buildings 0000-2015 MH non_residential_sqft",
+            "buildings 0000-2015 MR non_residential_sqft",
+            "buildings 0000-2015 MT non_residential_sqft",
+            "buildings 0000-2015 OF non_residential_sqft",
+            "buildings 0000-2015 OT non_residential_sqft",
+            "buildings 0000-2015 PA non_residential_sqft",
+            "buildings 0000-2015 PG non_residential_sqft",
+            "buildings 0000-2015 RB non_residential_sqft",
+            "buildings 0000-2015 RF non_residential_sqft",
+            "buildings 0000-2015 RS non_residential_sqft",
+            "buildings 0000-2015 SC non_residential_sqft",
+            "buildings 0000-2015 SR non_residential_sqft",
+            "buildings 0000-2015 UN non_residential_sqft",
+            "buildings 0000-2015 VA non_residential_sqft",
+            "buildings 0000-2015 VP non_residential_sqft",
 
-        "pipeline 2016-2050 HS residential_units",
-        "pipeline 2016-2050 HT residential_units",
-        "pipeline 2016-2050 HM residential_units",
-        "pipeline 2016-2050 MR residential_units",
-        "pipeline 2016-2050 all residential_units",
+            "buildings 0000-2015 all non_residential_sqft",
 
-        # commercial Square Feet Built From 2016
-        "pipeline 2016-2020 all non_residential_sqft",
-        "pipeline 2021-2030 all non_residential_sqft",
-        "pipeline 2031-2050 all non_residential_sqft",
-        "pipeline 2016-2050 all non_residential_sqft",      
-    ]
-    # but only if they exist
-    keep_columns_present = []
-    for col in keep_columns: 
-        if col in list(zone_piv_df.columns.values): keep_columns_present.append(col)
-    zone_piv_df = zone_piv_df[keep_columns_present]
-    # fill na with zero
-    zone_piv_df.fillna(value=0, inplace=True)
+            "buildings 0000-2000 all building_sqft",
+            "buildings 2001-2010 all building_sqft",
+            "buildings 2011-2015 all building_sqft",
+            "buildings 0000-2015 all building_sqft",
+        ],
 
-    logger.info("zone_piv_df.dtypes:\n{}".format(zone_piv_df.dtypes))
+        "pipe_res": ["zone_id","source",
+            # residential units built from 2016 on
+            "pipeline 2016-2020 AL residential_units",
+            "pipeline 2016-2020 DM residential_units",
+            "pipeline 2016-2020 HS residential_units",
+            "pipeline 2016-2020 HT residential_units",
+            "pipeline 2016-2020 HM residential_units",
+            "pipeline 2016-2020 ME residential_units",
+            "pipeline 2016-2020 MR residential_units",
+            "pipeline 2016-2020 all residential_units",
+    
+            "pipeline 2021-2030 AL residential_units",
+            "pipeline 2021-2030 DM residential_units",
+            "pipeline 2021-2030 HS residential_units",
+            "pipeline 2021-2030 HT residential_units",
+            "pipeline 2021-2030 HM residential_units",
+            "pipeline 2021-2030 ME residential_units",
+            "pipeline 2021-2030 MR residential_units",
+            "pipeline 2021-2030 all residential_units",
+    
+            "pipeline 2031-2050 AL residential_units",
+            "pipeline 2031-2050 DM residential_units",
+            "pipeline 2031-2050 HS residential_units",
+            "pipeline 2031-2050 HT residential_units",
+            "pipeline 2031-2050 HM residential_units",
+            "pipeline 2031-2050 ME residential_units",
+            "pipeline 2031-2050 MR residential_units",
+            "pipeline 2031-2050 all residential_units",
+    
+            "pipeline 2016-2050 AL residential_units",
+            "pipeline 2016-2050 DM residential_units",
+            "pipeline 2016-2050 HS residential_units",
+            "pipeline 2016-2050 HT residential_units",
+            "pipeline 2016-2050 HM residential_units",
+            "pipeline 2016-2050 ME residential_units",
+            "pipeline 2016-2050 MR residential_units",
+            "pipeline 2016-2050 all residential_units",
+        ],
 
-    # add parcel acres
-    zone_piv_df = pandas.merge(left=zone_piv_df, right=parcels_zone_df, how="outer")
-    # and employment
-    zone_piv_df = pandas.merge(left=zone_piv_df, right=tm_lu_df, how="outer")
+        "pipe_nonres": ["zone_id","source",
+            # commercial Square Feet Built From 2016
+            "pipeline 2016-2020 all non_residential_sqft",
+            "pipeline 2021-2030 all non_residential_sqft",
+            "pipeline 2031-2050 all non_residential_sqft",
 
-    # and 2015 HU Density
-    zone_piv_df["HU Density 2015"] = zone_piv_df["buildings 0000-2015 all residential_units"]/zone_piv_df["parcel_acres"]
-    zone_piv_df.loc[ zone_piv_df["parcel_acres"] == 0, "HU Density 2015" ] = 0.0
+            "pipeline 2016-2050 AL non_residential_sqft",
+            "pipeline 2016-2050 CM non_residential_sqft",
+            "pipeline 2016-2050 DM non_residential_sqft",
+            "pipeline 2016-2050 FP non_residential_sqft",
+            "pipeline 2016-2050 GV non_residential_sqft",
+            "pipeline 2016-2050 HM non_residential_sqft",
+            "pipeline 2016-2050 HO non_residential_sqft",
+            "pipeline 2016-2050 HP non_residential_sqft",
+            "pipeline 2016-2050 HS non_residential_sqft",
+            "pipeline 2016-2050 HT non_residential_sqft",
+            "pipeline 2016-2050 IH non_residential_sqft",
+            "pipeline 2016-2050 IL non_residential_sqft",
+            "pipeline 2016-2050 IN non_residential_sqft",
+            "pipeline 2016-2050 IW non_residential_sqft",
+            "pipeline 2016-2050 LR non_residential_sqft",
+            "pipeline 2016-2050 ME non_residential_sqft",
+            "pipeline 2016-2050 MH non_residential_sqft",
+            "pipeline 2016-2050 MR non_residential_sqft",
+            "pipeline 2016-2050 MT non_residential_sqft",
+            "pipeline 2016-2050 OF non_residential_sqft",
+            "pipeline 2016-2050 OT non_residential_sqft",
+            "pipeline 2016-2050 PA non_residential_sqft",
+            "pipeline 2016-2050 PG non_residential_sqft",
+            "pipeline 2016-2050 RB non_residential_sqft",
+            "pipeline 2016-2050 RF non_residential_sqft",
+            "pipeline 2016-2050 RS non_residential_sqft",
+            "pipeline 2016-2050 SC non_residential_sqft",
+            "pipeline 2016-2050 SR non_residential_sqft",
+            "pipeline 2016-2050 UN non_residential_sqft",
+            "pipeline 2016-2050 VA non_residential_sqft",
+            "pipeline 2016-2050 VP non_residential_sqft",
 
-    # and 2015 Employee Density
-    zone_piv_df["Employee Density 2015"] = zone_piv_df["TOTEMP"]/zone_piv_df["parcel_acres"]
-    zone_piv_df.loc[ zone_piv_df["parcel_acres"] == 0, "Employee Density 2015" ] = 0.0
+            "pipeline 2016-2050 all non_residential_sqft",
+        ]
+    }
 
-    # 2015 Commercial Square Feet per Employee
-    zone_piv_df["Commercial Square Feet per Employee 2015"] = zone_piv_df["buildings 0000-2015 all non_residential_sqft"]/zone_piv_df["TOTEMP"]
-    zone_piv_df.loc[ zone_piv_df["TOTEMP"] == 0, "Commercial Square Feet per Employee 2015"] = 0.0
+    zone_datasets = {}
 
-    # zone pivot: add county/superdistrict
-    zone_piv_df = pandas.merge(left=zone_piv_df, right=taz_sd_county_df, how="outer")
-    logger.info("zone_piv_df.head():\n{}".format(zone_piv_df.head()))
+    for dataset in KEEP_COLUMNS_BY_DATASET.keys():
+        logger.info("Creating dataset for {}".format(dataset))
 
-    # write zone_piv_df
-    zone_piv_file = os.path.join(OUTPUT_DIR, "urbansim_input_zonedata_pivot.csv")
-    zone_piv_df.to_csv(zone_piv_file, index=False)
-    logger.info("Wrote {}".format(zone_piv_file))
+        keep_columns = KEEP_COLUMNS_BY_DATASET[dataset].copy()
 
+        # but only if they exist
+        keep_columns_present = []
+        for col in keep_columns: 
+            if col in list(zone_piv_df.columns.values): keep_columns_present.append(col)
+        zone_dataset_piv_df = zone_piv_df[keep_columns_present]
+
+        # fill na with zero
+        zone_dataset_piv_df.fillna(value=0, inplace=True)
+    
+        logger.info("zone_dataset_piv_df.dtypes:\n{}".format(zone_dataset_piv_df.dtypes))
+    
+        # add parcel acres
+        zone_dataset_piv_df = pandas.merge(left=zone_dataset_piv_df, right=parcels_zone_df, how="outer")
+
+        # and employment, if relevant
+        if dataset == "base_nonres":
+            zone_dataset_piv_df = pandas.merge(left=zone_dataset_piv_df, right=tm_lu_df, how="outer")
+            # and 2015 Employee Density
+            zone_dataset_piv_df["Employee Density 2015"] = zone_dataset_piv_df["TOTEMP"]/zone_dataset_piv_df["parcel_acres"]
+            zone_dataset_piv_df.loc[ zone_dataset_piv_df["parcel_acres"] == 0, "Employee Density 2015" ] = 0.0
+
+            # 2015 Commercial Square Feet per Employee
+            zone_dataset_piv_df["Commercial Square Feet per Employee 2015"] = \
+                zone_dataset_piv_df["buildings 0000-2015 all non_residential_sqft"]/zone_dataset_piv_df["TOTEMP"]
+            zone_dataset_piv_df.loc[ zone_dataset_piv_df["TOTEMP"] == 0, "Commercial Square Feet per Employee 2015"] = 0.0
+    
+        # and 2015 HU Density, if relevant
+        if dataset == "base_res":
+            zone_dataset_piv_df["HU Density 2015"] = zone_dataset_piv_df["buildings 0000-2015 all residential_units"]/zone_dataset_piv_df["parcel_acres"]
+            zone_dataset_piv_df.loc[ zone_dataset_piv_df["parcel_acres"] == 0, "HU Density 2015" ] = 0.0
+
+        # zone pivot: add county/superdistrict
+        zone_dataset_piv_df = pandas.merge(left=zone_dataset_piv_df, right=taz_sd_county_df, how="outer")
+        logger.info("zone_dataset_piv_df.head():\n{}".format(zone_dataset_piv_df.head()))
+    
+        # write zone_dataset_piv_df
+        zone_dataset_piv_file = os.path.join(OUTPUT_DIR, "{}.csv".format(dataset))
+        zone_dataset_piv_df.to_csv(zone_dataset_piv_file, index=False)
+        logger.info("Wrote {}".format(zone_dataset_piv_file))
+
+        # keep it for arcpy
+        zone_datasets[dataset] = zone_dataset_piv_df
+    
     # for tableau, let's not pivot, and let's not keep the all btypes
     zone_df = pandas.concat([buildings_zone_btype_df, pipeline_zone_btype_df], axis="index")
-
+    
     # zone: add county/superdistrict
     zone_df = pandas.merge(left=zone_df, right=taz_sd_county_df, how="outer")
-    logger.info("zone_piv_df.head():\n{}".format(zone_piv_df.head()))
-
+    logger.info("zone_df.head():\n{}".format(zone_df.head()))
+    
     # write zone_df
     zone_file = os.path.join(OUTPUT_DIR, "urbansim_input_zonedata.csv")
     zone_df.to_csv(zone_file, index=False)
@@ -388,53 +526,169 @@ if __name__ == '__main__':
 
     logger.info("importing arcpy....")
     import arcpy
-    arcpy.env.workspace = WORKSPACE_GDB
+    arcpy.env.workspace  = WORKSPACE_GDB
 
-    # bring in binary of zone_piv_df since arcpy mangles csv datatypes
-    zone_piv_table = "urbansim_input_zonedata_pivot"
-    try:     arcpy.Delete_management(zone_piv_table)
-    except:  pass
-
-    logger.info("Converting zone_piv_df to arcpy table {}".format(zone_piv_table))
-    zone_piv_nparr = numpy.array(numpy.rec.fromrecords(zone_piv_df.values))
-    zone_piv_nparr.dtype.names = tuple(zone_piv_df.dtypes.index.tolist())
-    arcpy.da.NumPyArrayToTable(zone_piv_nparr, os.path.join(WORKSPACE_GDB, zone_piv_table))
-
-    # create join layer with tazdata and zone_file
-    logger.info("Joining {} with {}".format(TAZ_SHPFILE, zone_piv_file))
-    taz_zone_pivot_table = arcpy.AddJoin_management(TAZ_SHPFILE, "TAZ1454", 
-                                                    os.path.join(WORKSPACE_GDB, zone_piv_table), "zone_id")
-
-    # save it as a feature class -- delete one if it already exists first
-    zone_piv_featureclass = "taz_urbansim_input"
-    try:    arcpy.Delete_management(zone_piv_featureclass)
-    except: pass
-
-    logger.info("Saving it as {}".format(zone_piv_featureclass))
-    arcpy.CopyFeatures_management(taz_zone_pivot_table, zone_piv_featureclass)
-
-    # set metadata
-    logger.info("Setting featureclass metadata")
-
-    # aprx = arcpy.mp.ArcGISProject(ARCGIS_PROJECT)
-    # for m in aprx.listMaps():
-    #     logger.debug("Map: {}".format(m.name))
-    # for lyt in aprx.listLayouts():
-    #     logger.debug("Layout: {}".format(lyt.name))
-    # aprx.save()
-
-    new_metadata = arcpy.metadata.Metadata()
-    new_metadata.title = "UrbanSim input"
+    # create metadata
+    new_metadata         = arcpy.metadata.Metadata()
+    new_metadata.title   = "UrbanSim input"
     new_metadata.summary = "Data derived from UrbanSim Basemap and Development Pipeline for review"
     new_metadata.description = \
         "Basemap source: {}\n".format(URBANSIM_BASEMAP_FILE) + \
         "Pipeline source: {}\n".format(URBANSIM_PIPELINE_FILE) + \
         "Employment source: {}\n".format(EMPLOYMENT_FILE)
+    logger.info("Metadata description: {}".format(new_metadata.description))
     new_metadata.credits = "create_tazdata_devpipeline_map.py"
 
-    zone_piv_fc_metadata = arcpy.metadata.Metadata(zone_piv_featureclass)
-    logger.debug("feature class metadata isReadOnly? {}".format(zone_piv_fc_metadata.isReadOnly))
-    zone_piv_fc_metadata.copy(new_metadata)
-    zone_piv_fc_metadata.save()
+    field_re = re.compile("(pipeline|buildings)_(\S\S\S\S_\S\S\S\S)_([a-zA-Z]+)_(\S+)$")
+    for dataset in zone_datasets.keys():
+        logger.info("Processing datasset {}".format(dataset))
 
+        # bring in binary of dataset since arcpy mangles csv datatypes
+        dataset_table = "{}".format(dataset)
+        try:     arcpy.Delete_management(dataset_table)
+        except:  pass
+
+        logger.info("Converting dataset to arcpy table {}".format(dataset_table))
+
+        zone_piv_nparr = numpy.array(numpy.rec.fromrecords(zone_datasets[dataset].values))
+        zone_piv_nparr.dtype.names = tuple(zone_datasets[dataset].dtypes.index.tolist())
+        arcpy.da.NumPyArrayToTable(zone_piv_nparr, os.path.join(WORKSPACE_GDB, dataset_table))
+
+        # create join layer with tazdata and zone_file
+        logger.info("Joining {} with {}".format(TAZ_SHPFILE, dataset_table))
+        dataset_joined = arcpy.AddJoin_management(TAZ_SHPFILE, "TAZ1454", 
+                                                  os.path.join(WORKSPACE_GDB, dataset_table), "zone_id")
+
+        # save it as a feature class -- delete one if it already exists first
+        dataset_fc = "{}_fc".format(dataset)
+        try:    arcpy.Delete_management(dataset_fc)
+        except: pass
+
+        logger.info("Saving it as {}".format(dataset_fc))
+        arcpy.CopyFeatures_management(dataset_joined, dataset_fc)
+
+        # set aliases
+        ALIASES = {
+            # https://github.com/BayAreaMetro/modeling-website/wiki/TazData
+            "TOTEMP" : "Total employment",
+            "RETEMPN": "Retail employment",
+            "FPSEMPN": "Financial and prof employment",
+            "HEREMPN": "Health edu and rec employment",
+            "AGREMPN": "Ag and natural res employment",
+            "MWTEMPN": "Manuf wholesale and transp employment",
+            "OTHEMPN": "Other employment"
+        }
+        fieldList = arcpy.ListFields(dataset_fc)
+        for field in fieldList:
+            logger.debug("field: [{}]".format(field.name))
+            if field.name.startswith("{}_".format(dataset_table)):
+                postfix = field.name[len(dataset_table)+1:]
+                logger.debug("postfix: [{}]".format(postfix))
+
+                if postfix in ALIASES.keys():
+                    arcpy.AlterField_management(dataset_fc, field.name, new_field_alias=ALIASES[postfix])
+                else:
+                    match = field_re.match(postfix)
+                    if match:
+                        logger.debug("match: {} {} {} {}".format(match.group(1), match.group(2), match.group(3), match.group(4)))
+                        new_alias = ""
+                        if match.group(4) == "residential_units":
+                            new_alias = "HU "
+                        elif match.group(4) == "non_residential_sqft":
+                            new_alias = "nonres sqft "
+                        elif match.group(4) == "building_sqft":
+                            new_alias = "bldg sqft "
+
+                        new_alias += match.group(2) + " " # year range
+                        new_alias += BUILDING_TYPE_TO_DESC[match.group(3)] # building type
+                        arcpy.AlterField_management(dataset_fc, field.name, new_field_alias=new_alias)
+
+
+        # set metadata
+        logger.info("Setting featureclass metadata")
+
+        # aprx = arcpy.mp.ArcGISProject(ARCGIS_PROJECT)
+        # for m in aprx.listMaps():
+        #     logger.debug("Map: {}".format(m.name))
+        # for lyt in aprx.listLayouts():
+        #     logger.debug("Layout: {}".format(lyt.name))
+        # aprx.save()
+
+    
+        dataset_fc_metadata = arcpy.metadata.Metadata(dataset_fc)
+        logger.debug("feature class metadata isReadOnly? {}".format(dataset_fc_metadata.isReadOnly))
+        dataset_fc_metadata.copy(new_metadata)
+        dataset_fc_metadata.save()
+    
     logger.info("Complete")
+
+"""
+=> Save individual layer as web layer
+
+Go to Service URL (ugly webpage that looks like services3.argics.com...)
+Click on link View In: ArcGIS.com Map
+
+Basemap Employment for TAZ {base_nonres_zone_id}
+
+<font size="2">
+<table>
+<tr><td>Total Employment:</td><td>{base_nonres_TOTEMP}</td></tr>
+<tr><td>Retail:</td><td>{base_nonres_RETEMPN}</td></tr>
+<tr><td>Financial &amp; prof:</td><td>{base_nonres_FPSEMPN}</td></tr>
+<tr><td>Health, educ &amp; rec:</td><td>{base_nonres_HEREMPN}</td></tr>
+<tr><td>Ag &amp; natural res.:</td><td>{base_nonres_AGREMPN}</td></tr>
+<tr><td>Manuf, wholesale and transp:</td><td>{base_nonres_MWTEMPN}</td></tr>
+<tr><td>Other:</td><td>{base_nonres_OTHEMPN}</td></tr><p><span></td></tr>
+<tr><td>Parcel acres:</td><td>{base_nonres_parcel_acres}</td></tr>
+<tr><td>Employee Density:</td><td>{base_nonres_Employee_Density_2015}</td></tr>
+<tr><td>Non-Residential Square Feet:</td><td>{base_nonres_buildings_0000_2015_all_no}</td></tr>
+<tr><td>Commercial Square Feet per Employee:</td><td>{base_nonres_Commercial_Square_Feet_per}</td></tr>
+</table>
+</font>
+
+Charts:
+Employment by Industry
+Non-Residential Sqft by Year Built
+
+Basemap Housing Units for TAZ {base_res_zone_id}
+
+Charts:
+Housing Unit by Building Type
+Housing Units by Year Built
+
+
+Decode( building_type,
+       'HS','single family residential'
+       'HT','townhomes',
+       'HM','multi family residential',
+       'MH','mobile home',
+       'SR','single room occupancy',
+       'AL','assisted living',
+       'DM','dorm or shelter',
+       'CM','condo or apt common area',
+       'OF','office',
+       'GV','gov',
+       'HP','hospital',
+       'HO','hotel',
+       'SC','k12 school',
+       'UN','college or university',
+       'IL','light industrial',
+       'FP','food processing and wineries',
+       'IW','warehouse or logistics',
+       'IH','heavy industrial',
+       'RS','retail general',
+       'RB','retail big box or regional',
+       'MR','mixed use residential focused',
+       'MT','mixed use industrial focused',
+       'ME','mixed use employment focused',
+       'PA','parking lot',
+       'PG','parking garage',
+       'VA','vacant',
+       'LR','golf course or other low density rec use',
+       'VP','vacant permanently such as park or transport net',
+       'OT','other or unknown',
+       'IN','institutional',
+       'RF','retail food or drink',
+       'unknown')
+
+"""
