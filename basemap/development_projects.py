@@ -18,7 +18,7 @@ import os, sys, time
 import arcpy
 import logging
 
-NOW = time.strftime("%Y%b%d.%H%M")
+NOW = time.strftime("%Y_%m%d_%H%M")
 
 # arcpy workspace and log file setup
 # note: this runs a lot better if these directories are a local/fast disk
@@ -991,16 +991,16 @@ if __name__ == '__main__':
 	
 	#we are only keeping one set of data. move this blolock of code to the end
 	#export csv to folder -- remember to change fold path when run on other machines
-	arcpy.TableToTable_conversion(pipeline_fc, WORKING_DIR, "pipeline_{}.csv".format(NOW))
-	logger.info("Wrote {}".format(os.path.join(WORKING_DIR,"pipeline_{}.csv".format(NOW))))
+	arcpy.TableToTable_conversion(pipeline_fc, WORKING_DIR, "{}_pipeline.csv".format(NOW))
+	logger.info("Wrote {}".format(os.path.join(WORKING_DIR,"{}_pipeline.csv".format(NOW))))
 	
 	#export csv to folder -- remember to change fold path when run on other machines
-	arcpy.TableToTable_conversion(devproj_fc, WORKING_DIR, "development_projects_{}.csv".format(NOW))
-	logger.info("Wrote {}".format(os.path.join(WORKING_DIR,"development_project_{}.csv".format(NOW))))
+	arcpy.TableToTable_conversion(devproj_fc, WORKING_DIR, "{}_development_projects.csv".format(NOW))
+	logger.info("Wrote {}".format(os.path.join(WORKING_DIR,"{}_development_project.csv".format(NOW))))
 	
 	#adding the two map files into a new gdb
 	#first create that new gdb -- right now save and locally and upload manually
-	out_name = "devproj_{}.gdb".format(NOW)
+	out_name = "{}_devproj.gdb".format(NOW)
 	arcpy.CreateFileGDB_management(WORKING_DIR, out_name)
 	logger.info("Created {}".format(out_name))
 	
@@ -1287,7 +1287,7 @@ if __name__ == '__main__':
 
 	#ideally we want net increase of units and nonresidential sqft, so for now use that as a test
 	if (sum_value1 < sum_value3) & (sum_value2 < sum_value4):
-		arcpy.TableToTable_conversion(rawp10_b15_pba50, WORKING_DIR, "buildings_{}.csv".format(NOW))
+		arcpy.TableToTable_conversion(rawp10_b15_pba50, WORKING_DIR, "{}_buildings.csv".format(NOW))
 		logger.info("Transform {} to building table".format(rawp10_b15_pba50))
 	else:
 		logger.info("Something is wrong")
