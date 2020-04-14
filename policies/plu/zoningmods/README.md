@@ -9,7 +9,7 @@
 * [jurisId.csv](https://mtcdrive.app.box.com/file/653701600495): map jurisdiction name to jurisdiction ID
 * [07_11_2019_parcels_geography.csv](https://mtcdrive.app.box.com/file/653711913275): old zoningmod file used in PBA40 and Horizon
 * [p10_pba50_attr_20200407.csv](https://mtcdrive.app.box.com/file/653712280475): BluePrint strategies coded into pba50 zoningmodcat
-* [p10_geo_shp.shp](option): for dissolve parcels at pba50 zoningmodcat level
+* [p10_geo_shp.shp](https://mtcdrive.app.box.com/folder/110544749604): (option) for dissolve parcels at pba50 zoningmodcat level
 
 ### PBA50 Zoningmods development capacity 
 * merge the data with PBA zoningmod data
