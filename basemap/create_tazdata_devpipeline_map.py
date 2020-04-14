@@ -1,5 +1,11 @@
 #
 # Create 2015 tazdata map from UrbanSim input layer(s) using building data and pipeline data
+# Reads
+#  1) UrbanSim basemap h5 (URBANSIM_BASEMAP_FILE), parcels and buildings
+#  2) Development pipeline csv (URBANSIM_BASEMAP_FILE)
+#  3) Employment taz data csv (EMPLOYMENT_FILE)
+#
+# Outputs
 # 
 # Notes:
 #  - zone_id and county/county_id aren't always consistent with the TM mapping between zones/county
@@ -32,6 +38,8 @@ if os.getenv("USERNAME")=="lzorn":
     URBANSIM_BASEMAP_FILE = "2020_03_20_bayarea_v6.h5"
     # from https://mtcdrive.box.com/s/wcxlgwov5l6s6p0p0vh2xj1ekdynxxw5
     URBANSIM_PIPELINE_FILE= "pipeline_2020Mar20.1512.csv"
+    URBANSIM_PIPELINE_GDB = "devproj_2020Mar20.1512.gdb"
+
     # employment data
     EMPLOYMENT_FILE       = "X:\\petrale\\applications\\travel_model_lu_inputs\\2015\\TAZ1454 2015 Land Use.csv"
     OUTPUT_DIR            = os.path.join(URBANSIM_LOCAL_DIR, "map_data")
@@ -39,6 +47,8 @@ if os.getenv("USERNAME")=="lzorn":
 
     # building types
     BUILDING_TYPE_FILE    = "X:\\petrale\\incoming\\dv_buildings_det_type_lu.csv"
+    # with activity categories
+    BUILDING_TYPE_ACTIVITY_FILE = "X:\\petrale\\TableauAliases.xlsx"
 
     # geodatabase for arcpy and map
     WORKSPACE_GDB         = "C:\\Users\\lzorn\\Documents\\UrbanSim_InputMapping\\UrbanSim_InputMapping.gdb"
@@ -55,7 +65,7 @@ YEAR_BUILT_CATEGORIES = [
     ("2031-2050",2031,2050),
 ]
 # aggregate
-YEAR_BUILD_CATEGORIES_AGG = [
+YEAR_BUILT_CATEGORIES_AGG = [
     ("0000-2015",   0,2015),
     ("2016-2050",2016,2050),
  ]
@@ -84,7 +94,7 @@ def set_year_built_category(df):
         df.loc[(df.year_built >= YEAR_MIN)&(df.year_built <= YEAR_MAX), "year_built_category"] = CAT_NAME
 
     df["year_built_category_agg"] = "????-????"
-    for category in YEAR_BUILD_CATEGORIES_AGG:
+    for category in YEAR_BUILT_CATEGORIES_AGG:
         CAT_NAME = category[0]
         YEAR_MIN = category[1]
         YEAR_MAX = category[2]
@@ -138,7 +148,13 @@ if __name__ == '__main__':
 
     BUILDING_TYPE_TO_DESC = building_types_df["detailed description"].to_dict()
     BUILDING_TYPE_TO_DESC["all"] = "all"
-    logger.info("BUILDING_TYPE_TO_DESC: {}".format(BUILDING_TYPE_TO_DESC))
+    logger.debug("BUILDING_TYPE_TO_DESC: {}".format(BUILDING_TYPE_TO_DESC))
+
+    building_activity_df = pandas.read_excel(BUILDING_TYPE_ACTIVITY_FILE, sheet_name="building_type")
+    building_types_df = pandas.merge(left=building_types_df, right=building_activity_df,
+                                     how="left", left_index=True, right_on="building_type_det")
+    logger.debug("building_types_df: \n{}".format(building_types_df))
+
     ####################################
     tm_lu_df = pandas.read_csv(EMPLOYMENT_FILE)
     logger.info("Read {}; head:\n{}".format(EMPLOYMENT_FILE, tm_lu_df.head()))
@@ -170,6 +186,18 @@ if __name__ == '__main__':
     # join buildings to parcel to get the zone
     buildings_df = pandas.merge(left=buildings_df, right=parcels_df[["parcel_id","zone_id"]], 
                                 how="left", left_on=["parcel_id"], right_on=["parcel_id"])
+
+    buildings_no_year_built = buildings_df.loc[pandas.isnull(buildings_df.year_built)]
+    if len(buildings_no_year_built) > 0:
+        logger.warn("buildings_df has {} rows with no year_built:\n{}".format(len(buildings_no_year_built), buildings_no_year_built))
+    else:
+        logger.info("buildings_df has 0 rows with no year_built")
+
+    buildings_no_building_type = buildings_df.loc[pandas.isnull(buildings_df.building_type)]
+    if len(buildings_no_building_type) > 0:
+        logger.warn("buildings_df has {} rows with no building_type:\n{}".format(len(buildings_no_building_type), buildings_no_building_type))
+    else:
+        logger.info("buildings_df has 0 rows with no building_type")
 
     #### sum to zone by year_built_category and building_type: residential_units, residential_sqft, non_residential_sqft
     buildings_zone_btype_df = buildings_df.groupby(["zone_id","year_built_category_agg","year_built_category","building_type"]).agg(
@@ -213,8 +241,18 @@ if __name__ == '__main__':
     pipeline_df = set_year_built_category(pipeline_df)
     logger.info("pipeline_df by year_built_category:\n{}".format(pipeline_df["year_built_category"].value_counts()))
     logger.info("pipeline_df by year_built_category_agg:\n{}".format(pipeline_df["year_built_category_agg"].value_counts()))
-    #logger.info("pipeline_df with unknown year_built_category:\n{}".format(
-    #      pipeline_df.loc[pipeline_df.year_built_category=="unknown"]))
+
+    pipeline_no_year_built = pipeline_df.loc[pandas.isnull(pipeline_df.year_built)]
+    if len(pipeline_no_year_built) > 0:
+        logger.warn("pipeline_df has {} rows with no year_built:\n{}".format(len(pipeline_no_year_built), pipeline_no_year_built))
+    else:
+        logger.info("pipeline_df has 0 rows with no year_built")
+
+    pipeline_no_building_type = pipeline_df.loc[pandas.isnull(pipeline_df.building_type)]
+    if len(pipeline_no_building_type) > 0:
+        logger.warn("pipeline_df has {} rows with no building_type:\n{}".format(len(pipeline_no_building_type), pipeline_no_building_type))
+    else:
+        logger.info("pipeline_df has 0 rows with no building_type")
 
     # sum to zone by year_built_category and building_type
     # assume residential_sqft = building_sqft - non_residential_sqft
@@ -262,12 +300,17 @@ if __name__ == '__main__':
                              pipeline_zone_df], axis="index")
     logger.info("zone_df.head():\n{}".format(zone_df.head()))
 
+    logger.debug("zone_df for zone_id=1: \n{}".format(zone_df.loc[zone_df.zone_id==1]))
+
     # pivot on buildings/pipeline including ALL building types
     zone_piv_df = zone_df.pivot_table(index  ="zone_id",
                                       columns=["source","year_built_category","building_type"],
-                                      values =["residential_units", "building_sqft", "residential_sqft", "non_residential_sqft"])
+                                      values =["residential_units", "building_sqft", "residential_sqft", "non_residential_sqft"],
+                                      aggfunc=numpy.sum)
     logger.info("zone_piv_df.head():\n{}".format(zone_piv_df.head()))
     zone_piv_df.reset_index(inplace=True)
+
+    logger.debug("zone_piv_df for zone_id=1: \n{}".format(zone_piv_df.loc[zone_piv_df.zone_id==1].squeeze()))
 
     # convert column names from tuples
     new_cols = []
@@ -284,9 +327,12 @@ if __name__ == '__main__':
     # pivot on buildings/pipeline including ALL building types
     zone_piv_agg_df = zone_df.pivot_table(index  ="zone_id",
                                           columns=["source","year_built_category_agg","building_type"],
-                                          values =["residential_units", "building_sqft", "residential_sqft", "non_residential_sqft"])
+                                          values =["residential_units", "building_sqft", "residential_sqft", "non_residential_sqft"],
+                                          aggfunc=numpy.sum)
     logger.info("zone_piv_agg_df.head():\n{}".format(zone_piv_agg_df.head()))
     zone_piv_agg_df.reset_index(inplace=True)
+
+    logger.debug("zone_piv_agg_df for zone_id=1: \n{}".format(zone_piv_agg_df.loc[zone_piv_agg_df.zone_id==1].squeeze()))
 
     # convert column names from tuples
     new_cols = []
@@ -620,6 +666,27 @@ if __name__ == '__main__':
         dataset_fc_metadata.copy(new_metadata)
         dataset_fc_metadata.save()
     
+
+    # copy over pipeline with additional info added from building_types_df
+    building_types_table = "building_types"
+    try:    arcpy.Delete_management(building_types_table)
+    except: pass
+
+    building_types_arr = numpy.array(numpy.rec.fromrecords(building_types_df.values))
+    building_types_arr.dtype.names = tuple(building_types_df.dtypes.index.tolist())
+    arcpy.da.NumPyArrayToTable(building_types_arr, os.path.join(WORKSPACE_GDB, building_types_table))
+
+    # create join layer with tazdata and zone_file
+    logger.info("Joining {} with {}".format(os.path.join(URBANSIM_PIPELINE_GDB, "pipeline"), building_types_table))
+    dataset_joined = arcpy.AddJoin_management(os.path.join(URBANSIM_PIPELINE_GDB, "pipeline"), "building_type", 
+                                              os.path.join(WORKSPACE_GDB, building_types_table), "building_type_det")
+    pipeline_fc = "pipeline"
+    try:    arcpy.Delete_management(pipeline_fc)
+    except: pass
+
+    logger.info("Saving it as {}".format(pipeline_fc))
+    arcpy.CopyFeatures_management(dataset_joined, pipeline_fc)
+    
     logger.info("Complete")
 
 """
@@ -627,6 +694,10 @@ if __name__ == '__main__':
 
 Go to Service URL (ugly webpage that looks like services3.argics.com...)
 Click on link View In: ArcGIS.com Map
+Add that to the web map and the field aliases will work
+
+Pop-up panel widget for custom web app:
+https://community.esri.com/docs/DOC-7355-popup-panel-widget-version-213-102519
 
 Basemap Employment for TAZ {base_nonres_zone_id}
 
@@ -654,7 +725,7 @@ Basemap Housing Units for TAZ {base_res_zone_id}
 
 Charts:
 Housing Unit by Building Type
-Housing Units by Year Built
+Housing Unit by Year Built
 
 
 Decode( building_type,
