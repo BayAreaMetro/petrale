@@ -32,16 +32,16 @@ Map key base zoning attributes (PBA40 PLU and BASIS BOC) in five groups at the p
 * Residential parcels development capacity in units (BASIS vs. PBA40) (2 layers)
 * Non-residential parcels development capacity in thousand sqft (BASIS vs. PBA40) (2 layers)
 * Non-residential parcels development capacity in number of employees (BASIS vs. PBA40) (2 layers)
-The resulting map is avalable on ArcGIS online for MTC internal reviews. Current version: 
-https://mtc.maps.arcgis.com/home/item.html?id=97fdafa794af483eacffb82d08d3a57a
+
+The resulting map is avalable on ArcGIS online for MTC internal reviews:
+* [4/10/2020 version](https://mtc.maps.arcgis.com/home/item.html?id=97fdafa794af483eacffb82d08d3a57a)
+* [4/17/2020 version](https://mtc.maps.arcgis.com/home/webmap/viewer.html?webmap=96e7891c45c74c959a1519daeacfa9b0)
 
 ## Data sources
-Data sets used in this script are located in either the Box folder ['Bay Area UrbanSim 1.5 > PBA50 > Input Data Analysis'](https://mtcdrive.app.box.com/folder/106560772938) or the UrbanSim Github folder ['data'](https://github.com/BayAreaMetro/bayarea_urbansim/tree/master/data). 
-* [p10](https://mtcdrive.app.box.com/folder/106871371254)
-* [b10](https://mtcdrive.app.box.com/file/633052759622)
-* [2020_03_06_zoning_parcels (p10 - PBA40 zoning_id mapping)](https://mtcdrive.app.box.com/file/633053926869)
-* [zoning_lookup (PBA40 zoning_id - planned land use mapping)](https://github.com/BayAreaMetro/bayarea_urbansim/blob/master/data/zoning_lookup.csv)
-* [p10_boc_opt_B_v1d_geo (BASIS BOC)](https://mtcdrive.app.box.com/file/639116002730)
-* p_hb (hybrid Blueprint Option 2 parcel)
-* b_hb (BASIS building)
-
+Data used in this script is packaged to [PLU_BOC_capacity_calculation_map.zip](https://mtcdrive.app.box.com/file/651898444588). 
+Raw data sources:  
+* 'p10_table', 'p10_geo_shp.shp', 'blg10.csv' retrieved from [smelt.gdb](https://mtcdrive.app.box.com/folder/106699591369): p10 parcel and building
+* ['2020_03_06_zoning_parcels.csv'](https://mtcdrive.app.box.com/folder/103451630229): parcel10 to pba40 basezoning code
+* ['zoning_lookup.csv'](github.com/BayAreaMetro/bayarea_urbansim/blob/master/data/zoning_lookup.csv): pba40 basezoning plu
+* ['p10_boc_opt_b_v1d_tbl'](https://mtcdrive.app.box.com/file/647477715461): BASIS BOC
+* ['2020_04_14_parcels_geography.csv'](https://mtcdrive.app.box.com/folder/103451630229): planned zoningmod scenarios
