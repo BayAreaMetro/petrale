@@ -35,19 +35,19 @@ NOW = time.strftime("%Y_%m%d_%H%M")
 # note: this runs a lot better if these directories are a local/fast disk
 # Using a box drive or even a network drive tends to result in arcpy exceptions
 if os.getenv("USERNAME")=="lzorn":
-	WORKING_DIR         = "C:\\Users\\lzorn\\Documents\\UrbanSim smelt\\2020 03 12"
-	LOG_FILE            = os.path.join(WORKING_DIR,"devproj_{}.log".format(NOW))
-	SMELT_GDB           = os.path.join(WORKING_DIR,"smelt.gdb")
+	WORKING_DIR		 = "C:\\Users\\lzorn\\Documents\\UrbanSim smelt\\2020 03 12"
+	LOG_FILE		    = os.path.join(WORKING_DIR,"devproj_{}.log".format(NOW))
+	SMELT_GDB		   = os.path.join(WORKING_DIR,"smelt.gdb")
 	WORKSPACE_GDB       = "workspace_{}.GDB".format(NOW) # scratch
 elif os.getenv("USERNAME")=="blu":
-	WORKING_DIR         = "D:\\Users\\blu\\Documents\\ArcGIS\\Projects\\DevPrj\\2020 03 12"
-	LOG_FILE            = os.path.join(WORKING_DIR,"devproj_{}.log".format(NOW))
-	SMELT_GDB           = "D:\\Users\\blu\\Documents\\ArcGIS\\Projects\\DevPrj\\2020 03 12\\smelt.gdb"
+	WORKING_DIR		 = "D:\\Users\\blu\\Documents\\ArcGIS\\Projects\\DevPrj\\2020 03 12"
+	LOG_FILE		    = os.path.join(WORKING_DIR,"devproj_{}.log".format(NOW))
+	SMELT_GDB		   = "D:\\Users\\blu\\Documents\\ArcGIS\\Projects\\DevPrj\\2020 03 12\\smelt.gdb"
 	WORKSPACE_GDB       = "workspace_{}.GDB".format(NOW) # scratch
 else:
-	WORKING_DIR         = "E:\\baydata"
-	LOG_FILE            = os.path.join(WORKING_DIR,"devproj_{}.log".format(NOW))
-	SMELT_GDB           = os.path.join(WORKING_DIR,"smelt.gdb")
+	WORKING_DIR		 = "E:\\baydata"
+	LOG_FILE		    = os.path.join(WORKING_DIR,"devproj_{}.log".format(NOW))
+	SMELT_GDB		   = os.path.join(WORKING_DIR,"smelt.gdb")
 	WORKSPACE_GDB       = "workspace_{}.GDB".format(NOW) # scratch
 
 
@@ -747,9 +747,9 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "residential_units", '!UNITS!')
 		###ideally, everything could be done using cursor since it is much faster to run
 		with arcpy.da.UpdateCursor(joinFN, ["SQFT", "UNITS", "unit_ave_sqft"]) as cursor:
-	    		for row in cursor:
-	        		row[2] = row[0] / row[1] 
-	        		cursor.updateRow(row)
+				for row in cursor:
+					row[2] = row[0] / row[1]
+					cursor.updateRow(row)
 		arcpy.CalculateField_management(joinFN, "tenure", "'Sale'") #is redfin data rental?
 		arcpy.CalculateField_management(joinFN, "last_sale_year", '!SOLD_DATE!') #need to make into year
 		arcpy.CalculateField_management(joinFN, "last_sale_price", '!PRICE!')
@@ -914,6 +914,289 @@ if __name__ == '__main__':
 	
 	# it's no longer necessary to delete temporary spatial join layers since they're in the temporary WORKSPACE_GDB
 
+	#update mapping of building types from detailed to simplified in both pipeline 
+	arcpy.AlterField_management(pipeline_fc, "building_type", "building_type_det")
+	arcpy.AddField_management(pipeline_fc, "building_type", "TEXT","","","800")
+	arcpy.AddField_management(pipeline_fc, "building_type_id", "LONG")
+	arcpy.AddField_management(pipeline_fc, "development_type_id", "LONG")
+
+	with arcpy.da.UpdateCursor(pipeline_fc, ['building_type_det', "building_type","building_type_id", 'development_type_id']) as cursor:
+				for row in cursor:
+					if row[0] == 'HS':
+						row[1] = 'HS'
+						row[2] = 1
+						row[3] = 1 
+					if row[0] == 'HT':
+						row[1] = 'HT'
+						row[2] = 2 
+						row[3] = 2
+					if row[0] == 'HM':
+						row[1] = 'HM'
+						row[2] = 3
+						row[3] = 2
+					elif row[0] == 'MH':
+						row[1] = 'HM'
+						row[2] = 3
+						row[3] = 4
+					elif row[0] == 'SR':
+						row[1] = 'HM'
+						row[2] = 3
+						row[3] = 2
+					elif row[0] == 'AL':
+						row[1] = 'GQ'
+						row[2] = 3
+						row[3] = 6
+					elif row[0] == 'DM':
+						row[1] = 'GQ'
+						row[2] = 3
+						row[3] = 6
+					elif row[0] == 'CM':
+						row[1] = 'HM'
+						row[2] = 3
+						row[3] = 2
+					elif row[0] == 'OF':
+						row[1] = 'OF'
+						row[2] = 4
+						row[3] = 10
+					elif row[0] == 'GV':
+						row[1] = 'OF'
+						row[2] = 4
+						row[3] = 10
+					elif row[0] == 'HP':
+						row[1] = 'OF'
+						row[2] = 4
+						row[3] = 10
+					elif row[0] == 'HO':
+						row[1] = 'HO'
+						row[2] = 5
+						row[3] = 9
+					elif row[0] == 'SC':
+						row[1] = 'SC'
+						row[2] = 6
+						row[3] = 17
+					elif row[0] == 'UN':
+						row[1] = 'SC'
+						row[2] = 6
+						row[3] = 18
+					elif row[0] == 'IL':
+						row[1] = 'IL'
+						row[2] = 7
+						row[2] = 14
+					elif row[0] == 'FP':
+						row[1] = 'IL'
+						row[2] = 7
+						row[2] = 14
+					elif row[0] == 'IW':
+						row[1] = 'IW'
+						row[2] = 8
+						row[3] = 13
+					elif row[0] == 'IH':
+						row[1] = 'IH'
+						row[2] = 9
+						row[3] = 15
+					elif row[0] == 'RS':
+						row[1] = 'RS'
+						row[2] = 10
+						row[3] = 7
+					elif row[0] == 'RB':
+						row[1] = 'RB'
+						row[2] = 11
+						row[3] = 8
+					elif row[0] == 'MR':
+						row[1] = 'MR'
+						row[2] = 12
+						row[3] = 5
+					elif row[0] == 'MT':
+						row[1] = 'MT'
+						row[2] = 12
+					elif row[0] == 'ME':
+						row[1] = 'ME'
+						row[2] = 14
+						row[3] = 11
+					elif row[0] == 'PA':
+						row[1] = 'VA'
+						row[2] = 15
+						row[3] = 23
+					elif row[0] == 'PG':
+						row[1] = 'PG'
+						row[2] = 16
+						row[3] = 22
+					elif row[0] == 'VA':
+						row[1] = 'VA'
+						row[2] = 0
+						row[3] = 21
+					elif row[0] == 'LR':
+						row[1] = 'RS'
+						row[2] = 10
+						row[3] = 7
+					elif row[0] == 'VP':
+						row[1] = 'VP'
+						row[2] = 0
+						row[3] = 20
+					elif row[0] == 'OT':
+						row[1] = 'OT'
+						row[2] = 0
+					elif row[0] == 'IN':
+						row[1] = 'OF'
+						row[2] = 4
+						row[3] = 10 
+					elif row[0] == 'RF':
+						row[1] = 'RS'
+						row[2] = 10
+						row[3] = 7
+					elif row[0] == 'GQ':
+						row[1] = 'GQ'
+						row[2] = 3
+						row[3] = 6
+					cursor.updateRow(row)
+
+	## count missing value
+	btnull = 'btnull' ##stands for building type null
+	arcpy.MakeTableView_management(pipeline_fc,btnull,"building_type is NULL")
+	nullcount = arcpy.GetCount_management(btnull)
+	logger.info("Pipeline list has {} records with building type info missing".format(nullcount))
+
+    #same process for development project list
+	arcpy.AlterField_management(devproj_fc, "building_type", "building_type_det")
+	arcpy.AddField_management(devproj_fc, "building_type", "TEXT","","","800")
+	arcpy.AddField_management(devproj_fc, "building_type_id", "LONG")
+	arcpy.AddField_management(devproj_fc, "development_type_id", "LONG")
+
+	with arcpy.da.UpdateCursor(devproj_fc, ['building_type_det', "building_type","building_type_id", 'development_type_id']) as cursor:
+				for row in cursor:
+					if row[0] == 'HS':
+						row[1] = 'HS'
+						row[2] = 1
+						row[3] = 1 
+					if row[0] == 'HT':
+						row[1] = 'HT'
+						row[2] = 2 
+						row[3] = 2
+					if row[0] == 'HM':
+						row[1] = 'HM'
+						row[2] = 3
+						row[3] = 2
+					elif row[0] == 'MH':
+						row[1] = 'HM'
+						row[2] = 3
+						row[3] = 4
+					elif row[0] == 'SR':
+						row[1] = 'HM'
+						row[2] = 3
+						row[3] = 2
+					elif row[0] == 'AL':
+						row[1] = 'GQ'
+						row[2] = 3
+						row[3] = 6
+					elif row[0] == 'DM':
+						row[1] = 'GQ'
+						row[2] = 3
+						row[3] = 6
+					elif row[0] == 'CM':
+						row[1] = 'HM'
+						row[2] = 3
+						row[3] = 2
+					elif row[0] == 'OF':
+						row[1] = 'OF'
+						row[2] = 4
+						row[3] = 10
+					elif row[0] == 'GV':
+						row[1] = 'OF'
+						row[2] = 4
+						row[3] = 10
+					elif row[0] == 'HP':
+						row[1] = 'OF'
+						row[2] = 4
+						row[3] = 10
+					elif row[0] == 'HO':
+						row[1] = 'HO'
+						row[2] = 5
+						row[3] = 9
+					elif row[0] == 'SC':
+						row[1] = 'SC'
+						row[2] = 6
+						row[3] = 17
+					elif row[0] == 'UN':
+						row[1] = 'SC'
+						row[2] = 6
+						row[3] = 18
+					elif row[0] == 'IL':
+						row[1] = 'IL'
+						row[2] = 7
+						row[2] = 14
+					elif row[0] == 'FP':
+						row[1] = 'IL'
+						row[2] = 7
+						row[2] = 14
+					elif row[0] == 'IW':
+						row[1] = 'IW'
+						row[2] = 8
+						row[3] = 13
+					elif row[0] == 'IH':
+						row[1] = 'IH'
+						row[2] = 9
+						row[3] = 15
+					elif row[0] == 'RS':
+						row[1] = 'RS'
+						row[2] = 10
+						row[3] = 7
+					elif row[0] == 'RB':
+						row[1] = 'RB'
+						row[2] = 11
+						row[3] = 8
+					elif row[0] == 'MR':
+						row[1] = 'MR'
+						row[2] = 12
+						row[3] = 5
+					elif row[0] == 'MT':
+						row[1] = 'MT'
+						row[2] = 12
+					elif row[0] == 'ME':
+						row[1] = 'ME'
+						row[2] = 14
+						row[3] = 11
+					elif row[0] == 'PA':
+						row[1] = 'VA'
+						row[2] = 15
+						row[3] = 23
+					elif row[0] == 'PG':
+						row[1] = 'PG'
+						row[2] = 16
+						row[3] = 22
+					elif row[0] == 'VA':
+						row[1] = 'VA'
+						row[2] = 0
+						row[3] = 21
+					elif row[0] == 'LR':
+						row[1] = 'RS'
+						row[2] = 10
+						row[3] = 7
+					elif row[0] == 'VP':
+						row[1] = 'VP'
+						row[2] = 0
+						row[3] = 20
+					elif row[0] == 'OT':
+						row[1] = 'OT'
+						row[2] = 0
+					elif row[0] == 'IN':
+						row[1] = 'OF'
+						row[2] = 4
+						row[3] = 10 
+					elif row[0] == 'RF':
+						row[1] = 'RS'
+						row[2] = 10
+						row[3] = 7
+					elif row[0] == 'GQ':
+						row[1] = 'GQ'
+						row[2] = 3
+						row[3] = 6
+					cursor.updateRow(row)
+	## count missing value
+	btnull = 'btnull' ##stands for building type null
+	arcpy.MakeTableView_management(devproj_fc,btnull,"building_type is NULL")
+	nullcount = arcpy.GetCount_management(btnull)
+	logger.info("Development Project list has {} records with building type info missing".format(nullcount))
+
 	# 6 DIAGNOSTICS
 	#number of units total by year
 	arcpy.Statistics_analysis(devproj_fc, 'res_stats_y', [["residential_units", "SUM"]], "year_built")
@@ -973,8 +1256,6 @@ if __name__ == '__main__':
 	countParcelD = arcpy.GetCount_management(pdCount)
 	logger.info("There are {} of parcels with multiple project points (more than 1) on them".format(countParcelD))
 	
-	
-	
 	# 7 BUILDINGS TO ADD INSTEAD OF BUILD
 	# change a short list of activity to add
 	# first doing it for the pipeline file
@@ -999,6 +1280,12 @@ if __name__ == '__main__':
 	    			if row[0] in pList_dev: 
 	    				row[1] = 'add'
 	    				cursor.updateRow(row)
+
+	#counting null in building type
+		with arcpy.da.UpdateCursor(p_pipeline, "geom_id") as cursor:
+		for row in cursor:
+			if row[0] is None:
+				cursor.deleteRow()
 	
 	#we are only keeping one set of data. move this blolock of code to the end
 	#export csv to folder -- remember to change fold path when run on other machines
@@ -1019,12 +1306,12 @@ if __name__ == '__main__':
 	fcs = [pipeline_fc, devproj_fc]
 	for fc in fcs:
 		arcpy.FeatureClassToFeatureClass_conversion(fc, os.path.join(WORKING_DIR, out_name), 
-		                                            arcpy.Describe(fc).name)
+												    arcpy.Describe(fc).name)
 
 	# 8 adding 2011-2015 projects to buildings
 	pipeline = 'pipeline' 
 	arcpy.FeatureClassToFeatureClass_conversion(pipeline, arcpy.env.workspace, 
-                                            'p1115', "year_built >= 2011 AND year_built <= 2015")
+										    'p1115', "year_built >= 2011 AND year_built <= 2015")
 	p1115 = 'p1115'
 	arcpy.AlterField_management(p1115, "PARCEL_ID", "b_PARCEL_ID")
 	arcpy.AlterField_management(p1115, "residential_units", "b_residential_units")
@@ -1035,7 +1322,6 @@ if __name__ == '__main__':
 
 	arcpy.AddField_management(p1115, "building_id", "LONG")
 	arcpy.AddField_management(p1115, "parcel_id", "LONG")
-	arcpy.AddField_management(p1115, "development_type_id", "LONG")
 	arcpy.AddField_management(p1115, "improvement_value", "DOUBLE")
 	arcpy.AddField_management(p1115, "residential_units", "LONG")
 	arcpy.AddField_management(p1115, "residential_sqft", "LONG")
@@ -1051,7 +1337,6 @@ if __name__ == '__main__':
 	arcpy.AddField_management(p1115, "redfin_home_type", "TEXT","","","800")
 	arcpy.AddField_management(p1115, "costar_property_type", "TEXT","","","800")
 	arcpy.AddField_management(p1115, "costar_rent", "TEXT","","","800")
-	arcpy.AddField_management(p1115, "building_type_id", "LONG")
 
 	#arcpy.CalculateField_management(p1115, "building_id", )
 	arcpy.CalculateField_management(p1115, "parcel_id", "!b_PARCEL_ID!")
@@ -1072,67 +1357,6 @@ if __name__ == '__main__':
 	#arcpy.CalculateField_management(p1115, "costar_property_type", )
 	arcpy.CalculateField_management(p1115, "costar_rent", "!average_weighted_rent!")
 
-	with arcpy.da.UpdateCursor(p1115, ["building_type","building_type_id", 'development_type_id']) as cursor:
-    			for row in cursor:
-        			if row[0] == 'VP':
-        				row[1] = 0
-        				row[2] = 20 
-        			if row[0] == 'VA':
-        				row[1] = 0
-        				row[2] = 21 
-        			if row[0] == 'OT':
-        				row[1] = 0     			       			       			
-        			elif row[0] == 'HS':
-        				row[1] = 1
-        				row[2] = 1
-        			elif row[0] == 'HT':
-        				row[1] = 2
-        			elif row[0] == 'HM':
-        				row[1] = 3
-        				row[2] = 2
-        			elif row[0] == 'OF':
-        				row[1] = 4
-        				row[2] = 10
-        			elif row[0] == 'HO':
-        				row[1] = 5
-        				row[2] = 9
-        			elif row[0] == 'SC':
-        				row[1] = 6
-        				row[2] = 17
-        			elif row[0] == 'IL':
-        				row[1] = 7
-        				row[2] = 14
-        			elif row[0] == 'IW':
-        				row[1] = 8
-        				row[2] = 13
-        			elif row[0] == 'IH':
-        				row[1] = 9
-        				row[2] = 15
-        			elif row[0] == 'RS':
-        				row[1] = 10
-        				row[2] = 7
-        			elif row[0] == 'RB':
-        				row[1] = 11
-        				row[2] = 8
-        			elif row[0] == 'MR':
-        				row[1] = 12
-        				row[2] = 5
-        			elif row[0] == 'MT':
-        				row[1] = 13
-        			elif row[0] == 'ME':
-        				row[1] = 14
-        				row[2] = 11
-        			elif row[0] == 'PA':
-        				row[1] = 15
-        				row[2] = 23
-        			elif row[0] == 'PA2':
-        				row[1] = 16
-        			elif row[0] == 'PG':
-        				row[1] = 16
-        				row[2] = 23
-        			cursor.updateRow(row)
-
-
 	arcpy.FeatureClassToFeatureClass_conversion(p1115, arcpy.env.workspace,'p1115_add', "action = 'add'")
 	arcpy.FeatureClassToFeatureClass_conversion(p1115, arcpy.env.workspace,'p1115_build', "action = 'build'")
 
@@ -1142,7 +1366,7 @@ if __name__ == '__main__':
 	FCfields = [f.name for f in arcpy.ListFields(p1115_add)]
 	DontDeleteFields = ["OBJECTID","Shape","building_id","parcel_id","development_type_id", "improvement_value", "residential_units", "residential_sqft",  "sqft_per_unit", 
 	"non_residential_sqft","building_sqft","nonres_rent_per_sqft","res_price_per_sqft","stories","year_built", "redfin_sale_price","redfin_sale_year",
-	"redfin_home_type","costar_property_type","costar_rent","building_type","building_type_id"]
+	"redfin_home_type","costar_property_type","costar_rent","building_type","building_type_id","development_type_id"]
 	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 	arcpy.DeleteField_management(p1115_add, fields2Delete)
 	arcpy.DeleteField_management(p1115_build, fields2Delete) #because the two dataset should have the same structure
@@ -1154,83 +1378,83 @@ if __name__ == '__main__':
 	arcpy.AddField_management(b10, "building_type_id", "LONG")
 
 	with arcpy.da.UpdateCursor(b10, ["development_type_id","building_type","building_type_id"]) as cursor:
-    			for row in cursor:
-        			if row[0] == 1:
-        				row[1] = "HS"
-        				row[2] = 1
-        			elif row[0] == 2:
-        				row[1] = 'HM'
-        				row[2] = 3
-        			elif row[0] == 3:
-        				row[1] = 'HM'
-        				row[2] = 3
-        			elif row[0] == 4:
-        				row[1] = 'HM'
-        				row[2] = 3
-        			elif row[0] == 5:
-        				row[1] = 'MR'
-        				row[2] = 12
-        			elif row[0] == 6:
-        				row[1] = 'HM'
-        				row[2] = 3
-        			elif row[0] == 7:
-        				row[1] = 'RS'
-        				row[2] = 10
-        			elif row[0] == 8:
-        				row[1] = 'RB'
-        				row[2] = 11
-        			elif row[0] == 9:
-        				row[1] = 'HO'
-        				row[2] = 5
-        			elif row[0] == 10:
-        				row[1] = 'OF'
-        				row[2] = 4
-        			elif row[0] == 11:
-        				row[1] = 'ME'
-        				row[2] = 14
-        			elif row[0] == 12:
-        				row[1] = 'OF'
-        				row[2] = 4
-        			elif row[0] == 13:
-        				row[1] = 'IW'
-        				row[2] = 8
-        			elif row[0] == 14:
-        				row[1] = 'IL'
-        				row[2] = 7
-        			elif row[0] == 15:
-        				row[1] = 'IH'
-        				row[2] = 9
-        			elif row[0] == 16:
-        				row[1] == 'IL'
-        				row[2] = 7
-        			elif row[0] == 17:
-        				row[1] = 'SC'
-        				row[2] = 6
-        			elif row[0] == 18:
-        				row[1] = 'SC'
-        				row[2] = 6
-        			elif row[0] == 19:
-        				row[1] = 'OF'
-        				row[2] = 4
-        			elif row[0] == 20:
-        				row[1] = 'VP'
-        				row[2] = 0
-        			elif row[0] == 21:
-        				row[1] = 'VA'
-        				row[2] = 0
-        			elif row[0] == 22:
-        				row[1] = 'PG'
-        				row[2] = 16
-        			elif row[0] == 23:
-        				row[1] = 'PA'
-        				row[2] = 15
-        			elif row[0] == 24:
-        				row[1] = 'VP'
-        				row[2] = 0
-        			elif row[0] == 25:
-        				row[1] = 'VA'
-        				row[2] = 0
-        			cursor.updateRow(row)
+				for row in cursor:
+					if row[0] == 1:
+						row[1] = "HS"
+						row[2] = 1
+					elif row[0] == 2:
+						row[1] = 'HM'
+						row[2] = 3
+					elif row[0] == 3:
+						row[1] = 'HM'
+						row[2] = 3
+					elif row[0] == 4:
+						row[1] = 'HM'
+						row[2] = 3
+					elif row[0] == 5:
+						row[1] = 'MR'
+						row[2] = 12
+					elif row[0] == 6:
+						row[1] = 'GQ'
+						row[2] = 3
+					elif row[0] == 7:
+						row[1] = 'RS'
+						row[2] = 10
+					elif row[0] == 8:
+						row[1] = 'RB'
+						row[2] = 11
+					elif row[0] == 9:
+						row[1] = 'HO'
+						row[2] = 5
+					elif row[0] == 10:
+						row[1] = 'OF'
+						row[2] = 4
+					elif row[0] == 11:
+						row[1] = 'ME'
+						row[2] = 14
+					elif row[0] == 12:
+						row[1] = 'OF'
+						row[2] = 4
+					elif row[0] == 13:
+						row[1] = 'IW'
+						row[2] = 8
+					elif row[0] == 14:
+						row[1] = 'IL'
+						row[2] = 7
+					elif row[0] == 15:
+						row[1] = 'IH'
+						row[2] = 9
+					elif row[0] == 16:
+						row[1] == 'IL'
+						row[2] = 7
+					elif row[0] == 17:
+						row[1] = 'SC'
+						row[2] = 6
+					elif row[0] == 18:
+						row[1] = 'SC'
+						row[2] = 6
+					elif row[0] == 19:
+						row[1] = 'OF'
+						row[2] = 4
+					elif row[0] == 20:
+						row[1] = 'VP'
+						row[2] = 0
+					elif row[0] == 21:
+						row[1] = 'VA'
+						row[2] = 0
+					elif row[0] == 22:
+						row[1] = 'PG'
+						row[2] = 16
+					elif row[0] == 23:
+						row[1] = 'PA'
+						row[2] = 15
+					elif row[0] == 24:
+						row[1] = 'VP'
+						row[2] = 0
+					elif row[0] == 25:
+						row[1] = 'VA'
+						row[2] = 0
+					cursor.updateRow(row)
 
 	arcpy.DeleteField_management(b10, 'id')
 
@@ -1257,6 +1481,11 @@ if __name__ == '__main__':
 	rawp10_b15_pba50 = 'rawp10_b15_pba50_{}'.format(NOW)[0:26] #delete ".time" part, because that dot breaks it.
 	mergeList2 = [b10_p1115_part1,p1115_build]
 	arcpy.Merge_management(mergeList2, rawp10_b15_pba50)
+
+	btnull = 'btnull' ##stands for building type null
+	arcpy.MakeTableView_management(rawp10_b15_pba50,btnull,"building_type is NULL")
+	nullcount = arcpy.GetCount_management(btnull)
+	logger.info("Building file list has {} records with building type info missing".format(nullcount))
 
 	#diagnotics using the copy
 	b10_p1115_part1_copy = 'b10_p1115_part1_copy'
@@ -1302,3 +1531,9 @@ if __name__ == '__main__':
 		logger.info("Transform {} to building table".format(rawp10_b15_pba50))
 	else:
 		logger.info("Something is wrong")
+
+
+
+	####Build some summary file using development project list (p1115 add, p1115 build) and b10
+	#arcpy.Statistics_analysis(devproj_fc, 'added_events', [["development_projects_id", "COUNT"]],"ZONE_ID")
+
