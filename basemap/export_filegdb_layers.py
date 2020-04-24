@@ -16,6 +16,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=USAGE, formatter_class=argparse.RawDescriptionHelpFormatter,)
     parser.add_argument("geodatabase",  metavar="geodatabase.gdb", help="File geodatabase with layer export")
     parser.add_argument("--layer", help="Layer to export")
+    parser.add_argument("--format", choices=["csv","dbf","shp","geojson"])
 
     args = parser.parse_args()
 
@@ -33,26 +34,35 @@ if __name__ == '__main__':
     if args.layer in arcpy.ListFeatureClasses():
 
         result = arcpy.GetCount_management(os.path.join(args.geodatabase, args.layer))
-        print("Feature Class []{} has {} rows".format(os.path.join(args.geodatabase, args.layer), result[0]))
+        print("Feature Class [{}] has {} rows".format(os.path.join(args.geodatabase, args.layer), result[0]))
 
-        # outfile = "{}.geojson".format(args.layer)
-        # arcpy.FeaturesToJSON_conversion(os.path.join(args.geodatabase, args.layer), outfile, geoJSON='GEOJSON')
-        # print("Wrote {}".format(outfile))
+        if args.format == "geojson":
+            outfile = "{}.geojson".format(args.layer)
+            arcpy.FeaturesToJSON_conversion(os.path.join(args.geodatabase, args.layer), outfile, geoJSON='GEOJSON')
+            print("Wrote {}".format(outfile))
 
-        outfile = "{}.shp".format(args.layer)
-        arcpy.FeatureClassToShapefile_conversion(os.path.join(args.geodatabase, args.layer), Output_Folder=".")
-        print("Write {}".format(outfile))
+        if args.format == "shp":
+            outfile = "{}.shp".format(args.layer)
+            arcpy.FeatureClassToShapefile_conversion(os.path.join(args.geodatabase, args.layer), Output_Folder=".")
+            print("Wrote {}".format(outfile))
+
+        if args.format == "csv":
+            outfile = os.path.join(".","{}.csv".format(args.layer))
+            arcpy.CopyRows_management(os.path.join(args.geodatabase, args.layer), outfile)
+            print("Wrote {}".format(outfile))
 
     if args.layer in arcpy.ListTables():
 
         result = arcpy.GetCount_management(os.path.join(args.geodatabase, args.layer))
         print("Table [{}] has {} rows".format(os.path.join(args.geodatabase, args.layer), result[0]))
 
-        outfile = "{}.csv".format(args.layer)
-        arcpy.TableToTable_conversion(os.path.join(args.geodatabase, args.layer), out_path=".", out_name=outfile)
-        print("Write {}".format(outfile))
+        if args.format == "csv":
+            outfile = "{}.csv".format(args.layer)
+            arcpy.TableToTable_conversion(os.path.join(args.geodatabase, args.layer), out_path=".", out_name=outfile)
+            print("Write {}".format(outfile))
 
-        # outfile = "{}.dbf".format(args.layer)
-        # arcpy.TableToTable_conversion(os.path.join(args.geodatabase, args.layer), out_path=".", out_name=outfile)
-        # print("Wrote {}".format(outfile))
+        if args.format == "dbf":
+            outfile = "{}.dbf".format(args.layer)
+            arcpy.TableToTable_conversion(os.path.join(args.geodatabase, args.layer), out_path=".", out_name=outfile)
+            print("Wrote {}".format(outfile))
 
