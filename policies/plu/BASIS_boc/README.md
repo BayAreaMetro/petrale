@@ -1,47 +1,64 @@
-## Purposes 
-* evaluate the BASIS BOC data (zoning data collected through BASIS) by comparing the build-out-capacity of the Bay Area land under BASIS BOC scheme versus PBA40 planned land use scheme
-* visualize BASIS allowed development type to assist with QA/QC
-* analyze the build-out-capacity of certain types of parcels, e.g., vacant parcels, parcels with a investment to land ratio (ILR), etc. 
+### Purposes 
+* QA/QC BASIS BOC data (base zoning data collected through BASIS) by comparing it with PBA40 PLU data (base zoning data used in PBA40)
+* build and examine various versions of hybrid PBA40-BOC base zoning data by comparing their implied development capacity (in residential units and non-residential sqft)
 
-## Key components
-### BASIS BOC data evaluation
-* merge p10 (parcel data used in PBA40) with PLU10 (planned land use data used in PBA40)
-* merge p10 data with BASIS BOC (build-out-capacity data collected in the BASIS process, to be used as planned land use in PBA50)
-* merge the data with b10 (building data used in PBA40) to assign parcel characteristics, e.g. vacancy, ILR, etc.
-* calculate the build-out-capacity for all parcels as well as various parcel groups at the county and jurisdiction levels
+### Steps
+#### 1_PLU_BOC_data_combine.ipynb
+Merge and clean several data sets.
 
-### BOC_PLU_comp_mapping
-* merge p10 (parcel data used in PBA40) with PLU10 (planned land use data used in PBA40)
-* merge p10 data with BASIS BOC allowed development type
-* category each parcel into one of the following types for each [development type](https://github.com/BayAreaMetro/petrale/blob/master/incoming/dv_buildings_det_type_lu.csv)
+Input (please see data sources below):
+* p10 parcels
+* pba40 zoning lookup, pba40 zoning-parcel mapping
+* basis boc (mapped to p10 'PARCEL_ID')
+* pba50 zoningmod (contains 'nodev' parcels, i.e. nondevelopable parcels)
+
+Output:
+* ['p10_plu_boc_allAttrs.csv'](https://mtcdrive.app.box.com/file/659036313452) which contains 4 groups of p10 attributes: 
+	* basic attributes, e.g. PARCEL_ID, ACRES, COUNTY, JURIS, NO_DEV
+	* allowed development type, i.e. '1/0' binary value of 14 development types, for both PBA40 and BASIS
+	* development intensity, i.e. max_dua, max_far, max_height, for both PBA40 and BASIS
+
+#### 2_dev_type_hybrid_modification.ipynb
+
+Input:
+* raw PBA40 and BASIS zoning data: 'p10_plu_boc_allAttrs.csv' from the previous step
+* hybrid index files: used to build hybrid base zoning by selecting more 'reasonable' allowed development type and intensity data from PBA40 versus BASIS. [Three versions](https://mtcdrive.box.com/s/j1rws9z619k8mx45eute7lcxt84flhvq):
+	* [hybrid 1] 'idx_BASIS_intensity_all.csv': keep all BASIS intensity data, replace all BASIS allowed development type data with PBA40 allowed development types
+	* [hybrid_2] 'idx_BASIS_intensity_partial.csv' (in progress): replace BASIS intensity data for some jurisdictions with PBA40 data, replace all BASIS allowed development type data with PBA40 allowed development types
+	* [hybrid_3] 'idx_BASIS_devType_intensity_partial.csv' (in progress): replace BASIS intensity data for some jurisdictions with PBA40 data, replace BASIS allowed development type data for some jurisdictions with PBA40 allowed development types
+
+Output:
+* [hybrid 0] ['p10_plu_boc_fill_naType.csv'](https://mtcdrive.app.box.com/file/659049771128): filled in BASIS missing allowed development type data with PBA40 data
+* [hybrid 1] ['p10_plu_boc_pba40Type.csv'](https://mtcdrive.app.box.com/file/659051027629): replace BASIS all allowed development type data with PBA40 data
+* [hybrid_2] (in progress)
+* [hybrid_3] (in progress)
+* ['devType_comparison.csv'](https://mtcdrive.app.box.com/file/659047511568): compares BASIS vs. PBA40 allowed development type data at parcel level. Each parcel falls into one of the following types for each [development type]:
     * 'both allow': the type of development is allowed in both PBA40 PLU data and BASIS BOC data
     * 'only pba40 allow'
     * 'only basis allow'
     * 'both not allow'
-    * 'missing BASIS BOC' (but PBA40 data is available)
+    * 'missing BASIS BOC' (but developable according to pba50_zoningmod)
+    * 'not developable' (parcels cannot be developed)
     * 'other' (missing PBA40 data)
-* export the analysis results to [Box](https://mtcdrive.app.box.com/folder/107845568866) for visualization and inspection in ArcGIS
 
-### BOC_PLU_dev_capacity_mapping
-Map key base zoning attributes (PBA40 PLU and BASIS BOC) in five groups at the parcel level:
-* BASIS selected allowed development types
-	* Parcels where BASIS allows HM (multi-family development)
-	* Parcels where BASIS allows MR (mixed-use) but doesn't allow HM
-	* Compare BASIS and PBA40 values on HM
-* Residential parcels MAX DUA (BASIS vs. PBA40 comparison) (2 layers)
-* Residential parcels development capacity in units (BASIS vs. PBA40) (2 layers)
-* Non-residential parcels development capacity in thousand sqft (BASIS vs. PBA40) (2 layers)
-* Non-residential parcels development capacity in number of employees (BASIS vs. PBA40) (2 layers)
+#### 3_dev_capacity_calculation.ipynb
+Calculate effective development intensity (refer to the [effective_max_dua](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L808) and [effective_max_far](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L852) calculations) for PBA40 and BASIS and compare the results. Uses different hybrid versions of BASIS BOC data as generated from the previous step.
 
-The resulting map is avalable on ArcGIS online for MTC internal reviews:
-* [4/10/2020 version](https://mtc.maps.arcgis.com/home/item.html?id=97fdafa794af483eacffb82d08d3a57a)
-* [4/17/2020 version](https://mtc.maps.arcgis.com/home/webmap/viewer.html?webmap=96e7891c45c74c959a1519daeacfa9b0)
+Input:
+* various versions of "p10_plu_boc" hybrid data generated from the previous step
 
-## Data sources
-Data used in this script is packaged to [PLU_BOC_capacity_calculation_map.zip](https://mtcdrive.app.box.com/file/651898444588). 
-Raw data sources:  
-* 'p10_table', 'p10_geo_shp.shp', 'blg10.csv' retrieved from [smelt.gdb](https://mtcdrive.app.box.com/folder/106699591369): p10 parcel and building
-* ['2020_03_06_zoning_parcels.csv'](https://mtcdrive.app.box.com/folder/103451630229): parcel10 to pba40 basezoning code
+Output:
+* [hybrid 0] 
+	* ['devCapacity_allAttrs_fill_naType.csv'](https://mtcdrive.app.box.com/file/659049771128): development capacity with PBA40 and hybrid_0 BASIS zoning data at parcel level - residential units, non-residential thousand sqft, number of employees
+* [hybrid 1]
+	* ['devCapacity_allAttrs_pba40Type.csv'](https://mtcdrive.app.box.com/file/659053674261): development capacity with PBA40 and hybrid_1 BASIS zoning data at parcel level - residential units, non-residential thousand sqft, number of employees
+	* ['devIntensity_pba40Type.csv'](https://mtcdrive.app.box.com/file/659057164065): raw intensity (max_dua, max_far, max_height) and calculated effective intensity from both PBA40 and BASIS 
+* [hybrid_2] (in progress)
+* [hybrid_3] (in progress)
+
+## Data sources  
+* 'p10_table', 'blg10.csv' retrieved from [smelt.gdb](https://mtcdrive.app.box.com/folder/106699591369): p10 parcel and building
+* ['2015_03_06_zoning_parcels.csv'](https://mtcdrive.app.box.com/folder/103451630229): parcel10 to pba40 basezoning code
 * ['zoning_lookup.csv'](github.com/BayAreaMetro/bayarea_urbansim/blob/master/data/zoning_lookup.csv): pba40 basezoning plu
 * ['p10_boc_opt_b_v1d_tbl'](https://mtcdrive.app.box.com/file/647477715461): BASIS BOC
 * ['2020_04_14_parcels_geography.csv'](https://mtcdrive.app.box.com/folder/103451630229): planned zoningmod scenarios
