@@ -22,8 +22,8 @@ Output:
 
 Input:
 * raw PBA40 and BASIS zoning data: 'p10_plu_boc_allAttrs.csv' from the previous step
-* hybrid index files: used to build hybrid base zoning by selecting more 'reasonable' allowed development type and intensity data from PBA40 versus BASIS. Three versions:
-	* [hybrid 1] ['idx_BASIS_intensity_all.csv'](https://mtcdrive.app.box.com/file/659053953394): keep all BASIS intensity data, replace all BASIS allowed development type data with PBA40 allowed development types
+* hybrid index files: used to build hybrid base zoning by selecting more 'reasonable' allowed development type and intensity data from PBA40 versus BASIS. [Three versions](https://mtcdrive.box.com/s/j1rws9z619k8mx45eute7lcxt84flhvq):
+	* [hybrid 1] 'idx_BASIS_intensity_all.csv': keep all BASIS intensity data, replace all BASIS allowed development type data with PBA40 allowed development types
 	* [hybrid_2] 'idx_BASIS_intensity_partial.csv' (in progress): replace BASIS intensity data for some jurisdictions with PBA40 data, replace all BASIS allowed development type data with PBA40 allowed development types
 	* [hybrid_3] 'idx_BASIS_devType_intensity_partial.csv' (in progress): replace BASIS intensity data for some jurisdictions with PBA40 data, replace BASIS allowed development type data for some jurisdictions with PBA40 allowed development types
 
