@@ -1,4 +1,4 @@
-juris_id,juris_name_1,county,OF_idx,HO_idx,SC_idx,IL_idx,IW_idx,IH_idx,RS_idx,RB_idx,MR_idx,MT_idx,ME_idx,HS_idx,HT_idx,HM_idx,MAX_DUA_idx,MAX_FAR_idx,MAX_HEIGHT_idx,proportion_adj_dua,proportion_adj_far,proportion_adj_height
+juris_id,juris_name,county,OF_idx,HO_idx,SC_idx,IL_idx,IW_idx,IH_idx,RS_idx,RB_idx,MR_idx,MT_idx,ME_idx,HS_idx,HT_idx,HM_idx,MAX_DUA_idx,MAX_FAR_idx,MAX_HEIGHT_idx,proportion_adj_dua,proportion_adj_far,proportion_adj_height
 alam,alameda,ala,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,BASIS,BASIS,BASIS,1,1,1
 alba,albany,ala,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,BASIS,BASIS,BASIS,1,1,1
 berk,berkeley,ala,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,PBA40,BASIS,BASIS,BASIS,1,1,1
