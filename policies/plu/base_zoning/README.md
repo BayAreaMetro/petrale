@@ -57,3 +57,8 @@ Output:
 	* ['devIntensity_BASIS_intensity_all.csv'](https://mtcdrive.box.com/s/32hunczdkugk44iqw224ejozchutojd1): raw intensity (max_dua, max_far, max_height) and calculated effective intensity from both PBA40 and BASIS 
 * [hybrid_2] (in progress)
 * [hybrid_3] (in progress)
+
+### Tableau files
+* 'Residential_UNIT_20200428_hybrid_1.twb' - compare BASIS and PBA40 development capacity in residential units by jurisdiction using [this data](https://mtcdrive.box.com/s/huty80u1m7lxlh20j1d2s8w1n9ny75bz) 
+* 'Non-residential_SQFT_20200428_hybrid_1.twb' - compare BASIS and PBA40 development capacity in non-res sqft by jurisdiction using [this data](https://mtcdrive.box.com/s/huty80u1m7lxlh20j1d2s8w1n9ny75bz)
+* 'devType_comparison.twb' - data discrepancies in development types between PBA40 and BASIS based on [this data](https://mtcdrive.box.com/s/mtjogl2fqf25yx7cxy6azrv587mo4itf)  
