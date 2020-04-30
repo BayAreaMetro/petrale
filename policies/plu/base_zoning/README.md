@@ -32,8 +32,8 @@ Input:
 Output:
 * [hybrid 0] ['p10_plu_boc_fill_naType.csv'](https://mtcdrive.box.com/s/x35fp65pv2lautamq15b4s0mfj3tr8l7): filled in BASIS missing allowed development type data with PBA40 data
 * [hybrid 1] ['p10_plu_boc_BASIS_intensity_all.csv'](https://mtcdrive.box.com/s/xdwi6m00htngm65rvyu1ul8uenyflryc): replace BASIS all allowed development type data with PBA40 data
-* [hybrid_2] (in progress)
-* [hybrid_3] (in progress)
+* [hybrid_2] ['p10_plu_boc_BASIS_intensity_partial.csv'](https://mtcdrive.box.com/s/7nfo5d1tkq3bzi3v9kk7mbf779nr8jk7)
+* [hybrid_3] ['p10_plu_boc_BASIS_devType_intensity_partial.csv](https://mtcdrive.box.com/s/drm50mn6mpwepeintfpotk32i7bqtvnv)
 * ['devType_comparison.csv'](https://mtcdrive.box.com/s/mtjogl2fqf25yx7cxy6azrv587mo4itf): compares BASIS vs. PBA40 allowed development type data at parcel level. Each parcel falls into one of the following types for each [development type]:
     * 'both allow': the type of development is allowed in both PBA40 PLU data and BASIS BOC data
     * 'only pba40 allow'
@@ -52,13 +52,20 @@ Input:
 Output:
 * [hybrid 0] 
 	* ['devCapacity_allAttrs_fill_naType.csv'](https://mtcdrive.box.com/s/huty80u1m7lxlh20j1d2s8w1n9ny75bz): development capacity with PBA40 and hybrid_0 BASIS zoning data at parcel level - residential units, non-residential thousand sqft, number of employees
+	* ['devIntensity_fill_naType.csv'](https://mtcdrive.box.com/s/3ko9p0hds84nngqg58ilwevtohlbtma7), though this version is not very useful
 * [hybrid 1]
 	* ['devCapacity_allAttrs_pba40Type.csv'](https://mtcdrive.box.com/s/09tbye86qs5kydhckoii53eitlac3my3): development capacity with PBA40 and hybrid_1 BASIS zoning data at parcel level - residential units, non-residential thousand sqft, number of employees
-	* ['devIntensity_BASIS_intensity_all.csv'](https://mtcdrive.box.com/s/32hunczdkugk44iqw224ejozchutojd1): raw intensity (max_dua, max_far, max_height) and calculated effective intensity from both PBA40 and BASIS 
-* [hybrid_2] (in progress)
-* [hybrid_3] (in progress)
+	* ['devIntensity_BASIS_intensity_all.csv'](https://mtcdrive.box.com/s/32hunczdkugk44iqw224ejozchutojd1): raw intensity (max_dua, max_far, max_height) and calculated effective intensity from both PBA40 and hybrid_1 BASIS zoning data at parcel level
+* [hybrid_2]
+	* ['devCapacity_allAttrs_BASIS_intensity_partial.csv'](https://mtcdrive.box.com/s/ce4tjx89egxuq263t08wdaegjbvvtv0d)
+	* ['devIntensity_BASIS_intensity_partial.csv'](https://mtcdrive.box.com/s/t3rbvu4xduvssbim81g2hhmbvcnv0feb)
+* [hybrid_3] 
+	* ['devCapacity_allAttrs_BASIS_devType_intensity_partial.csv'](https://mtcdrive.box.com/s/qtysq31wvzudl9b9vjjz7etgm9i4z9se)
+	* ['devIntensity_BASIS_devType_intensity_partial.csv'](https://mtcdrive.box.com/s/8rm3sjyryvx6jxnw6tb7y699sa6rmi4v)
 
 ### Tableau files
-* 'Residential_UNIT_20200428_hybrid_1.twb' - compare BASIS and PBA40 development capacity in residential units by jurisdiction using [this data](https://mtcdrive.box.com/s/huty80u1m7lxlh20j1d2s8w1n9ny75bz) 
-* 'Non-residential_SQFT_20200428_hybrid_1.twb' - compare BASIS and PBA40 development capacity in non-res sqft by jurisdiction using [this data](https://mtcdrive.box.com/s/huty80u1m7lxlh20j1d2s8w1n9ny75bz)
-* 'devType_comparison.twb' - data discrepancies in development types between PBA40 and BASIS based on [this data](https://mtcdrive.box.com/s/mtjogl2fqf25yx7cxy6azrv587mo4itf)  
+* ['Residential_UNIT_hybrid_0.twb'](https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/Residential_UNIT_hybrid_0.twb) - compare BASIS and PBA40 development capacity in residential units by jurisdiction using [this data](https://mtcdrive.box.com/s/huty80u1m7lxlh20j1d2s8w1n9ny75bz) 
+* ['Non-residential_SQFT_hybrid_0.twb'](https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/Nonresidential_SQFT_hybrid_0.twb) - compare BASIS and PBA40 development capacity in non-res sqft by jurisdiction using [this data](https://mtcdrive.box.com/s/huty80u1m7lxlh20j1d2s8w1n9ny75bz)
+* ['Residential_UNIT_hybrid_1.twb'](https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/Residential_UNIT_hybrid_1.twb) - compare BASIS and PBA40 development capacity in residential units by jurisdiction using [this data](https://mtcdrive.box.com/s/09tbye86qs5kydhckoii53eitlac3my3) 
+* ['Non-residential_SQFT_hybrid_1.twb'](https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/Nonresidential_SQFT_hybrid_1.twb) - compare BASIS and PBA40 development capacity in non-res sqft by jurisdiction using [this data](https://mtcdrive.box.com/s/09tbye86qs5kydhckoii53eitlac3my3)
+* 'devType_comparison.twb' - data discrepancies in development types between PBA40 and BASIS based on [this data](https://mtcdrive.box.com/s/mtjogl2fqf25yx7cxy6azrv587mo4itf)
