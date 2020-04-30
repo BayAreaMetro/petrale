@@ -63,6 +63,23 @@ Output:
 	* ['devCapacity_allAttrs_BASIS_devType_intensity_partial.csv'](https://mtcdrive.box.com/s/qtysq31wvzudl9b9vjjz7etgm9i4z9se)
 	* ['devIntensity_BASIS_devType_intensity_partial.csv'](https://mtcdrive.box.com/s/8rm3sjyryvx6jxnw6tb7y699sa6rmi4v)
 
+### [4_net_dev_capacity_calculation.ipynb]
+
+Identify parcel characteristics in order to calculate net development capacity based on the following criteria:
+    * Vacant land
+    * Under-built parcels, defined as parcels whose additional residential units (zoned units minus existing residential units and equivalent units of non-residential sqft) are at least 50% more than existing residential units
+    * Parcels without buildings before the year 1940
+    * Parcels smaller than or equal to a half acre cannot have single family homes (?)
+
+Input:
+* [UrbanSim parcels](https://mtcdrive.box.com/s/sgy1uorcgt7uhh29fja7v93c21ppiudq)
+* [PBA40 UrbanSim buildings](https://mtcdrive.box.com/s/sgy1uorcgt7uhh29fja7v93c21ppiudq)
+* Raw development capacity calculated from [3_dev_capacity_calculation.ipynb](3_dev_capacity_calculation.ipynb) under the preferred hybrid version. Current script uses [hybrid_3 raw capacity](https://mtcdrive.box.com/s/qtysq31wvzudl9b9vjjz7etgm9i4z9se).
+
+Output:
+* ['capacity_gross_net.csv'](https://mtcdrive.box.com/s/axhulwng5olq2jign52s0dwznmii59n7): development capacity in residential units, non-residential sqft and employment at parcel-level with parcels labelled in 'vacant', 'under_built', 'building_age', and 'ILR' (investment-land value ratio).
+
+
 ### Tableau files
 * ['Residential_UNIT_hybrid_0.twb'](https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/Residential_UNIT_hybrid_0.twb) - compare BASIS and PBA40 development capacity in residential units by jurisdiction using [this data](https://mtcdrive.box.com/s/huty80u1m7lxlh20j1d2s8w1n9ny75bz) 
 * ['Non-residential_SQFT_hybrid_0.twb'](https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/Nonresidential_SQFT_hybrid_0.twb) - compare BASIS and PBA40 development capacity in non-res sqft by jurisdiction using [this data](https://mtcdrive.box.com/s/huty80u1m7lxlh20j1d2s8w1n9ny75bz)
