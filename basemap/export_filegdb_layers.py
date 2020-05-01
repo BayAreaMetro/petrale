@@ -6,6 +6,9 @@ USAGE = """
 
   To see a list of the feature classes and/or tables, pass the geodatabase name only.
 
+Use ArcGIS python for arcpy
+set PATH=C:\\Program Files\\ArcGIS\\Pro\\bin\\Python\\envs\\arcgispro-py3
+
 """
 
 import argparse, os, sys, time
