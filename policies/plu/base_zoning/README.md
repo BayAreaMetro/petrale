@@ -19,6 +19,16 @@ Output:
    * allowed development type, i.e. '1/0' binary value of 14 development types, for both PBA40 and BASIS
    * development intensity, i.e. max_dua, max_far, max_height, for both PBA40 and BASIS
 
+### 1b [import_filegdb_layers.py](..\..\..\basemap\import_filegdb_layers.py)
+
+This script is helpful for merging the output of the previous script, *p10_plu_boc_allAttrs.csv*, with the p10 parcel geographies into a geodatabase.
+This one takes a while to run.  I copied the version I created here: ``M:\Data\GIS layers\UrbanSim_BASIS_zoning\UrbanSim_BASIS_zoning.gdb``
+
+#### 1c [create_jurisdiction_map.py](create_jurisdiction_map.py)
+
+This takes the previous gdb along with an accompanying ArcGIS project file (``M:\Data\GIS layers\UrbanSim_BASIS_zoning\UrbanSim_BASIS_zoning.aprx``)
+and creates pdf maps of BASIS vs PBA40 data by jurisdiction.  See [Jurisdiction Maps BASISvsPBA40 box folder](https://mtcdrive.box.com/s/e2qck5p03sd53q0rxg91x1wphw6zg766).
+
 ### [2_dev_type_hybrid_modification.ipynb](2_dev_type_hybrid_modification.ipynb)
 
 Input:
