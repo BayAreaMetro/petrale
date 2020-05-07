@@ -273,7 +273,24 @@ if __name__ == '__main__':
 		
 		arcpy.CalculateField_management(joinFN, "raw_id", '!manual_dp_id!')
 		arcpy.CalculateField_management(joinFN, "building_name", '!m_building_name!')
-		arcpy.CalculateField_management(joinFN, "scen0", 1) # these are committed so 1 for all scens 
+		arcpy.CalculateField_management(joinFN, "scen0", 1)
+		arcpy.CalculateField_management(joinFN, "scen1", 1)
+		arcpy.CalculateField_management(joinFN, "scen2", 1)
+		arcpy.CalculateField_management(joinFN, "scen3", 1)
+		arcpy.CalculateField_management(joinFN, "scen4", 1)
+		arcpy.CalculateField_management(joinFN, "scen5", 1)
+		arcpy.CalculateField_management(joinFN, "scen6", 1)
+		arcpy.CalculateField_management(joinFN, "scen7", 1)
+		arcpy.CalculateField_management(joinFN, "scen10", 1)
+		arcpy.CalculateField_management(joinFN, "scen11", 1)
+		arcpy.CalculateField_management(joinFN, "scen12", 1)
+		arcpy.CalculateField_management(joinFN, "scen15", 1)
+		arcpy.CalculateField_management(joinFN, "scen20", 1)
+		arcpy.CalculateField_management(joinFN, "scen21", 1)
+		arcpy.CalculateField_management(joinFN, "scen22", 1)
+		arcpy.CalculateField_management(joinFN, "scen23", 1)
+		arcpy.CalculateField_management(joinFN, "scen24", 1)
+		arcpy.CalculateField_management(joinFN, "scen25", 1)  # these are committed so 1 for all scens 
 		#not sure how to change zip field type
 		#arcpy.CalculateField_management(joinFN, "zip", '!m_zip!')
 		arcpy.CalculateField_management(joinFN, "x", '!p_x!') 
@@ -414,7 +431,24 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "building_name", '!cs_building_name!')
 		arcpy.CalculateField_management(joinFN, "site_name", '!Building_Park!')
 		arcpy.CalculateField_management(joinFN, "action", "'build'")# need to quote marks here
-		arcpy.CalculateField_management(joinFN, "scen0", 1) # these are committed so 1 for all scens 
+		arcpy.CalculateField_management(joinFN, "scen0", 1)
+		arcpy.CalculateField_management(joinFN, "scen1", 1)
+		arcpy.CalculateField_management(joinFN, "scen2", 1)
+		arcpy.CalculateField_management(joinFN, "scen3", 1)
+		arcpy.CalculateField_management(joinFN, "scen4", 1)
+		arcpy.CalculateField_management(joinFN, "scen5", 1)
+		arcpy.CalculateField_management(joinFN, "scen6", 1)
+		arcpy.CalculateField_management(joinFN, "scen7", 1)
+		arcpy.CalculateField_management(joinFN, "scen10", 1)
+		arcpy.CalculateField_management(joinFN, "scen11", 1)
+		arcpy.CalculateField_management(joinFN, "scen12", 1)
+		arcpy.CalculateField_management(joinFN, "scen15", 1)
+		arcpy.CalculateField_management(joinFN, "scen20", 1)
+		arcpy.CalculateField_management(joinFN, "scen21", 1)
+		arcpy.CalculateField_management(joinFN, "scen22", 1)
+		arcpy.CalculateField_management(joinFN, "scen23", 1)
+		arcpy.CalculateField_management(joinFN, "scen24", 1)
+		arcpy.CalculateField_management(joinFN, "scen25", 1)  # these are committed so 1 for all scens 
 		arcpy.CalculateField_management(joinFN, "address", '!Building_Address!')
 		arcpy.CalculateField_management(joinFN, "city", '!cs_city!')
 		arcpy.CalculateField_management(joinFN, "zip", '!cs_zip!')
@@ -569,7 +603,24 @@ if __name__ == '__main__':
 	
 	arcpy.CalculateField_management(joinFN, "building_name", '!project_name!')
 	arcpy.CalculateField_management(joinFN, "action", "'build'")# need to quote marks here
-	arcpy.CalculateField_management(joinFN, "scen0", 1) # these are committed so 1 for all scens 
+	arcpy.CalculateField_management(joinFN, "scen0", 1)
+	arcpy.CalculateField_management(joinFN, "scen1", 1)
+	arcpy.CalculateField_management(joinFN, "scen2", 1)
+	arcpy.CalculateField_management(joinFN, "scen3", 1)
+	arcpy.CalculateField_management(joinFN, "scen4", 1)
+	arcpy.CalculateField_management(joinFN, "scen5", 1)
+	arcpy.CalculateField_management(joinFN, "scen6", 1)
+	arcpy.CalculateField_management(joinFN, "scen7", 1)
+	arcpy.CalculateField_management(joinFN, "scen10", 1)
+	arcpy.CalculateField_management(joinFN, "scen11", 1)
+	arcpy.CalculateField_management(joinFN, "scen12", 1)
+	arcpy.CalculateField_management(joinFN, "scen15", 1)
+	arcpy.CalculateField_management(joinFN, "scen20", 1)
+	arcpy.CalculateField_management(joinFN, "scen21", 1)
+	arcpy.CalculateField_management(joinFN, "scen22", 1)
+	arcpy.CalculateField_management(joinFN, "scen23", 1)
+	arcpy.CalculateField_management(joinFN, "scen24", 1)
+	arcpy.CalculateField_management(joinFN, "scen25", 1)  # these are committed so 1 for all scens 
 	arcpy.CalculateField_management(joinFN, "address", '!street_address!')
 	arcpy.CalculateField_management(joinFN, "city", '!mailing_city_name!')
 	##arcpy.CalculateField_management(joinFN, "zip", '!b_zip!') ##not sure how to convert text to long data type
@@ -699,7 +750,24 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
 		arcpy.AddField_management(joinFN, "version", "SHORT")
 	
-		arcpy.CalculateField_management(joinFN, "scen0", 1) # these are committed so 1 for all scens 
+		arcpy.CalculateField_management(joinFN, "scen0", 1)
+		arcpy.CalculateField_management(joinFN, "scen1", 1)
+		arcpy.CalculateField_management(joinFN, "scen2", 1)
+		arcpy.CalculateField_management(joinFN, "scen3", 1)
+		arcpy.CalculateField_management(joinFN, "scen4", 1)
+		arcpy.CalculateField_management(joinFN, "scen5", 1)
+		arcpy.CalculateField_management(joinFN, "scen6", 1)
+		arcpy.CalculateField_management(joinFN, "scen7", 1)
+		arcpy.CalculateField_management(joinFN, "scen10", 1)
+		arcpy.CalculateField_management(joinFN, "scen11", 1)
+		arcpy.CalculateField_management(joinFN, "scen12", 1)
+		arcpy.CalculateField_management(joinFN, "scen15", 1)
+		arcpy.CalculateField_management(joinFN, "scen20", 1)
+		arcpy.CalculateField_management(joinFN, "scen21", 1)
+		arcpy.CalculateField_management(joinFN, "scen22", 1)
+		arcpy.CalculateField_management(joinFN, "scen23", 1)
+		arcpy.CalculateField_management(joinFN, "scen24", 1)
+		arcpy.CalculateField_management(joinFN, "scen25", 1) # these are committed so 1 for all scens 
 		arcpy.CalculateField_management(joinFN, "action", "'build'")
 		arcpy.CalculateField_management(joinFN, "city", '!urbansim_parcels_v3_geo_city!')
 
@@ -862,7 +930,24 @@ if __name__ == '__main__':
 	
 		arcpy.CalculateField_management(joinFN, "raw_id", '!redfinid!')
 		arcpy.CalculateField_management(joinFN, "action", "'build'")
-		arcpy.CalculateField_management(joinFN, "scen0", 1) # these are committed so 1 for all scens 
+		arcpy.CalculateField_management(joinFN, "scen0", 1)
+		arcpy.CalculateField_management(joinFN, "scen1", 1)
+		arcpy.CalculateField_management(joinFN, "scen2", 1)
+		arcpy.CalculateField_management(joinFN, "scen3", 1)
+		arcpy.CalculateField_management(joinFN, "scen4", 1)
+		arcpy.CalculateField_management(joinFN, "scen5", 1)
+		arcpy.CalculateField_management(joinFN, "scen6", 1)
+		arcpy.CalculateField_management(joinFN, "scen7", 1)
+		arcpy.CalculateField_management(joinFN, "scen10", 1)
+		arcpy.CalculateField_management(joinFN, "scen11", 1)
+		arcpy.CalculateField_management(joinFN, "scen12", 1)
+		arcpy.CalculateField_management(joinFN, "scen15", 1)
+		arcpy.CalculateField_management(joinFN, "scen20", 1)
+		arcpy.CalculateField_management(joinFN, "scen21", 1)
+		arcpy.CalculateField_management(joinFN, "scen22", 1)
+		arcpy.CalculateField_management(joinFN, "scen23", 1)
+		arcpy.CalculateField_management(joinFN, "scen24", 1)
+		arcpy.CalculateField_management(joinFN, "scen25", 1)  # these are committed so 1 for all scens 
 		arcpy.CalculateField_management(joinFN, "address", '!rf_address!')
 		arcpy.CalculateField_management(joinFN, "city", '!rf_city!')
 		arcpy.CalculateField_management(joinFN, "county", '!rf_county!')
@@ -1099,7 +1184,7 @@ if __name__ == '__main__':
 	# it's no longer necessary to delete temporary spatial join layers since they're in the temporary WORKSPACE_GDB
 
 	#update mapping of building types from detailed to simplified in both pipeline 
-	arcpy.AlterField_management(pipeline_fc, "building_type", "building_type_det")
+	arcpy.AlterField_management(pipeline_fc, "building_type", "building_type_det","building_type_det")
 	arcpy.AddField_management(pipeline_fc, "building_type", "TEXT","","","800")
 	arcpy.AddField_management(pipeline_fc, "building_type_id", "LONG")
 	arcpy.AddField_management(pipeline_fc, "development_type_id", "LONG")
@@ -1259,7 +1344,7 @@ if __name__ == '__main__':
 	arcpy.DeleteField_management(pipeline_fc, 'temp_building_sqft')
 
     #same process for development project list
-	arcpy.AlterField_management(devproj_fc, "building_type", "building_type_det")
+	arcpy.AlterField_management(devproj_fc, "building_type", "building_type_det","building_type_det")
 	arcpy.AddField_management(devproj_fc, "building_type", "TEXT","","","800")
 	arcpy.AddField_management(devproj_fc, "building_type_id", "LONG")
 	arcpy.AddField_management(devproj_fc, "development_type_id", "LONG")
