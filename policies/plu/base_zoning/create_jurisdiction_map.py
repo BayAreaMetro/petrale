@@ -20,8 +20,14 @@ if os.getenv("USERNAME")=="lzorn":
     #    "C:\Users\lzorn\Box\Modeling and Surveys\Urban Modeling\Bay Area UrbanSim 1.5\PBA50\Policies\Base zoning\outputs\2020_04_30_p10_plu_boc_allAttrs.csv"
     #    PARCEL_ID UrbanSim_BASIS_zoning.gdb
     #
-    WORKSPACE_GDB  = "C:\\Users\\lzorn\\Documents\\UrbanSim_BASIS_zoning\\UrbanSim_BASIS_zoning.gdb"
-    ARCGIS_PROJECT = "C:\\Users\\lzorn\\Documents\\UrbanSim_BASIS_zoning\\UrbanSim_BASIS_zoning.aprx"
+    WORKSPACE_GDB   = "C:\\Users\\lzorn\\Documents\\UrbanSim_BASIS_zoning\\UrbanSim_BASIS_zoning.gdb"
+    ARCGIS_PROJECT  = "C:\\Users\\lzorn\\Documents\\UrbanSim_BASIS_zoning\\UrbanSim_BASIS_zoning.aprx"
+
+elif os.getenv("USERNAME")=="ywang":
+    WORKSPACE_GDB   =  "C:\\Users\\{}\\Documents\\Python Scripts\\UrbanSim_BASIS_zoning\\UrbanSim_BASIS_zoning.gdb".format(os.getenv("USERNAME"))
+    ARCGIS_PROJECTS = ["C:\\Users\\{}\\Documents\\Python Scripts\\UrbanSim_BASIS_zoning\\UrbanSim_BASIS_zoning_intensity.aprx".format(os.getenv("USERNAME")),
+                       "C:\\Users\\{}\\Documents\\Python Scripts\\UrbanSim_BASIS_zoning\\UrbanSim_BASIS_zoning_devType.aprx".format(os.getenv("USERNAME"))]
+
 
 if __name__ == '__main__':
 
@@ -52,69 +58,79 @@ if __name__ == '__main__':
                  "(https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/create_jurisdiction_map.py) on {}. " \
                  "Data from 2020_04_30_p10_plu_boc_allAttrs.csv (https://mtcdrive.box.com/s/u92l9nqen5yg5iphgqajly4z4mr0fv1a)".format(now_str)
 
+    metrics_names = ['DUA',
+                     'FAR',
+                     'HEIGHT',
+                     'Allow_HM_(Multi-family Housing)',
+                     'Allow_MR_(Mixed-use Residential)',
+                     'Allow_RS_(Retail)',
+                     'Allow_OF_(Office)']
+
     prev_jurisdiction = "Palo Alto"
     prev_juris_code   = "palo_alto"
 
     for jurisdiction in JURISDICTION_TO_COUNTY.keys():
 
-        # start fresh
-        aprx       = arcpy.mp.ArcGISProject(ARCGIS_PROJECT)
-        layouts    = aprx.listLayouts()
-        maps       = aprx.listMaps()
-        juris_lyr  = {} # key: "BASIS" or "PBA40"
+        for arc_project in ARCGIS_PROJECTS:
 
-        juris_code = jurisdiction.lower().replace(" ","_").replace(".","")
-        print("Creating map for {} ({})".format(jurisdiction, juris_code))
+            # start fresh
+            aprx       = arcpy.mp.ArcGISProject(arc_project)
+            layouts    = aprx.listLayouts()
+            maps       = aprx.listMaps()
+            juris_lyr  = {} # key: "BASIS" or "PBA40"
 
-        for my_map in maps:
-            print("  Processing map {}".format(my_map.name))
-            for layer in my_map.listLayers():
-                if not layer.isFeatureLayer: continue
-                print("    Processing layer {}: {}".format(layer.name, layer))
-                print("      Definition query: {}".format(layer.definitionQuery))
-                # modify to current jurisdiction
-                layer.definitionQuery = layer.definitionQuery.replace(prev_jurisdiction, jurisdiction)
-                layer.definitionQuery = layer.definitionQuery.replace(prev_juris_code,   juris_code)
-                print("      => Definition query: {}".format(layer.definitionQuery))
+            juris_code = jurisdiction.lower().replace(" ","_").replace(".","")
+            print("Creating map for {} ({})".format(jurisdiction, juris_code))
 
-                # save this for extent
-                if layer.name == "Jurisdictions - primary":
-                    juris_lyr[my_map.name] = layer
-                    print("      saving juris_lyr[{}]".format(my_map.name))
+            for my_map in maps:
+                print("  Processing map {}".format(my_map.name))
+                for layer in my_map.listLayers():
+                    if not layer.isFeatureLayer: continue
+                    print("    Processing layer {}: {}".format(layer.name, layer))
+                    print("      Definition query: {}".format(layer.definitionQuery))
+                    # modify to current jurisdiction
+                    layer.definitionQuery = layer.definitionQuery.replace(prev_jurisdiction, jurisdiction)
+                    layer.definitionQuery = layer.definitionQuery.replace(prev_juris_code,   juris_code)
+                    print("      => Definition query: {}".format(layer.definitionQuery))
 
-        for layout in layouts:
-            print("  Found layout {}".format(layout.name))
-            if layout.name != "Layout_DUA": continue
-            
-            print("  Processing layout {}".format(layout.name))
-            for element in layout.listElements():
-                print("    Processing element {}: {}".format(element.name, element))
+                    # save this for extent
+                    if layer.name == "Jurisdictions - primary":
+                        juris_lyr[my_map.name] = layer
+                        print("      saving juris_lyr[{}]".format(my_map.name))
 
-                if element.name == "Source":
-                    element.text = source_str
-                if element.name == "Jurisdiction":
-                    element.text = jurisdiction
+            for layout in layouts:
+                print("  Found layout {}".format(layout.name))
 
-                # zoom to the jurisdiction
-                if element.name.find("Map Frame") >= 0:
-                    if element.name.endswith("BASIS"):
-                        map_type = "BASIS_DUA"
-                    else:
-                        map_type = "PBA40_DUA"
+                for metrics_name in metrics_names:
 
-                    # get the jurisdiction layer extent
-                    layer_extent = element.getLayerExtent(juris_lyr[map_type])
-                    # apply extent to mapframe camera
-                    element.camera.setExtent(layer_extent)
+                    if layout.name == "Layout_"+metrics_name:
+        	            print("  Processing layout {}".format(layout.name))
+        	            for element in layout.listElements():
+        	                print("    Processing element {}: {}".format(element.name, element))
 
-            juris_dua_pdf = "{}_DUA.pdf".format(juris_code)
-            layout.exportToPDF(juris_dua_pdf)
-            print("Wrote {}".format(juris_dua_pdf))
+        	                if element.name == "Source":
+        	                    element.text = source_str
+        	                if element.name == "Jurisdiction":
+        	                    element.text = jurisdiction
 
-            # aprx.save()
+        	                # zoom to the jurisdiction
+        	                if element.name.find("Map Frame") >= 0:
+        	                    if element.name.endswith("BASIS"):
+        	                        map_type = "BASIS_"+metrics_name
+        	                    else:
+        	                        map_type = "PBA40_"+metrics_name
 
-        # done with jurisdiction
-        print("")
+        	                    # get the jurisdiction layer extent
+        	                    layer_extent = element.getLayerExtent(juris_lyr[map_type])
+        	                    # apply extent to mapframe camera
+        	                    element.camera.setExtent(layer_extent)
 
-        # sys.exit()
+        	            juris_pdf = "{}_{}.pdf".format(juris_code, metrics_name)
+        	            layout.exportToPDF(juris_pdf)
+        	            print("Wrote {}".format(juris_pdf))
+
+            # done with jurisdiction
+            print("")
+
+            # sys.exit()
 
