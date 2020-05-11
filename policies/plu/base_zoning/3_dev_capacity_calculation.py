@@ -39,8 +39,11 @@ SQUARE_FEET_PER_EMPLOYEE_INDUSTRIAL = 500.0
 
 # Precessed PLU BOC data
 # four versions of hybrid zoning for BASIS; refers to different versions of the hybrid plu data
-versions = ['_fill_naType','_BASIS_intensity_all','_BASIS_intensity_partial','_BASIS_devType_intensity_partial']  
-version = versions[3]
+
+"""
+versions = ['_fill_naType','_BASIS_intensity_all','_BASIS_intensity_partial','_BASIS_devType_intensity_partial','_mark_version'] 
+""" 
+version = '_mark_version'
 
 
 ## set up a process to first determine parcel 'allow_res' and 'allow_nonres' status, and then
