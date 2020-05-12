@@ -3,6 +3,8 @@
 USAGE = """
 
 Creates BASIS vs PBA40 maps comparing DUA, etc by jurisdiction.
+Includes information on whether or not the BASIS data was reviewed (for relevant types of data) and
+whether or not UrbanSim input is currently configured to use the BASIS data.
 
 """
 
@@ -70,7 +72,7 @@ if __name__ == '__main__':
     juris_review_df.set_index("Jurisdiction", inplace=True)
     # print(juris_review_df)
     juris_review_dict = juris_review_df.to_dict(orient="index")
-    print(juris_review_dict["Berkeley"])
+    # print(juris_review_dict["Berkeley"])
     # e.g. {
     #  'County': 'Alameda', 
     #  'Check Allowable Building Heights': True, 
@@ -85,7 +87,39 @@ if __name__ == '__main__':
     #  'Zoning Map': True,
     #  'Zoning Ordinance Effective Date': True,
     #  'Check Zoning Parcel Map': True,
-    #  'Percent Complete': 1}
+    #  'Percent Complete': 1
+    # }
+
+    # read hybrid configuration 
+    hybrid_config_df = pandas.read_csv(HYBRID_CONFIG)
+    # print(hybrid_config_df.head())
+    hybrid_config_df.set_index("juris_name", inplace=True)
+    hybrid_config_dict = hybrid_config_df.to_dict(orient="index")
+    # print(hybrid_config_dict["berkeley"])
+    # e.g. {
+    #  'juris_id': 'berk',
+    #  'county': 'ala',
+    #  'OF_idx': 0,
+    #  'HO_idx': 0,
+    #  'SC_idx': 0,
+    #  'IL_idx': 0,
+    #  'IW_idx': 0, 
+    #  'IH_idx': 0,
+    #  'RS_idx': 0,
+    #  'RB_idx': 0,
+    #  'MR_idx': 0,
+    #  'MT_idx': 0,
+    #  'ME_idx': 0,
+    #  'HS_idx': 0,
+    #  'HT_idx': 0,
+    #  'HM_idx': 1,
+    #  'MAX_DUA_idx': 0,
+    #  'MAX_FAR_idx': 0,
+    #  'MAX_HEIGHT_idx': 0,
+    #  'proportion_adj_dua': 1,
+    #  'proportion_adj_far': 1, 
+    #  'proportion_adj_height': 1
+    # }
 
     # if jurisdictino passed, remove others and only process that one
     if args.jurisdiction:
@@ -104,19 +138,19 @@ if __name__ == '__main__':
     arcpy.env.workspace = WORKSPACE_GDB
     now_str = datetime.datetime.now().strftime("%Y/%m/%d, %H:%M")
 
-    source_str = "Created by create_jurisdiction_map.py " \
-                 "(https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/create_jurisdiction_map.py) on {}. " \
-                 "Data from 2020_04_30_p10_plu_boc_allAttrs.csv (https://mtcdrive.box.com/s/u92l9nqen5yg5iphgqajly4z4mr0fv1a)".format(now_str)
+    source_str = "<FNT size=\"7\">Created by " \
+                 "<ITA>https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/create_jurisdiction_map.py</ITA> on {}. " \
+                 "Hybrid config: <ITA>https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/hybrid_index/idx_BASIS_devType_intensity_partial.csv</ITA></FNT>".format(now_str)
 
     METRICS_DEF = collections.OrderedDict([
-                   # ArcGIS project, detail name, BASIS jusidiction col
-        ('DUA'    ,["UrbanSim_BASIS_zoning_intensity.aprx", 'DUA',                                 'Check Residential Densities'    ]),
-        ('FAR'    ,["UrbanSim_BASIS_zoning_intensity.aprx", 'FAR',                                 'Check Floor Area Ratio'         ]),
-        ('height' ,["UrbanSim_BASIS_zoning_intensity.aprx", 'HEIGHT',                              'Check Allowale Building Heights']),
-        ('HM'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow_HM_(Multi-family Housing)',     None                             ]),
-        ('MR'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow_MR_(Mixed-use Residential)',    None                             ]),
-        ('RS'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow_RS_(Retail)',                   None                             ]),
-        ('OF'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow_OF_(Office)',                   None                             ]),
+                   # ArcGIS project, detail name, BASIS jusidiction col, hybrid config col
+        ('DUA'    ,["UrbanSim_BASIS_zoning_intensity.aprx", 'DUA',                              'Check Residential Densities',     'MAX_DUA_idx'   ]),
+        ('FAR'    ,["UrbanSim_BASIS_zoning_intensity.aprx", 'FAR',                              'Check Floor Area Ratio',          'MAX_FAR_idx'   ]),
+        ('height' ,["UrbanSim_BASIS_zoning_intensity.aprx", 'HEIGHT',                           'Check Allowable Building Heights','MAX_HEIGHT_idx']),
+        ('HM'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow_HM_(Multi-family Housing)',  None,                              'HM_idx'        ]),
+        ('MR'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow_MR_(Mixed-use Residential)', None,                              'MR_idx'        ]),
+        ('RS'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow_RS_(Retail)',                None,                              'RS_idx'        ]),
+        ('OF'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow_OF_(Office)',                None,                              'OF_idx'        ]),
     ])
 
     # these are the metrics we'll process
@@ -137,9 +171,20 @@ if __name__ == '__main__':
         for metric in metric_list:
 
             print("  Creating map for metric {}".format(metric))
-            arc_project     = METRICS_DEF[metric][0]
-            metric_name     = METRICS_DEF[metric][1]
-            basis_check_col = METRICS_DEF[metric][2]
+            arc_project      = METRICS_DEF[metric][0]
+            metric_name      = METRICS_DEF[metric][1]
+            basis_check_col  = METRICS_DEF[metric][2]
+            basis_hybrid_col = METRICS_DEF[metric][3]
+
+            basis_check_val = False
+            if basis_check_col:
+                if jurisdiction not in juris_review_dict:
+                    print("Couldn't find jurisdiction {} in BASIS jurisdiction review {}".format(jurisdiction, JURIS_REVIEW))
+                else:
+                    basis_check_val = juris_review_dict[jurisdiction][basis_check_col]
+                    print("  BASIS check val for {}: {}".format(basis_check_col, basis_check_val))
+            basis_hybrid_val = hybrid_config_dict[juris_code][basis_hybrid_col]
+            print("  BASIS hybrid config val for {}: {}".format(basis_hybrid_col, basis_hybrid_val))
 
             # start fresh
             aprx       = arcpy.mp.ArcGISProject(arc_project)
@@ -150,7 +195,13 @@ if __name__ == '__main__':
             assert(len(layouts)==1)
 
             for my_map in maps:
-                print("  Processing map {}".format(my_map.name))
+                if my_map.name.endswith(metric) or my_map.name.endswith(metric_name):
+                    # process this one
+                    print("  Processing map {}".format(my_map.name))
+                else:
+                    print("  Skipping map {}".format(my_map.name))
+                    continue
+
                 for layer in my_map.listLayers():
                     if not layer.isFeatureLayer: continue
                     print("    Processing layer {}: {}".format(layer.name, layer))
@@ -176,6 +227,22 @@ if __name__ == '__main__':
                     element.text = source_str
                 if element.name == "Jurisdiction":
                     element.text = jurisdiction
+
+                if element.name == "juris_review_false":
+                    element.visible = not basis_check_val   # visible if basis_check_val==False
+                if element.name == "juris_review_true":
+                    element.visible =  basis_check_val      # visible if basis_check_val==True
+
+                if element.name == "arrow_basis":
+                    element.visible = basis_hybrid_val      # visible if basis_hybrid_val==True
+                if element.name == "input_basis":
+                    element.visible = basis_hybrid_val      # visible if basis_hybrid_val==True
+
+                if element.name == "arrow_pba40":
+                    element.visible = not basis_hybrid_val  # visible if basis_hybrid_val==False
+                if element.name == "input_pba40":
+                    element.visible = not basis_hybrid_val  # visible if basis_hybrid_val==False
+
 
                 # zoom to the jurisdiction
                 if element.name.find("Map Frame") >= 0:
