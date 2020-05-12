@@ -290,7 +290,7 @@ if __name__ == '__main__':
     ## P10 with BASIS BOC
 
     ## Read BASIS BOC
-    basis_boc_file = os.path.join(OTHER_INPUTS_DIR,'p10_boc_opt_b_v1d_tbl.csv')
+    basis_boc_file = os.path.join(OTHER_INPUTS_DIR,'p10_urbansim_boc_opt_b_v2.csv')
     basis_boc_columns = [
         'parcel_id','max_height','max_dua','max_far',
         'plu_id','plu_jurisdiction','plu_description',
