@@ -233,7 +233,7 @@ if __name__ == '__main__':
         usecols =['PARCEL_ID','geom_id_s','ACRES','LAND_VALUE'],
         dtype   ={'PARCEL_ID':np.float64, 'geom_id_s':str, 'ACRES':np.float64, 'LAND_VALUE':np.float64})
     logger.info("Read {:,} rows from {}".format(len(basemap_p10), basemap_p10_file))
-    logger.info(basemap_p10.head())
+    logger.info("\n{}".format(basemap_p10.head()))
 
 
     ## p10 pacel to pba40 zoning code mapping
@@ -244,7 +244,7 @@ if __name__ == '__main__':
         dtype = {'geom_id':str, 'zoning_id':np.float64, 'nodev_pba40':np.int})
 
     logger.info("Read {:,} rows from {}".format(len(pba40_pz), pba40_pz_file))
-    logger.info(pba40_pz.head())
+    logger.info("\n{}".format(pba40_pz.head()))
 
     ## add zoning_id, nodev_pba40 columns to p10
     p10_pba40_pz = pd.merge(left=basemap_p10, right=pba40_pz, left_on='geom_id_s', right_on = 'geom_id', how='left')
@@ -269,7 +269,7 @@ if __name__ == '__main__':
     # append _pba40 to column names
     rename_cols = dict((col,col+"_pba40") for col in pba40_plu.columns.values)
     pba40_plu.rename(columns=rename_cols, inplace=True)
-    logger.info(pba40_plu.head())
+    logger.info("\n{}".format(pba40_plu.head()))
 
     # check duplicates in zoning id
     pba40_plu['jz_o'] = pba40_plu['city_pba40'].str.cat(pba40_plu['name_pba40'],sep=" ")
@@ -284,7 +284,7 @@ if __name__ == '__main__':
     logger.info("Out of {0:,} rows in p10_pba40_plu, {1:,} or {2:.1f}% are missing 'jz_o' values".format(
                 len(p10_pba40_plu), len(p10_pba40_plu_missing), 100.0*len(p10_pba40_plu_missing)/len(p10_pba40_plu)))
 
-    logger.info(p10_pba40_plu.head())
+    logger.info("\n{}".format(p10_pba40_plu.head()))
 
 
     ## P10 with BASIS BOC
@@ -317,6 +317,15 @@ if __name__ == '__main__':
             rename_cols[col] = col + "_basis"
     basis_boc.rename(columns=rename_cols, inplace=True)
 
+    # drop duplicates of parcel_id; this should be unique
+    logger.info("\n{}".format(basis_boc.head()))
+    basis_boc_rows = len(basis_boc)
+    basis_boc.drop_duplicates(subset='parcel_id_basis', inplace=True)
+    if len(basis_boc) == basis_boc_rows:
+        logger.info("No duplicate parcel_ids found in {}".format(basis_boc_file))
+    else:
+        logger.warn("Dropped duplicate parcel_id rows from {}".format(basis_boc_file))
+        logger.warn("Went from {:,} to {:,} rows; dropped {:,} duplicates".format(basis_boc_rows, len(basis_boc), basis_boc_rows-len(basis_boc)))
 
     # report on missing allowed building types
     for btype in ALLOWED_BUILDING_TYPE_CODES:
@@ -340,7 +349,7 @@ if __name__ == '__main__':
         usecols = ['PARCEL_ID','juris','pba50zoningmodcat','nodev'])
 
     logger.info("Read {:,} rows from {}".format(len(zmod), zmod_file))
-    logger.info(zmod.head())
+    logger.info("\n{}".format(zmod.head()))
 
     # append _zmod to column names to clarify source of these columns
     rename_cols = dict((col, col+"_zmod") for col in zmod.columns.values)
@@ -365,7 +374,7 @@ if __name__ == '__main__':
     p10_basis_pba40_boc_zmod_withJuris.drop(columns = ['juris_name_full'],inplace = True)
 
     logger.info('Add jurisdiction names and IDs: ')
-    logger.info(p10_basis_pba40_boc_zmod_withJuris.head())
+    logger.info("\n{}".format(p10_basis_pba40_boc_zmod_withJuris.head()))
 
 
     ## Add basis and pba40 allowed_res_ and allowed_nonres_
