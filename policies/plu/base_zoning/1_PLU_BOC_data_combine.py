@@ -466,7 +466,7 @@ if __name__ == '__main__':
     for devType in ALLOWED_BUILDING_TYPE_CODES:
         logger.info('Missing BASIS {} parcel count: {}'.format(devType,len(plu_boc_output.loc[plu_boc_output[devType+'_basis'].isnull()])))
 
-    plu_boc_output.to_csv(os.path.join(DATA_OUTPUT_DIR, today+'_p10_plu_boc_allAttrs_test.csv'), index = False)
+    plu_boc_output.to_csv(os.path.join(DATA_OUTPUT_DIR, today+'_p10_plu_boc_allAttrs.csv'), index = False)
 
     
     ## Evaluate development type for QA/QC
