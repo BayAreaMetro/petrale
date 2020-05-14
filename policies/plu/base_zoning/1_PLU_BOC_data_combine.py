@@ -98,8 +98,8 @@ def impute_max_dua(df_original,boc_source):
     # don't modify passed df
     df = df_original.copy()
 
-    print("impute_max_dua(): Before imputation, number of parcels with missing max_dua_{}: {:,}".format(
-        boc_source, sum(df['max_dua_'+boc_source].isnull())))
+    print("impute_max_dua{}: Before imputation, number of parcels with missing max_dua_{}: {:,}".format(
+        boc_source, boc_source, sum(df['max_dua_'+boc_source].isnull())))
 
     # we can only fill in missing if either max_far or max_height is not null   
     max_dua_from_far    = df['max_far_'    +boc_source] * SQUARE_FEET_PER_ACRE / SQUARE_FEET_PER_DU
@@ -176,8 +176,8 @@ def impute_max_far(df_original,boc_source):
     # don't modify passed df
     df = df_original.copy()
 
-    logger.info("impute_max_far(): Before imputation, number of parcels with missing max_far_{}: {:,}".format(
-        boc_source, sum(df['max_far_'+boc_source].isnull())))
+    logger.info("impute_max_far{}: Before imputation, number of parcels with missing max_far_{}: {:,}".format(
+        boc_source, boc_source, sum(df['max_far_'+boc_source].isnull())))
     
     # we can only fill in missing if max_height is not null
     max_far_from_height = df['max_height_' +boc_source] / FEET_PER_STORY * PARCEL_USE_EFFICIENCY
@@ -232,8 +232,11 @@ if __name__ == '__main__':
         basemap_p10_file,
         usecols =['PARCEL_ID','geom_id_s','ACRES','LAND_VALUE'],
         dtype   ={'PARCEL_ID':np.float64, 'geom_id_s':str, 'ACRES':np.float64, 'LAND_VALUE':np.float64})
+    # conver PARCEL_ID to integer:
+    basemap_p10['PARCEL_ID'] = basemap_p10['PARCEL_ID'].apply(lambda x: int(round(x)))
     logger.info("Read {:,} rows from {}".format(len(basemap_p10), basemap_p10_file))
     logger.info("\n{}".format(basemap_p10.head()))
+    logger.info('Number of unique PARCEL_ID: {}'.format(len(basemap_p10.PARCEL_ID.unique())))
 
 
     ## p10 pacel to pba40 zoning code mapping
@@ -277,12 +280,16 @@ if __name__ == '__main__':
                 len(pba40_plu), len(pba40_plu.id_pba40.unique()), len(pba40_plu.jz_o.unique())))
 
     # using the zoning_id, get the pba40 zoning data (intensities, allowed building types)
-    p10_pba40_plu = pd.merge(left=p10_pba40_pz, right=pba40_plu, left_on='zoning_id_pba40', right_on='id_pba40', how='left')
+    p10_pba40_plu = pd.merge(left=p10_pba40_pz, 
+                             right=pba40_plu, 
+                             left_on='zoning_id_pba40', 
+                             right_on='id_pba40', 
+                             how='left')
 
     # Check number of p10 records failed to find a matching PLU
     p10_pba40_plu_missing = p10_pba40_plu.loc[p10_pba40_plu['jz_o'].isnull()]
     logger.info("Out of {0:,} rows in p10_pba40_plu, {1:,} or {2:.1f}% are missing 'jz_o' values".format(
-                len(p10_pba40_plu), len(p10_pba40_plu_missing), 100.0*len(p10_pba40_plu_missing)/len(p10_pba40_plu)))
+                 len(p10_pba40_plu), len(p10_pba40_plu_missing), 100.0*len(p10_pba40_plu_missing)/len(p10_pba40_plu)))
 
     logger.info("\n{}".format(p10_pba40_plu.head()))
 
@@ -293,11 +300,12 @@ if __name__ == '__main__':
     basis_boc_file = os.path.join(OTHER_INPUTS_DIR,'p10_urbansim_boc_opt_b_v2.csv')
     basis_boc_columns = [
         'parcel_id','max_height','max_dua','max_far',
-        'plu_id','plu_jurisdiction','plu_description',
+        'plu_code','plu_id','plu_jurisdiction','plu_description',
         'building_types_source','source'] + [btype.lower() for btype in ALLOWED_BUILDING_TYPE_CODES]
     # most are float
     basis_boc_dtypes = dict((x, float) for x in basis_boc_columns)
     # except these
+    basis_boc_dtypes['plu_code'             ] = str
     basis_boc_dtypes['plu_id'               ] = str
     basis_boc_dtypes['plu_jurisdiction'     ] = str
     basis_boc_dtypes['plu_description'      ] = str
@@ -306,6 +314,14 @@ if __name__ == '__main__':
 
     basis_boc = pd.read_csv(basis_boc_file, usecols = basis_boc_columns, dtype = basis_boc_dtypes)
     logger.info("Read {:,} rows from {}".format(len(basis_boc), basis_boc_file))
+
+    # drop records with no parcel_id
+    basis_boc = basis_boc.loc[basis_boc.parcel_id.notnull()]
+
+    # convert parcel_id to integer
+    basis_boc['parcel_id'] = basis_boc['parcel_id'].apply(lambda x: int(round(x)))
+
+    logger.info('After dropping nan parcel_id, BASIS BOC has {} parcels, {} unique parcel_id'.format(len(basis_boc),len(basis_boc.parcel_id.unique())))
 
     # append _basis to column names to differentiate between basis PLU and pba40 PLU between 
     rename_cols = {}
@@ -324,8 +340,8 @@ if __name__ == '__main__':
     if len(basis_boc) == basis_boc_rows:
         logger.info("No duplicate parcel_ids found in {}".format(basis_boc_file))
     else:
-        logger.warn("Dropped duplicate parcel_id rows from {}".format(basis_boc_file))
-        logger.warn("Went from {:,} to {:,} rows; dropped {:,} duplicates".format(basis_boc_rows, len(basis_boc), basis_boc_rows-len(basis_boc)))
+        logger.warning("Dropped duplicate parcel_id rows from {}".format(basis_boc_file))
+        logger.warning("Went from {:,} to {:,} rows; dropped {:,} duplicates".format(basis_boc_rows, len(basis_boc), basis_boc_rows-len(basis_boc)))
 
     # report on missing allowed building types
     for btype in ALLOWED_BUILDING_TYPE_CODES:
@@ -336,7 +352,7 @@ if __name__ == '__main__':
     # merge basis plu to p10 + pba40 plu
     p10_basis_pba40_boc = pd.merge(left=p10_pba40_plu, right=basis_boc, left_on='PARCEL_ID', right_on='parcel_id_basis', how='left')
 
-    p10_basis_pba40_boc.drop(columns = ['id_pba40','name_pba40','plandate_pba40','jz_o'],inplace = True)
+    p10_basis_pba40_boc.drop(columns = ['id_pba40','plandate_pba40','jz_o'],inplace = True)
     logger.info('Create p10_basis_pba40_boc:')
     logger.info(p10_basis_pba40_boc.dtypes)
 
@@ -344,12 +360,12 @@ if __name__ == '__main__':
     ## Bring in zoning scenarios data
 
     zmod_file = os.path.join(PBA50_ZONINGMOD_DIR,'p10_pba50_attr_20200416.csv')
-    zmod = pd.read_csv(
-        zmod_file,
-        usecols = ['PARCEL_ID','juris','pba50zoningmodcat','nodev'])
-
+    zmod = pd.read_csv(zmod_file,
+                       usecols = ['PARCEL_ID','juris','pba50zoningmodcat','nodev'])
+    zmod['PARCEL_ID'] = zmod['PARCEL_ID'].apply(lambda x: int(round(x)))
     logger.info("Read {:,} rows from {}".format(len(zmod), zmod_file))
     logger.info("\n{}".format(zmod.head()))
+    logger.info('Number of unique parcel_id: {}'.format(len(zmod.PARCEL_ID.unique())))
 
     # append _zmod to column names to clarify source of these columns
     rename_cols = dict((col, col+"_zmod") for col in zmod.columns.values)
@@ -387,11 +403,10 @@ if __name__ == '__main__':
     p10_basis_pba40_boc_zmod_withJuris = pd.merge(left=p10_basis_pba40_boc_zmod_withJuris,
                                                   right=allowed_pba40,
                                                   how="left", on="PARCEL_ID")
-    p10_basis_pba40_boc_zmod_withJuris
-
+    #p10_basis_pba40_boc_zmod_withJuris
 
     logger.info('Add basis and pba40 allowed_res_ and allowed_nonres_:')
-    logger.info(p10_basis_pba40_boc_zmod_withJuris.dtypes)
+    logger.info(p10_basis_pba40_boc_zmod_withJuris.head())
 
 
     ## Impute max_dua and max_far
@@ -422,7 +437,7 @@ if __name__ == '__main__':
     ## Export PLU BOC data to csv
 
     output_columns = [
-        'PARCEL_ID','county_id', 'county_name', 'juris_zmod', 'ACRES', 'zoning_id_pba40', 'pba50zoningmodcat_zmod',
+        'PARCEL_ID','county_id', 'county_name', 'juris_zmod', 'ACRES', 'zoning_id_pba40', 'name_pba40','plu_code_basis','pba50zoningmodcat_zmod',
         
         # intensity
         'max_far_basis',   'max_far_pba40',
@@ -448,7 +463,10 @@ if __name__ == '__main__':
 
     plu_boc_output = p10_basis_pba40_boc_zmod_withJuris[output_columns]
 
-    plu_boc_output.to_csv(os.path.join(DATA_OUTPUT_DIR, today+'_p10_plu_boc_allAttrs.csv'), index = False)
+    for devType in ALLOWED_BUILDING_TYPE_CODES:
+        logger.info('Missing BASIS {} parcel count: {}'.format(devType,len(plu_boc_output.loc[plu_boc_output[devType+'_basis'].isnull()])))
+
+    #plu_boc_output.to_csv(os.path.join(DATA_OUTPUT_DIR, today+'_p10_plu_boc_allAttrs_test.csv'), index = False)
 
     
     ## Evaluate development type for QA/QC
