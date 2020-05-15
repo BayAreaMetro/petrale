@@ -26,7 +26,6 @@ OTHER_INPUTS_DIR            = os.path.join(BOX_DIR, 'Policies\\Base zoning\\inpu
 
 # output file location
 DATA_OUTPUT_DIR             = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs\\hybrid_base_zoning')
-QA_QC_DIR                   = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs\\QAQC')
 LOG_FILE                    = os.path.join(DATA_OUTPUT_DIR,'build_hybrid_zoning_{}.log'.format(NOW))
 
 
@@ -36,11 +35,10 @@ NONRES_BUILDING_TYPE_CODES  = [               "OF","HO","SC","IL","IW","IH","RS"
 
 
 
-def countMissing(df):
-    for btype in ALLOWED_BUILDING_TYPE_CODES:
-        null_btype_count = len(df.loc[df["{}_basis".format(btype)].isnull()])
-        print('Number of parcels missing allowable type for {}: {:,} or {:.1f}%'.format(btype,
-           null_btype_count, 100.0*null_btype_count/len(df)))
+def countMissing(df, attr):
+    null_attr_count = len(df.loc[df["{}_basis".format(attr)].isnull()])
+    print('Number of parcels missing {} info: {:,} or {:.1f}%'.format(attr,
+           null_attr_count, 100.0*null_attr_count/len(df)))
 
 
 def set_allow_dev_type(df_original,boc_source):
@@ -81,20 +79,26 @@ def apply_hybrid_idx(df_origional,hybrid_idx):
     # don't modify passed df
     df = df_origional.copy()
     
+    # create fileds for hybrid zoning attributes as urbansim input
+    for zoning in ALLOWED_BUILDING_TYPE_CODES + ['max_dua','max_far','max_height']:
+        df[zoning+'_urbansim'] = df[zoning+'_basis']
+    # create fields for intensity index and set the default as 1 (use BASIS data)
+    for intensity in ['max_dua','max_far','max_height']:
+        df[intensity+'_idx'] = 1
+
     for juris in juris_list:
         
         print('')
         print('Apply hybrid index for: {}'.format(juris))
 
         for devType in ALLOWED_BUILDING_TYPE_CODES:
-            df[btype+'_idx'] = 1
             if hybrid_idx[devType+'_idx'][juris] == 0:
                 print('Use PBA40 data for {}'.format(devType))
                 #print('Before applying the index, parcel counts by data source for {}:'.format(devType))
                 #display(df.loc[df.juris_zmod == juris][devType+'_idx'].value_counts())
                 
                 replace_idx = (df.juris_zmod == juris) & (df[devType+'_idx'] != 'PBA40_fill_na')
-                df.loc[replace_idx, devType+'_basis'] = df.loc[replace_idx, devType+'_pba40']
+                df.loc[replace_idx, devType+'_urbansim'] = df.loc[replace_idx, devType+'_pba40']
                 df.loc[replace_idx, devType+'_idx'] = 0
                 #print('After applying the index, parcel counts by data source for {}:'.format(devType))
                 #display(df.loc[df.juris_zmod == juris][devType+'_idx'].value_counts())   
@@ -104,14 +108,13 @@ def apply_hybrid_idx(df_origional,hybrid_idx):
         
 
         for intensity in ['max_dua','max_far','max_height']:
-            df[intensity+'_idx'] = 1
             if hybrid_idx[intensity+'_idx'][juris] == 0:
                 print('Use PBA40 data for {}'.format(intensity))
                 #print('Before applying the index, parcel counts by data source for {}:'.format(intensity))
                 #display(df.loc[df.juris_zmod == juris][intensity+'_idx'].value_counts())
                 
                 replace_idx = df.juris_zmod == juris
-                df.loc[replace_idx, intensity+'_basis'] = df.loc[replace_idx, intensity+'_pba40']
+                df.loc[replace_idx, intensity+'_urbansim'] = df.loc[replace_idx, intensity+'_pba40']
                 df.loc[replace_idx, intensity+'_idx'] = 0
                 #print('After applying the index, parcel counts by data source for {}:'.format(intensity))
                 #display(df.loc[df.juris_zmod == juris][intensity+'_idx'].value_counts())
@@ -152,7 +155,8 @@ if __name__ == '__main__':
 
 
     logger.info('Count number of parcels missing allowable development types in the BASIS data:')
-    countMissing(plu_boc)
+    for devType in ALLOWED_BUILDING_TYPE_CODES:
+        countMissing(plu_boc, devType)
 
     
     ## Hybrid version 0: fill in missing allowable dev types in BASIS using PBA40 data
@@ -163,10 +167,24 @@ if __name__ == '__main__':
         plu_boc_filled_devTypeNa[btype+'_idx'] = 1
         missing_idx = (plu_boc_filled_devTypeNa[btype+'_basis'].isnull()) & (plu_boc_filled_devTypeNa['nodev_zmod'] == 0)
         plu_boc_filled_devTypeNa.loc[missing_idx, btype+'_basis'] = plu_boc_filled_devTypeNa.loc[missing_idx, btype+'_pba40']
-        plu_boc_filled_devTypeNa.loc[missing_idx, btype+'_idx'] = 'PBA40_fill_na'
+        plu_boc_filled_devTypeNa.loc[missing_idx, btype+'_idx'] = '0_fill_na'
 
     logger.info('\n After filling nan in BASIS allowable development types using PBA40 data:')
-    countMissing(plu_boc_filled_devTypeNa)
+    for devType in ALLOWED_BUILDING_TYPE_CODES:
+        countMissing(plu_boc_filled_devTypeNa, devType)
+
+    # recalculate 'allow_res' and 'allow_nonres' based on the allowable development type
+    allowed_basis = set_allow_dev_type(plu_boc_filled_devTypeNa,'basis')
+    allowed_pba40 = set_allow_dev_type(plu_boc_filled_devTypeNa,'pba40')
+    
+    # drop the previous 'allow_res' and 'allow_nonres' and insert the new ones
+    plu_boc_filled_devTypeNa.drop(columns = ['allow_res_basis', 'allow_nonres_basis', 
+                                             'allow_res_pba40', 'allow_nonres_pba40'], inplace = True)
+    plu_boc_filled_devTypeNa = plu_boc_filled_devTypeNa.merge(allowed_basis, 
+                                                              on = 'PARCEL_ID', 
+                                                              how = 'left').merge(allowed_pba40, 
+                                                                                  on = 'PARCEL_ID', 
+                                                                                  how = 'left')
 
     # export the hybrid version
     plu_boc_filled_devTypeNa.to_csv(os.path.join(DATA_OUTPUT_DIR, today+'_p10_plu_boc_fill_naType.csv'),index = False)
@@ -176,7 +194,21 @@ if __name__ == '__main__':
         logger.info('{}: {}'.format(i,plu_boc_filled_devTypeNa[i+'_idx'].unique()))
 
 
-    
+    ## Fill in missing max_height in BASIS using PBA40 data
+
+    logger.info('Count number of parcels missing max_height in the BASIS data:')
+    countMissing(plu_boc_filled_devTypeNa, 'max_height')
+
+    plu_boc_filled_TpHt_Na = plu_boc_filled_devTypeNa.copy()
+    plu_boc_filled_TpHt_Na['max_height_idx'] = 1
+    missing_idx = (plu_boc_filled_TpHt_Na['max_height_basis'].isnull()) & (plu_boc_filled_TpHt_Na['nodev_zmod'] == 0)
+    plu_boc_filled_TpHt_Na.loc[missing_idx, 'max_height_basis'] = plu_boc_filled_TpHt_Na.loc[missing_idx, 'max_height_pba40']
+    plu_boc_filled_TpHt_Na.loc[missing_idx, 'max_height_idx'] = '0_fill_na'
+
+    logger.info('\n After filling nan in BASIS max_height using PBA40 data:')
+    countMissing(plu_boc_filled_TpHt_Na, 'max_height')
+
+
     ## Apply the hybrid index of each hybrid version
 
     for hybrid_idx_file in list(glob.glob(HYBRID_INDEX_DIR+'/*.csv')):
@@ -192,9 +224,9 @@ if __name__ == '__main__':
         
         for devType in ALLOWED_BUILDING_TYPE_CODES:
             logger.info('Before applying index, parcel counts by data source for develpment type {}:'.format(devType))
-            logger.info(plu_boc_filled_devTypeNa[devType+'_idx'].value_counts())
+            logger.info(plu_boc_filled_TpHt_Na[devType+'_idx'].value_counts())
               
-        plu_boc_hybrid = apply_hybrid_idx(plu_boc_filled_devTypeNa,hybrid_idx)
+        plu_boc_hybrid = apply_hybrid_idx(plu_boc_filled_TpHt_Na,hybrid_idx)
         
         for devType in ALLOWED_BUILDING_TYPE_CODES:
             logger.info('After applying index, parcel counts by data source for develpment type {}:'.format(devType))
@@ -207,6 +239,7 @@ if __name__ == '__main__':
         # recalculate 'allow_res' and 'allow_nonres' based on the allowable development type
         allowed_basis = set_allow_dev_type(plu_boc_hybrid,'basis')
         allowed_pba40 = set_allow_dev_type(plu_boc_hybrid,'pba40')
+        allowed_urbansim = set_allow_dev_type(plu_boc_hybrid,'urbansim')
         
         # drop the previous 'allow_res' and 'allow_nonres' and insert the new ones
         plu_boc_hybrid.drop(columns = ['allow_res_basis', 'allow_nonres_basis', 
@@ -215,6 +248,74 @@ if __name__ == '__main__':
                                               on = 'PARCEL_ID', 
                                               how = 'left').merge(allowed_pba40, 
                                                                   on = 'PARCEL_ID', 
-                                                                  how = 'left')
-      
+                                                                  how = 'left').merge(allowed_urbansim,
+                                                                                      on = 'PARCEL_ID', 
+                                                                                      how = 'left' ) 
+
+        logger.info('Export hybrid zoning of {} record:'.format(len(plu_boc_hybrid)))
+        logger.info(plu_boc_hybrid.dtypes)
         plu_boc_hybrid.to_csv(os.path.join(DATA_OUTPUT_DIR, today+'_p10_plu_boc_'+hybrid_name+'.csv'),index = False)
+
+
+        # For urbansim version of the hybrid, create BAUS base zoning input files and export
+        if hybrid_name == 'urbansim':
+
+            # select hybrid fields
+            plu_boc_urbansim_cols = ['PARCEL_ID','county_id','county_name', 'juris_zmod', 'ACRES',
+                                     'pba50zoningmodcat_zmod','nodev_zmod','name_pba40','plu_code_basis'] + [
+                                     devType + '_urbansim' for devType in ALLOWED_BUILDING_TYPE_CODES] + [
+                                     intensity + '_urbansim' for intensity in ['max_dua','max_far','max_height']]
+
+            plu_boc_urbansim = plu_boc_hybrid[plu_boc_urbansim_cols]
+
+            # rename the fields to remove '_urbansim'
+            plu_boc_urbansim.columns = ['PARCEL_ID','county_id','county_name', 'juris_zmod', 'ACRES',
+                                        'pba50zoningmodcat_zmod','nodev_zmod','name_pba40','plu_code_basis'] + ALLOWED_BUILDING_TYPE_CODES + [
+                                        'max_dua','max_far','max_height']
+
+            # convert allowed types to integer
+            for attr in ALLOWED_BUILDING_TYPE_CODES:
+                plu_boc_urbansim[attr] = plu_boc_urbansim[attr].fillna(-1).astype(int)
+            plu_boc_urbansim.replace({-1: None}, inplace = True)
+
+            # create zoning_lookup table with unique jurisdiction and zoning attributes
+            zoning_lookup_pba50 = plu_boc_urbansim[['county_name','juris_zmod'] + ALLOWED_BUILDING_TYPE_CODES + ['max_dua','max_far','max_height']].drop_duplicates()     
+
+            # sort zoning type by county and jurisdiction and assign zoning_id
+            zoning_lookup_pba50.sort_values(by=['county_name', 'juris_zmod'], inplace = True)
+            zoning_lookup_pba50['zoning_id_pba50'] = range(1,len(zoning_lookup_pba50) + 1)
+            logger.info('Zoning lookup table has {} unique types (juris + zoning attributes), header:'.format(len(zoning_lookup_pba50)))
+            logger.info(zoning_lookup_pba50.head())
+            
+            # create zoning_parcels file and attach zoning_id 
+            plu_boc_urbansim_ID = plu_boc_urbansim.merge(zoning_lookup_pba50,
+                                                         on = list(zoning_lookup_pba50)[:-1],
+                                                         how = 'left')
+            zoning_parcels_pba50 = plu_boc_urbansim_ID[['PARCEL_ID','juris_zmod','zoning_id_pba50','nodev_zmod']]
+
+
+            ## assign zoning name to each zoning_id based on the most frequent occurance of zoning name among all the parcels with the same zoning_id
+            zoning_names = plu_boc_urbansim[['PARCEL_ID','name_pba40','plu_code_basis']]
+
+            # merge zoning names of pba40 and BASIS into zoning_parcels
+            zoning_names['name_pba40'] = zoning_names['name_pba40'].apply(lambda x: str(x)+'_pba40')
+            zoning_names['plu_code_basis'] = zoning_names['plu_code_basis'].apply(lambda x: str(x)+'_basis')
+            parcel_zoning_names = zoning_parcels_pba50[['PARCEL_ID','zoning_id_pba50']].merge(zoning_names,
+                                                                                              on = 'PARCEL_ID',
+                                                                                              how = 'left')
+            # use name_pba40 as the default for pab50 zoning name, unless it is null, then use basis zoning name
+            parcel_zoning_names['zoning_name_pba50'] = zoning_names['name_pba40']
+            name_null_index = parcel_zoning_names.name_pba40.isnull()
+            parcel_zoning_names.loc[name_null_index,'zoning_name_pba50'] = parcel_zoning_names.loc[name_null_index,'plu_code_basis']
+
+            # find the most frenquent zoning name of each zoning_id
+            name_by_zone = parcel_zoning_names[['zoning_id_pba50','zoning_name_pba50']].groupby(['zoning_id_pba50']).agg(lambda x:x.value_counts().index[0]).reset_index()
+            zoning_lookup_pba50 = zoning_lookup_pba50.merge(name_by_zone,
+                                                            on = 'zoning_id_pba50',
+                                                            how = 'left')
+            # attach zoning name to the zoning lookup table
+            zoning_lookup_pba50 = zoning_lookup_pba50[['zoning_id_pba50','juris_zmod','zoning_name_pba50','max_dua','max_far','max_height'] + ALLOWED_BUILDING_TYPE_CODES]
+            
+            # export zoning lookup and zoning_parcels files
+            zoning_lookup_pba50.to_csv(os.path.join(DATA_OUTPUT_DIR, today+'_zoning_lookup_pba50.csv'),index = False)
+            zoning_parcels_pba50.to_csv(os.path.join(DATA_OUTPUT_DIR, today+'_zoning_parcels_pba50.csv'),index = False)
