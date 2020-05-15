@@ -41,9 +41,9 @@ SQUARE_FEET_PER_EMPLOYEE_INDUSTRIAL = 500.0
 # four versions of hybrid zoning for BASIS; refers to different versions of the hybrid plu data
 
 """
-versions = ['_fill_naType','_BASIS_intensity_all','_BASIS_intensity_partial','_BASIS_devType_intensity_partial','_mark_version'] 
+versions = ['_fill_naType','_BASIS_intensity_all','_BASIS_intensity_partial','_BASIS_devType_intensity_partial','_urbansim'] 
 """ 
-version = '_mark_version'
+version = '_hybrid_devTypes'
 
 
 ## set up a process to first determine parcel 'allow_res' and 'allow_nonres' status, and then
@@ -169,24 +169,25 @@ if __name__ == '__main__':
 
 
     # Add basis and pba40 allowed_res_ and allowed_nonres_
-    allowed_basis = set_allow_dev_type(p10_plu_boc, "basis")
-    allowed_pba40 = set_allow_dev_type(p10_plu_boc, "pba40")
+    # allowed_basis = set_allow_dev_type(p10_plu_boc, "basis")
+    # allowed_pba40 = set_allow_dev_type(p10_plu_boc, "pba40")
 
-    p10_plu_boc.drop(columns = [
-        'allow_res_basis','allow_res_pba40','allow_nonres_basis','allow_nonres_pba40'], inplace = True)
+    # p10_plu_boc.drop(columns = [
+    #     'allow_res_basis','allow_res_pba40','allow_nonres_basis','allow_nonres_pba40'], inplace = True)
 
 
-    p10_plu_boc = pd.merge(left=p10_plu_boc,
-                           right=allowed_basis,
-                           how="left", on="PARCEL_ID")
-    p10_plu_boc = pd.merge(left=p10_plu_boc,
-                           right=allowed_pba40,
-                           how="left", on="PARCEL_ID")
+    # p10_plu_boc = pd.merge(left=p10_plu_boc,
+    #                        right=allowed_basis,
+    #                        how="left", on="PARCEL_ID")
+    # p10_plu_boc = pd.merge(left=p10_plu_boc,
+    #                        right=allowed_pba40,
+    #                        how="left", on="PARCEL_ID")
 
     ## Calculate development capacity
 
-    capacity_basis_allAtts = calculate_capacity(p10_plu_boc,'basis','zmod')
-    capacity_pba40_allAtts = calculate_capacity(p10_plu_boc,'pba40','zmod')
+    capacity_basis_allAtts    = calculate_capacity(p10_plu_boc,'basis','zmod')
+    capacity_pba40_allAtts    = calculate_capacity(p10_plu_boc,'pba40','zmod')
+    capacity_urbansim_allAtts = calculate_capacity(p10_plu_boc,'urbansim','zmod')
 
     logger.info("capacity_pba40_allAtts has {:,} rows; head:".format(len(capacity_pba40_allAtts)))
     logger.info(capacity_pba40_allAtts.head())
@@ -194,17 +195,22 @@ if __name__ == '__main__':
     logger.info("capacity_basis_allAtts has {:,} rows; head:".format(len(capacity_basis_allAtts)))
     logger.info(capacity_basis_allAtts.head())
 
+    logger.info("capacity_urbansim_allAtts has {:,} rows; head:".format(len(capacity_basis_allAtts)))
+    logger.info(capacity_urbansim_allAtts.head())
 
     # output all attributes
 
     capacity_allAtts = pd.merge(left=capacity_pba40_allAtts, 
                                 right=capacity_basis_allAtts, 
                                 how="inner", 
-                                on=['PARCEL_ID'])
+                                on=['PARCEL_ID']).merge(capacity_urbansim_allAtts,
+                                                        how = 'inner',
+                                                        on = ['PARCEL_ID'])
 
     p10_plu_boc_simply = p10_plu_boc[['PARCEL_ID','ACRES','county_id', 'county_name','juris_zmod', 'nodev_zmod'] + [
-                         dev_type+'_pba40' for dev_type in ALLOWED_BUILDING_TYPE_CODES] + [
-                         dev_type+'_basis' for dev_type in ALLOWED_BUILDING_TYPE_CODES] + [
+                         dev_type+'_pba40'    for dev_type in ALLOWED_BUILDING_TYPE_CODES] + [
+                         dev_type+'_basis'    for dev_type in ALLOWED_BUILDING_TYPE_CODES] + [
+                         dev_type+'_urbansim' for dev_type in ALLOWED_BUILDING_TYPE_CODES] + [
                          'building_types_source_basis','source_basis','plu_id_basis', 
                          'plu_jurisdiction_basis', 'plu_description_basis']]
 
@@ -216,8 +222,9 @@ if __name__ == '__main__':
 
     for i in ['PARCEL_ID', 'nodev_zmod',
               'allow_res_pba40', 'allow_res_basis','allow_nonres_pba40','allow_nonres_basis'] + [
-              dev_type+'_pba40' for dev_type in ALLOWED_BUILDING_TYPE_CODES] + [
-              dev_type+'_basis' for dev_type in ALLOWED_BUILDING_TYPE_CODES]:
+              dev_type+'_pba40'    for dev_type in ALLOWED_BUILDING_TYPE_CODES] + [
+              dev_type+'_basis'    for dev_type in ALLOWED_BUILDING_TYPE_CODES] + [
+              dev_type+'_urbansim' for dev_type in ALLOWED_BUILDING_TYPE_CODES]:
         capacity_allAtts[i] = capacity_allAtts[i].fillna(-1).astype(np.int64)
 
     logger.info(capacity_allAtts.dtypes)
