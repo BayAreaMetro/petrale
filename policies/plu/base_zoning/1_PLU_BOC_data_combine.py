@@ -382,7 +382,7 @@ if __name__ == '__main__':
     juris_county_lookup_file = os.path.join(GITHUB_PETRALE_DIR,'zones\\jurisdictions\\juris_county_id.csv')
     juris_county_lookup = pd.read_csv(
         juris_county_lookup_file,
-        usecols = ['juris_name_full','juris_id','county_name', 'county_id'])
+        usecols = ['juris_name_full','juris_id','county_name', 'county_id','jurisdiction_id'])
 
     p10_basis_pba40_boc_zmod_withJuris = p10_basis_pba40_boc_zmod.merge(juris_county_lookup,
                                                                        left_on = 'juris_zmod',right_on='juris_name_full',how='left')
@@ -437,7 +437,9 @@ if __name__ == '__main__':
     ## Export PLU BOC data to csv
 
     output_columns = [
-        'PARCEL_ID','county_id', 'county_name', 'juris_zmod', 'ACRES', 'zoning_id_pba40', 'name_pba40','plu_code_basis','pba50zoningmodcat_zmod',
+        'PARCEL_ID', 'geom_id','county_id', 'county_name', 'juris_zmod', 'jurisdiction_id',
+
+        'ACRES', 'zoning_id_pba40', 'name_pba40','plu_code_basis','pba50zoningmodcat_zmod',
         
         # intensity
         'max_far_basis',   'max_far_pba40',
