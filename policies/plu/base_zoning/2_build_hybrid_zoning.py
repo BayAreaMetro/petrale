@@ -261,7 +261,7 @@ if __name__ == '__main__':
         if hybrid_name == 'urbansim':
 
             # select hybrid fields
-            plu_boc_urbansim_cols = ['PARCEL_ID','county_id','county_name', 'juris_zmod', 'ACRES',
+            plu_boc_urbansim_cols = ['PARCEL_ID','geom_id','county_id','county_name', 'juris_zmod', 'jurisdiction_id', 'ACRES',
                                      'pba50zoningmodcat_zmod','nodev_zmod','name_pba40','plu_code_basis'] + [
                                      devType + '_urbansim' for devType in ALLOWED_BUILDING_TYPE_CODES] + [
                                      intensity + '_urbansim' for intensity in ['max_dua','max_far','max_height']]
@@ -269,7 +269,7 @@ if __name__ == '__main__':
             plu_boc_urbansim = plu_boc_hybrid[plu_boc_urbansim_cols]
 
             # rename the fields to remove '_urbansim'
-            plu_boc_urbansim.columns = ['PARCEL_ID','county_id','county_name', 'juris_zmod', 'ACRES',
+            plu_boc_urbansim.columns = ['PARCEL_ID','geom_id','county_id','county_name', 'juris_zmod', 'jurisdiction_id', 'ACRES',
                                         'pba50zoningmodcat_zmod','nodev_zmod','name_pba40','plu_code_basis'] + ALLOWED_BUILDING_TYPE_CODES + [
                                         'max_dua','max_far','max_height']
 
@@ -291,7 +291,17 @@ if __name__ == '__main__':
             plu_boc_urbansim_ID = plu_boc_urbansim.merge(zoning_lookup_pba50,
                                                          on = list(zoning_lookup_pba50)[:-1],
                                                          how = 'left')
-            zoning_parcels_pba50 = plu_boc_urbansim_ID[['PARCEL_ID','juris_zmod','zoning_id_pba50','nodev_zmod']]
+            zoning_parcels_pba50 = plu_boc_urbansim_ID[['PARCEL_ID','geom_id','juris_zmod','jurisdiction_id','zoning_id_pba50','nodev_zmod']]
+
+            # bring into other attributes from Horizon:
+            zoning_parcel_pba40_file = os.path.join(PBA40_ZONING_BOX_DIR, '2015_12_21_zoning_parcels.csv')
+            zoning_parcel_pba40 = pd.read_csv(zoning_parcel_pba40_file, 
+            								  usecols = ['geom_id','prop'])
+            zoning_parcels_pba50 = zoning_parcels_pba50.merge(zoning_parcel_pba40, on = 'geom_id', how = 'left')
+
+			zoning_parcels_pba50.rename(columns = {'juris_zmod': 'juris_id',
+												   'zoning_id_pba50': 'zoning_id',
+												   'jurisdiction_id': 'juris'}, inplace = True)            
 
 
             ## assign zoning name to each zoning_id based on the most frequent occurance of zoning name among all the parcels with the same zoning_id
@@ -315,7 +325,11 @@ if __name__ == '__main__':
                                                             how = 'left')
             # attach zoning name to the zoning lookup table
             zoning_lookup_pba50 = zoning_lookup_pba50[['zoning_id_pba50','juris_zmod','zoning_name_pba50','max_dua','max_far','max_height'] + ALLOWED_BUILDING_TYPE_CODES]
-            
+            # change field names to be consistent with the previous version
+            zoning_lookup_pba50.rename(columns = {'zoning_id_pba50'  :'id',
+            									  'juris_zmod'       :'juris',
+            									  'zoning_name_pba50':'name'}, inplace = True)
+
             # export zoning lookup and zoning_parcels files
             zoning_lookup_pba50.to_csv(os.path.join(DATA_OUTPUT_DIR, today+'_zoning_lookup_pba50.csv'),index = False)
             zoning_parcels_pba50.to_csv(os.path.join(DATA_OUTPUT_DIR, today+'_zoning_parcels_pba50.csv'),index = False)
