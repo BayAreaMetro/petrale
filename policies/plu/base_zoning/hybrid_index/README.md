@@ -22,12 +22,12 @@ Two sets of indexes were created during the process:
 
 	For each jurisdiction:
 	
-		if abs(SQFT_pab40 - SQFT_hybird) / SQFT_pba40 <= **20%**  THEN MAX_FAR_idx = 1 and MAX_HEIGHT_idx = 1
+		if abs(SQFT_pab40 - SQFT_hybird) / SQFT_pba40 <= 20%  THEN MAX_FAR_idx = 1 and MAX_HEIGHT_idx = 1
 		
 		else MAX_HEIGHT_idx = 0
 	For each jurisdiction:
 	
-		if abs(UNITS_pab40 - UNITS_hybird) / UNITS_pba40 <= **20%** THEN MAX_DUA_idx = 1
+		if abs(UNITS_pab40 - UNITS_hybird) / UNITS_pba40 <= 20% THEN MAX_DUA_idx = 1
 		
 		else MAX_DUA_idx = 0
 
@@ -35,8 +35,8 @@ Two sets of indexes were created during the process:
 
 	For each jurisdiction:
 
-		if (abs(SQFT_pab40 - SQFT_hybird) / SQFT_pba40 <= **20%**) & 
-		   (abs(UNITS_pab40 - UNITS_hybird) / UNITS_pba40 <= **20%**) THEN MR_idx = 1
+		if (abs(SQFT_pab40 - SQFT_hybird) / SQFT_pba40 <= 20%) & 
+		   (abs(UNITS_pab40 - UNITS_hybird) / UNITS_pba40 <= 20%) THEN MR_idx = 1
 		
 		else MR_idx = 0
 
@@ -44,7 +44,7 @@ Two sets of indexes were created during the process:
 
 	For each jurisdiction: 
 		
-		if abs(UNITS_pab40 - UNITS_hybird) / UNITS_pba40 <= **20%** THEN devType_idx = 1
+		if abs(UNITS_pab40 - UNITS_hybird) / UNITS_pba40 <= 20% THEN devType_idx = 1
 		
 		else devType_idx = 0
 	  
@@ -52,7 +52,7 @@ Two sets of indexes were created during the process:
 	
 	For each jurisdiction: 
 		
-		if abs(SQFT_pab40 - SQFT_hybird) / SQFT_pba40 <= **20%** THEN devType_idx = 1
+		if abs(SQFT_pab40 - SQFT_hybird) / SQFT_pba40 <= 20% THEN devType_idx = 1
 		
 		else devType_idx = 0
 
