@@ -1,0 +1,2042 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<!-- build 20194.20.0427.1919                               -->
+<workbook original-version='18.1' source-build='2019.4.6 (20194.20.0427.1919)' source-platform='win' version='18.1' xml:base='https://public.tableau.com' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <document-format-change-manifest>
+    <AutoCreateAndUpdateDSDPhoneLayouts ignorable='true' predowngraded='true' />
+    <SheetIdentifierTracking ignorable='true' predowngraded='true' />
+    <SortTagCleanup />
+    <WindowsPersistSimpleIdentifiers />
+    <WorksheetBackgroundTransparency />
+    <ZoneBackgroundTransparency />
+  </document-format-change-manifest>
+  <repository-location id='Nonresidential_SQFT_20200428_hybrid_1' path='/workbooks' revision='1.0' />
+  <preferences>
+    <preference name='ui.encoding.shelf.height' value='24' />
+    <preference name='ui.shelf.height' value='26' />
+  </preferences>
+  <datasources>
+    <datasource caption='capacity_urbansim_heuristic_10' inline='true' name='federated.12oqp8c137tb9m0zyibs504ypcvx' version='18.1'>
+      <connection class='federated'>
+        <named-connections>
+          <named-connection caption='capacity_urbansim_heuristic_10' name='textscan.03cgqo71fk7206149ayew04bnkga'>
+            <connection class='textscan' directory='C:/Users/ywang/Box/Modeling and Surveys/Urban Modeling/Bay Area UrbanSim 1.5/PBA50/Policies/Base zoning/outputs/capacity' filename='capacity_urbansim_heuristic_10.csv' password='' server='' />
+          </named-connection>
+        </named-connections>
+        <relation connection='textscan.03cgqo71fk7206149ayew04bnkga' name='capacity_urbansim_heuristic_10.csv' table='[capacity_urbansim_heuristic_10#csv]' type='table'>
+          <columns character-set='UTF-8' header='yes' locale='en_US' separator=','>
+            <column datatype='integer' name='PARCEL_ID' ordinal='0' />
+            <column datatype='string' name='source_dua_pba40' ordinal='1' />
+            <column datatype='integer' name='allow_res_pba40' ordinal='2' />
+            <column datatype='real' name='units_pba40' ordinal='3' />
+            <column datatype='integer' name='allow_nonres_pba40' ordinal='4' />
+            <column datatype='string' name='source_far_pba40' ordinal='5' />
+            <column datatype='real' name='sqft_pba40' ordinal='6' />
+            <column datatype='real' name='Ksqft_pba40' ordinal='7' />
+            <column datatype='real' name='emp_pba40' ordinal='8' />
+            <column datatype='integer' name='allow_res_urbansim' ordinal='9' />
+            <column datatype='real' name='units_urbansim' ordinal='10' />
+            <column datatype='integer' name='allow_nonres_urbansim' ordinal='11' />
+            <column datatype='real' name='sqft_urbansim' ordinal='12' />
+            <column datatype='real' name='Ksqft_urbansim' ordinal='13' />
+            <column datatype='real' name='emp_urbansim' ordinal='14' />
+            <column datatype='real' name='ACRES' ordinal='15' />
+            <column datatype='integer' name='county_id' ordinal='16' />
+            <column datatype='string' name='county_name' ordinal='17' />
+            <column datatype='string' name='juris_zmod' ordinal='18' />
+            <column datatype='integer' name='nodev_zmod' ordinal='19' />
+            <column datatype='integer' name='HS_pba40' ordinal='20' />
+            <column datatype='integer' name='HT_pba40' ordinal='21' />
+            <column datatype='integer' name='HM_pba40' ordinal='22' />
+            <column datatype='integer' name='OF_pba40' ordinal='23' />
+            <column datatype='integer' name='HO_pba40' ordinal='24' />
+            <column datatype='integer' name='SC_pba40' ordinal='25' />
+            <column datatype='integer' name='IL_pba40' ordinal='26' />
+            <column datatype='integer' name='IW_pba40' ordinal='27' />
+            <column datatype='integer' name='IH_pba40' ordinal='28' />
+            <column datatype='integer' name='RS_pba40' ordinal='29' />
+            <column datatype='integer' name='RB_pba40' ordinal='30' />
+            <column datatype='integer' name='MR_pba40' ordinal='31' />
+            <column datatype='integer' name='MT_pba40' ordinal='32' />
+            <column datatype='integer' name='ME_pba40' ordinal='33' />
+            <column datatype='integer' name='HS_urbansim' ordinal='34' />
+            <column datatype='integer' name='HT_urbansim' ordinal='35' />
+            <column datatype='integer' name='HM_urbansim' ordinal='36' />
+            <column datatype='integer' name='OF_urbansim' ordinal='37' />
+            <column datatype='integer' name='HO_urbansim' ordinal='38' />
+            <column datatype='integer' name='SC_urbansim' ordinal='39' />
+            <column datatype='integer' name='IL_urbansim' ordinal='40' />
+            <column datatype='integer' name='IW_urbansim' ordinal='41' />
+            <column datatype='integer' name='IH_urbansim' ordinal='42' />
+            <column datatype='integer' name='RS_urbansim' ordinal='43' />
+            <column datatype='integer' name='RB_urbansim' ordinal='44' />
+            <column datatype='integer' name='MR_urbansim' ordinal='45' />
+            <column datatype='integer' name='MT_urbansim' ordinal='46' />
+            <column datatype='integer' name='ME_urbansim' ordinal='47' />
+          </columns>
+        </relation>
+        <metadata-records>
+          <metadata-record class='capability'>
+            <remote-name />
+            <remote-type>0</remote-type>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias />
+            <aggregation>Count</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='character-set'>&quot;UTF-8&quot;</attribute>
+              <attribute datatype='string' name='collation'>&quot;en_US&quot;</attribute>
+              <attribute datatype='string' name='field-delimiter'>&quot;,&quot;</attribute>
+              <attribute datatype='string' name='header-row'>&quot;true&quot;</attribute>
+              <attribute datatype='string' name='locale'>&quot;en_US&quot;</attribute>
+              <attribute datatype='string' name='single-char'>&quot;&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>PARCEL_ID</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[PARCEL_ID]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>PARCEL_ID</remote-alias>
+            <ordinal>0</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>source_dua_pba40</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[source_dua_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>source_dua_pba40</remote-alias>
+            <ordinal>1</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RUS' />
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>allow_res_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[allow_res_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>allow_res_pba40</remote-alias>
+            <ordinal>2</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>units_pba40</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[units_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>units_pba40</remote-alias>
+            <ordinal>3</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>allow_nonres_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[allow_nonres_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>allow_nonres_pba40</remote-alias>
+            <ordinal>4</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>source_far_pba40</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[source_far_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>source_far_pba40</remote-alias>
+            <ordinal>5</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RUS' />
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>sqft_pba40</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[sqft_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>sqft_pba40</remote-alias>
+            <ordinal>6</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>Ksqft_pba40</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[Ksqft_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>Ksqft_pba40</remote-alias>
+            <ordinal>7</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>emp_pba40</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[emp_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>emp_pba40</remote-alias>
+            <ordinal>8</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>allow_res_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[allow_res_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>allow_res_urbansim</remote-alias>
+            <ordinal>9</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>units_urbansim</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[units_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>units_urbansim</remote-alias>
+            <ordinal>10</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>allow_nonres_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[allow_nonres_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>allow_nonres_urbansim</remote-alias>
+            <ordinal>11</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>sqft_urbansim</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[sqft_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>sqft_urbansim</remote-alias>
+            <ordinal>12</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>Ksqft_urbansim</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[Ksqft_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>Ksqft_urbansim</remote-alias>
+            <ordinal>13</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>emp_urbansim</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[emp_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>emp_urbansim</remote-alias>
+            <ordinal>14</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>ACRES</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[ACRES]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>ACRES</remote-alias>
+            <ordinal>15</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>county_id</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[county_id]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>county_id</remote-alias>
+            <ordinal>16</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>county_name</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[county_name]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>county_name</remote-alias>
+            <ordinal>17</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RUS' />
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>juris_zmod</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[juris_zmod]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>juris_zmod</remote-alias>
+            <ordinal>18</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RUS' />
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>nodev_zmod</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[nodev_zmod]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>nodev_zmod</remote-alias>
+            <ordinal>19</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>HS_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[HS_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>HS_pba40</remote-alias>
+            <ordinal>20</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>HT_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[HT_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>HT_pba40</remote-alias>
+            <ordinal>21</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>HM_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[HM_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>HM_pba40</remote-alias>
+            <ordinal>22</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>OF_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[OF_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>OF_pba40</remote-alias>
+            <ordinal>23</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>HO_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[HO_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>HO_pba40</remote-alias>
+            <ordinal>24</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>SC_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[SC_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>SC_pba40</remote-alias>
+            <ordinal>25</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>IL_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[IL_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>IL_pba40</remote-alias>
+            <ordinal>26</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>IW_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[IW_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>IW_pba40</remote-alias>
+            <ordinal>27</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>IH_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[IH_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>IH_pba40</remote-alias>
+            <ordinal>28</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>RS_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[RS_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>RS_pba40</remote-alias>
+            <ordinal>29</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>RB_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[RB_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>RB_pba40</remote-alias>
+            <ordinal>30</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>MR_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[MR_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>MR_pba40</remote-alias>
+            <ordinal>31</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>MT_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[MT_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>MT_pba40</remote-alias>
+            <ordinal>32</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>ME_pba40</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[ME_pba40]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>ME_pba40</remote-alias>
+            <ordinal>33</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>HS_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[HS_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>HS_urbansim</remote-alias>
+            <ordinal>34</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>HT_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[HT_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>HT_urbansim</remote-alias>
+            <ordinal>35</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>HM_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[HM_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>HM_urbansim</remote-alias>
+            <ordinal>36</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>OF_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[OF_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>OF_urbansim</remote-alias>
+            <ordinal>37</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>HO_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[HO_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>HO_urbansim</remote-alias>
+            <ordinal>38</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>SC_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[SC_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>SC_urbansim</remote-alias>
+            <ordinal>39</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>IL_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[IL_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>IL_urbansim</remote-alias>
+            <ordinal>40</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>IW_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[IW_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>IW_urbansim</remote-alias>
+            <ordinal>41</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>IH_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[IH_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>IH_urbansim</remote-alias>
+            <ordinal>42</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>RS_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[RS_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>RS_urbansim</remote-alias>
+            <ordinal>43</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>RB_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[RB_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>RB_urbansim</remote-alias>
+            <ordinal>44</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>MR_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[MR_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>MR_urbansim</remote-alias>
+            <ordinal>45</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>MT_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[MT_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>MT_urbansim</remote-alias>
+            <ordinal>46</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>ME_urbansim</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[ME_urbansim]</local-name>
+            <parent-name>[capacity_urbansim_heuristic_10.csv]</parent-name>
+            <remote-alias>ME_urbansim</remote-alias>
+            <ordinal>47</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+        </metadata-records>
+      </connection>
+      <aliases enabled='yes' />
+      <column caption='Acres' datatype='real' name='[ACRES]' role='measure' type='quantitative' />
+      <column caption='HM pba40' datatype='integer' name='[HM_pba40]' role='measure' type='quantitative' />
+      <column caption='HM urbansim' datatype='integer' name='[HM_urbansim]' role='measure' type='quantitative' />
+      <column caption='HO pba40' datatype='integer' name='[HO_pba40]' role='measure' type='quantitative' />
+      <column caption='HO urbansim' datatype='integer' name='[HO_urbansim]' role='measure' type='quantitative' />
+      <column caption='HS pba40' datatype='integer' name='[HS_pba40]' role='measure' type='quantitative' />
+      <column caption='HS urbansim' datatype='integer' name='[HS_urbansim]' role='measure' type='quantitative' />
+      <column caption='HT pba40' datatype='integer' name='[HT_pba40]' role='measure' type='quantitative' />
+      <column caption='HT urbansim' datatype='integer' name='[HT_urbansim]' role='measure' type='quantitative' />
+      <column caption='IH pba40' datatype='integer' name='[IH_pba40]' role='measure' type='quantitative' />
+      <column caption='IH urbansim' datatype='integer' name='[IH_urbansim]' role='measure' type='quantitative' />
+      <column caption='IL pba40' datatype='integer' name='[IL_pba40]' role='measure' type='quantitative' />
+      <column caption='IL urbansim' datatype='integer' name='[IL_urbansim]' role='measure' type='quantitative' />
+      <column caption='IW pba40' datatype='integer' name='[IW_pba40]' role='measure' type='quantitative' />
+      <column caption='IW urbansim' datatype='integer' name='[IW_urbansim]' role='measure' type='quantitative' />
+      <column caption='Ksqft pba40' datatype='real' name='[Ksqft_pba40]' role='measure' type='quantitative' />
+      <column caption='Ksqft urbansim' datatype='real' name='[Ksqft_urbansim]' role='measure' type='quantitative' />
+      <column caption='ME pba40' datatype='integer' name='[ME_pba40]' role='measure' type='quantitative' />
+      <column caption='ME urbansim' datatype='integer' name='[ME_urbansim]' role='measure' type='quantitative' />
+      <column caption='MR pba40' datatype='integer' name='[MR_pba40]' role='measure' type='quantitative' />
+      <column caption='MR urbansim' datatype='integer' name='[MR_urbansim]' role='measure' type='quantitative' />
+      <column caption='MT pba40' datatype='integer' name='[MT_pba40]' role='measure' type='quantitative' />
+      <column caption='MT urbansim' datatype='integer' name='[MT_urbansim]' role='measure' type='quantitative' />
+      <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
+        <calculation class='tableau' formula='1' />
+      </column>
+      <column caption='OF pba40' datatype='integer' name='[OF_pba40]' role='measure' type='quantitative' />
+      <column caption='OF urbansim' datatype='integer' name='[OF_urbansim]' role='measure' type='quantitative' />
+      <column caption='Parcel Id' datatype='integer' name='[PARCEL_ID]' role='dimension' type='ordinal' />
+      <column caption='RB pba40' datatype='integer' name='[RB_pba40]' role='measure' type='quantitative' />
+      <column caption='RB urbansim' datatype='integer' name='[RB_urbansim]' role='measure' type='quantitative' />
+      <column caption='RS pba40' datatype='integer' name='[RS_pba40]' role='measure' type='quantitative' />
+      <column caption='RS urbansim' datatype='integer' name='[RS_urbansim]' role='measure' type='quantitative' />
+      <column caption='SC pba40' datatype='integer' name='[SC_pba40]' role='measure' type='quantitative' />
+      <column caption='SC urbansim' datatype='integer' name='[SC_urbansim]' role='measure' type='quantitative' />
+      <column caption='Allow Nonres Pba40' datatype='integer' name='[allow_nonres_pba40]' role='measure' type='quantitative' />
+      <column caption='Allow Nonres Urbansim' datatype='integer' name='[allow_nonres_urbansim]' role='measure' type='quantitative' />
+      <column caption='Allow Res Pba40' datatype='integer' name='[allow_res_pba40]' role='measure' type='quantitative' />
+      <column caption='Allow Res Urbansim' datatype='integer' name='[allow_res_urbansim]' role='measure' type='quantitative' />
+      <column caption='County Id' datatype='integer' name='[county_id]' role='dimension' type='ordinal' />
+      <column aggregation='None' caption='County Name' datatype='string' name='[county_name]' role='dimension' semantic-role='[County].[Name]' type='nominal' />
+      <column caption='Emp Pba40' datatype='real' name='[emp_pba40]' role='measure' type='quantitative' />
+      <column caption='Emp Urbansim' datatype='real' name='[emp_urbansim]' role='measure' type='quantitative' />
+      <column caption='Juris Zmod' datatype='string' name='[juris_zmod]' role='dimension' type='nominal' />
+      <column caption='Nodev Zmod' datatype='integer' name='[nodev_zmod]' role='measure' type='quantitative' />
+      <column caption='Source Dua Pba40' datatype='string' name='[source_dua_pba40]' role='dimension' type='nominal' />
+      <column caption='Source Far Pba40' datatype='string' name='[source_far_pba40]' role='dimension' type='nominal' />
+      <column caption='Sqft Pba40' datatype='real' name='[sqft_pba40]' role='measure' type='quantitative' />
+      <column caption='Sqft Urbansim' datatype='real' name='[sqft_urbansim]' role='measure' type='quantitative' />
+      <column caption='Units Pba40' datatype='real' name='[units_pba40]' role='measure' type='quantitative' />
+      <column caption='Units Urbansim' datatype='real' name='[units_urbansim]' role='measure' type='quantitative' />
+      <column-instance column='[ACRES]' derivation='Sum' name='[sum:ACRES:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[HM_pba40]' derivation='Sum' name='[sum:HM_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[HM_urbansim]' derivation='Sum' name='[sum:HM_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[HO_pba40]' derivation='Sum' name='[sum:HO_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[HO_urbansim]' derivation='Sum' name='[sum:HO_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[HS_pba40]' derivation='Sum' name='[sum:HS_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[HS_urbansim]' derivation='Sum' name='[sum:HS_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[HT_pba40]' derivation='Sum' name='[sum:HT_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[HT_urbansim]' derivation='Sum' name='[sum:HT_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[IH_pba40]' derivation='Sum' name='[sum:IH_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[IH_urbansim]' derivation='Sum' name='[sum:IH_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[IL_pba40]' derivation='Sum' name='[sum:IL_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[IL_urbansim]' derivation='Sum' name='[sum:IL_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[IW_pba40]' derivation='Sum' name='[sum:IW_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[IW_urbansim]' derivation='Sum' name='[sum:IW_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[Ksqft_pba40]' derivation='Sum' name='[sum:Ksqft_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[Ksqft_urbansim]' derivation='Sum' name='[sum:Ksqft_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[ME_pba40]' derivation='Sum' name='[sum:ME_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[ME_urbansim]' derivation='Sum' name='[sum:ME_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[MR_pba40]' derivation='Sum' name='[sum:MR_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[MR_urbansim]' derivation='Sum' name='[sum:MR_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[MT_pba40]' derivation='Sum' name='[sum:MT_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[MT_urbansim]' derivation='Sum' name='[sum:MT_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[Number of Records]' derivation='Sum' name='[sum:Number of Records:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[OF_pba40]' derivation='Sum' name='[sum:OF_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[OF_urbansim]' derivation='Sum' name='[sum:OF_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[RB_pba40]' derivation='Sum' name='[sum:RB_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[RB_urbansim]' derivation='Sum' name='[sum:RB_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[RS_pba40]' derivation='Sum' name='[sum:RS_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[RS_urbansim]' derivation='Sum' name='[sum:RS_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[SC_pba40]' derivation='Sum' name='[sum:SC_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[SC_urbansim]' derivation='Sum' name='[sum:SC_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[allow_nonres_pba40]' derivation='Sum' name='[sum:allow_nonres_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[allow_nonres_urbansim]' derivation='Sum' name='[sum:allow_nonres_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[allow_res_pba40]' derivation='Sum' name='[sum:allow_res_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[allow_res_urbansim]' derivation='Sum' name='[sum:allow_res_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[emp_pba40]' derivation='Sum' name='[sum:emp_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[emp_urbansim]' derivation='Sum' name='[sum:emp_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[nodev_zmod]' derivation='Sum' name='[sum:nodev_zmod:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[sqft_pba40]' derivation='Sum' name='[sum:sqft_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[sqft_urbansim]' derivation='Sum' name='[sum:sqft_urbansim:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[units_pba40]' derivation='Sum' name='[sum:units_pba40:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[units_pba40]' derivation='Sum' name='[sum:units_pba40:vtsum:qk]' pivot='key' type='quantitative' visual-totals='Sum' />
+      <column-instance column='[units_urbansim]' derivation='Sum' name='[sum:units_urbansim:qk]' pivot='key' type='quantitative' />
+      <layout dim-ordering='alphabetic' dim-percentage='0.263669' measure-ordering='alphabetic' measure-percentage='0.736331' show-structure='true' />
+      <style>
+        <style-rule element='mark'>
+          <encoding attr='color' field='[:Measure Names]' type='palette'>
+            <map to='#499894'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:allow_nonres_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#499894'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:HS_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:IL_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:MT_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:SC_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:sqft_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:units_pba40:vtsum:qk]&quot;</bucket>
+            </map>
+            <map to='#59a14f'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:Ksqft_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#59a14f'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:RB_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#76b7b2'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:units_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#79706e'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:emp_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#79706e'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:HO_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#86bcb6'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:HT_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#8cd17d'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:emp_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#8cd17d'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:MR_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#9d7660'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:OF_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#9d7660'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:RB_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#a0cbe8'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:allow_res_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#a0cbe8'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:IW_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#a0cbe8'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:ME_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#b07aa1'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:HT_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#b07aa1'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:IH_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#b6992d'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:allow_res_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#b6992d'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:MT_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#bab0ac'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:ACRES:qk]&quot;</bucket>
+            </map>
+            <map to='#bab0ac'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:SC_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#d37295'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:IL_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#d37295'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:nodev_zmod:qk]&quot;</bucket>
+            </map>
+            <map to='#d4a6c8'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:HM_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#d4a6c8'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:RS_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#d7b5a6'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:HO_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#d7b5a6'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:MR_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#e15759'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:HM_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#e15759'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:sqft_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#f1ce63'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:ME_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:IH_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:Number of Records:qk]&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:sqft_basis:qk]&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:units_basis:qk]&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:units_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#fabfd2'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:HS_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#fabfd2'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:IW_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#ff9d9a'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:Ksqft_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#ff9d9a'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:OF_urbansim:qk]&quot;</bucket>
+            </map>
+            <map to='#ffbe7d'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:allow_nonres_pba40:qk]&quot;</bucket>
+            </map>
+            <map to='#ffbe7d'>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:RS_pba40:qk]&quot;</bucket>
+            </map>
+          </encoding>
+        </style-rule>
+      </style>
+      <semantic-values>
+        <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
+      </semantic-values>
+    </datasource>
+  </datasources>
+  <worksheets>
+    <worksheet name='Nores SQFT - hybrid using 10% threshold'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontsize='12'>&lt;Sheet Name&gt;</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='capacity_urbansim_heuristic_10' name='federated.12oqp8c137tb9m0zyibs504ypcvx' />
+          </datasources>
+          <datasource-dependencies datasource='federated.12oqp8c137tb9m0zyibs504ypcvx'>
+            <column aggregation='None' caption='County Name' datatype='string' name='[county_name]' role='dimension' semantic-role='[County].[Name]' type='nominal' />
+            <column caption='Juris Zmod' datatype='string' name='[juris_zmod]' role='dimension' type='nominal' />
+            <column-instance column='[county_name]' derivation='None' name='[none:county_name:nk]' pivot='key' type='nominal' />
+            <column-instance column='[juris_zmod]' derivation='None' name='[none:juris_zmod:nk]' pivot='key' type='nominal' />
+            <column caption='Sqft Pba40' datatype='real' name='[sqft_pba40]' role='measure' type='quantitative' />
+            <column caption='Sqft Urbansim' datatype='real' name='[sqft_urbansim]' role='measure' type='quantitative' />
+            <column-instance column='[sqft_pba40]' derivation='Sum' name='[sum:sqft_pba40:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[sqft_urbansim]' derivation='Sum' name='[sum:sqft_urbansim:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[units_pba40]' derivation='Sum' name='[sum:units_pba40:qk]' pivot='key' type='quantitative' />
+            <column caption='Units Pba40' datatype='real' name='[units_pba40]' role='measure' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]'>
+            <groupfilter function='union' user:op='manual'>
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:sqft_pba40:qk]&quot;' />
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:sqft_urbansim:qk]&quot;' />
+            </groupfilter>
+          </filter>
+          <manual-sort column='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]' direction='ASC'>
+            <dictionary>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:units_pba40:qk]&quot;</bucket>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:units_basis:qk]&quot;</bucket>
+            </dictionary>
+          </manual-sort>
+          <filter class='categorical' column='[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:county_name:nk]'>
+            <groupfilter function='member' level='[none:county_name:nk]' member='&quot;Alameda&quot;' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:county_name:nk]</column>
+            <column>[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <format attr='auto-subtitle' class='0' field='[federated.12oqp8c137tb9m0zyibs504ypcvx].[Multiple Values]' scope='cols' value='false' />
+            <format attr='title' class='0' field='[federated.12oqp8c137tb9m0zyibs504ypcvx].[Multiple Values]' scope='cols' value='Sqft' />
+          </style-rule>
+          <style-rule element='label'>
+            <format attr='display' field='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]' value='false' />
+          </style-rule>
+          <style-rule element='legend'>
+            <format attr='font-size' value='8' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <color column='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]' />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>([federated.12oqp8c137tb9m0zyibs504ypcvx].[none:juris_zmod:nk] / [federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names])</rows>
+        <cols>[federated.12oqp8c137tb9m0zyibs504ypcvx].[Multiple Values]</cols>
+      </table>
+      <simple-id uuid='{54790307-68D9-49BB-ADBA-46DB5FF9CA49}' />
+    </worksheet>
+    <worksheet name='Res Units - hybrid using 10% threshold'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontsize='12'>&lt;Sheet Name&gt;</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='capacity_urbansim_heuristic_10' name='federated.12oqp8c137tb9m0zyibs504ypcvx' />
+          </datasources>
+          <datasource-dependencies datasource='federated.12oqp8c137tb9m0zyibs504ypcvx'>
+            <column aggregation='None' caption='County Name' datatype='string' name='[county_name]' role='dimension' semantic-role='[County].[Name]' type='nominal' />
+            <column caption='Juris Zmod' datatype='string' name='[juris_zmod]' role='dimension' type='nominal' />
+            <column-instance column='[county_name]' derivation='None' name='[none:county_name:nk]' pivot='key' type='nominal' />
+            <column-instance column='[juris_zmod]' derivation='None' name='[none:juris_zmod:nk]' pivot='key' type='nominal' />
+            <column-instance column='[units_pba40]' derivation='Sum' name='[sum:units_pba40:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[units_pba40]' derivation='Sum' name='[sum:units_pba40:vtsum:qk]' pivot='key' type='quantitative' visual-totals='Sum' />
+            <column-instance column='[units_urbansim]' derivation='Sum' name='[sum:units_urbansim:qk]' pivot='key' type='quantitative' />
+            <column caption='Units Pba40' datatype='real' name='[units_pba40]' role='measure' type='quantitative' />
+            <column caption='Units Urbansim' datatype='real' name='[units_urbansim]' role='measure' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]'>
+            <groupfilter function='union' user:op='manual'>
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:units_pba40:vtsum:qk]&quot;' />
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:units_urbansim:qk]&quot;' />
+            </groupfilter>
+          </filter>
+          <manual-sort column='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]' direction='ASC'>
+            <dictionary>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:units_pba40:qk]&quot;</bucket>
+              <bucket>&quot;[federated.12oqp8c137tb9m0zyibs504ypcvx].[sum:units_basis:qk]&quot;</bucket>
+            </dictionary>
+          </manual-sort>
+          <filter class='categorical' column='[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:county_name:nk]'>
+            <groupfilter function='member' level='[none:county_name:nk]' member='&quot;Alameda&quot;' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:county_name:nk]</column>
+            <column>[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <format attr='auto-subtitle' class='0' field='[federated.12oqp8c137tb9m0zyibs504ypcvx].[Multiple Values]' scope='cols' value='false' />
+            <format attr='title' class='0' field='[federated.12oqp8c137tb9m0zyibs504ypcvx].[Multiple Values]' scope='cols' value='Units' />
+          </style-rule>
+          <style-rule element='label'>
+            <format attr='display' field='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]' value='false' />
+          </style-rule>
+          <style-rule element='legend'>
+            <format attr='font-size' value='8' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <color column='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]' />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>([federated.12oqp8c137tb9m0zyibs504ypcvx].[none:juris_zmod:nk] / [federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names])</rows>
+        <cols>[federated.12oqp8c137tb9m0zyibs504ypcvx].[Multiple Values]</cols>
+      </table>
+      <simple-id uuid='{138C54FA-1970-4447-BB97-15ABE7AE54EA}' />
+    </worksheet>
+  </worksheets>
+  <dashboards>
+    <dashboard name='Notes' type='storyboard'>
+      <style />
+      <size maxheight='964' maxwidth='1016' minheight='964' minwidth='1016' />
+      <zones>
+        <zone h='100000' id='2' type='layout-basic' w='100000' x='0' y='0'>
+          <zone h='98340' id='1' param='vert' removable='false' type='layout-flow' w='98426' x='787' y='830'>
+            <zone h='5187' id='3' type='title' w='98426' x='787' y='830' />
+            <zone h='10477' id='4' is-fixed='true' paired-zone-id='5' removable='false' type='flipboard-nav' w='98426' x='787' y='6017' />
+            <zone h='82676' id='5' paired-zone-id='4' removable='false' type='flipboard' w='98426' x='787' y='16494'>
+              <flipboard active-id='1' nav-type='caption' show-nav-arrows='true'>
+                <story-points>
+                  <story-point captured-sheet='' id='1' />
+                </story-points>
+              </flipboard>
+            </zone>
+          </zone>
+          <zone-style>
+            <format attr='border-color' value='#000000' />
+            <format attr='border-style' value='none' />
+            <format attr='border-width' value='0' />
+            <format attr='margin' value='8' />
+          </zone-style>
+        </zone>
+        <zone flipboard-zone-id='5' forceUpdate='true' h='48755' id='6' story-point-id='1' type='text' w='96850' x='1280' y='7158'>
+          <formatted-text>
+            <run bold='true' fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>Workbook data:</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'> capacity_urbansim_heuristic_20.csv (</run>
+            <run auto-url='true' fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11' hyperlink='tabdoc:load-url url=&amp;quot;https://mtcdrive.box.com/s/iinmw5yvpgfpyfvtsl6hj48q98n1swo3&amp;quot;'>https://mtcdrive.box.com/s/iinmw5yvpgfpyfvtsl6hj48q98n1swo3</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>)</run>
+            <run fontalignment='0'>Æ&#10;</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>For background, please see </run>
+            <run auto-url='true' fontalignment='0' fontcolor='#0000ff' fontname='Benton Sans Book' fontsize='11' hyperlink='tabdoc:load-url url=&amp;quot;https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/README.md&amp;quot;' underline='true'>https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/README.md</run>
+            <run fontalignment='0'>Æ&#10;&#10;</run>
+            <run bold='true' fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>Data sources:</run>
+            <run fontalignment='0'>Æ&#10;</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>- </run>
+            <run bold='true' fontalignment='0' fontcolor='#e15759' fontname='Benton Sans Book' fontsize='11'>Parcel 10 data</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>: &quot;M:</run>
+            <run bold='true' fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>\\</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>Data</run>
+            <run bold='true' fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>\\</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>GIS layers</run>
+            <run bold='true' fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>\\</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>UrbanSim smelt</run>
+            <run bold='true' fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>\\</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>2020 03 12&quot;</run>
+            <run fontalignment='0'>Æ&#10;</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>- </run>
+            <run bold='true' fontalignment='0' fontcolor='#e15759' fontname='Benton Sans Book' fontsize='11'>PBA40 zoning</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>: 2015_12_21_zoning_parcels.csv, zoning_lookup.csv</run>
+            <run fontalignment='0'>Æ&#10;</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>- </run>
+            <run bold='true' fontalignment='0' fontcolor='#e15759' fontname='Benton Sans Book' fontsize='11'>BASIS BOC</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>: p10_urbansim_boc_opt_b_v2.csv</run>
+            <run fontalignment='0'>Æ&#10;</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>- </run>
+            <run bold='true' fontalignment='0' fontcolor='#e15759' fontname='Benton Sans Book' fontsize='11'>Planned zoning scenarios</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>: p10_pba50_attr_20200416.csv</run>
+            <run fontalignment='0'>Æ&#10;</run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>- </run>
+            <run bold='true' fontalignment='0' fontcolor='#e15759' fontname='Benton Sans Book' fontsize='11'>Urbansim heuristic hybrid index</run>
+            <run fontalignment='0' fontcolor='#333333' fontname='Benton Sans Book' fontsize='11'>: </run>
+            <run fontalignment='0' fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>idx_urbansim_heuristic_20.csv</run>
+          </formatted-text>
+        </zone>
+      </zones>
+      <simple-id uuid='{44E43E64-3F68-44F0-8ECD-DC341C01A89D}' />
+    </dashboard>
+    <dashboard name='PBA40 - Urbansim Hybrid Capacity Comparions (10% threshold)'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontname='Tableau Semibold' fontsize='14'>&lt;Sheet Name&gt;</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <style />
+      <size maxheight='768' maxwidth='1366' minheight='768' minwidth='1366' preset-index='0' sizing-mode='fixed' />
+      <datasources>
+        <datasource caption='capacity_urbansim_heuristic_10' name='federated.12oqp8c137tb9m0zyibs504ypcvx' />
+      </datasources>
+      <datasource-dependencies datasource='federated.12oqp8c137tb9m0zyibs504ypcvx'>
+        <column aggregation='None' caption='County Name' datatype='string' name='[county_name]' role='dimension' semantic-role='[County].[Name]' type='nominal' />
+        <column-instance column='[county_name]' derivation='None' name='[none:county_name:nk]' pivot='key' type='nominal' />
+      </datasource-dependencies>
+      <zones>
+        <zone h='100000' id='4' type='layout-basic' w='100000' x='0' y='0'>
+          <zone h='97916' id='21' param='vert' type='layout-flow' w='98828' x='586' y='1042'>
+            <zone fixed-size='56' h='8334' id='22' is-fixed='true' type='title' w='98828' x='586' y='1042'>
+              <zone-style>
+                <format attr='border-color' value='#000000' />
+                <format attr='border-style' value='none' />
+                <format attr='border-width' value='0' />
+                <format attr='margin' value='4' />
+              </zone-style>
+            </zone>
+            <zone h='89582' id='19' type='layout-basic' w='98828' x='586' y='9376'>
+              <zone h='77449' id='7' param='horz' type='layout-flow' w='98828' x='586' y='21509'>
+                <zone fixed-size='660' h='77449' id='5' is-fixed='true' type='layout-basic' w='98828' x='586' y='21509'>
+                  <zone h='77449' id='3' name='Nores SQFT - hybrid using 10% threshold' w='49415' x='49999' y='21509'>
+                    <zone-style>
+                      <format attr='border-color' value='#000000' />
+                      <format attr='border-style' value='none' />
+                      <format attr='border-width' value='0' />
+                      <format attr='margin' value='4' />
+                    </zone-style>
+                  </zone>
+                  <zone h='77449' id='10' name='Res Units - hybrid using 10% threshold' w='49413' x='586' y='21509'>
+                    <layout-cache minwidth='402' type-h='fixed' type-w='scalable' />
+                    <zone-style>
+                      <format attr='border-color' value='#000000' />
+                      <format attr='border-style' value='none' />
+                      <format attr='border-width' value='0' />
+                      <format attr='margin' value='4' />
+                    </zone-style>
+                  </zone>
+                </zone>
+              </zone>
+              <zone h='12133' id='11' param='horz' type='layout-flow' w='49414' x='586' y='9376'>
+                <zone fixed-size='392' h='12133' id='12' is-fixed='true' mode='checkdropdown' name='Res Units - hybrid using 10% threshold' param='[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:county_name:nk]' type='filter' values='database' w='29283' x='586' y='9376'>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='162' h='12133' id='13' is-fixed='true' name='Res Units - hybrid using 10% threshold' pane-specification-id='0' param='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]' type='color' w='12445' x='29869' y='9376'>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                  </zone-style>
+                </zone>
+              </zone>
+              <zone h='12133' id='14' param='horz' type='layout-flow' w='49414' x='50000' y='9376'>
+                <zone fixed-size='392' h='12133' id='9' is-fixed='true' mode='checkdropdown' name='Nores SQFT - hybrid using 10% threshold' param='[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:county_name:nk]' type='filter' values='database' w='29283' x='50000' y='9376'>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='162' h='12133' id='8' is-fixed='true' name='Nores SQFT - hybrid using 10% threshold' pane-specification-id='0' param='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]' type='color' w='12445' x='79283' y='9376'>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                  </zone-style>
+                </zone>
+              </zone>
+            </zone>
+          </zone>
+          <zone-style>
+            <format attr='border-color' value='#000000' />
+            <format attr='border-style' value='none' />
+            <format attr='border-width' value='0' />
+            <format attr='margin' value='8' />
+          </zone-style>
+        </zone>
+      </zones>
+      <devicelayouts>
+        <devicelayout auto-generated='true' name='Phone'>
+          <layout-options>
+            <title>
+              <formatted-text>
+                <run bold='true' fontname='Tableau Semibold' fontsize='14'>&lt;Sheet Name&gt;</run>
+              </formatted-text>
+            </title>
+          </layout-options>
+          <size maxheight='900' minheight='900' sizing-mode='vscroll' />
+          <zones>
+            <zone h='100000' id='74' type='layout-basic' w='100000' x='0' y='0'>
+              <zone h='97916' id='73' param='vert' type='layout-flow' w='98828' x='586' y='1042'>
+                <zone fixed-size='56' h='8334' id='22' type='title' w='98828' x='586' y='1042'>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='392' h='12133' id='12' mode='checkdropdown' name='Res Units - hybrid using 10% threshold' param='[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:county_name:nk]' type='filter' values='database' w='29283' x='586' y='9376'>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='280' h='77449' id='10' is-fixed='true' name='Res Units - hybrid using 10% threshold' w='49413' x='586' y='21509'>
+                  <layout-cache minwidth='402' type-h='fixed' type-w='scalable' />
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='162' h='12133' id='13' name='Res Units - hybrid using 10% threshold' pane-specification-id='0' param='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]' type='color' w='12445' x='29869' y='9376'>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='392' h='12133' id='9' mode='checkdropdown' name='Nores SQFT - hybrid using 10% threshold' param='[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:county_name:nk]' type='filter' values='database' w='29283' x='50000' y='9376'>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='280' h='77449' id='3' is-fixed='true' name='Nores SQFT - hybrid using 10% threshold' w='49415' x='49999' y='21509'>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='162' h='12133' id='8' name='Nores SQFT - hybrid using 10% threshold' pane-specification-id='0' param='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]' type='color' w='12445' x='79283' y='9376'>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+              </zone>
+              <zone-style>
+                <format attr='border-color' value='#000000' />
+                <format attr='border-style' value='none' />
+                <format attr='border-width' value='0' />
+                <format attr='margin' value='8' />
+              </zone-style>
+            </zone>
+          </zones>
+        </devicelayout>
+      </devicelayouts>
+      <simple-id uuid='{04911AB1-B53D-4117-A9D0-01EA04832064}' />
+    </dashboard>
+  </dashboards>
+  <windows saved-dpi-scale-factor='1.5' source-height='44'>
+    <window class='dashboard' name='Notes'>
+      <viewpoints />
+      <active id='-1' />
+      <simple-id uuid='{2ABD9713-182A-44DE-AB87-0E4E4329D668}' />
+    </window>
+    <window class='dashboard' maximized='true' name='PBA40 - Urbansim Hybrid Capacity Comparions (10% threshold)'>
+      <viewpoints>
+        <viewpoint name='Nores SQFT - hybrid using 10% threshold'>
+          <highlight field='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]'>
+            <bucket-selection />
+          </highlight>
+        </viewpoint>
+        <viewpoint name='Res Units - hybrid using 10% threshold'>
+          <highlight field='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]'>
+            <bucket-selection />
+          </highlight>
+        </viewpoint>
+      </viewpoints>
+      <active id='-1' />
+      <simple-id uuid='{3A4CF16F-6754-4BF4-86D6-605EA32AF40A}' />
+    </window>
+    <window class='worksheet' hidden='true' name='Nores SQFT - hybrid using 10% threshold'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+            <card type='measures' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='30'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card pane-specification-id='0' param='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]' type='color' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]</field>
+            <field>[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:county_id:ok]</field>
+            <field>[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:county_name:nk]</field>
+            <field>[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:juris_id_zmod:nk]</field>
+            <field>[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:juris_zmod:nk]</field>
+            <field>[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:source_far_basis:nk]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+      <simple-id uuid='{FD404E0F-19AE-4E30-8450-5A4B232680DE}' />
+    </window>
+    <window class='worksheet' hidden='true' name='Res Units - hybrid using 10% threshold'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+            <card type='measures' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card pane-specification-id='0' param='[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]' type='color' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[federated.12oqp8c137tb9m0zyibs504ypcvx].[:Measure Names]</field>
+            <field>[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:county_id:ok]</field>
+            <field>[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:county_name:nk]</field>
+            <field>[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:juris_id_zmod:nk]</field>
+            <field>[federated.12oqp8c137tb9m0zyibs504ypcvx].[none:juris_zmod:nk]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+      <simple-id uuid='{1A869B9B-8414-4787-B54E-22A9E35F4032}' />
+    </window>
+  </windows>
+  <thumbnails>
+    <thumbnail height='192' name='Notes' width='192'>
+      iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAACXBIWXMAABYlAAAWJQFJUiTw
+      AAAgAElEQVR4nOydZ2Acx323n73e73A44NA72ECwd1IkJVvNlmRbcrfcnTiJnbgkTvKmOvHr
+      xPFrO91xHBfJVq8kxU6wgAUsIED0Dhw6cB3X++374UCQEKnmqNjmPV9ub3Zmdsr+d2d+Mzsj
+      iKIokiXLLYrknU5AlizvJFkDyHJLkzWALLc0WQPIckuz2ACCM3zxi1+kfcQx7xDnh//xP68c
+      OhlhaHTyrUtdlixvMYsNIBklLlHw2COPzjukGRoaeeXQwVn+4xcvvHWpy5LlLUb2cgdjYS3L
+      dV4uD82yoca04D412M63vvuvpJFQUL2Wv/mzL/Htv/tbOnvcfPGL3Tz0mS+zsULD3/79PxFJ
+      pChdsY2//vrnaT97iH/72XPIZFJWbb+HL3/6wbc1g1myvCri9XhHxK/83b+KYfe4+I2//o4o
+      ihHxa1/5c1EURfFv/uQPxTFXQBRFUXz6R/8oHjzft+D/Kj/89l+IbaNOURRF8b+/83/E1hGP
+      +KPv/Ln49MEzojcQEhOJhJgly68TN+0Eq82lrLGKXOyfWXDzpSSU5eoAWLFiBVPT0zeEm7K7
+      OHvkBX784x/jTSqIBv184ne/Smi8jb/84z/kBz959i0y4yxZfjVeUQV66OFP88ITv1j4X2lS
+      0NDcSyIWYu+BBlatXAYqLaGZSWLJFPFEgqXVpRRUr+ULX/gCH//YRymzmhifmOIDn/g83//B
+      9xnrvfy2ZCpLltfLYgOQqagpLwZAaSzk9pWlGEurAPjdr/4pHcee5o++/ucsv/3DbFpSCKp8
+      HthZy1e//CUudNn4yBf+kNm2Y/zBH/wBv3j+KHKFnFjQwz/8zf/hG3/5LT76qS+87RnMkuXV
+      EEQxOxcoy61LdiAsyy1N1gCy3NJkDSDLLU3WALLc0iwaCZ6emkAul75TacmS5W1nkQHI5VLy
+      8nLeqbRkeR2k02nS6fQ7nYwbkMlumFXzG8FvZqpvYURRJKtcv3lk+wBZbmmyBpDlliZrAFlu
+      abIGkOWWJmsAWW5psgaQ5ZYmawBZbmmyBpDlliZrAFluabIGkOWWJmsAWW5psgaQ5ZYmawBZ
+      bmmyBpDlliZrAFluabLfA/yGIQgCgiC808n4rSFrAL9hSCQSJJLsi/vN4oaSvHjiIGPuCM2n
+      DtNtc9HTcoaBad9NAx96fg/h+eNTh/bgCt/U2yKO7duLP3Gju2u0j1MtfYvc7BM23IHYa0f6
+      KzDY0YY/AXa747U9X0/CT1fv2BsK0tpy5TX9dHR1ve74wu4xekfdi9zsdgck/LR2DL1iuKZT
+      x3jymT2EEyL2sQGeeOJpem2zr/u6v43cYAAx7xQHTl7mxad+wQsHG3nuiefRGXVM2gbp6M3s
+      FdDb00t//wCHXthDJJ2gvaOXU4f20DNoY8A2BbDIf8jnpunCZeIpkYaX9uFPpGjv6F645kh/
+      N61NZznV0kfY7+HM2fOEYnH+53vf5CfPHieVTnKl+SKj007mnDOMTrsAENNJLl+8iD+SIBWP
+      cL6pCX84gd3uoLutBedcCBDpaW/FNuUEoK/zCtNOH2ZrAUHnJP/+bz9ieMhGKC4SD83h9kcX
+      0mV3ZIzDYXcQC3iYmplhcmqM5kttXGrtRgSCcy7Onb9MMi3imJ3hSvMlfKE4Qa+T8xevkEqL
+      FBYW4LA7sA30YJty0t/Vxozbv6jcO7o66WlrxekLI6YSXLpwiUg8tWCgdruDOaeDmelJ5mIK
+      LCY1U6NDdPaN4LZn8uH0pym0molHApy/2Eoyfe3TyVTUi8pSw0N3rWLv/nPsbzjPxz7+Yc40
+      HOSqr4jfw4XLHaRFFuL2uWYJxUVCXifB2K/ft8j/W6Tf/OY3v3n1TzgUoLoij58/cQh9Ti4R
+      7yz+WJKtVTr++B8fwd51himhgG9/9VOYqtZj7++mq68FXXE9011NjPsEfvlv36W4vIBv/fMv
+      M/5FI//0V39FrknBfz1+Ak3cQ3d3OxJLNXWVhcz0nuer334USdhO0lyJZ/Ayl04f40DrLKrA
+      KOQtRx+bofF8K3//3R9y3+61jHoTVBRZeOHJJ6hcsYre7j5iIR8qpYyn9zQw2NVC7aqNvPj8
+      C9QUW5iLCzz+iyfQp/34VQVM2waY7GjBsno7fvssG1bkcfjCKPb+KxQsWYlGnmlj73npJVat
+      XMlLe17CIvXwyzPj3LGujEMnu9i03MiJ1klSER9CeILTnT7OHXqOjbftYt/+Y3R3d7BlQz2+
+      qMDhl/Yx1tuJsXQJex77GUs3bOPYoUOsX7dmoSJOHjtE3fqtHH7pIMP9nSxbtZqDhxqwjYyy
+      alUde/ccJDwzQKdXSpXCzrmRJK0Xz1FbWoClpILZqVm2rC7k2QNtdF4+x9o1y+gbdVJaaAFA
+      IlNTYNGx59l9rNu5jnGbh3VrljPR2U3hmlWoSPOznz3G2hWljDrCHD/RSG1pAWpFlIbmCUa6
+      21lWX4fst6z7ccMbQGmpJTJwFGPlBoToJNrcamyD/Wx993t5+IN309M3RFHNWj7/4XsBF63N
+      /YTimWfIQ5/4JLvXVnDuUvs1/1cukTSU8+nPfhbvVD8QoqW1g1AkBcD4yDAbdr2LB+7eDcQ5
+      deICK1fVEwpGqK4uZ92G9bRfOIfEVEiORkbF8nXsXr8MgFBaoLq8hC0bVzMyOEBMoqPQJMeQ
+      W8iSyhIsOVpGx0axu3xUlZcwYp9j46ol7Ni2OZN5qRSZTIa+YBmpuXH8ogKL+sb2tTj/jNx6
+      2w7USjlLli6hZuUGIu5R+rp7sNQsQxrwU1JVQ1lJMWq5wIfefx8joxOMT2S2kJJpc1izooay
+      6hUsrypDo1MuukZuYRlVZcXoVHJm7LP09fRSs2Tpy9KgZOfOrcjlEkDGe+/cwfjoIHZfHJlM
+      hkSSuTtlKh2l5TWsXlp27QLpOD/78SPsfOCj1BYVIZFk2qshmYAegCQqfQ7ltStZWm5diNuv
+      qCA1N4pEpUD5W9j1uOENoNWqmbNPsvWeh8jDR/n63ey+bRP7n3qEpq5p/ujLX2B6bISdO3cw
+      2DvON//l2+x76jkqi3JoON6IVzTzF3/yBQ5e9f/1r6P2D/LTx/fwsc9/CSEc5E+/8x2OPPcs
+      u3Zvp7CkmOce+QmDkw6Kq5cRc4wTSoqYrKVsW1XF4/tOUleiZ3DMTkqqokIf50iHnTVLy9BK
+      EjScvog3nCLhdxMKhwknJQRd08w6Xci1FnLU4PIGmHZ5+dgDd/D83qNM2L3kG9TkVdQw2tWM
+      qbCSuKMXuXUlVSWWhcKRx3wca7qC3eVj3fIKEup8CnRw8OBJZiZH2bj7LiaG+ggFgyiM+Zi0
+      ciqrq7DbnXid0zi9foy5BUjSCUxGI5XVldjtTqqrK7A7HFRXVi5c6+p/h93BmrpapuxeFFo9
+      VnWSS+39uP0xakut5JRWoIjP4U9rsPVcIRSOUrG0jom+VkzWIkJRgRKzwMWWdgR1DtZcIwCu
+      4Xaa+l34nZPItGZy5FFOnb1MXlkt+YowI24JsvAsl9s6UJsK6WxpXohb4rdhrthEoUX39t2Z
+      bxOLVod2OqZ/K9YFeuzxZ3n4Ex963f6nR/t54WATX/i9zzLe287ofH9hy87bMajeuoXCmhob
+      CMZAqcth17b1b3r8IY+Dc5c7ACirXs6y6uI3/Rq/6fxWGkCWLK+Xm7bqZkaHmQtFGQ/EF9y8
+      4dii39eDzeknJd54fD3JRAJ/PHXT8OOuAMmFfykGHMFXvd6UK8BbI5pmGHL6b3QURYacAQYc
+      fsYdvl/p+u3jDs4M27F5I284bCQSpeUVZGqAYChM28zidL+8DmORCOOBOIFQhFODMwx5wthc
+      gYXz7rkA7nkFqGPMQSgFHn+QU4MzDLhv1L47J5w0DjtIpEWccwFODc4w/LK8haMxjg68MQl2
+      3DnHiYEZpoNxBgeHeDM0qRsMIB3zcbSpG3U6xrAnTK8jQDQWZ1/HBJPeEPs6JnCGEzj9YXpn
+      faREkUA4Sp8jgCiCPZDJaDqVYMATQSpcO45EYzgCEUbnIjh9IaYDMWwzTo4Mu0kjMuby4Ykm
+      QRQZtM/RZ/cRSyRwBaPYQ0lytXLcoWuGGIrGGHSHFtI+7Q4w6QsxMz924PSHmPBFEVMpPJEk
+      oUiM6LwVplJJemZ9JEWRRCJBz3xevOEYk24/rnACm9OHL5YxzlAwyEw4TTQWp3s+HEDvhAOZ
+      WkWuVolRq0RIJnEEovQ6AoiAOxihd3aOcDxBj91PLJ4xeM91+fDH09xWbaUyR72QP08oijsU
+      BzJpur68k8kkPXY/nnCMM32TIJfjDUXpn50jkkpfF0eMkz1TyBUS3JEEiGmmvUH2dYzjjiSY
+      9gaY9EeJRTMPu7OjbnbVFlKdo8bmDuCYL0u1SoFaKuDzBzg/6iaUhkuTc+yuLcTm8MJ83U37
+      wsy4PETkWjYX6Tltc9My7WN3bSFDMx784RjOYJixuQgKuZx4PDMg5AmEGfaEiERjhJPiojoO
+      RqIMuIKIgFql4o4lBXRNOLHqJTx/4MybbwDNxw6yete7MzeUP4IsGqQ/KFJkVFNoVFNkVGNW
+      yzjcO4VZLaVhwMHpYQcWlYS5657kF4edbKnKW3Q8Mu1iKJCgzTaDOy5yedSBRauiNEdH96id
+      sCBnxOHjwtAMSpUKVzBKOBjk4LAHg1LkwugcLeMuIqEAfZ4oJwadqNMxLs9cfTOkCSVFesZm
+      sbnmaHPF8Ho8DASStI45uDjuQSnNKCUNfdPkauT0OYIc7ZvGopHRMGCnaXCapFTGwXYbSqWC
+      c8N2AJrG59hWZuLUkJ0ivRJ3OIGYSjIeFqnQybkw6qRz1IkvEuKIzYssGqTTE+Ng1wRmhciT
+      7TNoUhHaXWFaJ+doHphgJhyjyx4kFIlycmCGkyMuWsZdkE7SNu2nddxJwOdn2J9aVN6nBmcp
+      0sk5NewiX5+pk2O9k+RolRzrm6FjwkVCFGmb8pCv01CUo6Fl1MmMw4NPUFBk1JAjTXF5Nkwi
+      kchoXKk4U3MxzgzOcHTISSqZJJiC5lEHU3Y3U+EkTZN+tpRkOtVVBgUvtI8hV6roG3fgR0bn
+      yCSelAxPMIw9FMcfjlKqlfFi+xhqrYb+CSdj4RRd405EqYR50Ypzoy40pIknE1yZCXCye5y5
+      cIg+V4iGQRdaIcmZUS9mlZRDneOotVoMBVV4pgbefANwuiPkWzQAlOfqsepVxFNppBIBqUSS
+      +RUEikxarEYdEjHJjqo8ZgMRnME4Vr2aWDRCVKbEKJcsOgaBmjwDeo2KZXk6dArpfLwCzkiK
+      WrOGlYUmAimRUqOKMlMmHcsLc1DLMknNV0k5Nx1mXYEKVyiBIypSrJcvZKciV0e1ScmgM0Rl
+      npHleTqmAzFyFJCWybkqYwsSKVaDhhqzBoVcRr5Bi5BOoVIpqTBpKDbrKDKoUUnB7vKSm5uD
+      VIBd1flM+8I4AlEu2RxsrMq/oVArLZlyiyXTFOXosOpVVJr1FOpVxJEiF+MUWEw090xRVWhi
+      59ISbl9SSDwWY4khc2PXFudiUkhpdkRZY9UsKm/SafqcASpydUiETH1Y9Bry9WrUUoH1hTqa
+      huyYTSYk8/WmkQkMBlMsMymQSgQkChXrrBqmvUHCKUAqozRHw87aQiSpJFKZjCqzFp0iIwLM
+      BUKkEOi0++memWPEH+fB1eUI0Qhj4RRLc7VUmnUYDAbW5alBImBUK5kIpfjA6nKioRBpJCzJ
+      12NUyhY1X7aU5zLrDxMQlIjhOWoKTBzucVGXp0Kr01JsNhKNRIiJAvfWlxEMZB540jdhTtQN
+      BrBpax3NF7oRpDKMCilSmQy9XIJSApOB2MLvlNvP2eFZKvLNjDj9+KJJZFKBjmkvvfYg2yty
+      ARYda9UK5AKYNBkN3KRWoNGomXXOsbbMxMmBGVqn51idr6dhvq139fogkKtRUF+SQzQFSpmS
+      unw1kXiCtCjQMzuHXi2jedjOUAjetcTK+JSdU5NBNuSpEJRaipXgDUUY8EQoNyppHJxlIhCj
+      SKugcXCG8nwTJrUik7br0jgWTLLOqgXA5grgiyaQCCKCQoVZkSnCXI0So0aJ/GXllqNRgCDB
+      pJYtlGmOTCDPYkajU1GslHBl1MGpwRnK80xUFOUy4gpRqpGypthITJQgE1hU3vFUGhEBmeRa
+      mXoCYc6P2LEYdRiMBkZcfurz1ejVCqTAGquOpFSBAMgFkWlfiCFXiEhSRCGXYVTIKdZJOTkw
+      S0GOHpP6Wv4BTAY9960oYmuFhTVFJvLVMhqHZkkpFOwoNXG8b5ouewDENAMOPwOOIFsqLeSq
+      JDQOzSJXKTHOp8WoURAKRfCE4wy4gww5/ATiKWSCgFIqo6rYgkUnx6DWYBCjnBqYoa7MMl9O
+      sxTlGoA0SP73U9luqgId3reHFTvvQSF55VWIm0bsbKuy/q8TkOV6RC4Nz6I1GKjL0y46c628
+      RRp6JsnRqwkn4bZKy/x5B9vm30adEw7iEiXri41vSqrO909QU1lCnuLVn7i2aTtKs5Ui1Zty
+      2Vdluv0chuqN1BT97/KYlUGz3NLc2AcYaOZff/Ikzz33Is7rZNCXc+zYqdeM/PSJ42+qLHns
+      xPFXPnfg0FsqgRKL0GK/pjiNzMuEI9fJha/FlTEnCfHGY4BQKMxUKLEQX+u466ZxtI67b+r+
+      xhC5NOridP8UZ4btHOyaJJh8lT0HxDTPtI6+zrgTvNg+tRDuyZbF4ZKxxfL6zQgFg3Q7X3lq
+      se1VyvyCzXlT9+EZNzNzATpdkev8Om78HiAW9LB6593sXmKGdIJD+/aB1sK9O1dy+EgTeeW1
+      rK+vZmp0mJf2zlFQtZLlJXpOnL6EPq+Enetr2bf/KAWVS3E5HKTTCS61dFFu1XOpfQCpykBp
+      oRGXfZqVG7Zz6WQD8pxCbl9bzpBHTrk+yFQ8h8mOc8wFwtRv3Y08OE1r7zijdgd33nEtrU2N
+      x3C4A1TXb8Y+O0MakZNHD5NUmnnXtlUcPnKChFTDfXds4MChkxjyS7ltfS0HDh6nsHo5G1ct
+      IZ0Ic/BgA2pzEbdvqePgwWNYSmvYVF+5cLxl3QpIp+if9RHwB1hdnMPJwRmkEoGTgzOoVQqm
+      HF5CKVhRYiESDDIRiLOsyMy0J0B9UQ7xaBRvUkAusHAsJBNcnPSCIFBkUJEUWIhvwu0nHE9S
+      WWAmFo1RZdFjcwXwhiNcHnUgV6pYXWgAYNrtZ8ATZm15HnNzAUb9UdaW5TPrmcMdjqNUKIhE
+      Y5TkmSk3KhmcdJJrNtE3Yee9S624nG4G52KoYkFckRRrSnOwh1LUmOQMe+MY0lHkMimTkRT6
+      ZIR+b4xSsx6n10cMGRuKjVwecxFHwtZKA2N2P5F0MV6nB3cSxFSKi2MuDDoN6niIM640d1fo
+      mQgkKMvVM+X0EhGlbK3IRSCjuN2xvISLwzNE0wL1pXmkYxF6nEFWluRyZnCGlEQCiTiOSIrl
+      uWp6nEHyjDrc4RiIIq1jTgSFgrVFJkinGJyLc7tOxskxD545GVur8vGEYzcfCGs8coBzl7u4
+      dHg/pZvuoFzu4kL/OF2jftbXVwOQECW894H303npLKJESYE1l3ONjbz0wj5uv+995BnUAPzw
+      +9+jeMkKjp9v4f777yXonmWw9Rxlq7bTfeogK3bdgzk6QWvfCL2jHiLuMYZmAvQMT/GBh95H
+      U2MDp86384H3vwe1ZPGAWdfgOO978EEunW7IPBkuHaFlPMJA01EGnDEKigoZvHCeroEeYppC
+      tqyvY88TjyNqjOzdsxcR8M8M4pXksG3jKg49+wQRuY6D+/ax77rjq88rrUbFpnwVPXNJKsw6
+      ys06Ksw6CnVK7OEEu2qsXLbZGfGEWFpgwiCXUF+UaVKes7nYXpm76PjyqIuV5XlE4kmUyRiu
+      hLAQnyCVsaPaSs+kG5s788SzuQOk01BflofX6yc8/9DudATYVZ1HMBKlzxVhZ1Ue54dnGXAG
+      2VRZwJg7wLaaAgZn3IjpFMOBFNUGBfF4gjPDdo7Z5ijTyzGoFajFOC2OKKMOL6OzXgSlgiv2
+      IFU5SlpHXfgDIVIKFcpYkO65BG63h6FAghytEqfby2wM1hQbaJvyMxpKUaWTcmlomrhUxmWb
+      gzyjmqp8A35fAKlaQzowh0RnZLlB4OJseJHi5ook2VmTz8UROw0Ds5jUChoH7ZSYddSYtXRO
+      z7GxLBeZTIZBIaN90pMppykHEzEYmXLijIu0jjpYW5npH+WbdGwp1nF2dA54hZHgXXe/l+0b
+      Vi58eifMi4clRQXXPAmZoFKZjFNHD1O2bA35ORoQ04hi5ssl4j527L6dpnMtKJNx9h84QuWK
+      1aAwUpSnQxBYmIsukQgkU0l8c5lRS5PBCIIMqSRNWrz5mN/V9Emv259q7cbNfOTTnyE6fAG/
+      LJ9lVQVoC1Zw77al/OzRJ5CpdGzdupnf/cxHAdDkVvH+29fy6KOPkVJo2Lp1M1/43CeQXX88
+      H7dOIUMqERARuTrVfmHK/Xz/UCIIbKq0koxFuTDhBcDn96PSG1BKhEXHxToZjcNONOprvcar
+      8WmVMhAEJELmWqKYJjg/ziKwWAIURXHe7+LyUStkSAUwquQICAgCtNocrJ+/GRQKObdVW/lg
+      vZXWcRdt9ggrrAZSaRGDXMJwOE2VVoJUJqfcYkIhZsblLdpMeistRnYsKUYWCeJJyag0KUml
+      QaHSEA/7Ea6qNBIpy61G7l5ehAyB9Hwmr8ZzrfhErjjCC4qbIGTcJQKYtCqWF5jYXmHJlAdg
+      0CiRSwQujTqpLczh+mlbNflG7lhWgpYE7qQU63Unr8YLN50NqkKpN2PSyCmuruFK4zG8Ugu3
+      r6sFqZL8PBMAqaiftvZOqlespao4h8tXujDmFvDe99zB0QOHkOpyKC4upm7tehJBN9NjNhRa
+      A3anh/oVtVjyrVTW1HKx4TBxfQm3bVnPUMsZwoKSyuoazHolVmumopaVF3Ds9CUKy6px9l9G
+      WrgMvRxaLp1mdtrJivVbyTcbWLphB2NtZ5lwR1i/po72lhakKi2V5YWcaTxLYWkVd9+5nRNH
+      G0jKNJQV5ZNKRGg4fgpLUQX33rWL08caiIhK3n37toXjypICPOEYvngKOWJGN0/EsUdTkEhg
+      j6YYmXFj84SpyDcx7vDS6wxSaNLROenGG01RYdYQiiXpd4YWjoedPmaDcQKhKFqNihSQjsew
+      R1NIAblUQjCeREGay5Nz6NVK1DKBzikPKBXI4zGG/An0UpEzo27MOi1CMsa5MQ/Li8wkUqlM
+      HLHkwm8CgRyVjGAsiTcQpmXSS7czzOqSHGbcPqaCcbRKBUUq6PQmMMvSJGQKtDIJyUSCuCBB
+      RECpkDM262bQE6HQqKZn2k0gIWLQKEgmU0jFJAaDjlQySWWenqahWdyxNCaNkt5JN1qNEkEi
+      QaWUMzTpYCCQolYvJS1XIkUkGEvSbJvF5o1QU5CDXipy1uZCoVCgk6TocIXRyiXIpRICkRid
+      03OZc3IpBWY9veMOxoJxEtEYBWY98USSYCxB7+wcQ+4o9UUGIrHk26cCHXjxOeRaE9G0jAfu
+      2f2mxHnsxAnuvOOO1/b4NtA67mJdmeW1PV5H35QLXxKi8SSbqwtQ/ZrMt4/FYpwecbG5tgjD
+      O/gFTOuEi3Wlb6xM3yhZGTTLLc2rPnOmXD5CN5+ouUD7uJNo+noJLcEFm/emfi+NOt8kGe+V
+      GXS88szIq0QjYdrtQfZeGaFxcIZTIy7i4RDPdExyZtiOPZQARJ5ttZGGhXPHeicZcIfxen2c
+      HMt0oqLhEC/22Okcc3Bq2M6ZYQc3+eb/Blom3tpyyPL6uEEGFVMpmkadGLQazPNnuyZdBNMS
+      NpcYuTTmQipXsKEkh2Q8hjMGJf4grXMxRAS2Vehxh+PYXAEq56W7Sosep3sOqUqNd25uQcar
+      y9PQPO5BKpexxqqjecKLSa+h1qSkecJDgdlIdY56IW02xxzOUAxLjpFUNMxMMMGGinzG7B7m
+      ogksOZlRwVAoTKcrTDSeZkdNHj2TLqJpsBp1lJvUnBv1sHNZCVMuL7tqCznSO4WYklNkMbGj
+      KPPVUzjgRy2V0uuNUyNLLpzb3zWBKV/NsDvG7eUmOmaDCOk4vqiUrUuLuP5Dx74ZN55wApVS
+      QTgSo6IgF0k8yogvijMcZ33pW1exWV4fN7wBLo3YWVGWj1klZdrtxz7no80VJeTz0Trjx5OU
+      sLIgc6M12Vxsq7Lg8QWwmE2UKVJ0ezOi4fXSHYi02EOsK9AtkvFCacjVKuid9jLp8aPQalmS
+      q+Vk/zQqpYKm4cXzxSvzjcyF4xRpYNifYnuFmbPDDobcIbZUFzDm8DDo9BMKhRGVGirUabqn
+      vYTlWgxiEqVGjcfrQ2c0Ihdg1hvkhZZhtPqM6tA75aZ5MvP2ap70UWjR0je5eGBFMq++lGqk
+      jIeTJBFQCICY4tywnSHPtQGcQVeIrVUZGXJHbQF9U246HQF2VOYh41UGnrK8bdy0CSSK1yoa
+      oCzXwNaaQqrMWnaW53CiZxJPMIig0qKZn14sCMKiMGkRxHSaUCLN8JSL6mLLtZmYZGS84WkX
+      Uo2GQo0cs9nEyhwFR/pmkMtkLCswcdfS62RXoHvMTm2pFZUkI8xejU+rlM3LZdeur1VmJEu1
+      WsXIlBN7UopFLtI8E2BTUeYz8IIcHffXlxCYn3++vDiXjSU5gEhKIqXarEcnhautQDGd4uqA
+      aVWhmfbeUYxGw3ympGyvtlJj1iykQaOQIQhgUMkBAUHI7vL+68YNMmiuSUdj/xSBJKhlElRa
+      LS6Xh15XmFyNnLNDDkSZjGgsRUWulnAsybTXT5czjDOWpjZHRTCWQkaK1mkfBrWCcEqkUKsg
+      GEsSjMYXZLwCjZwrEx7iooBWlhkg0qiULLFoaRy0E0kJqKRCJlwsyZUpD3OhGMG0BOJRLk7O
+      sbLYTCyeXCT3KWVS4mkBMZ1iLhxnfC6CICYJxJKoVCrkAvNxJlArlfjDUZQyKZPXE7cAACAA
+      SURBVC0TbgYdPoLxJDKZAr1CiiydxJuS0D3lps/hZ1WJhUQyRUyUEIonKc9RE4olUErh4pib
+      ntk5pKTp8URQSlgsQ8aTGOQCZ0fdqFUKai36d7Dqs8CbpAJN2l0oTBbyla/t943SN+0hnBKR
+      SGWs+RVm/jm9AXq9EZSIFOflUKJXvPmJzPIbS1YGzXJL82sy9JIlyztD1gCy3NJkDSDLLU3W
+      ALLc0mQNIMstTdYAstzSZA0gyy1N1gCy3NJkDSDLLc0NBjAz2Mk3/+7b/Mt//hSn72WrFadi
+      9Pbb3q60ZcnylnOjAQx1EdcVs2VlGZ//va+DKNLT0UrfyCQTAy185Y+/yYTdg31ylPPNHQsf
+      ccdCPs6cPU8wmiAVj3K+6Ty+UAz7hA3nXJiJkQF8fh99gzb6h2zEQj7ONjUTT4nEw36azmc2
+      0ZtzznDuQguJlEhbR+fbXR5ZbjFu2gSyWAvZsutOcpN+enpbOXj8HA9/6DP4UynSqTSpWIAn
+      n3qBf/vWN9h7dhCAv//GV2kbGKGpuZNvfPn36B4Y5uFPf5kjz/2UM21TPPvjf6Grp4cPPvwl
+      xuxefuczn2d0qJOn9pzk97/wRSZsXfztd/6HL/3O7zE02Et7/wRtHa9/69AsWX4VXrEPkIz4
+      cSUEJjpa8CdVlJv1FFRXUVhSjpEAVwamqV+5jFAws1raF7/ydVxDnRw51cS4O8JnP/0wRjFI
+      lMwGb4lE5kOZLbffw13blxBKmXj44YfZuaGM3u4RegenqK4p4U//7Gt0XDjD2ZYePvPwx96W
+      Qshy63KDAejM+TQfeY7f/8pf8hff+hY6g5GgexpTYSFITOTgomVgFrUsiT8mw2zITC++0nyR
+      GDLqly/jq7/zYb7yR19j+wceZvfOd3H46R8xOidiNBhYWlUC6PjEA+v5yh//JcOzCf7k658j
+      HImQa87lwvnzyDQ5rKgp5at/+hdvd3lkucXITofOckuTlUGz3NLcdJ/gBcJuHN//HyItV0jG
+      pCgrCl9/zAkfvgMXUC2tIDlpw/3jR1Gu2UJqapC5J14kNu5Ctbya6zf58D2/D+WKpVy/FFP4
+      wmXkJUU3v0bczcmDJxkJyDny3OOs2bQJqQA//f73KF2/Da0MfvCP/8CKTdtRyQRefOS/iBkr
+      KcjRQMzJ937wCCMjA/gTcsqK8q5Lu5+ugdmFVfAALhx+lk6XjNoSCy5bOz/de4nNazIbWQ93
+      tXDg2BlarvRRv3oFx08ep8Si55dPvEhHWxsFVUvRqWQcO3CIkiW1Ny7F8To49NRPccsKKbHo
+      sbWdZu+FMdYsKwcyK3VXV1cwcPE4bmUxudrMFU4cO05lddWrxhvxTvPY0y/RdqWNsiUr6O3s
+      oKjoDdTzK3Dx2GGUJTUM93ST8o7yREM3G1ZWkwy7+PYPHmXXjo0AdFw6y4nT5xl3BinPVfDL
+      J17kSns3y1au5MyRl2hqbiWKBlnYzvMHTtDVP0Z93RIEoKf1PMdONmGb9VFqlvHU8we4fKmV
+      mrp6lDKBc0eep8UWojwHHn9mP63tvdRVmzh89CzOhI6yfP1rGEB0jtDgHHlf/hS+555HVVtO
+      sOEUqYQEgg6ifSOIaSnx7lYi/ZMoqkqJXDhHdGAKRUkOwTPdaDbUIah1JAY7kC/fiO/JJ8n5
+      4u+SGrxESpaPPFdH0j5JoOEc0Z4hNJtXETrVSHR4BoEw3l8+i6ykktT4EKGL7chKSmm6dJGy
+      8jKQioT9EVQ6C56RRjzSCiqtMv773x9l+/vupv1cJ2uqNfz3nhbu2FpPeUkef/l//4MP3Pcu
+      SMwx7pHz8Y/ez9H9+6hbUcOhQ8cYmXQij87yyDMn2LB+BceOZNx27drG3/31/+WBD9yHPsfK
+      k//5XVbedg8GtYw9LzXwmU9/ghJjGkdCR39XK/qYE+WS3dx/+2oCgRh6nYrzZ86wtH4ZDYeO
+      0jM8hTLuRzBacY/0EldqaTx8CLs/jibh5XRLDxKphHONjUw4A+zasZ6/+ub3+cADd5FjLeY/
+      /+HvuO0996OWSTh/oZlVq+oY67xIPLeK7qbjzPri9F4+y/jkDDJDPlHXOCdONxFFhWNiiI4r
+      bYw6/ITHe7BuuJd7ti4jEEoS8HnweRx0dLTTOzDO6EAvE64gFaWFJMJzvLT/KM5AjLjbSWtP
+      B929I0wO9zMy66PUomX//sOE0wpcQ92IRjNPPvoY2+56P8/88LtsfPd70Wv1tDc8QzyvjvJ8
+      A6JUwdatW2g6fZqx4SHe9/FPsLJQ4OD5KdatXc62rZs5fvgIQxPTfOqTH0Ni72FSWkyRUcnB
+      o6f55Cc/RlfTaSrXb2XD6nrMqSkGYhbKc9WUFRtpah6jpqKIjVu3kp7qIJxfiyGeRGq2UmhS
+      3dgEmh0bZP+xa7vvJQZ78Pzslyjr1pIOB0EiwffCfhIj/cSdUYTAONHJGMoiPdHLFwg2j5Ca
+      7CHcM7kQhyCXLyxkm06mkSokyAutpLyZxaV8T72IZscWBNKIqQRiIk3k5CFEQyWy4kJUS8tI
+      hSOkpkcIXephx23b52PWUrdxA6uXWzFVrMU71kZ703nW7dwOqLlt9zqWbXsv4f4TjHkiaCwV
+      3FEl58DFwUV5zpFKmEsLFBVZuXDuDEXVVaxavQ6V9JpbUmngCw+s4cfPnQYE/vwbv893vvdD
+      AKQKCcQCNF7qIuTLLO5bs+29aHwDnDhxlpTk2sKsYjq9sGq1aNTQcOoy59p66Dj6HC5RzYm9
+      LzFu6yOhK8EseBZWrlYaC3lgXS7PnuoCQcY3vvwR/t+/P3GTZ2+S1u4xtq2vQ6ox8eAHH+T0
+      0QOo9SbMRiONDQ1caW5lx533MDUyxJp3vY/0ZDvHT51HlEppaWmjt62Fui27sdv62f7ue5gY
+      zmxGNz3QjiS3ko1rljHU0Ub1uu14x4fYtPtOZmzDPPvYY8h0Oex98UUALEVl1K9cidWs40+/
+      9ln+6Z9/BsDv/fGf8KPvf580UGDN58je56hZuZZALIVWJqAtLCVonyI/R8cTj/ycLe+6i1Qq
+      hQCUlluZGHdk7qVUZtHkAgM4ghKGulr5+b4W6koWLzaQa7Uy0tlMf8TIUmseK7dsYG1F5u1+
+      gwEUlNdy3523LfyX167A/LlPYbx3B8GDx1CsWoNUnalQZW0NgkwGUilIJPPrqUiQV9Qgz7uW
+      CDERJx1PkA5HkOnkRG1TRNr7UZQXzd8U8/1wEWJtzaSlJhSleZl1T1IpxKCDUKsN9aqlkH6l
+      3WEFDDLocSUoM8oXuf/ZN/6A7/6/zM36yT/8Gk/8xz8vLG8ippPY4ylGT59Ebq2isiA3s0ht
+      Kk3by9xu/+DnuLLv5/hiaQqWbKQwbuOKzUUsECQu01FfoqFjKLOW0VB7M6bKem6/fStHDx9Z
+      SI2t7ezCqtWK3FpE/wgqlR5BqmLL1i189nc/iUqA4uLCRStXJ4EP/c4fse8n/0YsDUs230ti
+      pBGbK0wgMIcIzHgiWE1KiooL53M+v3q2VMr+A4fZtH0barmAUqtHLZcgkUjoablAwbJ13LFr
+      DYcPnswkUqbGqFOiMZjQKiRI5m8TS/U67lhXyqOPPAUoMRrVKHUm9CoZgkSCQmNg27YtfP5T
+      H1nIb3q+vspX7UTjaqNv2o9Cb+XBzVaebmhn3zNPsGTLnexYv5zSHBU2V5ixtisU163k0Uce
+      44GPfZolJbmoBJFQIk1Lu43VdSXzdZciLcKIKwmufqy1q/jaZ+7kVPPi2QqjnZfoc8MnP/Qe
+      Xr7S6as3gQBkChRFmVWaJToV8YFxFJUVKMpLkJotyMvLET2TJH1JNNu3Ikn4SIXTqJbXIsgV
+      yIvySc2Mk/RESUeiGO7dTeTiJRSrNqOuzlSUoryQ8IU2FJXlqOpXkBgaQlZchqK0BKk0RlrU
+      IpFEEWUa5KUlXOzpyjSBXsaaldWE0FNWmEuu1cilM52UVxSiNReS9s9SVrsMhUJNuUVGXGXF
+      1t1G/9AI73nf+8m36GhpvoJal8OSulVMD1yhsq6errb2jNvSGmSClBXVhcwGBQotBjasq6Oj
+      f4IH7trCnj0HEJVGKquqsObqWL5yFecbDtHaPcL9D9yPen63xYqaGjrnV62uXbKE6Y7zLNl5
+      HxvWLOfCiWP4kzKqygrRmCxoJLGFlauXVJYgSBVUF+oICEYsRjXr6pfQP+5m17oa9h1owFKz
+      mvqqAkCKNd+CzzFJR3c/G3bcgVGeorN3iOKKKspLCsm3ZvZ3q1tVz+kjB2jvm+T+970HlVxC
+      UVEBlnwrUljwZ7XmkwjPcfzkeQora6gsLcRszUcO5M+v4r1j+0aOHjkGSj0lhXnkWgsIuyeQ
+      6fMxaFWsX7Oc7uFZasoLWb5mHb0dnUiJMzk+wdjsHHfd/S7OHTmAI2ngnm3VdLQNMj4+SiAO
+      7965kZf27sdQtpw1NcUAVBab2fvSEeo2bmdpRQGH9h/A5hZ54M7NSAU413gGh3sOtVaN12Wn
+      t6ePwoolqOXXnvtZGfQdZLSvk4t903zk/Xe/00m5ZckaQJZbmjckg6Zn+vEdaCR8qQWptRSZ
+      UUvw4B6ScTXy/EynItJ0inDXFKrqQnxPPUPw7GVkJRVI9S9rWr0KwZNnkFeW39BeuxlHX3qB
+      i5dbSchNRJ0jHDh2mj6bnZoiPd/7x/9i1e5tHH7uabp6BgmnZBRZcxfCHnnmZ9iCenLw8PTe
+      Y7T1DLG6ftnCdT2TQwvuZXla/vlHj3Hbtk2vOx9XaWlpo6io4LU9/or4J9q5aEtSXmB4y64B
+      4Brtw5HSYtLIX9Pv/v2HWbKk5qbnnAPNDIb1FBjfgpXU3iBvSAaVaSUoN9+NukxJuM+JuraA
+      wJFTJGa9aNbVkfbMEDjcSCohRyqdI5HOI+f+rXgf349282pSzmkCh04Q6xlGUVNB6PgJ4tNz
+      yItNhE5dJNrViaDLRQwHkSgh3NpN5EoHstJy4r1thC73kPIFaLINU1FWBqTQGvPZunUjRw4d
+      ZWJ6lk8+/HHsXRdQVm0kNtZP6fp19He2U1pcxsr6OhSya+2/YqNA81icimIz27ZvYbKjFcuK
+      ejTzXvzh+IJ76aYdTPZ2sW792oXwqaifhhNnaLrUwcoVlRzat59Ru4/qfDUvHjpLR1sbpTVL
+      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
+      a/8GdpS3MDJOPD8AAAAASUVORK5CYII=
+    </thumbnail>
+    <thumbnail height='192' name='PBA40 - Urbansim Hybrid Capacity Comparions (10% threshold)' width='192'>
+      iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAACXBIWXMAABYlAAAWJQFJUiTw
+      AAAgAElEQVR4nO29d5hbV53//7rqXaPR9D72zLjGTuwU0hNIIySBJJRNNgF+EEoWstQfCyyw
+      oQRYHtoGCCS7oQXYUDaENEgvdortjLs9vUgaSSNpJM2MunTvPd8/xnbseOxxmXGb+3oeP35G
+      unrfc6/OR/d8zvsUSQgh0NCYp+iOdwE0NI4nWgBozGu0ANCY12gBoDGv0QJAY16jBYDGvGa/
+      AEhGQ3R2drJ56w6KsopSyNDZ2UlnZyfDI6N7jouF/HR2bqKgvPHZSNBH58bNFFUQQqW/ezv+
+      UPSAJy9kxtnZOwhAIhrCF4zs8/5w92aee3XTEV/cyHA/oWhyhqMEfV3bmcwWQJXZsWM7BVnd
+      t5zpOA/+6RGU6T6uymzbupVcUd7z0svPPMZg+I3zClWhr3sHvYN+jrbXOTjcTyiaOKRjhVAZ
+      6NlJd/8w6hz1dg/3dRFLpo7482se+S3/85dnEUAxO4lvrzo2MtRHz657JlSZHVu3kispgMA/
+      2E9Rmf6aNqx5mm39I4d0/v0CoPPFR/jeT+7j2cf/yK0f+wKZsSE+8+Wv8/rrr/O1z93O46/s
+      ACG4/+5vc9dd32JD19SJVDnPXV+/k6/82xeZKAkevOc7/Ph/HuQb//Ypnt3QM+3JE75tfPNH
+      /wPA6y88ygMPP73P+76eowuA4HA/4dhMAaDyk29/ja5AHEo5vv4fXyGR2beqFzJx/vinR1Gn
+      /bjM9m3bdn0xU7z8zGMMjU6dVy3l+I/P3c79//swD//1IZKZ0hFfD0DQN3VNm577M1/87n8f
+      8DihFLnr3z7Jzx/4Px778/8RyxSO6rwHYri/m1gyfUSfVXIJ7n/4NW69/q2s/fufufnmm/jV
+      X54E4OUn/sCX7vov7v3+1/nlX5/nL//zAzq7e/nmd39GYSLC7//2DEa9tEfrpUd+w7d++gcA
+      Nqx9mu2HGACG6V5sW34mn/3sB3jPFVcQL3wQu7eej9z2IVKB7WQyOdRSik0DaT76z1fzyquv
+      ccHyd7P+6YdoOedqkrHfIJQSjz/1Anf95gnir/+N3z7xJG87a9EhFeipP/2Cx9YPE+gNcNuH
+      L6e7cw23vf9pWs6+ms++93w+/ZXvMjme4K3vvo1zKnJ89ef/x4IKE/myxXznjuv59Bf+A5PN
+      zjXv+yix11/EvMzFxkf/m1eH06QiPhYsX0WodysX3PAxPva+K6ctw3iomztu/zG/e+A+7rzj
+      w1zzwY+STQT598/dQWhSzz3f/yof+tCHWNrWSsPKS3juoYe46O3v5J67v87arlHyySCrd2kN
+      bn2Z/qyHB3747+gloDDJFz/7WcLROPXLL+bfPvg2/unWf+W0FW0EEvDze37Ir3/w72wfGAV3
+      Ez/93tf41Y+/xSs7Apx/2bswRl7DuBA6H32IneE033Homdj2LNfc8V1KvU/xeqKM//+2Gwl0
+      rWdzzMSD938Fg05CLeX45hc/RX84SWXrSr79bx/kXdfdxMpVp7GjN8CZKxaxrnMrP/v1H/jG
+      R67Du/hs+rp6+eaP7sG37hEefW4DY+MZfvize/nNtz5JydPKuGyjUe5nmWsJiZ6X+PnvHkXS
+      G/nSN77Lmgd/QGegRDoyyJW3fIY20yj3/P5xbBYTd/7gXhrKDOx8fS2tK9+CWS+x4vwr+ERu
+      ghf9U/ft8Uce4bZPfZ8V9ggf/MYDXNwkc90NH2f9S3fx6KOPc/UVlxCOJqirKkdVJ3ngNw8R
+      KEj8yGrADDz/2J945H++w5W3fIayZCcvdSXpGg5z3zdu5yt3/ZiSKvG5r31n+hygf/vrfP+u
+      r2NffCEVZhgPdPPx2/+FTn+Os05rY3DLa+g81ZiNFl5++WXUUpbf/OUZbnnPOwBQ1RLZnIrV
+      YsTlcpLL5wFIhge577776Nw5dNAgCMfS/OK39+IAFq++kHvuuZuNTz6G4q7mnVdfzlkrF7Nm
+      zSsANC89k29/5z8Y7e8nnx5nPKew6uwLOPv0fQPu0mtv4v03vI2K5uV8+sM30d3bt9e7Cj/+
+      1pf52Cc/TWQ8T1ldB8urdazb0MkYFSxtrsBWXs9dP7ibZtMYO4aiyLkMyy55D7e95zIAMvEA
+      z24e5Ze/up+3LGvdo5yemKC8oordP1bCaOMdV1/NW845k63r1pJTwF5Wxzd/cDftjnE294W5
+      9PJreMt55xLq2kz3jk5e7J7kV7/6JR+/9Z1TInoHH7zlBlZffB1f+uSHeOc738Hzz7/Iy691
+      cuXlF0+dNzWB21uBXjd14kDXBoYKHn7169+gD21gy3AcLG6+fOd/Uqmb4OY7vsQZzQ58o0lA
+      z8c//zU+cO15PPPSOs44+0LOe8s5uPUZtvVM1VDJUcf37/zcnuv8zS8f4Bt338ft730rDz70
+      xNQ9v+a9fOajNzEwMEhsNITFVckV176bKqcegFBwhMamJgDcLvc+31cqncZqs+Fwucjnc9x4
+      84d4+Je/4KJLziSvGvjDn/7GT/7z64ymSuh0Lm79wA1ccNV7+cyH37vn3J/6yE0MDE41sSMT
+      eX5//095+M9/YNUl13LNRafztyeenj4AyqvquPKGW7n/7m+gA8oaF3Pvvfdx40Ud/OGhv/Py
+      yy9TX+WhL5zGMNbHa69vQjUY+crnP4UvmuAvf32a1uYKtu8cYOPmzSxcsAAAi8PD6tWrqa0s
+      A8DuLmci7CeZzjE8PExlRRUAK88+l+oyBwCqopKIhsDm5NXHH6TTn+ftbz1v3wLvqlxWTwM/
+      +M+7cJYi/Nf9f5zu0g6Ank9/5dvc+9MfU11mAXRcd+1V3PtfP2L1RZdjAISqUsymGJso4LBZ
+      MFhdXHLB2eyqX+j0BoScJ5vLk8nm9ygvWHY6wZ3r6RuJMZ4Yo3/zGn716HpuuPbtGA1TH1aF
+      SjGXITaex5gf5Vt3/5Z33XgDLqsRk9WGnJ1gMlsglXqjrS3pdGQyKRRV5cyLr2Bow9/x590s
+      afQC0LJoJeP9m+gajjAZHwOjhexEkkwmRSJdxGE1HvSOKIpMeDSC2+3iG1/5Imdffi0tdV7Y
+      1ey+6K2XYTa8UX0cdgvRWIJYLIbD4djvy1l1yXV86dMf4bUnHuD5zgEALBYLmWx22vMvXtTB
+      ti1b2LJpEwta22hatIrPfe7ThPyjrOqopnbBUhq8JmITU007nU4inU6hqm/kBdJeemeecyHl
+      TisWi4VoNErbGedz1YWr0N9555137n3iZCyE5Krn7Zeeh06SUIsZXl27hscee4x40cIHb72J
+      ra+/wi23f4HLLn4LunwcW+MZfPIjH+Caq69mdHiQD3/ik5y1Ygm/u/8eEqKcT370/ViMeoxm
+      K3V1dTjtVgBMzgoqzVnu+cV/o/O2cdut7yaTjCCbyli5eCETiSj+oT4ee2otH/6XT7JsYQPP
+      PPE34hkFt7eGVYsbief1nLl8Id39QVYtaeTe++5jcDTNzTffhJRP4qprwyYyuOvaKDOWwFZJ
+      c4WN8ZKRs1cuAQT9XTtZvPoCKl0mdnT3cN6Fl9LUWMeff/9HPvapz+AyKYQCfv728MOsvPR6
+      rjp/OTu7ezn/okuwGgQ7d/Zw4eXXUC6N85sHH8bhcrHizPOp9ToxO8pZ0V7LL+/7BS92dvO2
+      yy6ja8Pz7BiO4nKVce5Zy/jT//6RzVs2cdpF13HtZecR6tvECxu6KHM5eds7bqTNK/HTn/2c
+      nM5DhV3grm1j1YqlbFrzJBv6olx03rmM7HiF+tMv45zT2gAwWl2csbSZX//3L3j2lW1ccf27
+      KStF+Pn9D3DRdbdyyep2tu8Y4NJLL2awexurLngbcX8fC047h3VP/okNm7cjnA185Nb3YChN
+      8peH/47L42HpyrNRUqM0Lz2TOq8T/2Avde2nc/lFZ/Lbe39GtOTk9o/cynjEj6e+nQqbIKVY
+      MOWC3P/Ag9hrOnjPu67CatLjNMODj63lHZddyC9//E2eXNdNeixATzjFRz54M3//ywNsHEzy
+      uc/cQZnDwo51z+FdfC5nnLaUza88DWULePvFZ6KTwOutYO3Tj7AznKGx3IynoQOvTZBRLTR6
+      reicNSxrb6K9o4MNLz3D2nUbaVl0GgiN/VCKWXH/T74rPv3V7wtljs81Ee4VN777QyJ/FBqv
+      Pf+4+OD7Pyj8Y+lZKdP/967LRf9Ydla0Do4qvv75T4jukcQxONf0SEJoo0HfjFBK7OzqYeGi
+      JViM+jk9l1zM0tPnZ8myxUdsygSH+9E7KqipKJuVMnVv30LzouVY5/jaAVKxAOt7orz1gtX7
+      NFmOFVoAaMxrNCdYY16jBYDGvEYLAI15jRYAGvMaLQA05jX7GGEbXvw7Dz3+DAaHF31xkvGs
+      jChk0JltjMWiZDNp/D4/Rr3K3T/9ObW1tRgsDsYTYzgcDn72vX8nZ2ni9deep2NhK9u278Rd
+      XkF8dITA6BiZZAydxUU6ESaeKuJ22o7jpZ/4PPa/9zOStxDc8hxbgwVy8RHGcwqTY0F6h0Oo
+      +Ql6h0NkJpMYdArBcJTtWzaRKwm6unbiqawl0vMqD/x9M/mkD4PJyratm7FaLWzcvI1gcIRQ
+      JI5BzbFl5wBmimzd2U9FTTVG3Yn32yhKGX76X3ezuT/IqmXtbN/RRXllJYmxMYrZFLKqEA6P
+      ks7LPPG7XxDTezBTwm7WE5vIoY51c8c37+fy02t4YmMQly6792A4QY8vxh2fuB0lE+Env34U
+      s5KhqbGB1Ve+i+eee5Z0PEK1x4G/+SwAJDnFP55dC/kE73n3jZTVLyI2uAWhh2RkhFfXPsfW
+      vjATI10YRZHaJUtJbewjFRsBIXj/7bdjm/uu5pMWs6sWJTuK0JlRJ0boHClSWT5Ba52HHZu3
+      IS1bRFY1MDYygEXfxsBwlGhapZTehN7momdghGpgYa2bgVCYhqYcpfQYnZsL6O21FBM+DCQZ
+      6ttGucNGl1xCLpVQFQ4wTPL4EhvYSsf57+TKc9p5+MHfUFbTwJ//6sMsFXGracpbWljfHaeU
+      GqNyl6mw5pmnWNBUhaPjAhqA1UvqeGXzIFhq2bZpw95NIAmXUeaZF19m0B/eNeZDIEkyG15Z
+      QyoP3tpmVp+2CLPNhdUkYfM2kxp8mYrm0/ZovOW0JtZt9bF5w3oa25aCkqe2aQGL29s489yz
+      0CkKQd8AigB52vHFGrvxeMupthlwNy2mtmkBjVVu2joWEonEqKyqxltZQTE9QVVNDb6RCGVl
+      ZSxf0sGiJYvRWVy01FVgsbtZtHIVRiVHMh7FaHVR7vHgcdvwessp95azZFEH7ppmmutrMCg5
+      UrmjG7I9V3jqW9n26tOsea0TmKqiAoloyMeOniGQJE4/61zKHVZqa6spFRUuPmcpf3qxn8W1
+      TgBq2s9gtH8jqlKgZyi0rxEmhEL3ju3UNLdTnIxR0tupKbPQF4hS7rKj0+lwWY3ksJBNhNCZ
+      bDzy8N+45baPYjNIRCKjVFVVMTg4RGNtJcPhBOVuB0KAUSewut1MJDPolAyxVInF7a3Hxf3T
+      OHmZGBtlJJ5lycIGdnT1snjZMkZ9/ciYqKgoQ+it5CaTVHhddPUHcEhpOgfGufEdb0XOpxnP
+      g0FOIxscZBKho3OC5XyaUCJLU13VbF6jxi4KRZnekTdmfzVWuShzWI5jiU4+RvzDVNU3Y9JP
+      /1OrDYU4gQnGJvmXHz2x5+/P/9O5XLiimcH+Hmqqa4in8jTWVQMQi0VJZ7LU1Tdi3msMz0vP
+      PwNGKxarldNOW4HV9EbjXpGLPPf8C5y1aiXrN23lzLPeQrnbeewu8ARgv1RnsGc7GWFleUct
+      W7f6WXn64kMSCu7YhLHtDKrMs15GjTcx2N+D226lZ0cXT/4jiN3jwWkykp6coG3JSrZ2rmX1
+      ORexcvlS4skENZUeegZDxGKj2J1l6IVCYmKcMoeFYDiM2CRz0UVv5Znn13DNlZcf78s7KEKo
+      PProY1x73XVs2bSJ088441A/yeZNm/c7ft8AEILxTBFVyQO1APR3b6fPH6W93MGoTs+YP4TB
+      amVpcxWjyQx2dyXpsQDZeIIVLUvYuG07WVXHBWevmoXL1ZiOTL5AYjyJxWpl2bLTiE8moVik
+      uqaWBQsWYKTIxs2bWbl8KbHRUZatPItMaZjFi9p47sWXkCQ9k9kE9uYOxuNjlHmcRKMRjOYT
+      v3k1GeqjqbGB3uAkANnJBDt7+tFZy4j7eskXZaob6zCYnUxG/BSFmcULaxkZm6CQVwj5Bxnq
+      76Nl9aXUu037NoHUwgSPPPkyeiXPRVdfyfBOP8n4MPFEnqULW6lbtYLBzdtBUshOjGF2eLBY
+      nRSLOaqNKhmLk1B0nHQ6zTWXX3rcbtKpwoFygMRYlGAkzuL2BWTzBWRZBiGw28wM+UKYDWCy
+      u2iorSEWi1JZWUUyPsbwSIjlSxezc2cXFdVV1NfUEotF8ZSVsWNnN8uWL8OgP7H7pde9/CJ6
+      s51UroTHYcFmkpjIyaRzCh6bBZNOsGDlaezc0slQ3xA1VfXgsHDu6tVs3bSZYm4SpTCJvf1i
+      VjS69g2AyUgQqbwOuzpJaFzBIBTGRn2kctDW3ICztprkaBQkFY/NxJbuQeoaW8iPh0kmM3Sc
+      tpSerj6sThcrlnQcz/ukcSoiBMFQiPr6egKBEYwGPWa9YHBkFJenEqfZiF4CT00VsWiUdCLG
+      RFZlyaJGtu8cxO3xYhJZJibT1LWfTrXbrCXBJzIil6S4+X/3/G1ovxx9RftxLNGpxwno92ns
+      RuTGKb52z56/deWt6Cva6Vz/Mm0L2/CPJjDpBXZXOZnJJENDg1TXt+B1WVH1JloaG3j1tVdp
+      a2kkmpKxGwVbt26hsrqOM05fSV9PN7WNzRSyE4xP5mhprKN3YJjKMjtmVzmRYAiLxYTBbKWl
+      seE43om5QwuAk5BkIo7c2Egk5CevSMgMYVAENruTtvZ2Hv7Tb1n9lqnlUeLxOI01FYz4RwhF
+      YrRUuairr+WpZ5+hylPGw4//DafTjNvsIuAbRGe2U0zH0NsS5BQLQ9s2YzdBS+N7jvNVzw0n
+      3ognjRlJ57K8sqGTisoKvB4PBv3UEidWk46dXV10LFrCa+vXA5DLTLBh0xYqy10sXboMnSTR
+      tWMHqAo7+4ZQkHB7yjCbjDQ1NREbGSQyPrX8isvtoczjQSeduq1kLQfQmNdoTwCNeY0WABrz
+      Gi0ANOY1WgBozGu0ANCY12gBoDGv0QJAY16jBYDGvEYLAI15zQkTAIXMOJH45LTvJaJh0vmZ
+      VyoYDfopTruV4/FhNDyy346TB0Mp5RkJH2BXTaWIP/jGDoqpZJREKne0RZz37BMAz/z5Xr56
+      1w/57re+zvou/8E/qSp841vfBuDVfzzIU+v79nlbTo/xwmubGd70LH9+5vUZCxIf3srT63dO
+      +976F//OwOj+W3GOjfSxuce35++nH36QZH6/w/ahmE3y0isbZywPQuHJhx/k45/7KgChvs3c
+      9Z3v8a1vfYfRsQQ/+eH3+MF//ZxcPssf//QQu3fmkdMxfvjzX0+V5/GHSKSLM59rF4XJKH/9
+      x3MHeHOCB//6jz1/9m96kc7e8CFrnwoIIbjt3ZezvjdMeMdafv/EK0emoyrcf88P+cW9v9h/
+      NOjbb7iZRUY/D67fSdH3Ohv6QhitHq49dyEPPPYytY2tfPjmG6YV/u43v0xz6yK2DET4xqff
+      x5YtPUTUIV7x5Wn02tjw7F8xOr1cctX1LG6u3u/z2zas5XsbHuWca25l7RMP88Uvf567f/wz
+      FjfYePaJh/hz0Mftn/4M//2TH1HX0My5K5rpTpWRGd7AyzvCRIZ9XLFL63vf/x5f+PwX+N73
+      v8cHrr+C+/74NHV1Tbzn+gvZun0n9nQ/T+6IU4z5eO/HP8v6x39HTudgbCLPV7/wrwCcd9nV
+      rNs2tcna88+/wPs/dgeFgTU89fzLOGrasRQivPbqOtoXd5CczOB129m+aQPbNq7n4X+0gFzg
+      8b/+ib6+Pr742X/h+3f/nNYFHaxaVM+zr25B0lu4+doLuP/Bx6mtb+DGqy5kuGcrP//xMJ6O
+      C2gxx3l5m5+SLPjXj7wPgHD/Zu578O8YiwnOeufq/e7hqc7pF13BuqcfpfGSpQA89+iDbPPF
+      yZd0fOb9V/DF7/+epcuXs6LGwNodfnRmF+86v53fP/4KtU0L+NBN1yOEQiAU4+bb7ti/CfTo
+      H+7lm/c9ynuvuZjnXlyD3Wxiy7p14CzDhIJBb5x2v1xJAp21jJtu+QDl9j2vcs5bzuKCy67h
+      nJWLKPeUUSiUMJmmRi+ufeZR/vLYs3s0TjvrAv75hisZiYxzZnsFL6xZi7d5GZKk521X38BN
+      V53N1h4fqs7Chz9yG27r1PS917YP8/nP3sHpi5qnvWlmmwuLQSAZ9bDXJmrnXnoV11y8ipFA
+      gAmdh9s/9gGsu69O0uN0vLF0Y0mWMRkMmC0WJEs5S+usOKqaKOVTvPJqJw888DtUYPkZZ3Ha
+      qrN511WXgMHMO65/L8taK0jnSxjtlXz4A7ewfs3zmMwWRvp2ECtIWA0S6EzoUGlZtIIP3HIT
+      sUiQdRt7+cS/3sGqBhu9oQkAXl27jls+dgdvv+TsQ6gupyB6M6taXHQORABBZ9cIn/rkJ2h3
+      5RhOlHBUNnHbP1/PMy+8hN1iomfDOorWMowo6PUGVECnN/G5z36Gra88tX8AXHvzR1nd4qar
+      P0DbwgW0dCzlxhvfSSGT5+zzL2RkRydpBZB0lJsVnnnxZdZs6KK9tX7a8ro8Xro2v44/FKW8
+      uoHlrRW8vH4HABdcdi3vvuZt037uoiuu4lf33MuFl5wHQmHn1k7+sWYjHS11OFxl7L3MS7lZ
+      5cnnXqJ3OLjnNV0xy5o1LzESmySTybHqnPOI+3eSSO+fSxjMNiZCQ6xd+wrx9FQbSpWLbN20
+      kbGxGFu293DGiqX89eGHefgfazjrjCWcffHlKIU8q1YuYe/htHqTlfFRHzt6B/e/F243kgRt
+      7W3UNS3k2ne+E7OQOf3sc5kM9BJL77uZdWO1g6eeeYHOvjANFVM7LzbWe3nmqafp3NI17X2b
+      D5x35XW88tSjgESVU8/TL65lmz9Nrdu4a7tVifaFC2lsW8z1N7wLuZDnnPMvZGR7JxkFVCXH
+      M8+9ROOCtn03yUtEgmI8XRCqKouurh6hKiWxY+smEQjHhKqUxM5tm8XI6Nie4xW5ILZt3iTC
+      saQQQgif37fnf6WUE4FgRKiqKob6ukQomhCxcEBs2bZTyKq632Zl+XRSjI5N7PlfLqTED398
+      jxBCiPFEXAz0dk2dW5GFzz8ihBAil0qISHxCyMWc2Lp1m/D7hkVBntKbiEdEd/+w8Pl8QlVk
+      0bNzm/AFI0Iu5cVIcFRMxiMikcqKyXhEJCfTYqi/R2zauE785w9/MXVtpYLYsvF18frrr4vN
+      27qFIlThG+gR/lBMCCGEXMyJSGxqc7eR4X4xNv7GBnWxcED0DPpFOBQQ+ZIiwsGAyOVzwh8M
+      CyGEUFVF9HVtFwO+oFAVWfR2bRfDI6NCLuZEIBTZ87+qlETX9q0ilkwJIReEbyQshKqI3p3b
+      RSDgE/HJY7GR3YmDqqpiZCQghBAi6BsQo2PjQpWLYvuWzSIxmRVqMSv8oeiuY2XRtW2z8AUj
+      e9Xd+G4lERsNiI2btpy4m+S98OTfaF5xIa215XN/MqHw/JOPMRie4Mp3XEdD1exsNqdx4nPC
+      BoCGxrHghPEBNDSOB1oAaMxrtADQmNdoAaAxr9ECQGNeowWAxrxmz1ggIQTpdPp4luWgqKqK
+      oigYjcY50dbNwa6Iu3uYJWn2N4KaqzLPle5M2oVCAa/Xe9B7VSgUKBYPfXDhoXBQHyCbzWKz
+      HfpWpod7/OEgyzL/8oNHiEzMfAM+eu0q3nHuoa9OLcsyBsPsrxKpqlPjiuaiQs1VmedKdybt
+      VCqFw+E4rB8LIQS5fA6b9dDqnFLMUZLMWIxvfB/7fTNCqPiHBpjM5AkGAwilxOBAP7miTHoy
+      iS8QJBoeIZMvkU0lCccSCCEIBXx09Q2QSSUZ8gfR3DWNuSIzOVXHQBAMjjAejzISjiIXsoRD
+      IeKJBIHgKEIIAr5hirJKIZuiZ/tGYukSgeFBJtJTcyn2/2kSCiVFZcvWrQAoioyiyGzduoP+
+      gSEMuQQFcxmB4UH6hgIUEyEGBgcxOCuwW4zIJZnxcD++6InbnNI4uSmVSoyP9OBLTA0elEsl
+      BrZvIRoNkNE5GRoYID85ztBAD7bySvp6e+gb9NFYXwNCQZYVtmzdBkyzOnRq1IfkqMI6mQEg
+      MDSIt66ZdHYIu92C2Siht9vI6XQkYqNIXi8msxG9QUehUMQXCNHcVE+yKM/6hbfVl1NZPvMM
+      K69L24H+1EXgHwnT2lRHtCgjCQhG4jRWeSgp4PA4EG43RiSKcpbBgUFcDjvFfI5CPk92IoBk
+      q8Rmnqrf++UAQqj4h314Kqsw6CQsZgP+wCiVVRVIgFEHmKyU8nmEnCc2kaO5oZYRvw9XeSV6
+      NU+6oOB2l2M1z15bUpZlisXinOQYWg4w97ozaR9ODpAaj5MtKjjd5aAWyacnkYUel8uOzmhF
+      LuSYqqYWRoaH8FTXo5NzjKdzeCuriQYDuCsqcTvsJ89gOFmWSf7yWiyZwIzHmi/9MqbTbz4s
+      bS0A5lZ3Ju0jSYJnA80H0JjXaAGgMa85qbZI0lcvQ1+smfE4yVF1DEqjcSqwJwc40Z1gRVEo
+      lUpYLLO/mbOiKOjnYH/cucwB5qrMc6U7k3Y2m6WqqurEc4Knen1sGI9zY2lvJ/jHd1xJa61n
+      VrW1JHhudWfSPhonGMER9w7uVxohVALDQ5RV1RMJBfAYJWLCQmNNDVIpTWwiT3NDFfFoHFln
+      xGE14bDbyWSy2B326c6hoTGrZCaTRMeztDTWEgyOUMplsXuqaaqv3lN3DSiMxaLU1NVRUiT0
+      agmDzY7hTfG1fzju5QTXVLhBqDg9FQz09tDcUE3C3w0WA4ngJDabTF5SUerqGTBGnN4AABkj
+      SURBVI2mWaQFgMYxYI8TbJ9aMEFWJNyGHMPhcVRlyuX1WA0s6GhnyBegVCyil2Dx0qX7ae33
+      bN7jBJtNUy9IEhazCSTwj4RpaaqlWJJxu1zo9TqaFi5gwysbaGqZfl2g2aStvpzlrVVYTCdV
+      7q4xq7zhBBd3jTYwW8woiko2FkByVmM1GzFbHVgtVvQ6MOsBg4npGlczOsFGvURgJERdYwul
+      TJJsScXpdiOpEkLIWK0Wtm3bwYoVp83pZWtO8L7M5xzgzU5wbnKcvDBSV+3FP+zHU1WFQQKr
+      1Uo+nycV8aN6Wqhxm/fTOmonOD2RQDI7sVtmf5z+3siyzPjv/5mKD/xxTrS1AJhb3Zm058oJ
+      FkIQjcaorp6+a/yor9ThPgYLV2loHCGSJB2w8oPmBGvMc06qANBVLj7eRdA4xdCcYDQn+Fjo
+      zqR9wjjBQi6QUw3YTPsXVAiZfF7FajXt9ZpCPl/Cap39irk3hzMneDo+dt1qrn5L+wG1tSR4
+      bnVn0j6cJPhgc8+ne+9gx+8/JzgXZ2v3IMnJDEIpMTQcQBUq6Ylx4skooWCSdDpNMZcmEIog
+      lAKhUIz0RILIWHLXU0SQyZy4TxONkxu/b4ihYT9CQCI2SnIyQzabJTY2RjAQRCnlyeZLjAb9
+      ZPIlgiMju7r3hynJMplMjlI+Q0EW0/cCWR1u/EP9hHUSza2N9A4MEPaFOfeC09iyfitmxzIS
+      kSANlQ6CSQNCqAz4gzj0ElmzkaxSR2I0xuJFjmN9bzTmAYWSTHOjg+7uHZSEFZ06hiTncVU3
+      UchOsmV7Ly01TnIGD2MDvZiNRob7uimva6KvbwBVkTHpJRYsXjp9AJjNZgopKGRTDPlCONxO
+      GptbMBn0VFaUk87mSI3HCemgsq6MAhAfDUFFJW1ti9j40vOcdsH0O78cDYc6J3g6yl3WWS6N
+      xvHCbLYgFBm9Xo9v2EdlVQUum4vG2irykxNIhTTFUglfcJCKsqkfYbmYZ2BwGKfDhUnJMC4b
+      MEjT+ACStQJzbIT69sXYTTA0PEJtdR2qLCPpDLQvW0SplKe15ixGIgkqPGW4bHaqKxwkMyVs
+      RgPuqlrKLLOfSH3yhrPnbN0hjZOH2spyopMlOjoW4S1zU8SE2zH1A1ffWI/VbCCVk1mki2F2
+      erEYdVitFvxDQ3hraxCTIVQxNZp41ucEZ1PjyDoLLvvsJsWHMyf4QBg6rsT6jh9Mq60lwXOr
+      O5P2MZsTLASRaJTq6qldSmf9Sm1ObXshjRMYSdpT+eEkM8I0NGabk2pc8aHOCT4QuvKFs1ga
+      jVMBzQlGc4KPhe5M2ieME7x3gd7ocRFkszlsNtsxc37fzIGc4I9cs4przjv0laAPpK0lwXOr
+      O5P24SbBQsjkcgo229QY/0I2i8FmQ8/hrVI+zeK4grFIkK3bu8lmswghyGQyDPb2TDm/apFg
+      MEo0GiWbzRDwDVOQj6xvXkPjSFBKeQYHuwmMJMjmsqQzGeKBIIMjvj3Ob24ixmReJh6NEI7G
+      D6i1XwDkx0dJlsyUOW0EgwFAMOTzoaDHqkwwksgDMDGRZLi/j/LKSoaHhufqWjU03oSgp7ef
+      pqYGpF3Low8NDwEybk8V/b3dAJQyCTLFEr6RGBOJ6AHV9nseqUoJnd5KNl/AYjNRyKXJl1Sc
+      5ql5lwa9xO5GiNFiw2Yxo9Mdm+VFp3OCvZrDO+9QhUAuFFABFJXUZApvuRez2QBvakK53C5U
+      NX9ArWnmBAsioQAGWxluq55QbAJvuZtcapySzkJtZRn5fAkhpiqi1Woll89js85tRdTmBO/L
+      fM4BSvkM4fg4FZ4KUuNRhNFOudPCSDBMfXMLSrGASQ+K3oxamqqrB6o3J/3q0LZb/g995aKj
+      1tYCYG51Z9LWVofW0DgOaAGgMa856Z1gyaiNDtU4cjQnGM0JPha6M2mfcE7w0SCESi5fACFm
+      rdfmQE6ww2ri91+94ai1tSR4bnVn0j7WSXA2m8VqNky3OK5gNBTA6a0FOUcsPoHDasBo82DR
+      lYhN5KitcJHK5MmXVGoqy0mnJ5F0RoySSiaTweT0EAqFEYpC28IW/IEwTc1N6I5tgq9xijLV
+      DZqisdrDaCyB0WQmk83R1FBHOOjHU1WPkItkMhmsNhsWg8RETsZb5iSTyZLJZBifGGdBvWf/
+      AJiMDJPVexjr70WRizRX2QkVKtAlhikUitR5zPgDSQJJWFylI5QwMhEJI4SKXpIos+jA8cba
+      /T1dXTQ2N9I3FGDRgsZjeqM0TkUEXT39NFU58Y9kSMh2lOAAdW4Hg0M5TO5qBvp6yafiNC86
+      naGhIWwGHTqDDklfTyySQKcW2b1S7rQ7xfsGBxA6Ixa7A4tpav1/vU7HZCJGZDyHSRK0Lmil
+      smEBvi2vUtHYilEHwmDYT7CQTTPkD2E2m958qsNm9+rQe/9b0lxx1LoaJxep8TjBeAqLTmB3
+      OHC53ZiMehRFZnhwAElvwuWtptLjpNxmZFzW09zSwtbX1lHfvO+P8LRO8GjQj8npxWrUYTHq
+      KGJCLeXRCZlQbIKmukpkyYTZILFt2zZWrFhBKZ8hL4yYkZHMFkqFqRzAYjIw5AvQ0NSC2Xjk
+      yZXmBO/LfM4Birk0gXCclsYaCsIAcmHP/tXRkWFsZVWYDRI2m41sMkgwZaa9yUsyOY7HU0Y2
+      mwPAajYcXRKcz0ySVw2UOee+K/LNTrD5ki9iOuOWWdPWAmBudWfSnpskWBCJRKmqrp52bwA4
+      Sh/AYndxbGcFaGgcDvvO/50OzQnWmNectE6w5Dh4ZGtoHAqaE4zmBB8L3Zm0TyAnWDAWCWN1
+      V875tkeHw9GuDv1mPv7OM3n7OW17tLUkeG51Z9I+nCRYlQsEI0ka6498hZDd7PfNpCcSbNyy
+      nWwux3g8RkmWGRr2oQpBYmyUUCRGwDeMrAqSsVHGkimy2SyjQT/pXJ5nn3qSkXDsqAumoTEd
+      QgheXbuGoirIZlKMxZOMx6PEx9Nks1mCfh+JRJxIfBxVKTE0NIyiCiYSY/iDoyRCvTz9wjpy
+      RQWYJgewu8ppWdBKYtSH0eYhHO6iqbWZnr4h8tlJ9MgsaGtmoKefks6EoRClaNDR0tTKiM9P
+      dW0DDbWVx/zGaMwPJEmisr6JhQ01vPjic6w+6ywGB2PopCgGnUpDy0K6u/twWC0kwiVaFrbS
+      3dNHLpehwmrF1OSlodGNddf+Fwd+1hksLGhuYOuGAIPDARxOD3qdiiQUrBYzur1aTpLBjMth
+      JSLpKAkVVVXn5LF/NKtDv5lypzaX+GSnpr4Ju8XAaDCAt7oSo8OC3WKhzOVAKAJZKe051uly
+      YVJUVL0eVc6jCoFOkqZ3gnP5HAiw2Wy7HiM+6ptbUOUSCIHVaiKfV8mnEygGOzazHpvNSjab
+      R49MPFWgrnp2hyhoTvC+zOccIJvNYrNayeam1qpKjkXIKXrKnLY9ewMLIbCYjfj8QZqamykU
+      8uiFwGC1EhnxU17TgMWoP/nnBB8Ntg88gr58gRYAx0B3Jm1tTrCGxnFACwCNec1J5QSbVrwP
+      k8jOmp5k9cx8kMYpzUnlBHcNRxDS4ces226mqdp9UG3NCZ5b3Zm0j5cTvKc2SZKE0+lEFFIk
+      Sma8jqObwBKPx/F6vUddwN3IssyvnnzuiJzg85c38oWbzz+otpYEz63ubGibzWbMZjNj8TgV
+      R1m3SpkkOZ1r/yaQKKbYsmOQ1rpKvA4jwdEYjc2N5AqAnEOVJJwGiQnVgF4tIUp5EqkCCxq8
+      +MJJqqsrGR0ZYSJXnNUA0NDYzYhvkLFohPrWDsYC/UgWN1aTjqqqKiKhYQz2aibiYZpqvUwU
+      JMYiYcoqajCoOcZTBdx2I6OBQTxt50yfAzQ0L6Q0GUKxupB0MoFgEqWUwqDToQcmzWYkVUVR
+      VZxWE9kxP6MWHXmdg2QkRFP7YgJDfcf4tmjMF6wONx1tNfT3R5AEhP1+Fta6CYXylHRl5MLD
+      TMZi5AolmpvrAQj4feiUPCtWnclA/wALWxpIcKAkWAIJiUg0irRrGqPDCHmDg8ZyHet6ktRY
+      05grFxMJ9qHXSwgkyj1l2PJ5enu6Z72tBnDV2W0U1MNvTjRVuWa9LBrHEUma+leYJJoroNNJ
+      1La28fTTL3DZFW9j00AnrSvOYsvGbVTaTZSQ0EngLPNg1OkoZVMMpnKULaw/NCNMCMH2jRtY
+      uPIsbIbjs7aJLMvkApuwHqgJqdNjqF91xNpaDjC3ujNpH60RNpmMMRKbZGnH4e0Dd+o4wRY3
+      zttfPmJtLQDmVncmbc0J1tA4DmgBoDGvOXWcYIP52BZG45RgXjjB7Q3lWEwH/pzmBM+97kza
+      J44TLGSSiTRGkx6n0zmrJzsajsYJ/smn3k6l98DXoiXBc687G9q7neB4PI7LbkbR27AYj+7e
+      TlMahURiAk+5nWg0R2WFh7FEivGxURzl1Rh1KsnkJGYjpDN5DEYjDrcXo8gzNp5hYWs9Pl+Y
+      8qoqxsIjlFXWUV1RdlSF1NDYm0Q8jsNUTi5XImu0o+QmMKAQHpukva2B4aEQnjIHodg4eklF
+      Qk/HolYGegdweqsw6RSS4yk8TsuBc4BEIo4kq5RykxSLRUbTKupYL26rgcUrVuMbHqClykbc
+      UEcmNoysCNpbq+nt7SeLE1fcz3hRR7S3l+qKs4/l/dGYBxRTcfLOhYwHBpEkleRYhDKXhZ4+
+      hWzJxIIalXFvA2oqRLkRunsGaWxfRLC3i2I+y+IVq+h89aWDJ8EtzdU8t66HS85qJ54exdvU
+      TCmf2fPYeaO5JiFKOXp6hykrL8eCG6fdhjETp7a5adYu+kidYLddS5BPSSQDIj+GtXoJFaKE
+      ojPSWOkilrYAefZeENTtcTHQ1YVep8fmLMNi1OH1lp9cRthBnWBAX7PsiPYM03KAudedSft4
+      GWEnVTdo/umvwUHmBNtufQh9RccxLJHGyY5mhGnMa7QA0JjXnFRNoJnmBEs2bQKOxuFx0jnB
+      ToeN5urZ9RU0J3judWfSPmGc4CNDEI8n5nQK5G4nuKW+ki/fcuGsa2u9QHOrOxvau53gIyGb
+      jCO5vFjfFH/7zwkupNjaH8TldFHlNuMLRmlsqKEk2UhGgzRUuckKM5HQyJ55lslUAZQSSqmI
+      t7oG/THuytKYX4z4Bkln89S3dhAPDiJZXNhMeix6QU6yIsl51FKexGSBhU0VDIcSGIpZyixO
+      JlIpaqre+KHef5vUYgpreQOlXJqu7h70OpX+4SCRQD+jgSD9I2OYjVPWQcDvw+fz09LaTDI2
+      QmyioFV+jTknU5BZtKiBcG83vb44fb29JMbGiI6nmYyPkkiOoygKubiPcCxJTrLjtOp5fUMn
+      5d7yfbSmfzbvmhNc6fWioqe5uYXJaIjFq5YTjo6TisbeNM8SPJX1qLkE+dLsrN48HVed3caF
+      K2bPWdY4Sdk1J1gyOSh3mmhqaqahwkZ4vEhxMoLNU0c0GkWv103NVS/3IKFnSccCBn0j+0qd
+      bE6wzVmGvqJ91rW1HGBudWfS1qZEHgL5p79G8ZWfHO9iaJxCnFQBoKEx22gBoDGvOemcYINH
+      2x9YY/Y46ZzgI5kTPBNCVZHmIFHd3b8wF4ndnJV5jnT31l7eWrnfPTmhnWAhVBLJcbzl5TOu
+      +jzbq0Lv5mjmBGucWPzfN9+LQX/4QXYwJzgeH8PrrUAIQSKZxFtePu1xe9dlmM4JFjJ9PX3Y
+      3F4cJkE4EqelrYNEIk6xUCCVTlHmtNI36KesooZiaoxsrkhz+yKigUGGw2NcfP65h31xGhqH
+      SiIaJhKfYEF7OyODfRjtZRSyE9jNerKqiXgigZzPTDnBjV56fFFcbjeVTjO+4CiKzrgnAPYL
+      w/jwIGXNHUwmYyiKgkQeny+Gr2crisEOgKpMbTIc8PvIyyptLZUEhoYoGjzUVmkjMjXmEkFk
+      bJzFHS0M9PWhqOD3B5ALWTZ3DeFxTG1/u8cJjk/grmmlkEnhD0VZvKgd817r2+73BHB6y9jW
+      04VekohEouhNehCC5vYlRAJDOJxWEns5wbvRGW0kR4fJyTIds+tT7eFI5wTPxFztazyXOcBc
+      lXmudPfW1h3l/dCJEl1d3dhtdkLJPDpJwmC20ezUE4wlAfGGEyzYU09NOoWevn7kvar9SecE
+      H2xO8JGiqgo63ewPARZiygmWpEOrUDp7Bbry1kM6VnOCZ4eTqht0pjnBJzvG5Tdiufzrx7sY
+      8wrNCNOY12gBoDGvOamaQLO9T/BuTpQkWF+1ZNbLoHFw9gTASeEEW85lYUMlVrNx1rVPmDnB
+      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
+      mNdoAaAxr/l/mZfwTdqUlzoAAAAASUVORK5CYII=
+    </thumbnail>
+  </thumbnails>
+</workbook>
