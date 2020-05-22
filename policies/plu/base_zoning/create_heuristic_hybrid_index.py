@@ -33,7 +33,7 @@ NONRES_BUILDING_TYPE_CODES  = [               "OF","HO","SC","IL","IW","IH","RS"
 INTENSITY_CODES             = ['MAX_DUA','MAX_FAR','MAX_HEIGHT']
 JURIS_ADJUSTS_CODES         = ['proportion_adj_dua', 'proportion_adj_far','proportion_adj_height']
 
-
+capacity_threshold = 0.2
 
 if __name__ == '__main__':
 
@@ -97,10 +97,10 @@ if __name__ == '__main__':
             logger.info('Get index for {}'.format(hybrid_version))
             
             # Jurisdictions whose hybrid-version total SQFT is within 20% discrepancy of PBA40 SQFT  
-            sqft_good_idx = (abs(capacity_by_juris.sqft_urbansim - capacity_by_juris.sqft_pba40) / capacity_by_juris.sqft_pba40) <= 0.2
+            sqft_good_idx = (abs(capacity_by_juris.sqft_urbansim - capacity_by_juris.sqft_pba40) / capacity_by_juris.sqft_pba40) <= capacity_threshold
             
             # Jurisdictions whose hybrid-version total units is within 20% discrepancy of PBA40 units
-            units_good_idx = (abs(capacity_by_juris.units_urbansim - capacity_by_juris.units_pba40) / capacity_by_juris.units_pba40) <= 0.2
+            units_good_idx = (abs(capacity_by_juris.units_urbansim - capacity_by_juris.units_pba40) / capacity_by_juris.units_pba40) <= capacity_threshold
             
             # Set the default intensity indexes as 0 (PBA40)
             for i in INTENSITY_CODES:
@@ -129,7 +129,7 @@ if __name__ == '__main__':
             logger.info('Get index for {}'.format(hybrid_version))
             
             # Since MR is residential-commercial mixed-use, both total SQFT and UNITS must be within 20% discrepancies
-            units_sqft_good_idx = ((abs(capacity_by_juris.sqft_urbansim - capacity_by_juris.sqft_pba40) / capacity_by_juris.sqft_pba40) <= 0.2) & ((abs(capacity_by_juris.units_urbansim - capacity_by_juris.units_pba40) / capacity_by_juris.units_pba40) <= 0.2)
+            units_sqft_good_idx = ((abs(capacity_by_juris.sqft_urbansim - capacity_by_juris.sqft_pba40) / capacity_by_juris.sqft_pba40) <= capacity_threshold) & ((abs(capacity_by_juris.units_urbansim - capacity_by_juris.units_pba40) / capacity_by_juris.units_pba40) <= capacity_threshold)
             
             # Set the default intensity indexes as 0 (PBA40)
             logger.info('Add field {}'.format(hybrid_version+'_idx'))
@@ -148,7 +148,7 @@ if __name__ == '__main__':
             logger.info('Get index for {}'.format(hybrid_version))
             
             # For residential-only development types, only consider total UNITS discrepancy
-            units_good_idx = (abs(capacity_by_juris.units_urbansim - capacity_by_juris.units_pba40) / capacity_by_juris.units_pba40) <= 0.2
+            units_good_idx = (abs(capacity_by_juris.units_urbansim - capacity_by_juris.units_pba40) / capacity_by_juris.units_pba40) <= capacity_threshold
             
             # Set the default intensity indexes as 0 (PBA40)     
             logger.info('Add field {}'.format(hybrid_version+'_idx'))
@@ -166,7 +166,7 @@ if __name__ == '__main__':
             logger.info('Get index for {}'.format(hybrid_version))
             
             # For non-residential-only development types, only consider total UNITS discrepancy
-            sqft_good_idx = (abs(capacity_by_juris.sqft_urbansim - capacity_by_juris.sqft_pba40) / capacity_by_juris.sqft_pba40) <= 0.2
+            sqft_good_idx = (abs(capacity_by_juris.sqft_urbansim - capacity_by_juris.sqft_pba40) / capacity_by_juris.sqft_pba40) <= capacity_threshold
             
             # Set the default intensity indexes as 0 (PBA40)
             logger.info('Add field {}'.format(hybrid_version+'_idx'))
@@ -185,4 +185,4 @@ if __name__ == '__main__':
 
     # Export urbansim heuristic index 
     logger.info('Export urbansim heuristic zoning hybrid index for {} jurisdictions. Head:\n{}Dtypes:\n{}'.format(len(juris_ls), juris_ls.head(), juris_ls.dtypes))
-    juris_ls.to_csv(os.path.join(HYBRID_INDEX_DIR,'idx_urbansim_heuristic.csv'), index = False)
+    juris_ls.to_csv(os.path.join(HYBRID_INDEX_DIR,'idx_urbansim_heuristic_'+str(capacity_threshold*100)+'.csv'), index = False)
