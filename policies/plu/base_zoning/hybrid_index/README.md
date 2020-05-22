@@ -10,7 +10,7 @@ Two sets of indexes were created during the process:
 * **Urbansim indexes** - combine the indexes of all zoning attributes.
 
 ### Process of building hybrid_urbansim
-1. Run [hybrid_index_generator.ipynb](hybrid_index_generator.ipynb) to create a set of [interim hybrid indexes](https://github.com/BayAreaMetro/petrale/tree/master/policies/plu/base_zoning/hybrid_index/interim) for zoning attributes. For example:
+1. Run [interim_hybrid_index_generator.ipynb](interim_hybrid_index_generator.ipynb) to create a set of [interim hybrid indexes](https://github.com/BayAreaMetro/petrale/tree/master/policies/plu/base_zoning/hybrid_index/interim) for zoning attributes. For example:
 	* [idx_intensity_comp.csv](interim/idx_intensity_comp.csv): set the indexes of all intensity attributes as 1 and of all allowable development types as 0. The goal is to isolate and evaluate BASIS BOC intensity data.
 	* [idx_HM_comp.csv](interim/idx_HM_comp.csv): set the indexes of HM as 1 and of all other allowable development types and intensities as 0. The goal is to isolate and evaluate BASIS BOC HM data.
 	
