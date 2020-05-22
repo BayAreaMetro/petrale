@@ -10,13 +10,13 @@ Two sets of indexes were created during the process:
 * **Urbansim indexes** - combine the indexes of all zoning attributes.
 
 ### Process of building hybrid_urbansim
-1. Create a set of [interim hybrid indexes](https://github.com/BayAreaMetro/petrale/tree/master/policies/plu/base_zoning/hybrid_index/interim) for zoning attributes. For example:
+1. Run [hybrid_index_generator.ipynb](hybrid_index_generator.ipynb) to create a set of [interim hybrid indexes](https://github.com/BayAreaMetro/petrale/tree/master/policies/plu/base_zoning/hybrid_index/interim) for zoning attributes. For example:
 	* [idx_intensity_comp.csv](interim/idx_intensity_comp.csv): set the indexes of all intensity attributes as 1 and of all allowable development types as 0. The goal is to isolate and evaluate BASIS BOC intensity data.
 	* [idx_HM_comp.csv](interim/idx_HM_comp.csv): set the indexes of HM as 1 and of all other allowable development types and intensities as 0. The goal is to isolate and evaluate BASIS BOC HM data.
 	
 2. Run [2_build_hybrid_zoning.py](../2_build_hybrid_zoning.py) with each interim hybrid index to create corresponding [interim hybrid zoning](https://mtcdrive.box.com/s/k7nt4b0vhl1k1b4kbjlwnbzegtvfqym8).
 
-3. Run [hybrid_index_selection.ipynb](hybrid_index_selection.ipynb) to calculate capacity, compare capacity, select data source (0 as PBA40 OR 1 as BASIS) for each zoning attribute and each jurisdiction, and combine the indexes into one index file [index_urbansim_heuristics].
+3. Run [create_heuristic_hybrid_index.py](../create_heuristic_hybrid_index.py) to calculate capacity, compare capacity, select data source (0 as PBA40 OR 1 as BASIS) for each zoning attribute and each jurisdiction, and combine the indexes into one index file [index_urbansim_heuristics](idx_urbansim_heuristics.csv).
 
 * Rules for intensity attributes: 
 
