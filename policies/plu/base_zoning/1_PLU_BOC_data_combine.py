@@ -24,7 +24,7 @@ elif os.getenv('USERNAME')  =='lzorn':
     GITHUB_URBANSIM_DIR     = 'X:\\bayarea_urbansim\\data'
 
 # input file locations
-PBA40_ZONING_BOX_DIR        = os.path.join(BOX_DIR, 'OLD PBA50 Large General Input Data')
+PBA40_ZONING_BOX_DIR        = os.path.join(BOX_DIR, 'OLD Horizon Large General Input Data')
 PBA50_ZONINGMOD_DIR         = os.path.join(BOX_DIR, 'Policies\\Zoning Modifications')
 OTHER_INPUTS_DIR            = os.path.join(BOX_DIR, 'Policies\\Base zoning\\inputs')
     
@@ -228,10 +228,9 @@ if __name__ == '__main__':
     ## Basemap parcels
     basemap_p10_file = os.path.join(BOX_SMELT_DIR, 'p10.csv')
     print(basemap_p10_file)
-    basemap_p10 = pd.read_csv(
-        basemap_p10_file,
-        usecols =['PARCEL_ID','geom_id_s','ACRES','LAND_VALUE'],
-        dtype   ={'PARCEL_ID':np.float64, 'geom_id_s':str, 'ACRES':np.float64, 'LAND_VALUE':np.float64})
+    basemap_p10 = pd.read_csv(basemap_p10_file,
+                              usecols =['PARCEL_ID','geom_id_s','ACRES','LAND_VALUE'],
+                              dtype   ={'PARCEL_ID':np.float64, 'geom_id_s':str, 'ACRES':np.float64, 'LAND_VALUE':np.float64})
     # conver PARCEL_ID to integer:
     basemap_p10['PARCEL_ID'] = basemap_p10['PARCEL_ID'].apply(lambda x: int(round(x)))
     logger.info("Read {:,} rows from {}".format(len(basemap_p10), basemap_p10_file))
@@ -467,6 +466,8 @@ if __name__ == '__main__':
 
     for devType in ALLOWED_BUILDING_TYPE_CODES:
         logger.info('Missing BASIS {} parcel count: {}'.format(devType,len(plu_boc_output.loc[plu_boc_output[devType+'_basis'].isnull()])))
+
+    logger.info('Export pba40/BASIS combined base zoning data: {} records of the following fields: {}'.format(len(plu_boc_output), plu_boc_output.dtypes))
 
     plu_boc_output.to_csv(os.path.join(DATA_OUTPUT_DIR, today+'_p10_plu_boc_allAttrs.csv'), index = False)
 
