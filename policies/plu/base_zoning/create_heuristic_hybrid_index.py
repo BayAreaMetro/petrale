@@ -33,7 +33,7 @@ NONRES_BUILDING_TYPE_CODES  = [               "OF","HO","SC","IL","IW","IH","RS"
 INTENSITY_CODES             = ['MAX_DUA','MAX_FAR','MAX_HEIGHT']
 JURIS_ADJUSTS_CODES         = ['proportion_adj_dua', 'proportion_adj_far','proportion_adj_height']
 
-capacity_threshold = 0.2
+capacity_threshold = 0.1
 
 if __name__ == '__main__':
 
@@ -54,6 +54,7 @@ if __name__ == '__main__':
 
     logger.info("BOX_DIR         = {}".format(BOX_DIR))
     logger.info("DATA_OUTPUT_DIR = {}".format(HYBRID_INDEX_DIR))
+    logger.info("THRESHOLD       = {}".format(capacity_threshold))
 
 
     # Prepare a dataframe with jurisdiction as one field 
@@ -176,7 +177,7 @@ if __name__ == '__main__':
             capacity_by_juris.loc[sqft_good_idx,hybrid_version+'_idx'] = 1
             idx_comp = capacity_by_juris[['juris_zmod',hybrid_version+'_idx']]
             logger.info('Stats on hybrid for zoning attribute {}:\n{}'.format(hybrid_version,idx_comp[hybrid_version+'_idx'].value_counts()))
-            juris_ls = juris_ls.merge(idx_comp, on = 'juris_zmod', how = 'left')   
+            juris_ls = juris_ls.merge(idx_comp, on = 'juris_zmod', how = 'left')
 
 
     # Add jurisdiction-level proportional adjustments, default at 1
@@ -184,5 +185,6 @@ if __name__ == '__main__':
         juris_ls[adjust] = 1
 
     # Export urbansim heuristic index 
+    juris_ls.rename(columns = {'juris_zmod': 'juris_name'}, inplace = True)
     logger.info('Export urbansim heuristic zoning hybrid index for {} jurisdictions. Head:\n{}Dtypes:\n{}'.format(len(juris_ls), juris_ls.head(), juris_ls.dtypes))
-    juris_ls.to_csv(os.path.join(HYBRID_INDEX_DIR,'idx_urbansim_heuristic_'+str(capacity_threshold*100)+'.csv'), index = False)
+    juris_ls.to_csv(os.path.join(HYBRID_INDEX_DIR,'idx_urbansim_heuristic_'+str(int(capacity_threshold*100))+'.csv'), index = False)
