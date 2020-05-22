@@ -13,20 +13,27 @@ Output: p10 combined pba40 plu and basis boc data, with:
     2) basis allowed development types replaced by pba40 data following the 'hybrid index'
 """
 
+# when run urbansim input version of hybrid index, change this line to 'process = "urbansim"'
+process = 'interim'
+
 if os.getenv('USERNAME')    =='ywang':
     BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
     GITHUB_PETRALE_DIR      = 'C:\\Users\\{}\\Documents\\GitHub\\petrale\\'.format(os.getenv('USERNAME'))
     
 # input file locations
 HYBRID_INDEX_DIR            = os.path.join(GITHUB_PETRALE_DIR, 'policies\\plu\\base_zoning\\hybrid_index')
-PBA40_ZONING_BOX_DIR        = os.path.join(BOX_DIR, 'OLD PBA50 Large General Input Data')
+INTERIM_INDEX_DIR           = os.path.join(GITHUB_PETRALE_DIR, 'policies\\plu\\base_zoning\\hybrid_index\\interim')
+PBA40_ZONING_BOX_DIR        = os.path.join(BOX_DIR, 'OLD Horizon Large General Input Data')
 PBA50_ZONINGMOD_DIR         = os.path.join(BOX_DIR, 'Policies\\Zoning Modifications')
 RAW_PLU_BOC_DIR             = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs')
 OTHER_INPUTS_DIR            = os.path.join(BOX_DIR, 'Policies\\Base zoning\\inputs')
 
 # output file location
-DATA_OUTPUT_DIR             = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs\\hybrid_base_zoning')
-LOG_FILE                    = os.path.join(DATA_OUTPUT_DIR,'build_hybrid_zoning_{}.log'.format(NOW))
+HYBRID_ZONING_OUTPUT_DIR    = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs\\hybrid_base_zoning')
+INTERIM_HYBRIND_ZONING_DIR  = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs\\hybrid_base_zoning\\interim')
+ZONING_FOR_URBANSIM_DIR     = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs\\for_urbansim')
+QA_QC_DIR                   = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs\\QAQC')
+LOG_FILE                    = os.path.join(HYBRID_ZONING_OUTPUT_DIR,'build_hybrid_zoning_{}.log'.format(NOW))
 
 
 ALLOWED_BUILDING_TYPE_CODES = ["HS","HT","HM","OF","HO","SC","IL","IW","IH","RS","RB","MR","MT","ME"]
@@ -143,11 +150,13 @@ if __name__ == '__main__':
     logger.addHandler(fh)
 
     logger.info("BOX_DIR         = {}".format(BOX_DIR))
-    logger.info("DATA_OUTPUT_DIR = {}".format(DATA_OUTPUT_DIR))
+    logger.info("DATA_OUTPUT_DIR = {}".format(HYBRID_ZONING_OUTPUT_DIR))
 
 
     ## P10 parcels with pba40 plu and basis boc data
-    plu_boc_file = os.path.join(RAW_PLU_BOC_DIR, today+'_p10_plu_boc_allAttrs.csv')
+    #plu_boc_file = os.path.join(RAW_PLU_BOC_DIR, today+'_p10_plu_boc_allAttrs.csv')
+    plu_boc_file = os.path.join(RAW_PLU_BOC_DIR, '2020_05_18_p10_plu_boc_allAttrs.csv')
+    
     plu_boc = pd.read_csv(plu_boc_file)
     logger.info("Read {:,} rows from {}".format(len(plu_boc), plu_boc_file))
     logger.info(plu_boc.head())
@@ -187,7 +196,7 @@ if __name__ == '__main__':
                                                                                   how = 'left')
 
     # export the hybrid version
-    plu_boc_filled_devTypeNa.to_csv(os.path.join(DATA_OUTPUT_DIR, today+'_p10_plu_boc_fill_naType.csv'),index = False)
+    plu_boc_filled_devTypeNa.to_csv(os.path.join(QA_QC_DIR, today+'_p10_plu_boc_fill_naType.csv'),index = False)
 
     logger.info('Print unique data source index for allowable development types (should only be "PBA40_fill_na" or "1"):')
     for i in ALLOWED_BUILDING_TYPE_CODES:
@@ -210,6 +219,9 @@ if __name__ == '__main__':
 
 
     ## Apply the hybrid index of each hybrid version
+
+    if process == 'interim':
+        HYBRID_INDEX_DIR = INTERIM_INDEX_DIR
 
     for hybrid_idx_file in list(glob.glob(HYBRID_INDEX_DIR+'/*.csv')):
         hybrid_name = os.path.basename(hybrid_idx_file).split('.')[0][4:]
@@ -254,11 +266,17 @@ if __name__ == '__main__':
 
         logger.info('Export hybrid zoning of {} record:'.format(len(plu_boc_hybrid)))
         logger.info(plu_boc_hybrid.dtypes)
-        plu_boc_hybrid.to_csv(os.path.join(DATA_OUTPUT_DIR, today+'_p10_plu_boc_'+hybrid_name+'.csv'),index = False)
+
+        # export hybrind zoning file to "interim" or "final" folder based on if they are for evaluation or for UrbanSim use
+        if process == 'interim':
+            HYBRID_ZONING_OUTPUT_DIR = INTERIM_HYBRIND_ZONING_DIR
+        
+        plu_boc_hybrid.to_csv(os.path.join(HYBRID_ZONING_OUTPUT_DIR, today+'_p10_plu_boc_'+hybrid_name+'.csv'),index = False)
 
 
         # For urbansim version of the hybrid, create BAUS base zoning input files and export
         if hybrid_name == 'urbansim':
+            logger.info('Create BAUS base zoning input files:')
 
             # select hybrid fields
             plu_boc_urbansim_cols = ['PARCEL_ID','geom_id','county_id','county_name', 'juris_zmod', 'jurisdiction_id', 'ACRES',
@@ -294,14 +312,10 @@ if __name__ == '__main__':
             zoning_parcels_pba50 = plu_boc_urbansim_ID[['PARCEL_ID','geom_id','juris_zmod','jurisdiction_id','zoning_id_pba50','nodev_zmod']]
 
             # bring into other attributes from Horizon:
-            zoning_parcel_pba40_file = os.path.join(PBA40_ZONING_BOX_DIR, '2015_12_21_zoning_parcels.csv')
-            zoning_parcel_pba40 = pd.read_csv(zoning_parcel_pba40_file, 
+            zoning_parcels_pba40_file = os.path.join(PBA40_ZONING_BOX_DIR, '2015_12_21_zoning_parcels.csv')
+            zoning_parcels_pba40 = pd.read_csv(zoning_parcels_pba40_file, 
             								  usecols = ['geom_id','prop'])
-            zoning_parcels_pba50 = zoning_parcels_pba50.merge(zoning_parcel_pba40, on = 'geom_id', how = 'left')
-
-			zoning_parcels_pba50.rename(columns = {'juris_zmod': 'juris_id',
-												   'zoning_id_pba50': 'zoning_id',
-												   'jurisdiction_id': 'juris'}, inplace = True)            
+            zoning_parcels_pba50 = zoning_parcels_pba50.merge(zoning_parcels_pba40, on = 'geom_id', how = 'left')          
 
 
             ## assign zoning name to each zoning_id based on the most frequent occurance of zoning name among all the parcels with the same zoning_id
@@ -329,7 +343,27 @@ if __name__ == '__main__':
             zoning_lookup_pba50.rename(columns = {'zoning_id_pba50'  :'id',
             									  'juris_zmod'       :'juris',
             									  'zoning_name_pba50':'name'}, inplace = True)
+            logger.info('zoning_lookup has {} unique zoning_ids; zoning_lookup table header:'.format(len(zoning_lookup_pba50)))
+            logger.info(zoning_lookup_pba50.head())
+            
+            # export
+            logger.info('Export zoning_lookup table with the following attributes: {}'.format(zoning_lookup_pba50.dtypes))
+            zoning_parcels_pba50.to_csv(os.path.join(ZONING_FOR_URBANSIM_DIR, today+'_zoning_parcels_pba50.csv'),index = False)            
 
-            # export zoning lookup and zoning_parcels files
-            zoning_lookup_pba50.to_csv(os.path.join(DATA_OUTPUT_DIR, today+'_zoning_lookup_pba50.csv'),index = False)
-            zoning_parcels_pba50.to_csv(os.path.join(DATA_OUTPUT_DIR, today+'_zoning_parcels_pba50.csv'),index = False)
+            # lastly, append zone name to zoning_parcel
+            zoning_parcels_pba50 = zoning_parcels_pba50.merge(zoning_lookup_pba50[['id','name']], 
+                                                              left_on = 'zoning_id_pba50', 
+                                                              right_on = 'id',
+                                                              how = 'left')
+            # rename fields to be consistent with the model
+            zoning_parcels_pba50.rename(columns = {'juris_zmod'     : 'juris_id',
+                                                   'zoning_id_pba50': 'zoning_id',
+                                                   'jurisdiction_id': 'juris',
+                                                   'nodev_zmod'     : 'nodev',
+                                                   'name'           : 'zoning'}, inplace = True)
+            logger.info('zoning_parcels_pba50 has {} records; table header:'.format(len(zoning_parcels_pba50)))
+            logger.info(zoning_parcels_pba50.head())
+
+            # export 
+            logger.info('Export zoning_parcels table with the following attributes: {}'.format(zoning_parcels_pba50.dtypes))
+            zoning_lookup_pba50.to_csv(os.path.join(ZONING_FOR_URBANSIM_DIR, today+'_zoning_lookup_pba50.csv'),index = False)
