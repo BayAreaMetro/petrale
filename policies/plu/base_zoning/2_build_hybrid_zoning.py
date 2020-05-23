@@ -13,8 +13,9 @@ Output: p10 combined pba40 plu and basis boc data, with:
     2) basis allowed development types replaced by pba40 data following the 'hybrid index'
 """
 
-# when run urbansim input version of hybrid index, change this line to 'process = "urbansim"'
-process = 'interim'
+## comment out one of the followng two lines based on the purpose of the build_hybrid run:
+#process = 'interim'   # run interim versions of hybrid indexes which are used to evaluate individual BASIS BOC zoning attributes
+process = 'urbansim'  # run urbansim input version of hybrid index
 
 if os.getenv('USERNAME')    =='ywang':
     BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
