@@ -16,18 +16,18 @@ Two sets of indexes were created during the process:
 	
 2. Run [2_build_hybrid_zoning.py](../2_build_hybrid_zoning.py) with each interim hybrid index to create corresponding [interim hybrid zoning](https://mtcdrive.box.com/s/k7nt4b0vhl1k1b4kbjlwnbzegtvfqym8).
 
-3. Run [create_heuristic_hybrid_index.py](../create_heuristic_hybrid_index.py) to calculate capacity, compare capacity, select data source (0 as PBA40 OR 1 as BASIS) for each zoning attribute and each jurisdiction, and combine the indexes into one index file [index_urbansim_heuristics](idx_urbansim_heuristics.csv).
+3. Run [create_heuristic_hybrid_index.py](../create_heuristic_hybrid_index.py) to calculate capacity (using [dev_capacity_calculation_module.py](../dev_capacity_calculation_module.py), compare capacity, select data source (0 as PBA40 OR 1 as BASIS) for each zoning attribute and each jurisdiction, and combine the indexes into one index file [index_urbansim_heuristics](idx_urbansim_heuristic.csv). Two thresholds (20% and 10%) were used to generate two versions of the heuristic hybrid zoning, following the rules below:
 
 * Rules for intensity attributes: 
 
 	For each jurisdiction:
 	
-		if abs(SQFT_pab40 - SQFT_hybird) / SQFT_pba40 <= 20%  THEN MAX_FAR_idx = 1 and MAX_HEIGHT_idx = 1
+		if abs(SQFT_pab40 - SQFT_hybird) / SQFT_pba40 <= threshold  THEN MAX_FAR_idx = 1 and MAX_HEIGHT_idx = 1
 		
 		else MAX_HEIGHT_idx = 0
 	For each jurisdiction:
 	
-		if abs(UNITS_pab40 - UNITS_hybird) / UNITS_pba40 <= 20% THEN MAX_DUA_idx = 1
+		if abs(UNITS_pab40 - UNITS_hybird) / UNITS_pba40 <= threshold THEN MAX_DUA_idx = 1
 		
 		else MAX_DUA_idx = 0
 
@@ -35,8 +35,8 @@ Two sets of indexes were created during the process:
 
 	For each jurisdiction:
 
-		if (abs(SQFT_pab40 - SQFT_hybird) / SQFT_pba40 <= 20%) & 
-		   (abs(UNITS_pab40 - UNITS_hybird) / UNITS_pba40 <= 20%) THEN MR_idx = 1
+		if (abs(SQFT_pab40 - SQFT_hybird) / SQFT_pba40 <= threshold) & 
+		   (abs(UNITS_pab40 - UNITS_hybird) / UNITS_pba40 <= threshold) THEN MR_idx = 1
 		
 		else MR_idx = 0
 
@@ -44,7 +44,7 @@ Two sets of indexes were created during the process:
 
 	For each jurisdiction: 
 		
-		if abs(UNITS_pab40 - UNITS_hybird) / UNITS_pba40 <= 20% THEN devType_idx = 1
+		if abs(UNITS_pab40 - UNITS_hybird) / UNITS_pba40 <= threshold THEN devType_idx = 1
 		
 		else devType_idx = 0
 	  
@@ -52,8 +52,8 @@ Two sets of indexes were created during the process:
 	
 	For each jurisdiction: 
 		
-		if abs(SQFT_pab40 - SQFT_hybird) / SQFT_pba40 <= 20% THEN devType_idx = 1
+		if abs(SQFT_pab40 - SQFT_hybird) / SQFT_pba40 <= threshold THEN devType_idx = 1
 		
 		else devType_idx = 0
 
-4. Based on internal and external feedback, manually adjust *index_urbansim_heuristics.csv* to *index_urbansim.csv*.
+4. Based on internal and external feedback, manually adjust *index_urbansim_heuristic.csv* to *index_urbansim.csv*.
