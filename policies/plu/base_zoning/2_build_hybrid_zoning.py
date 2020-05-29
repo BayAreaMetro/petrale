@@ -14,8 +14,8 @@ Output: p10 combined pba40 plu and basis boc data, with:
 """
 
 ## comment out one of the followng two lines based on the purpose of the build_hybrid run:
-#process = 'interim'   # run interim versions of hybrid indexes which are used to evaluate individual BASIS BOC zoning attributes
-process = 'urbansim'  # run urbansim input version of hybrid index
+process = 'interim'   # run interim versions of hybrid indexes which are used to evaluate individual BASIS BOC zoning attributes
+#process = 'urbansim'  # run urbansim input version of hybrid index
 
 if os.getenv('USERNAME')    =='ywang':
     BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
@@ -105,7 +105,7 @@ def apply_hybrid_idx(df_origional,hybrid_idx):
                 #print('Before applying the index, parcel counts by data source for {}:'.format(devType))
                 #display(df.loc[df.juris_zmod == juris][devType+'_idx'].value_counts())
                 
-                replace_idx = (df.juris_zmod == juris) & (df[devType+'_idx'] != 'PBA40_fill_na')
+                replace_idx = (df.juris_zmod == juris) & (df[devType+'_idx'] != '0_fill_na')
                 df.loc[replace_idx, devType+'_urbansim'] = df.loc[replace_idx, devType+'_pba40']
                 df.loc[replace_idx, devType+'_idx'] = 0
                 #print('After applying the index, parcel counts by data source for {}:'.format(devType))
@@ -169,58 +169,39 @@ if __name__ == '__main__':
         countMissing(plu_boc, devType)
 
     
-    ## Hybrid version 0: fill in missing allowable dev types in BASIS using PBA40 data
+    ## Step 1: fill in missing allowable dev types in BASIS using PBA40 data
 
     plu_boc_filled_devTypeNa = plu_boc.copy()
 
     for btype in ALLOWED_BUILDING_TYPE_CODES:
         plu_boc_filled_devTypeNa[btype+'_idx'] = 1
-        missing_idx = (plu_boc_filled_devTypeNa[btype+'_basis'].isnull()) & (plu_boc_filled_devTypeNa['nodev_zmod'] == 0)
-        plu_boc_filled_devTypeNa.loc[missing_idx, btype+'_basis'] = plu_boc_filled_devTypeNa.loc[missing_idx, btype+'_pba40']
-        plu_boc_filled_devTypeNa.loc[missing_idx, btype+'_idx'] = '0_fill_na'
+        missing_type_idx = (plu_boc_filled_devTypeNa[btype+'_basis'].isnull()) & (plu_boc_filled_devTypeNa['nodev_zmod'] == 0)
+        plu_boc_filled_devTypeNa.loc[missing_type_idx, btype+'_basis'] = plu_boc_filled_devTypeNa.loc[missing_type_idx, btype+'_pba40']
+        plu_boc_filled_devTypeNa.loc[missing_type_idx, btype+'_idx'] = '0_fill_na'
 
     logger.info('\n After filling nan in BASIS allowable development types using PBA40 data:')
     for devType in ALLOWED_BUILDING_TYPE_CODES:
         countMissing(plu_boc_filled_devTypeNa, devType)
 
-    # recalculate 'allow_res' and 'allow_nonres' based on the allowable development type
-    allowed_basis = set_allow_dev_type(plu_boc_filled_devTypeNa,'basis')
-    allowed_pba40 = set_allow_dev_type(plu_boc_filled_devTypeNa,'pba40')
-    
-    # drop the previous 'allow_res' and 'allow_nonres' and insert the new ones
-    plu_boc_filled_devTypeNa.drop(columns = ['allow_res_basis', 'allow_nonres_basis', 
-                                             'allow_res_pba40', 'allow_nonres_pba40'], inplace = True)
-    plu_boc_filled_devTypeNa = plu_boc_filled_devTypeNa.merge(allowed_basis, 
-                                                              on = 'PARCEL_ID', 
-                                                              how = 'left').merge(allowed_pba40, 
-                                                                                  on = 'PARCEL_ID', 
-                                                                                  how = 'left')
 
-    # export the hybrid version
-    plu_boc_filled_devTypeNa.to_csv(os.path.join(QA_QC_DIR, today+'_p10_plu_boc_fill_naType.csv'),index = False)
-
-    logger.info('Print unique data source index for allowable development types (should only be "PBA40_fill_na" or "1"):')
-    for i in ALLOWED_BUILDING_TYPE_CODES:
-        logger.info('{}: {}'.format(i,plu_boc_filled_devTypeNa[i+'_idx'].unique()))
-
-
-    ## Fill in missing max_height in BASIS using PBA40 data
+    ## Step 2: fill in missing max_height in BASIS using PBA40 data
 
     logger.info('Count number of parcels missing max_height in the BASIS data:')
     countMissing(plu_boc_filled_devTypeNa, 'max_height')
 
     plu_boc_filled_TpHt_Na = plu_boc_filled_devTypeNa.copy()
     plu_boc_filled_TpHt_Na['max_height_idx'] = 1
-    missing_idx = (plu_boc_filled_TpHt_Na['max_height_basis'].isnull()) & (plu_boc_filled_TpHt_Na['nodev_zmod'] == 0)
-    plu_boc_filled_TpHt_Na.loc[missing_idx, 'max_height_basis'] = plu_boc_filled_TpHt_Na.loc[missing_idx, 'max_height_pba40']
-    plu_boc_filled_TpHt_Na.loc[missing_idx, 'max_height_idx'] = '0_fill_na'
+    missing_height_idx = (plu_boc_filled_TpHt_Na['max_height_basis'].isnull()) & (plu_boc_filled_TpHt_Na['nodev_zmod'] == 0)
+    plu_boc_filled_TpHt_Na.loc[missing_height_idx, 'max_height_basis'] = plu_boc_filled_TpHt_Na.loc[missing_height_idx, 'max_height_pba40']
+    plu_boc_filled_TpHt_Na.loc[missing_height_idx, 'max_height_idx'] = '0_fill_na'
 
     logger.info('\n After filling nan in BASIS max_height using PBA40 data:')
     countMissing(plu_boc_filled_TpHt_Na, 'max_height')
 
 
-    ## Apply the hybrid index of each hybrid version
+    ## Step 3: apply the hybrid index of each hybrid version
 
+    # interim indexes used to evaluate zoning attributes separately
     if process == 'interim':
         HYBRID_INDEX_DIR = INTERIM_INDEX_DIR
 
@@ -234,12 +215,15 @@ if __name__ == '__main__':
 
         hybrid_idx.set_index('juris_name',inplace = True)
         juris_list = list(hybrid_idx.index.values)
+
+        # make a copy so we don't modify the zoning data before hybrid
+        plu_boc_before_hybrid = plu_boc_filled_TpHt_Na.copy()
         
         for devType in ALLOWED_BUILDING_TYPE_CODES:
             logger.info('Before applying index, parcel counts by data source for develpment type {}:'.format(devType))
-            logger.info(plu_boc_filled_TpHt_Na[devType+'_idx'].value_counts())
+            logger.info(plu_boc_before_hybrid[devType+'_idx'].value_counts())
               
-        plu_boc_hybrid = apply_hybrid_idx(plu_boc_filled_TpHt_Na,hybrid_idx)
+        plu_boc_hybrid = apply_hybrid_idx(plu_boc_before_hybrid,hybrid_idx)
         
         for devType in ALLOWED_BUILDING_TYPE_CODES:
             logger.info('After applying index, parcel counts by data source for develpment type {}:'.format(devType))
