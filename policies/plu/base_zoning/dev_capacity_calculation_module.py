@@ -31,37 +31,7 @@ SQUARE_FEET_PER_EMPLOYEE_OFFICE     = 175.0
 SQUARE_FEET_PER_EMPLOYEE_INDUSTRIAL = 500.0
 
 
-## set up a process to first determine parcel 'allow_res' and 'allow_nonres' status, and then
-## calculate the development capacity in res units, non-res sqft, and employee counts 
-
-
-def set_allow_dev_type(df_original,boc_source):
-
-    """
-    Assign allow residential and/or non-residential by summing the columns
-    for the residential/nonresidential allowed building type codes
-    Returns dataframe with PARCEL_ID, allow_res_[boc_source], allow_nonres_[boc_source]
-    """
-
-    # don't modify passed df
-    df = df_original.copy()
-
-    # note that they can't be null because then they won't sum -- so make a copy and fillna with 0
-    for dev_type in ALLOWED_BUILDING_TYPE_CODES:
-        df[dev_type+"_"+boc_source] = df[dev_type+"_"+boc_source].fillna(value=0.0)    
-    
-    # allow_res is sum of allowed building types that are residential
-    res_allowed_columns = [btype+'_'+boc_source for btype in RES_BUILDING_TYPE_CODES]
-    df['allow_res_' +boc_source] = df[res_allowed_columns].sum(axis=1)
-    
-    # allow_nonres is the sum of allowed building types that are non-residential
-    nonres_allowed_columns = [btype+'_'+boc_source for btype in NONRES_BUILDING_TYPE_CODES]
-    df['allow_nonres_'+boc_source] = df[nonres_allowed_columns].sum(axis=1)
-    
-    return df[['PARCEL_ID',
-               "allow_res_"    +boc_source,
-               "allow_nonres_" +boc_source]]
-
+## calculate the development capacity in res units, non-res sqft, and employee counts
 
 def calculate_capacity(df_original,boc_source,nodev_source):
     """
@@ -70,14 +40,14 @@ def calculate_capacity(df_original,boc_source,nodev_source):
     
     df = df_original.copy()
     
-    # DUA calculations apply to parcels 'allowRes' and not marked as "nodev"
+    # DUA calculations apply to parcels 'allowRes'
     df['units_'+boc_source] = df['ACRES'] * df['max_dua_'+boc_source]   
     
     # zero out units for 'nodev' parcels or parcels that don't allow residential
     zero_unit_idx = (df['allow_res_'+boc_source] == 0) | (df['nodev_'+nodev_source] == 1)
     df.loc[zero_unit_idx,'units_'   +boc_source] = 0
         
-    # FAR calculations apply to parcels 'allowNonRes' and not marked as "nodev"
+    # FAR calculations apply to parcels 'allowNonRes'
     df['sqft_' +boc_source] = df['ACRES'] * df['max_far_'+boc_source] * SQUARE_FEET_PER_ACRE 
     
     # zero out sqft for 'nodev' parcels or parcels that don't allow non-residential
@@ -126,6 +96,8 @@ def zoning_to_capacity(hybrid_zoning, hybrid_version, capacity_output_dir):
     print('Read {:,} lines from {}. Head:\n{}Dtypes:\n{}'.format(len(p10_plu_boc), hybrid_zoning, p10_plu_boc.head(), p10_plu_boc.dtypes))
 
     print('Parcel count by county:\n{}'.format(p10_plu_boc.county_name.value_counts()))
+
+    # convert all 
 
     # Calculate capacity
     capacity_pba40_allAtts    = calculate_capacity(p10_plu_boc,'pba40','zmod')
