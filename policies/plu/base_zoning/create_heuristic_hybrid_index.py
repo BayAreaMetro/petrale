@@ -33,6 +33,7 @@ NONRES_BUILDING_TYPE_CODES  = [               "OF","HO","SC","IL","IW","IH","RS"
 INTENSITY_CODES             = ['MAX_DUA','MAX_FAR','MAX_HEIGHT']
 JURIS_ADJUSTS_CODES         = ['proportion_adj_dua', 'proportion_adj_far','proportion_adj_height']
 
+# set the threshold to evalute BASIS data quality for each zoning attribute. Currently, two thresholds are used: 0.1, 0.2
 capacity_threshold = 0.1
 
 if __name__ == '__main__':
