@@ -32,7 +32,7 @@ if os.getenv("USERNAME")=="lzorn":
 
     PETRALE_GITHUB_DIR = "X:\\petrale"
     # location of current hybrid configuration
-    HYBRID_CONFIG   = os.path.join(PETRALE_GITHUB_DIR, "policies", "plu", "base_zoning", "hybrid_index", "idx_BASIS_devType_intensity_partial.csv")
+    HYBRID_CONFIG   = os.path.join(PETRALE_GITHUB_DIR, "policies", "plu", "base_zoning", "hybrid_index", "idx_urbansim_heuristic_20.csv")
 
 elif os.getenv("USERNAME")=="ywang":
     WORKSPACE_DIR   = "C:\\Users\\ywang\\Documents\\Python Scripts\\UrbanSim_BASIS_zoning"
@@ -41,11 +41,11 @@ elif os.getenv("USERNAME")=="ywang":
                        os.path.join(WORKSPACE_DIR,"UrbanSim_BASIS_zoning_devType.aprx")]
 
     # location of BASIS_Local_Jurisdiction_Review_Summary.xlsx (https://mtcdrive.box.com/s/s2w68pnboa3gzq5z228mqbxtdehgdcxd)
-    JURIS_REVIEW    = "C:\\Users\\ywang\\Box\\BASIS Land Use Data Store\\Jurisdiction Review\\BASIS_Local_Jurisdiction_Review_Summary.xlsx"
+    JURIS_REVIEW    = "C:\\Users\\ywang\\Documents\\Python Scripts\\UrbanSim_BASIS_zoning\\BASIS_Local_Jurisdiction_Review_Summary.xlsx"
 
     PETRALE_GITHUB_DIR = "C:\\Users\\ywang\\Documents\\GitHub\\petrale"
     # location of current hybrid configuration
-    HYBRID_CONFIG   = os.path.join(PETRALE_GITHUB_DIR, "policies", "plu", "base_zoning", "hybrid_index", "idx_BASIS_devType_intensity_partial.csv")
+    HYBRID_CONFIG   = os.path.join(PETRALE_GITHUB_DIR, "policies", "plu", "base_zoning", "hybrid_index", "idx_urbansim_heuristic_20.csv")
 
 
 if __name__ == '__main__':
