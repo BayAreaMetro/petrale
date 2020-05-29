@@ -45,8 +45,8 @@ NONRES_BUILDING_TYPE_CODES  = [               "OF","HO","SC","IL","IW","IH","RS"
 
 def countMissing(df, attr):
     null_attr_count = len(df.loc[df["{}_basis".format(attr)].isnull()])
-    print('Number of parcels missing {} info: {:,} or {:.1f}%'.format(attr,
-           null_attr_count, 100.0*null_attr_count/len(df)))
+    logger.info('Number of parcels missing {} info: {:,} or {:.1f}%'.format(attr,
+                null_attr_count, 100.0*null_attr_count/len(df)))
 
 
 def set_allow_dev_type(df_original,boc_source):
@@ -96,12 +96,11 @@ def apply_hybrid_idx(df_origional,hybrid_idx):
 
     for juris in juris_list:
         
-        print('')
-        print('Apply hybrid index for: {}'.format(juris))
+        logger.info('Apply hybrid index for: {}'.format(juris))
 
         for devType in ALLOWED_BUILDING_TYPE_CODES:
             if hybrid_idx[devType+'_idx'][juris] == 0:
-                print('Use PBA40 data for {}'.format(devType))
+                logger.info('Use PBA40 data for {}'.format(devType))
                 #print('Before applying the index, parcel counts by data source for {}:'.format(devType))
                 #display(df.loc[df.juris_zmod == juris][devType+'_idx'].value_counts())
                 
@@ -112,12 +111,12 @@ def apply_hybrid_idx(df_origional,hybrid_idx):
                 #display(df.loc[df.juris_zmod == juris][devType+'_idx'].value_counts())   
                 
             elif hybrid_idx[devType+'_idx'][juris] == 1:
-                print('Use BASIS data for {}'.format(devType))
+                logger.info('Use BASIS data for {}'.format(devType))
         
 
         for intensity in ['max_dua','max_far','max_height']:
             if hybrid_idx[intensity+'_idx'][juris] == 0:
-                print('Use PBA40 data for {}'.format(intensity))
+                logger.info('Use PBA40 data for {}'.format(intensity))
                 #print('Before applying the index, parcel counts by data source for {}:'.format(intensity))
                 #display(df.loc[df.juris_zmod == juris][intensity+'_idx'].value_counts())
                 
@@ -128,7 +127,7 @@ def apply_hybrid_idx(df_origional,hybrid_idx):
                 #display(df.loc[df.juris_zmod == juris][intensity+'_idx'].value_counts())
                 
             elif hybrid_idx[intensity+'_idx'][juris] == 1:
-                print('Use BASIS data for {}'.format(intensity))
+                logger.info('Use BASIS data for {}'.format(intensity))
 
     return df
 

@@ -3,6 +3,12 @@ USAGE = """
 Calculates the development capacity (residential units, non-residential sqft) under certain version of hybrid base zoning.
 
 """
+# Run the script by passing along the following inputs:
+    # 1. folder dir of the hybrid base zoning, eg. "C:\Users\ywang\Box\Modeling and Surveys\Urban Modeling\Bay Area UrbanSim 1.5\
+    #                                              PBA50\Policies\Base zoning\outputs\hybrid_base_zoning\2020_05_22_p10_plu_boc_urbansim_heuristic_10.csv"
+    # 2. hybrid verion, eg. "rbansim_heuristic_10"
+    # 3. folder dir for the ouput parcel-level development capacity, eg. "C:\Users\ywang\Box\Modeling and Surveys\Urban Modeling\
+    #                                                                     Bay Area UrbanSim 1.5\PBA50\Policies\Base zoning\outputs\capacity"
 
 import pandas as pd
 import numpy as np
@@ -11,18 +17,6 @@ import os, argparse, time, logging
 NOW = time.strftime("%Y_%m%d_%H%M")
 today = time.strftime('%Y_%m_%d')
 
-"""if os.getenv('USERNAME')    =='ywang':
-    BOX_dir                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
-    
-# input file locations
-hybrid_plu_boc_dir      = os.path.join(BOX_dir, 'Policies\\Base zoning\\outputs\\hybrid_base_zoning')
-other_inputs_dir        = os.path.join(BOX_dir, 'Policies\\Base zoning\\inputs')
-
-# output file location
-data_output_dir         = os.path.join(BOX_dir, 'Policies\\Base zoning\\outputs\\capacity')
-LOG_FILE                = os.path.join(data_output_dir,'capacity_cal_{}.log'.format(NOW))"""
-
-    
 ALLOWED_BUILDING_TYPE_CODES = ["HS","HT","HM","OF","HO","SC","IL","IW","IH","RS","RB","MR","MT","ME"]
 RES_BUILDING_TYPE_CODES     = ["HS","HT","HM",                                        "MR"          ]
 NONRES_BUILDING_TYPE_CODES  = [               "OF","HO","SC","IL","IW","IH","RS","RB","MR","MT","ME"]
