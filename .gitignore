@@ -36,3 +36,9 @@
 
 # python notebook checkpoint files
 *-checkpoint.ipynb
+
+# compiled python files
+*.pyc
+
+# tableau recovery files
+*.twbr

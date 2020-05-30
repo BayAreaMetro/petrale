@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import os, glob, logging
+import os, glob, logging, sys
 import time
 
 NOW = time.strftime("%Y_%m%d_%H%M")
@@ -20,6 +20,10 @@ process = 'interim'   # run interim versions of hybrid indexes which are used to
 if os.getenv('USERNAME')    =='ywang':
     BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
     GITHUB_PETRALE_DIR      = 'C:\\Users\\{}\\Documents\\GitHub\\petrale\\'.format(os.getenv('USERNAME'))
+elif os.getenv('USERNAME')  =='lzorn':
+    BOX_DIR                 = 'C:\\Users\\lzorn\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
+    GITHUB_PETRALE_DIR      = 'X:\\petrale'
+
     
 # input file locations
 HYBRID_INDEX_DIR            = os.path.join(GITHUB_PETRALE_DIR, 'policies\\plu\\base_zoning\\hybrid_index')
@@ -27,7 +31,8 @@ INTERIM_INDEX_DIR           = os.path.join(GITHUB_PETRALE_DIR, 'policies\\plu\\b
 PBA40_ZONING_BOX_DIR        = os.path.join(BOX_DIR, 'OLD Horizon Large General Input Data')
 PBA50_ZONINGMOD_DIR         = os.path.join(BOX_DIR, 'Policies\\Zoning Modifications')
 RAW_PLU_BOC_DIR             = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs')
-OTHER_INPUTS_DIR            = os.path.join(BOX_DIR, 'Policies\\Base zoning\\inputs')
+PLU_BOC_FILE                = os.path.join(RAW_PLU_BOC_DIR, '2020_05_18_p10_plu_boc_allAttrs.csv')
+
 
 # output file location
 HYBRID_ZONING_OUTPUT_DIR    = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs\\hybrid_base_zoning')
@@ -45,51 +50,25 @@ NONRES_BUILDING_TYPE_CODES  = [               "OF","HO","SC","IL","IW","IH","RS"
 
 def countMissing(df, attr):
     null_attr_count = len(df.loc[df["{}_basis".format(attr)].isnull()])
-    logger.info('Number of parcels missing {} info: {:,} or {:.1f}%'.format(attr,
+    logger.info('Number of parcels missing {}_basis info: {:,} or {:.1f}%'.format(attr,
                 null_attr_count, 100.0*null_attr_count/len(df)))
 
 
-def set_allow_dev_type(df_original,boc_source):
-    """
-    Assign allow residential and/or non-residential by summing the columns for the residential/nonresidential allowed building type codes
-    Returns dataframe with PARCEL_ID, allow_res_[boc_source], allow_nonres_[boc_source]
-
-    """
-
-    # don't modify passed df
-    df = df_original.copy()
-
-    # note that they can't be null because then they won't sum -- so make a copy and fillna with 0
-    for dev_type in ALLOWED_BUILDING_TYPE_CODES:
-        df[dev_type+"_"+boc_source] = df[dev_type+"_"+boc_source].fillna(value=0.0)    
-    
-    # allow_res is sum of allowed building types that are residential
-    res_allowed_columns = [btype+'_'+boc_source for btype in RES_BUILDING_TYPE_CODES]
-    df['allow_res_' +boc_source] = df[res_allowed_columns].sum(axis=1)
-    
-    # allow_nonres is the sum of allowed building types that are non-residential
-    nonres_allowed_columns = [btype+'_'+boc_source for btype in NONRES_BUILDING_TYPE_CODES]
-    df['allow_nonres_'+boc_source] = df[nonres_allowed_columns].sum(axis=1)
-    
-    return df[['PARCEL_ID',
-               "allow_res_"    +boc_source,
-               "allow_nonres_" +boc_source]]
-
-
-
-def apply_hybrid_idx(df_origional,hybrid_idx):
+def apply_hybrid_idx(df_original,hybrid_idx):
     """
     Apply hybrid index to raw plu_boc data. 
     Returns plu_boc with updated allowable dev type and intensity parameters for BASIS fields, 
     along with '_idx' for each parameter to indicate the data source - '1' for BASIS '0' for PBA40
     """
+    logger.info("Applying hybrid index:")
 
     # don't modify passed df
-    df = df_origional.copy()
+    df = df_original.copy()
     
-    # create fileds for hybrid zoning attributes as urbansim input
+    # create fields for hybrid zoning attributes as urbansim input
     for zoning in ALLOWED_BUILDING_TYPE_CODES + ['max_dua','max_far','max_height']:
         df[zoning+'_urbansim'] = df[zoning+'_basis']
+
     # create fields for intensity index and set the default as 1 (use BASIS data)
     for intensity in ['max_dua','max_far','max_height']:
         df[intensity+'_idx'] = 1
@@ -134,6 +113,9 @@ def apply_hybrid_idx(df_origional,hybrid_idx):
 
 if __name__ == '__main__':
 
+    pd.set_option('max_columns',   200)
+    pd.set_option('display.width', 200)
+
     # create logger
     logger = logging.getLogger(__name__)
     logger.setLevel('DEBUG')
@@ -152,23 +134,20 @@ if __name__ == '__main__':
     logger.info("BOX_DIR         = {}".format(BOX_DIR))
     logger.info("DATA_OUTPUT_DIR = {}".format(HYBRID_ZONING_OUTPUT_DIR))
 
-
     ## P10 parcels with pba40 plu and basis boc data
-    #plu_boc_file = os.path.join(RAW_PLU_BOC_DIR, today+'_p10_plu_boc_allAttrs.csv')
-    plu_boc_file = os.path.join(RAW_PLU_BOC_DIR, '2020_05_18_p10_plu_boc_allAttrs.csv')
-    
-    plu_boc = pd.read_csv(plu_boc_file)
-    logger.info("Read {:,} rows from {}".format(len(plu_boc), plu_boc_file))
-    logger.info(plu_boc.head())
-
-
+    plu_boc = pd.read_csv(PLU_BOC_FILE)
+    logger.info("Read {:,} rows from {}".format(len(plu_boc), PLU_BOC_FILE))
+    logger.info("\n{}".format(plu_boc.head()))
 
     logger.info('Count number of parcels missing allowable development types in the BASIS data:')
     for devType in ALLOWED_BUILDING_TYPE_CODES:
         countMissing(plu_boc, devType)
 
     
-    ## Step 1: fill in missing allowable dev types in BASIS using PBA40 data
+    ## Step 1: Fill in missing allowable dev types in BASIS using PBA40 data
+    #  
+    # Note: Only do this for non-nodev parcels (e.g. where nodev_zmod == 0)
+    # TODO: This won't be reflected in the jurisdiction maps...
 
     plu_boc_filled_devTypeNa = plu_boc.copy()
 
@@ -176,14 +155,18 @@ if __name__ == '__main__':
         plu_boc_filled_devTypeNa[btype+'_idx'] = 1
         missing_type_idx = (plu_boc_filled_devTypeNa[btype+'_basis'].isnull()) & (plu_boc_filled_devTypeNa['nodev_zmod'] == 0)
         plu_boc_filled_devTypeNa.loc[missing_type_idx, btype+'_basis'] = plu_boc_filled_devTypeNa.loc[missing_type_idx, btype+'_pba40']
-        plu_boc_filled_devTypeNa.loc[missing_type_idx, btype+'_idx'] = '0_fill_na'
+        plu_boc_filled_devTypeNa.loc[missing_type_idx, btype+'_idx'  ] = '0_fill_na'
 
-    logger.info('\n After filling nan in BASIS allowable development types using PBA40 data:')
+    logger.info('')
+    logger.info('')
+    logger.info('After filling nan in BASIS allowable development types using PBA40 data:')
     for devType in ALLOWED_BUILDING_TYPE_CODES:
         countMissing(plu_boc_filled_devTypeNa, devType)
 
-
     ## Step 2: fill in missing max_height in BASIS using PBA40 data
+    #  
+    # Note: Only do this for non-nodev parcels (e.g. where nodev_zmod == 0)
+    # TODO: This won't be reflected in the jurisdiction maps...
 
     logger.info('Count number of parcels missing max_height in the BASIS data:')
     countMissing(plu_boc_filled_devTypeNa, 'max_height')
@@ -192,9 +175,11 @@ if __name__ == '__main__':
     plu_boc_filled_TpHt_Na['max_height_idx'] = 1
     missing_height_idx = (plu_boc_filled_TpHt_Na['max_height_basis'].isnull()) & (plu_boc_filled_TpHt_Na['nodev_zmod'] == 0)
     plu_boc_filled_TpHt_Na.loc[missing_height_idx, 'max_height_basis'] = plu_boc_filled_TpHt_Na.loc[missing_height_idx, 'max_height_pba40']
-    plu_boc_filled_TpHt_Na.loc[missing_height_idx, 'max_height_idx'] = '0_fill_na'
+    plu_boc_filled_TpHt_Na.loc[missing_height_idx, 'max_height_idx'  ] = '0_fill_na'
 
-    logger.info('\n After filling nan in BASIS max_height using PBA40 data:')
+    logger.info('')
+    logger.info('')
+    logger.info('After filling nan in BASIS max_height using PBA40 data:')
     countMissing(plu_boc_filled_TpHt_Na, 'max_height')
 
 
@@ -233,9 +218,9 @@ if __name__ == '__main__':
             logger.info(plu_boc_hybrid[intensity+'_idx'].value_counts())
             
         # recalculate 'allow_res' and 'allow_nonres' based on the allowable development type
-        allowed_basis = set_allow_dev_type(plu_boc_hybrid,'basis')
-        allowed_pba40 = set_allow_dev_type(plu_boc_hybrid,'pba40')
-        allowed_urbansim = set_allow_dev_type(plu_boc_hybrid,'urbansim')
+        allowed_basis    = dev_capacity_calculation_module.set_allow_dev_type(plu_boc_hybrid,'basis')
+        allowed_pba40    = dev_capacity_calculation_module.set_allow_dev_type(plu_boc_hybrid,'pba40')
+        allowed_urbansim = dev_capacity_calculation_module.set_allow_dev_type(plu_boc_hybrid,'urbansim')
         
         # drop the previous 'allow_res' and 'allow_nonres' and insert the new ones
         plu_boc_hybrid.drop(columns = ['allow_res_basis', 'allow_nonres_basis', 

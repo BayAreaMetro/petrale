@@ -14,9 +14,6 @@ import pandas as pd
 import numpy as np
 import os, argparse, time, logging
 
-NOW = time.strftime("%Y_%m%d_%H%M")
-today = time.strftime('%Y_%m_%d')
-
 ALLOWED_BUILDING_TYPE_CODES = ["HS","HT","HM","OF","HO","SC","IL","IW","IH","RS","RB","MR","MT","ME"]
 RES_BUILDING_TYPE_CODES     = ["HS","HT","HM",                                        "MR"          ]
 NONRES_BUILDING_TYPE_CODES  = [               "OF","HO","SC","IL","IW","IH","RS","RB","MR","MT","ME"]
@@ -29,6 +26,33 @@ PARCEL_USE_EFFICIENCY               = 0.5
 SQUARE_FEET_PER_EMPLOYEE            = 350.0
 SQUARE_FEET_PER_EMPLOYEE_OFFICE     = 175.0
 SQUARE_FEET_PER_EMPLOYEE_INDUSTRIAL = 500.0
+
+
+def set_allow_dev_type(df_original,boc_source):
+    """
+    Assign allow residential and/or non-residential by summing the columns
+    for the residential/nonresidential allowed building type codes
+    Returns dataframe with 3 columns: PARCEL_ID, allow_res_[boc_source], allow_nonres_[boc_source]
+    """
+
+    # don't modify passed df
+    df = df_original.copy()
+
+    # note that they can't be null because then they won't sum -- so make a copy and fillna with 0
+    for dev_type in ALLOWED_BUILDING_TYPE_CODES:
+        df[dev_type+"_"+boc_source] = df[dev_type+"_"+boc_source].fillna(value=0.0)    
+    
+    # allow_res is sum of allowed building types that are residential
+    res_allowed_columns = [btype+'_'+boc_source for btype in RES_BUILDING_TYPE_CODES]
+    df['allow_res_' +boc_source] = df[res_allowed_columns].sum(axis=1)
+    
+    # allow_nonres is the sum of allowed building types that are non-residential
+    nonres_allowed_columns = [btype+'_'+boc_source for btype in NONRES_BUILDING_TYPE_CODES]
+    df['allow_nonres_'+boc_source] = df[nonres_allowed_columns].sum(axis=1)
+    
+    return df[['PARCEL_ID',
+               "allow_res_"    +boc_source,
+               "allow_nonres_" +boc_source]]
 
 
 ## calculate the development capacity in res units, non-res sqft, and employee counts

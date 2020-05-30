@@ -2,8 +2,9 @@
 
 import pandas as pd
 import numpy as np
-import os, glob, logging
-import time
+import os, glob, logging, sys, time
+
+import dev_capacity_calculation_module
 
 NOW = time.strftime("%Y_%m%d_%H%M")
 today = time.strftime('%Y_%m_%d')
@@ -39,6 +40,7 @@ ALLOWED_BUILDING_TYPE_CODES = ["HS","HT","HM","OF","HO","SC","IL","IW","IH","RS"
 RES_BUILDING_TYPE_CODES     = ["HS","HT","HM",                                        "MR"          ]
 NONRES_BUILDING_TYPE_CODES  = [               "OF","HO","SC","IL","IW","IH","RS","RB","MR","MT","ME"]
 
+# TODO: use dev_capacity_calculation_module.py (shorten name?)
 # used in impute_max_dua() and impute_max_far()
 SQUARE_FEET_PER_ACRE                = 43560.0
 SQUARE_FEET_PER_DU                  = 1200.0
@@ -53,35 +55,6 @@ SQUARE_FEET_PER_EMPLOYEE_INDUSTRIAL = 500.0
 ## Three steps of data clearing - combine PBA40 plu data and BASIS BOC data using p10 parcel geography
                              ## - assign allow residential and/or non-residential development to each parcel;
                              ## - impute max_dua and max_far for parcels missing the info
-
-
-
-def set_allow_dev_type(df_original,boc_source):
-    """
-    Assign allow residential and/or non-residential by summing the columns
-    for the residential/nonresidential allowed building type codes
-    Returns dataframe with PARCEL_ID, allow_res_[boc_source], allow_nonres_[boc_source]
-    """
-
-    # don't modify passed df
-    df = df_original.copy()
-
-    # note that they can't be null because then they won't sum -- so make a copy and fillna with 0
-    for dev_type in ALLOWED_BUILDING_TYPE_CODES:
-        df[dev_type+"_"+boc_source] = df[dev_type+"_"+boc_source].fillna(value=0.0)    
-    
-    # allow_res is sum of allowed building types that are residential
-    res_allowed_columns = [btype+'_'+boc_source for btype in RES_BUILDING_TYPE_CODES]
-    df['allow_res_' +boc_source] = df[res_allowed_columns].sum(axis=1)
-    
-    # allow_nonres is the sum of allowed building types that are non-residential
-    nonres_allowed_columns = [btype+'_'+boc_source for btype in NONRES_BUILDING_TYPE_CODES]
-    df['allow_nonres_'+boc_source] = df[nonres_allowed_columns].sum(axis=1)
-    
-    return df[['PARCEL_ID',
-               "allow_res_"    +boc_source,
-               "allow_nonres_" +boc_source]]
-
 
 
 def impute_max_dua(df_original,boc_source):
@@ -227,7 +200,6 @@ if __name__ == '__main__':
 
     ## Basemap parcels
     basemap_p10_file = os.path.join(BOX_SMELT_DIR, 'p10.csv')
-    print(basemap_p10_file)
     basemap_p10 = pd.read_csv(basemap_p10_file,
                               usecols =['PARCEL_ID','geom_id_s','ACRES','LAND_VALUE'],
                               dtype   ={'PARCEL_ID':np.float64, 'geom_id_s':str, 'ACRES':np.float64, 'LAND_VALUE':np.float64})
@@ -393,8 +365,8 @@ if __name__ == '__main__':
 
 
     ## Add basis and pba40 allowed_res_ and allowed_nonres_
-    allowed_basis = set_allow_dev_type(p10_basis_pba40_boc_zmod_withJuris, "basis")
-    allowed_pba40 = set_allow_dev_type(p10_basis_pba40_boc_zmod_withJuris, "pba40")
+    allowed_basis = dev_capacity_calculation_module.set_allow_dev_type(p10_basis_pba40_boc_zmod_withJuris, "basis")
+    allowed_pba40 = dev_capacity_calculation_module.set_allow_dev_type(p10_basis_pba40_boc_zmod_withJuris, "pba40")
 
     p10_basis_pba40_boc_zmod_withJuris = pd.merge(left=p10_basis_pba40_boc_zmod_withJuris,
                                                   right=allowed_basis,
