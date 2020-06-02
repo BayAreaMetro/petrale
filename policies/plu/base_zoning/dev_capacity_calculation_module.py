@@ -14,9 +14,21 @@ import pandas as pd
 import numpy as np
 import os, argparse, time, logging
 
+
+if os.getenv('USERNAME')=='ywang':
+    GITHUB_PETRALE_DIR  = 'C:\\Users\\{}\\Documents\\GitHub\\petrale\\'.format(os.getenv('USERNAME'))
+elif os.getenv('USERNAME')=='lzorn':
+    GITHUB_PETRALE_DIR  = 'X:\\petrale'
+
+JURIS_COUNTY_FILE = os.path.join(GITHUB_PETRALE_DIR, 'zones', 'jurisdictions', 'juris_county_id.csv')
+
+# See Dataset_Field_Definitions_Phase1.xlsx, Build Out Capacity worksheet
+# https://mtcdrive.box.com/s/efbpxbz8553e90eljvlnnq20465whyiv
 ALLOWED_BUILDING_TYPE_CODES = ["HS","HT","HM","OF","HO","SC","IL","IW","IH","RS","RB","MR","MT","ME"]
 RES_BUILDING_TYPE_CODES     = ["HS","HT","HM",                                        "MR"          ]
 NONRES_BUILDING_TYPE_CODES  = [               "OF","HO","SC","IL","IW","IH","RS","RB","MR","MT","ME"]
+
+INTENSITY_CODES             = ["far", "dua", "height"]
 
 # used in calculate_capacity()
 SQUARE_FEET_PER_ACRE                = 43560.0
@@ -27,6 +39,18 @@ SQUARE_FEET_PER_EMPLOYEE            = 350.0
 SQUARE_FEET_PER_EMPLOYEE_OFFICE     = 175.0
 SQUARE_FEET_PER_EMPLOYEE_INDUSTRIAL = 500.0
 
+
+def get_jurisdiction_county_df():
+    """
+    Returns dataframe with two columns: juris_name, county_name
+    juris_name is lower case, no spaces, with underscores (e.g. "unincorporated_contra_costa")
+    county_name includes spaces with first letters capitalized (e.g. "Contra Costa")
+    """
+
+    # obtain jurisdiction list
+    juris_df = pd.read_csv(JURIS_COUNTY_FILE, usecols = ['juris_name_full', 'county_name'])
+    juris_df.rename(columns = {'juris_name_full': 'juris_name'}, inplace = True)
+    return juris_df
 
 def set_allow_dev_type(df_original,boc_source):
     """
@@ -55,11 +79,20 @@ def set_allow_dev_type(df_original,boc_source):
                "allow_nonres_" +boc_source]]
 
 
-## calculate the development capacity in res units, non-res sqft, and employee counts
 
-def calculate_capacity(df_original,boc_source,nodev_source):
+def calculate_capacity(df_original,boc_source,nodev_source,pass_thru_cols=[]):
     """
-    Calculate capacity
+    Calculate the development capacity in res units, non-res sqft, and employee estimates
+
+    Returns dataframe with columns:
+     * PARCEL_ID
+     * columns in pass_thru_cols
+     * units_[boc_source]: residential units, calculated from ACRES x max_dua_[boc_source]
+                           (set to zero if allow_res_[boc_source]==0 or nodev_[nodev_source]==1)
+     * sqft_[boc_source] : building sqft, calculated from ACRES x max_far_[boc_source]
+                           (set to zero if allow_nonres_[boc_source]==0 or node_[nodev_source]==1)
+     * Ksqft_[boc_source]: sqft_[boc_source]/1,000
+     * emp_[boc_source]  : estimate of employees from sqft_[boc_source]
     """
     
     df = df_original.copy()
@@ -90,24 +123,14 @@ def calculate_capacity(df_original,boc_source,nodev_source):
     df.loc[office_idx,'emp_'+boc_source] = df['sqft_'+boc_source] / SQUARE_FEET_PER_EMPLOYEE_OFFICE
     df.loc[indust_idx,'emp_'+boc_source] = df['sqft_'+boc_source] / SQUARE_FEET_PER_EMPLOYEE_INDUSTRIAL
     
-    if ('source_dua_' +boc_source in df.columns) & ('source_far_'+boc_source in df.columns):
-        return df[['PARCEL_ID',
-                   "source_dua_"   +boc_source,
-                   "allow_res_"    +boc_source,
-                   "units_"        +boc_source,
-                   "allow_nonres_" +boc_source,
-                   "source_far_"   +boc_source,
-                   "sqft_"         +boc_source,
-                   "Ksqft_"        +boc_source,
-                   "emp_"          +boc_source]]
-    else:
-        return df[['PARCEL_ID', 
-                   "allow_res_"    +boc_source,
-                   "units_"        +boc_source,
-                   "allow_nonres_" +boc_source,
-                   "sqft_"         +boc_source,
-                   "Ksqft_"        +boc_source,
-                   "emp_"          +boc_source]]
+    keep_cols = ['PARCEL_ID'] + pass_thru_cols + \
+    [
+        "units_"        +boc_source,
+        "sqft_"         +boc_source,
+        "Ksqft_"        +boc_source,
+        "emp_"          +boc_source
+    ]
+    return df[keep_cols]
 
 def zoning_to_capacity(hybrid_zoning, hybrid_version, capacity_output_dir):
 

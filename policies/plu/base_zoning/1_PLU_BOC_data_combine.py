@@ -34,23 +34,6 @@ DATA_OUTPUT_DIR             = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outp
 QA_QC_DIR                   = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs\\QAQC')
 LOG_FILE                    = os.path.join(DATA_OUTPUT_DIR,'plu_boc_combine_{}.log'.format(NOW))
 
-# See Dataset_Field_Definitions_Phase1.xlsx, Build Out Capacity worksheet
-# https://mtcdrive.box.com/s/efbpxbz8553e90eljvlnnq20465whyiv
-ALLOWED_BUILDING_TYPE_CODES = ["HS","HT","HM","OF","HO","SC","IL","IW","IH","RS","RB","MR","MT","ME"]
-RES_BUILDING_TYPE_CODES     = ["HS","HT","HM",                                        "MR"          ]
-NONRES_BUILDING_TYPE_CODES  = [               "OF","HO","SC","IL","IW","IH","RS","RB","MR","MT","ME"]
-
-# TODO: use dev_capacity_calculation_module.py (shorten name?)
-# used in impute_max_dua() and impute_max_far()
-SQUARE_FEET_PER_ACRE                = 43560.0
-SQUARE_FEET_PER_DU                  = 1200.0
-FEET_PER_STORY                      = 11.0
-PARCEL_USE_EFFICIENCY               = 0.5
-SQUARE_FEET_PER_EMPLOYEE            = 350.0
-SQUARE_FEET_PER_EMPLOYEE_OFFICE     = 175.0
-SQUARE_FEET_PER_EMPLOYEE_INDUSTRIAL = 500.0
-
-
 
 ## Three steps of data clearing - combine PBA40 plu data and BASIS BOC data using p10 parcel geography
                              ## - assign allow residential and/or non-residential development to each parcel;
@@ -75,9 +58,9 @@ def impute_max_dua(df_original,boc_source):
         boc_source, boc_source, sum(df['max_dua_'+boc_source].isnull())))
 
     # we can only fill in missing if either max_far or max_height is not null   
-    max_dua_from_far    = df['max_far_'    +boc_source] * SQUARE_FEET_PER_ACRE / SQUARE_FEET_PER_DU
-    max_far_from_height = df['max_height_' +boc_source] / FEET_PER_STORY * PARCEL_USE_EFFICIENCY
-    max_dua_from_height = max_far_from_height * SQUARE_FEET_PER_ACRE / SQUARE_FEET_PER_DU
+    max_dua_from_far    = df['max_far_'    +boc_source] * dev_capacity_calculation_module.SQUARE_FEET_PER_ACRE / dev_capacity_calculation_module.SQUARE_FEET_PER_DU
+    max_far_from_height = df['max_height_' +boc_source] / dev_capacity_calculation_module.FEET_PER_STORY * dev_capacity_calculation_module.PARCEL_USE_EFFICIENCY
+    max_dua_from_height = max_far_from_height * dev_capacity_calculation_module.SQUARE_FEET_PER_ACRE / dev_capacity_calculation_module.SQUARE_FEET_PER_DU
     
     # default to missing
     df['source_dua_'+boc_source] = 'missing'
@@ -153,7 +136,7 @@ def impute_max_far(df_original,boc_source):
         boc_source, boc_source, sum(df['max_far_'+boc_source].isnull())))
     
     # we can only fill in missing if max_height is not null
-    max_far_from_height = df['max_height_' +boc_source] / FEET_PER_STORY * PARCEL_USE_EFFICIENCY
+    max_far_from_height = df['max_height_' +boc_source] / dev_capacity_calculation_module.FEET_PER_STORY * dev_capacity_calculation_module.PARCEL_USE_EFFICIENCY
     
     # default to missing
     df['source_far_'+boc_source] = 'missing'
@@ -272,7 +255,7 @@ if __name__ == '__main__':
     basis_boc_columns = [
         'parcel_id','max_height','max_dua','max_far',
         'plu_code','plu_id','plu_jurisdiction','plu_description',
-        'building_types_source','source'] + [btype.lower() for btype in ALLOWED_BUILDING_TYPE_CODES]
+        'building_types_source','source'] + [btype.lower() for btype in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES]
     # most are float
     basis_boc_dtypes = dict((x, float) for x in basis_boc_columns)
     # except these
@@ -315,7 +298,7 @@ if __name__ == '__main__':
         logger.warning("Went from {:,} to {:,} rows; dropped {:,} duplicates".format(basis_boc_rows, len(basis_boc), basis_boc_rows-len(basis_boc)))
 
     # report on missing allowed building types
-    for btype in ALLOWED_BUILDING_TYPE_CODES:
+    for btype in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
         null_btype_count = len(basis_boc.loc[basis_boc["{}_basis".format(btype)].isnull()])
         logger.info('Number of parcels missing allowable type for {}: {:,} or {:.1f}%'.format(btype,
                      null_btype_count, 100.0*null_btype_count/len(basis_boc)))
@@ -430,13 +413,13 @@ if __name__ == '__main__':
         'plu_id_basis','plu_jurisdiction_basis','plu_description_basis'
     ]
     # allowed building types
-    for btype in ALLOWED_BUILDING_TYPE_CODES:
+    for btype in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
         output_columns.append(btype + "_basis")
         output_columns.append(btype + "_pba40")
 
     plu_boc_output = p10_basis_pba40_boc_zmod_withJuris[output_columns]
 
-    for devType in ALLOWED_BUILDING_TYPE_CODES:
+    for devType in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
         logger.info('Missing BASIS {} parcel count: {}'.format(devType,len(plu_boc_output.loc[plu_boc_output[devType+'_basis'].isnull()])))
 
     logger.info('Export pba40/BASIS combined base zoning data: {} records of the following fields: {}'.format(len(plu_boc_output), plu_boc_output.dtypes))
@@ -447,7 +430,7 @@ if __name__ == '__main__':
     ## Evaluate development type for QA/QC
     plu_boc = plu_boc_output.copy()
 
-    for devType in ALLOWED_BUILDING_TYPE_CODES:
+    for devType in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
         plu_boc[devType+'_comp'] = np.nan
 
         plu_boc.loc[(plu_boc[devType + '_pba40'] == 1) & 
@@ -465,7 +448,7 @@ if __name__ == '__main__':
                 
     devType_comp = plu_boc[['PARCEL_ID','county_id','county_name','juris_zmod', 'ACRES',
                             'nodev_zmod','nodev_pba40'] + 
-                           [devType+'_comp' for devType in ALLOWED_BUILDING_TYPE_CODES]]
+                           [devType+'_comp' for devType in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES]]
 
     devType_comp.to_csv(os.path.join(QA_QC_DIR, today+'_devType_comparison.csv'),index = False)
 
