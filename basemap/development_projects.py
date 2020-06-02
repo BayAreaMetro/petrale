@@ -1587,12 +1587,19 @@ if __name__ == '__main__':
 	    				row[1] = 'add'
 	    				cursor.updateRow(row)
 
-	#counting null in building type
-	with arcpy.da.UpdateCursor(p_pipeline, "geom_id") as cursor:
+	# change NaNs in non_residential_sqft to 0
+	with arcpy.da.UpdateCursor(pipeline_fc, "non_residential_sqft") as cursor:
 		for row in cursor:
 			if row[0] is None:
-				cursor.deleteRow()
-	
+				row[0] = 0
+				cursor.updateRow(row)
+
+	with arcpy.da.UpdateCursor(devproj_fc, "non_residential_sqft") as cursor:
+		for row in cursor:
+			if row[0] is None:
+				row[0] = 0
+				cursor.updateRow(row)
+
 	#reordering before making the output
 	new_field_order = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", 
 		"scen0", "scen1", "scen2", "scen3", "scen4", "scen5", "scen6", "scen7", "scen10", "scen11", "scen12", "scen15", "scen20", "scen21", "scen22", "scen23", "scen24", "scen25",
@@ -1848,9 +1855,4 @@ if __name__ == '__main__':
 		logger.info("Transform {} to building table".format(rawp10_b15_pba50))
 	else:
 		logger.info("Something is wrong")
-
-
-
-	####Build some summary file using development project list (p1115 add, p1115 build) and b10
-	#arcpy.Statistics_analysis(devproj_fc, 'added_events', [["development_projects_id", "COUNT"]],"ZONE_ID")
 
