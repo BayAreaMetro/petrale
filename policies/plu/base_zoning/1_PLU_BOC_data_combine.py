@@ -1,5 +1,3 @@
-
-
 import pandas as pd
 import numpy as np
 import os, glob, logging, sys, time
@@ -32,7 +30,7 @@ OTHER_INPUTS_DIR            = os.path.join(BOX_DIR, 'Policies\\Base zoning\\inpu
 # output file location
 DATA_OUTPUT_DIR             = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs')
 QA_QC_DIR                   = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs\\QAQC')
-LOG_FILE                    = os.path.join(DATA_OUTPUT_DIR,'plu_boc_combine_{}.log'.format(NOW))
+LOG_FILE                    = os.path.join(DATA_OUTPUT_DIR,'{}_plu_boc_combine.log'.format(today))
 
 
 ## Three steps of data clearing - combine PBA40 plu data and BASIS BOC data using p10 parcel geography
@@ -159,6 +157,64 @@ def impute_max_far(df_original,boc_source):
     return df[['PARCEL_ID','max_far_'+boc_source,'source_far_'+boc_source]]
 
 
+def impute_basis_devtypes_from_pba40(df):
+    """
+    Where basis allowed development type is missing AND nodev_zmod == 0,
+    impute value from pba40.  Note this in source_[btype]_basis, which will be set to one of 
+        ['basis', 'missing', 'imputed from pba40']
+
+    Returns df with [btype]_basis and source_[btype]_basis columns updated
+    """
+    logger.info("impute_basis_devtypes_from_pba40():")
+
+    for btype in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
+        df['source_'+btype+'_basis'] = 'basis' # default
+        df.loc[ df[btype+'_basis'].isnull(), 'source_'+btype+'_basis'] = 'missing' # or missing if null
+
+        logger.info("Before imputation of {}_basis:\n{}".format(btype, df['source_'+btype+'_basis'].value_counts()))
+        # if basis value is missing
+        #    and we care about it (nodev_zod == 0)
+        #    and the pba40 value is present
+        # => impute
+        impute_idx = ((df[btype+'_basis'].isnull()) & \
+                      (df['nodev_zmod'] == 0) & \
+                      (df[btype+'_pba40'].notnull()))
+        # impute and note source
+        df.loc[ impute_idx,           btype+'_basis' ] = df[btype + '_pba40']
+        df.loc[ impute_idx, 'source_'+btype+'_basis' ] = 'imputed from pba40'
+
+        logger.info("After imputation of {}_basis:\n{}".format(btype, df['source_'+btype+'_basis'].value_counts()))
+
+    logger.info("")
+    return df
+
+def impute_basis_max_height_from_pba40(df):
+    """
+    Where max_height_basis is missing AND nodev_zmod == 0,
+    impute value from pba40.  Note this in source_height_basis, which will be set to one of 
+        ['basis', 'missing', 'imputed from pba40']
+
+    Returns df with max_height_basis and source_height_basis columns updated
+    """
+    logger.info("impute_basis_max_height_from_pba40():")
+
+    df['source_height_basis'] = 'basis' # default
+    df.loc[ df['max_height_basis'].isnull(), 'source_height_basis'] = 'missing' # or missing if null
+
+    logger.info("Before imputation of max_height_basis:\n{}".format(df['source_height_basis'].value_counts()))
+    # if basis value is missing
+    #    and we care about it (nodev_zod == 0)
+    #    and the pba40 value is present
+    # => impute
+    impute_idx = ((df['max_height_basis'].isnull()) & \
+                  (df['nodev_zmod'] == 0) & \
+                  (df['max_height_pba40'].notnull()))
+    # impute and note source
+    df.loc[ impute_idx,    'max_height_basis' ] = df['max_height_pba40']
+    df.loc[ impute_idx, 'source_height_basis' ] = 'imputed from pba40'
+
+    logger.info("After imputation of max_height_basis:\n{}".format(df['source_height_basis'].value_counts()))
+    return df
 
 if __name__ == '__main__':
 
@@ -387,6 +443,10 @@ if __name__ == '__main__':
                                                   right=far_pba40,
                                                   how="left", on="PARCEL_ID")
 
+    # as the function suggests -- impute basis allowed development types from pba40
+    p10_basis_pba40_boc_zmod_withJuris = impute_basis_devtypes_from_pba40(p10_basis_pba40_boc_zmod_withJuris)
+    # and impute basis max height from pba40
+    p10_basis_pba40_boc_zmod_withJuris = impute_basis_max_height_from_pba40(p10_basis_pba40_boc_zmod_withJuris)
 
     ## Export PLU BOC data to csv
 
@@ -396,17 +456,18 @@ if __name__ == '__main__':
         'ACRES', 'zoning_id_pba40', 'name_pba40','plu_code_basis','pba50zoningmodcat_zmod',
         
         # intensity
-        'max_far_basis',   'max_far_pba40',
-        'source_far_basis','source_far_pba40',
-        'max_dua_basis',   'max_dua_pba40',
-        'source_dua_basis','source_dua_pba40',
-        'max_height_basis','max_height_pba40',
+        'max_far_basis',        'max_far_pba40',
+        'source_far_basis',     'source_far_pba40',
+        'max_dua_basis',        'max_dua_pba40',
+        'source_dua_basis',     'source_dua_pba40',
+        'max_height_basis',     'max_height_pba40',
+        'source_height_basis',
 
-        'nodev_zmod',      'nodev_pba40',
+        'nodev_zmod',           'nodev_pba40',
 
         # allow building types sum
-        'allow_res_basis',    'allow_res_pba40',
-        'allow_nonres_basis', 'allow_nonres_pba40',
+        'allow_res_basis',      'allow_res_pba40',
+        'allow_nonres_basis',   'allow_nonres_pba40',
 
         # BASIS metadata
         'building_types_source_basis','source_basis',
@@ -416,6 +477,8 @@ if __name__ == '__main__':
     for btype in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
         output_columns.append(btype + "_basis")
         output_columns.append(btype + "_pba40")
+        # basis btypes may be imputed, recorded here
+        output_columns.append("source_" + btype + "_basis")
 
     plu_boc_output = p10_basis_pba40_boc_zmod_withJuris[output_columns]
 

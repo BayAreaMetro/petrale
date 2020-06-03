@@ -16,7 +16,7 @@ USAGE="""
    * number of parcels and number of parcel-acres for each permutation of the PBA40 vs BASIS value of that variable
    * number of parcels and number of parcel-acres for each permutation of allowed_res and/or allowed_nonres given the PBA40 vs BASIS value of that variable
 
-  Input:  p10 combined pba40 plu and basis boc data (p10_plu_boc_allAttrs.csv) output by 1_PLU_BOC_data_combine.py
+  Input:  p10_plu_boc_allAttrs.csv, p10 combined with pba40 and basis boc data output by 1_PLU_BOC_data_combine.py
   Output: juris_basis_pba40_capacity_metrics.csv
           juris_basis_pba40_capacity_metrics.log
   In test mode (specified by --test), outputs files to cwd and without date prefix; otherwise, outputs to PLU_BOC_DIR with date prefix
@@ -55,9 +55,8 @@ QA_QC_DIR                   = "." # os.path.join(BOX_DIR, 'Policies\\Base zoning
 # LOG_FILE                    = "build_hybrid_zoning.log" # os.path.join(HYBRID_ZONING_OUTPUT_DIR,'build_hybrid_zoning_{}.log'.format(NOW))
 
  # human-readable idx values
-USE_PBA40                   = 0
-USE_BASIS                   = 1
-USE_PBA40_COS_BASIS_MISSING = 2
+USE_PBA40 = 0
+USE_BASIS = 1
 
 def countMissing(df, attr):
     null_attr_count = len(df.loc[df["{}_basis".format(attr)].isnull()])
@@ -65,18 +64,16 @@ def countMissing(df, attr):
                 null_attr_count, 100.0*null_attr_count/len(df)))
 
 
-def create_hybrid_parcel_data_from_juris_idx(df_original,hybrid_idx, BASIS_PARCEL_IDX):
+def create_hybrid_parcel_data_from_juris_idx(df_original,hybrid_idx):
     """
     Apply hybrid jurisdiction index to plu_boc parcel data
     * df_original is a parcel dataframe with pba40 and basis attributes
     * hybrid_idx is a dataframe with juris_name and _idx columns for each allowed building type or intensity attribute
       e.g. HS_idx, HT_idx, HM_idx, OF_idx, etc.... max_far_idx, max_dua_idx, etc
       Note: XX_idx is one of [ USE_PBA40, USE_BASIS ]
-    * BASIS_PARCEL_IDX is a parcel dataframe with columns PARCEL_ID, juris_zmod, and 
-      Xx_idx = [USE_BASIS or USE_PBA40_COS_BASIS_MISSING where basis is missing and we should use it instead]
 
     Returns a dataframe with columns PARCEL_ID, juris_zmod, plus for each allowed building type or intensity attribute,
-    * XX_idx: one of [ USE_PBA40, USE_BASIS, or USE_PBA40_COS_BASIS_MISSING ]
+    * XX_idx: one of [ USE_PBA40, USE_BASIS ]
     * XX_urbansim: the value of XX_basis if XX_idx==USE_BASIS otherwise the value of XX_pba40
 
     """
@@ -95,23 +92,12 @@ def create_hybrid_parcel_data_from_juris_idx(df_original,hybrid_idx, BASIS_PARCE
                            right_on='juris_name',
                            how     = 'left')
 
-    # join parcel dataframe with BASIS_PARCEL_IDX to find parcels where basis data is missing
-    urbansim_df = pd.merge(left    =urbansim_df,
-                           right   =BASIS_PARCEL_IDX,
-                           on      =['PARCEL_ID', 'juris_zmod'],
-                           how     ='left',
-                           suffixes=['', '_basis_missing'])
-
     # bring in the allowed development type values
     for dev_type in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
         # default to BASIS
         urbansim_df["{}_urbansim".format(dev_type)] = urbansim_df["{}_basis".format(dev_type)]
         # but set to PBA40 if the idx says to use PBA40
         urbansim_df.loc[ urbansim_df["{}_idx".format(dev_type)]==USE_PBA40, 
-                         "{}_urbansim".format(dev_type) ]                   = urbansim_df["{}_pba40".format(dev_type)]
-        # or if idx says to use BASIS but BASIS is missing
-        urbansim_df.loc[ (urbansim_df["{}_idx".format(dev_type)]==USE_BASIS)&
-                         (urbansim_df["{}_idx_basis_missing".format(dev_type)]==USE_PBA40_COS_BASIS_MISSING), 
                          "{}_urbansim".format(dev_type) ]                   = urbansim_df["{}_pba40".format(dev_type)]
         # keep the idx and the new column
         keep_cols.append("{}_idx".format(dev_type))
@@ -125,12 +111,6 @@ def create_hybrid_parcel_data_from_juris_idx(df_original,hybrid_idx, BASIS_PARCE
         urbansim_df.loc[ urbansim_df["max_{}_idx".format(intensity)]==USE_PBA40, 
                          "max_{}_urbansim".format(intensity) ]              = urbansim_df["max_{}_pba40".format(intensity)]
 
-        # fall back for missing height only
-        if intensity == "height":
-            # or if idx says to use BASIS but BASIS is missing
-            urbansim_df.loc[ (urbansim_df["max_{}_idx".format(intensity)]==USE_BASIS)&
-                             (urbansim_df["max_{}_idx_basis_missing".format(intensity)]==USE_PBA40_COS_BASIS_MISSING), 
-                             "max_{}_urbansim".format(intensity) ]                   = urbansim_df["max_{}_pba40".format(intensity)]
         # keep the idx and the new column
         keep_cols.append("max_{}_idx".format(intensity))
         keep_cols.append("max_{}_urbansim".format(intensity))
@@ -174,58 +154,7 @@ if __name__ == '__main__':
     logger.info("Read {:,} rows from {}".format(len(plu_boc), PLU_BOC_FILE))
     logger.info("\n{}".format(plu_boc.head()))
 
-    logger.info('Count number of parcels missing allowable development types in the BASIS data (out of {:,}):'.format(len(plu_boc)))
-    for devType in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
-        countMissing(plu_boc, devType)
-
-    
-    ## Step 1: Fill in missing allowable dev types in BASIS using PBA40 data
-    #  
-    # Note: Only do this for non-nodev parcels (e.g. where nodev_zmod == 0)
-    # TODO: This won't be reflected in the jurisdiction maps; should this be an imputation in 1_PLU_BOC_data_combine.py?
-    # TODO: Why change the basis data itself, why not just change the index for this parcel to use PBA40?
-
-    plu_boc_filled_devTypeNa = plu_boc.copy()
-
-    # this is basically an index for USING BASIS AS MUCH AS POSSIBLE -- so it will index to USE_BASIS or USE_PBA40_COS_BASIS_MISSING where... basis is missing (and nodev_zmod==0)
-    basis_parcel_idx = plu_boc[["PARCEL_ID", "juris_zmod"]].copy()
-
-    for btype in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
-        basis_parcel_idx[btype+'_idx'] = USE_BASIS
-        missing_type_idx = (plu_boc_filled_devTypeNa[btype+'_basis'].isnull()) & (plu_boc_filled_devTypeNa['nodev_zmod'] == 0)
-        plu_boc_filled_devTypeNa.loc[missing_type_idx, btype+'_basis'] = plu_boc_filled_devTypeNa.loc[missing_type_idx, btype+'_pba40']
-        basis_parcel_idx.loc[missing_type_idx, btype+'_idx'] = USE_PBA40_COS_BASIS_MISSING
-
-    logger.info('')
-    logger.info('')
-    logger.info('After filling nan in BASIS allowable development types using PBA40 data:')
-    for devType in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
-        countMissing(plu_boc_filled_devTypeNa, devType)
-
-    ## Step 2: fill in missing max_height in BASIS using PBA40 data
-    #  
-    # Note: Only do this for non-nodev parcels (e.g. where nodev_zmod == 0)
-    # TODO: This won't be reflected in the jurisdiction maps; should this be an imputation in 1_PLU_BOC_data_combine.py?
-    # TODO: Why change the basis data itself, why not just change the index for this parcel to use PBA40?
-
-    logger.info('Count number of parcels missing max_height in the BASIS data (out of {:,}):'.format(len(plu_boc_filled_devTypeNa)))
-    countMissing(plu_boc_filled_devTypeNa, 'max_height')
-
-    plu_boc_filled_TpHt_Na = plu_boc_filled_devTypeNa.copy()
-    basis_parcel_idx['max_height_idx'] = USE_BASIS
-    missing_height_idx = (plu_boc_filled_TpHt_Na['max_height_basis'].isnull()) & (plu_boc_filled_TpHt_Na['nodev_zmod'] == 0)
-    plu_boc_filled_TpHt_Na.loc[missing_height_idx, 'max_height_basis'] = plu_boc_filled_TpHt_Na.loc[missing_height_idx, 'max_height_pba40']
-    basis_parcel_idx.loc[missing_height_idx, 'max_height_idx' ] = USE_PBA40_COS_BASIS_MISSING
-
-    logger.info('')
-    logger.info('')
-    logger.info('After filling nan in BASIS max_height using PBA40 data (out of {:,}):'.format(len(plu_boc_filled_TpHt_Na)))
-    countMissing(plu_boc_filled_TpHt_Na, 'max_height')
-
-    logger.debug('Head of plu_boc_filled_TpHt_Na:\n{}'.format(plu_boc_filled_TpHt_Na.head()))
-    logger.debug('Head of basis_parcel_idx:\n{}'.format(basis_parcel_idx.head()))
-
-    ## Step 3: Create "interim" hybrid indices on the fly, representing:
+    ## Create "interim" test hybrid indices on the fly, representing:
     #  What if we used PBA40 data for all fields and BASIS data for this one field
     #  How would that affect capacity for each jurisdiction?
     if process == 'interim':
@@ -260,7 +189,7 @@ if __name__ == '__main__':
 
 
             # apply the hybrid jurisdiction index to the parcel data
-            test_hybrid_parcel_idx = create_hybrid_parcel_data_from_juris_idx(plu_boc_filled_TpHt_Na, test_hybrid_juris_idx, basis_parcel_idx)
+            test_hybrid_parcel_idx = create_hybrid_parcel_data_from_juris_idx(plu_boc, test_hybrid_juris_idx)
 
             # compute allowed development type - residential vs non-residential for each parcel
             test_hybrid_allow_dev_type = dev_capacity_calculation_module.set_allow_dev_type(test_hybrid_parcel_idx, boc_source="urbansim")
@@ -269,7 +198,7 @@ if __name__ == '__main__':
             test_hybrid_parcel_idx = pd.merge(left=test_hybrid_parcel_idx, right=test_hybrid_allow_dev_type, how="left", on="PARCEL_ID")
 
             # and join alongside the parcel data
-            test_hybrid_parcel_idx = pd.merge(left=plu_boc_filled_TpHt_Na, right=test_hybrid_parcel_idx, how="left", on=["PARCEL_ID", "juris_zmod"])
+            test_hybrid_parcel_idx = pd.merge(left=plu_boc, right=test_hybrid_parcel_idx, how="left", on=["PARCEL_ID", "juris_zmod"])
             
             logger.debug("test_hybrid_parcel_idx head(30):\n{}".format(test_hybrid_parcel_idx.head(30)))
 
@@ -374,7 +303,7 @@ if __name__ == '__main__':
             logger.debug("capacity_juris_pba40_basis.head():\n{}".format(capacity_juris_pba40_basis.head()))
 
             # add to the full set
-            capacity_metrics = pd.concat([capacity_metrics, capacity_juris_pba40_basis], axis="index")
+            capacity_metrics = pd.concat([capacity_metrics, capacity_juris_pba40_basis], axis="index", sort=True)
         
 
         # bring juris_zmod and variable to the left to be more intuitive
@@ -409,7 +338,7 @@ if __name__ == '__main__':
         logger.debug("hybrid_idx.head():\n{}".format(hybrid_idx.head()))
 
         # make a copy so we don't modify the zoning data before hybrid
-        plu_boc_before_hybrid = plu_boc_filled_TpHt_Na.copy()
+        plu_boc_before_hybrid = plu_boc.copy()
         
         for devType in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
             logger.info('Before applying index, parcel counts by data source for development type {}\n{}'.format(devType,
