@@ -14,7 +14,7 @@ Input:
 * [zoning mod](https://mtcdrive.box.com/s/zkxaf4gxn47oe716r4wqrp1raqfq8lhy) (contains 'nodev' parcels, i.e. nondevelopable parcels)
 
 Output:
-* [p10_plu_boc_allAttrs.csv](https://mtcdrive.box.com/s/d99i7rhcm14jtv3l403vjjskrnieckqb): parcels joined with PBA40 and BASIS zoning information (allowed development types and intensities) and nodev flag. Contains 4 groups of p10 attributes: 
+* [p10_plu_boc_allAttrs.csv](https://mtcdrive.box.com/s/1xkp87rvcr7qpolfnpv16j5losj3f48y): parcels joined with PBA40 and BASIS zoning information (allowed development types and intensities) and nodev flag. Contains 4 groups of p10 attributes: 
    * basic attributes, e.g. PARCEL_ID, ACRES, COUNTY, JURIS, NO_DEV
    * allowed development type, i.e. '1/0' binary value of 14 development types, for both PBA40 and BASIS, along with aggregated 'allow residential' and 'allow non-residential' for each parcel
    * development intensity, i.e. max_dua, max_far, max_height, for both PBA40 and BASIS
@@ -48,7 +48,7 @@ Interim outputs: multiple versions of hybrid zoning aimed to help evaluate BASIS
 Final output: [index_urbansim_heuristics.csv](hybrid_index/idx_urbansim_heuristics.csv).
 
 ### [dev_capacity_calculation_module.py](dev_capacity_calculation_module.py)
-Calculate effective development intensity (refer to the [effective_max_dua](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L808) and [effective_max_far](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variahttps://mtcdrive.box.com/s/vbbhb3vs230krbmyhr2ma4d03qaqec7obles.py#L852) calculations) for PBA40 and BASIS and compare the results. Uses different hybrid versions of BASIS BOC data as generated from the previous step.
+Calculate effective development intensity (refer to the [effective_max_dua](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L808) and [effective_max_far](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L852) calculations) for PBA40 and BASIS and compare the results. Uses different hybrid versions of BASIS BOC data as generated from the previous step.
 
 Input:
 * various versions of "p10_plu_boc" hybrid data generated from the previous step
