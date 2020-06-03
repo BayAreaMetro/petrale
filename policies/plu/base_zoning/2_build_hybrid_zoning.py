@@ -41,7 +41,7 @@ INTERIM_INDEX_DIR           = os.path.join(GITHUB_PETRALE_DIR, 'policies\\plu\\b
 PBA40_ZONING_BOX_DIR        = os.path.join(BOX_DIR, 'OLD Horizon Large General Input Data')
 PBA50_ZONINGMOD_DIR         = os.path.join(BOX_DIR, 'Policies\\Zoning Modifications')
 PLU_BOC_DIR                 = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs')
-PLU_BOC_FILE                = os.path.join(PLU_BOC_DIR, '2020_05_18_p10_plu_boc_allAttrs.csv')
+PLU_BOC_FILE                = os.path.join(PLU_BOC_DIR, '2020_06_03_p10_plu_boc_allAttrs.csv')
 
 # output file
 # In test mode (specified by --test), outputs to cwd and without date prefix; otherwise, outputs to PLU_BOC_DIR with date prefix
