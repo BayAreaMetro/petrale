@@ -90,7 +90,7 @@ def calculate_capacity(df_original,boc_source,nodev_source,pass_thru_cols=[]):
      * units_[boc_source]: residential units, calculated from ACRES x max_dua_[boc_source]
                            (set to zero if allow_res_[boc_source]==0 or nodev_[nodev_source]==1)
      * sqft_[boc_source] : building sqft, calculated from ACRES x max_far_[boc_source]
-                           (set to zero if allow_nonres_[boc_source]==0 or node_[nodev_source]==1)
+                           (set to zero if allow_nonres_[boc_source]==0 or nodev_[nodev_source]==1)
      * Ksqft_[boc_source]: sqft_[boc_source]/1,000
      * emp_[boc_source]  : estimate of employees from sqft_[boc_source]
     """
