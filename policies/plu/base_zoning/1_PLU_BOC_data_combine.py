@@ -418,6 +418,10 @@ if __name__ == '__main__':
     logger.info('Add basis and pba40 allowed_res_ and allowed_nonres_:')
     logger.info(p10_basis_pba40_boc_zmod_withJuris.head())
 
+    # as the function suggests -- impute basis allowed development types from pba40
+    p10_basis_pba40_boc_zmod_withJuris = impute_basis_devtypes_from_pba40(p10_basis_pba40_boc_zmod_withJuris)
+    # and impute basis max height from pba40 - do this before max_dua/max_far since it's used for that
+    p10_basis_pba40_boc_zmod_withJuris = impute_basis_max_height_from_pba40(p10_basis_pba40_boc_zmod_withJuris)
 
     ## Impute max_dua and max_far
     dua_basis = impute_max_dua(p10_basis_pba40_boc_zmod_withJuris, "basis")
@@ -442,11 +446,6 @@ if __name__ == '__main__':
     p10_basis_pba40_boc_zmod_withJuris = pd.merge(left=p10_basis_pba40_boc_zmod_withJuris,
                                                   right=far_pba40,
                                                   how="left", on="PARCEL_ID")
-
-    # as the function suggests -- impute basis allowed development types from pba40
-    p10_basis_pba40_boc_zmod_withJuris = impute_basis_devtypes_from_pba40(p10_basis_pba40_boc_zmod_withJuris)
-    # and impute basis max height from pba40
-    p10_basis_pba40_boc_zmod_withJuris = impute_basis_max_height_from_pba40(p10_basis_pba40_boc_zmod_withJuris)
 
     ## Export PLU BOC data to csv
 
