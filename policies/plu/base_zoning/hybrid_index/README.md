@@ -1,59 +1,15 @@
-### Intro
-Hybrid index is used to build hybrid base zoning by selecting more reasonable allowed development type and intensity data from PBA40 versus BASIS. For each zoning attribute (allowable development or intensity), the index indicates if PBA40 data (denoted 0) or BASIS data (denoted 1) is used as BAUS base zoning input. 
 
-**Allowable development types**: HS, HT, HM, OF, HO, SC, IL, IW, IH, RS, RB, MR, MT, ME
+For each of the plu/boc variables (allowed development types and intensities), we have a set of BASIS data and a set of data used for PBA40.
 
-**Intensity**: MAX_DUA, MAX_FAR, MAX_HEIGHT
+In order to determine if the BASIS data set is usable for a given variable for a given jurisdiction, we try to estimate the effect of using the BASIS data
+for that variable on UrbanSim development capacity.
 
-Two sets of indexes were created during the process: 
-* **Interim indexes** - bring in BASIS data for one zoning attribute at a time (or in the case of intensity, all three intensity attributes together), in order to construct interim hybrid zoning, calculate and evaluate capacity discrepancies between PBA40 and the hybrid zoning at the jurisdiction level, and then decide if PBA40 or BASIS data should be used for this zoning attribute for each jurisdiction. 
-* **Urbansim indexes** - combine the indexes of all zoning attributes.
+This is done by calculating capacity effects for each variable (via [script 2](../2_calculate_juris_basis_pba40_capacity_metrics.py),
+and then creating a heuristic-based hybrid index (via [script 3](../3_create_heuristic_hybrid_idx.py), which indicates using BASIS data for a
+given variable and a given jurisdiction if (and only if) the capacity is not affected too much (determined by a threshold for percentage change).
 
-### Process of building hybrid_urbansim
-1. Run [interim_hybrid_index_generator.ipynb](interim_hybrid_index_generator.ipynb) to create a set of [interim hybrid indexes](https://github.com/BayAreaMetro/petrale/tree/master/policies/plu/base_zoning/hybrid_index/interim) for zoning attributes. For example:
-	* [idx_intensity_comp.csv](interim/idx_intensity_comp.csv): set the indexes of all intensity attributes as 1 and of all allowable development types as 0. The goal is to isolate and evaluate BASIS BOC intensity data.
-	* [idx_HM_comp.csv](interim/idx_HM_comp.csv): set the indexes of HM as 1 and of all other allowable development types and intensities as 0. The goal is to isolate and evaluate BASIS BOC HM data.
-	
-2. Run [2_build_hybrid_zoning.py](../2_build_hybrid_zoning.py) with each interim hybrid index to create corresponding [interim hybrid zoning](https://mtcdrive.box.com/s/k7nt4b0vhl1k1b4kbjlwnbzegtvfqym8).
+Thus, the files in this directory are:
 
-3. Run [create_heuristic_hybrid_index.py](../create_heuristic_hybrid_index.py) to calculate capacity (using [dev_capacity_calculation_module.py](../dev_capacity_calculation_module.py), compare capacity, select data source (0 as PBA40 OR 1 as BASIS) for each zoning attribute and each jurisdiction, and combine the indexes into one index file [index_urbansim_heuristics](idx_urbansim_heuristic.csv). Two thresholds (20% and 10%) were used to generate two versions of the heuristic hybrid zoning, following the rules below:
-
-* Rules for intensity attributes: 
-
-	For each jurisdiction:
-	
-		if abs(SQFT_pab40 - SQFT_hybird) / SQFT_pba40 <= threshold  THEN MAX_FAR_idx = 1 and MAX_HEIGHT_idx = 1
-		
-		else MAX_HEIGHT_idx = 0
-	For each jurisdiction:
-	
-		if abs(UNITS_pab40 - UNITS_hybird) / UNITS_pba40 <= threshold THEN MAX_DUA_idx = 1
-		
-		else MAX_DUA_idx = 0
-
-* Rule for MR (residential-commercial mixed-use):
-
-	For each jurisdiction:
-
-		if (abs(SQFT_pab40 - SQFT_hybird) / SQFT_pba40 <= threshold) & 
-		   (abs(UNITS_pab40 - UNITS_hybird) / UNITS_pba40 <= threshold) THEN MR_idx = 1
-		
-		else MR_idx = 0
-
-* Rule for residential-only development types:
-
-	For each jurisdiction: 
-		
-		if abs(UNITS_pab40 - UNITS_hybird) / UNITS_pba40 <= threshold THEN devType_idx = 1
-		
-		else devType_idx = 0
-	  
-* Rule for non-residential-only development types:
-	
-	For each jurisdiction: 
-		
-		if abs(SQFT_pab40 - SQFT_hybird) / SQFT_pba40 <= threshold THEN devType_idx = 1
-		
-		else devType_idx = 0
-
-4. Based on internal and external feedback, manually adjust *index_urbansim_heuristic.csv* to *index_urbansim.csv*.
+* [idx_urbansim_heuristic.csv](idx_urbansim_heuristic.csv): created by [script 3](../3_create_heuristic_hybrid_idx.py), heuristic-driven hybrid index configuration for which BASIS variables to use for each jurisdiction
+* [idx_urbansim_heuristic.log](idx_urbansim_heuristic.csv): debug log created by [script 3](../3_create_heuristic_hybrid_idx.py)
+* idx_urbansim.csv: the same as idx_urbansim_heuristic.csv but with manual edits
