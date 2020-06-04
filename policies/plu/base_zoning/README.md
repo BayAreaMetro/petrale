@@ -57,12 +57,11 @@ Output:
 Creates the heuristic hybrid index given a threshold argument.
 
 Input:
-* ``p10_plu_boc_allAttrs.csv``: parcels joined with PBA40 and BASIS zoning information (allowed development types as well as intensities) and nodev flag from [1_PLU_BOC_data_combine.py](1_PLU_BOC_data_combine.py)
 * ``juris_basis_pba40_capacity_metrics.csv``: capacity metrics for each jurisdiction for each variable from [2_calculate_juris_basis_pba40_capacity_metrics.py](2_calculate_juris_basis_pba40_capacity_metrics.py)
 * *heuristic threshold*: Input argument between 0 and 1, denoting acceptable percent difference between BASIS and PBA40 capacity metrics to accept BASIS data for a given variable for a given jurisdiction.
 
 Output:
-* ``hybrid_index/idx_urbansim_heuristic.csv``, heuristic-driven hybrid index configuration for which BASIS variables to use for each jurisdiction.
+* [hybrid_index/idx_urbansim_heuristic.csv](hybrid_index/idx_urbansim_heuristic.csv), heuristic-driven hybrid index configuration for which BASIS variables to use for each jurisdiction
 
 ### [dev_capacity_calculation_module.py](dev_capacity_calculation_module.py)
 Module with methods to calculate effective development intensity (refer to the [effective_max_dua](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L808) and [effective_max_far](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L852) calculations). 
