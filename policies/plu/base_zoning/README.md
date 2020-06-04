@@ -18,7 +18,7 @@ Output:
    * basic attributes, e.g. PARCEL_ID, ACRES, COUNTY, JURIS, NO_DEV
    * allowed development type, i.e. '1/0' binary value of 14 development types, for both PBA40 and BASIS, along with aggregated 'allow residential' and 'allow non-residential' for each parcel
    * development intensity, i.e. max_dua, max_far, max_height, for both PBA40 and BASIS
-* ['devType_comparison.csv'](https://mtcdrive.box.com/s/vbbhb3vs230krbmyhr2ma4d03qaqec7o): compares BASIS vs. PBA40 allowed development type data at parcel level. Each parcel falls into one of the following types for each [development type]:
+* [devType_comparison.csv](https://mtcdrive.box.com/s/vbbhb3vs230krbmyhr2ma4d03qaqec7o): compares BASIS vs. PBA40 allowed development type data at parcel level. Each parcel falls into one of the following types for each [development type]:
     * 'both allow': the type of development is allowed in both PBA40 PLU data and BASIS BOC data
     * 'only pba40 allow'
     * 'only basis allow'
@@ -37,15 +37,14 @@ This one takes a while to run.  I copied the version I created here: ``M:\Data\G
 This takes the previous gdb along with an accompanying ArcGIS project file (``M:\Data\GIS layers\UrbanSim_BASIS_zoning\UrbanSim_BASIS_zoning.aprx``)
 and creates pdf maps of BASIS vs PBA40 data by jurisdiction.  See [Jurisdiction Maps BASISvsPBA40 box folder](https://mtcdrive.box.com/s/e2qck5p03sd53q0rxg91x1wphw6zg766).
 
-### [2_build_hybrid_zoning.py](2_build_hybrid_zoning.py)
+### [2_calculate_juris_basis_pba40_capacity_metrics.py](2_calculate_juris_basis_pba40_capacity_metrics.py)
 
 Input:
-* *p10_plu_boc_allAttrs.csv*: parcels joined with PBA40 and BASIS zoning information (allowed development types as well as intensities) and nodev flag from the previous step
-* Hybrid index files: used to build hybrid base zoning by selecting more reasonable allowed development type and intensity data from PBA40 versus BASIS. 
+* *p10_plu_boc_allAttrs.csv*: parcels joined with PBA40 and BASIS zoning information (allowed development types as well as intensities) and nodev flag from [1_PLU_BOC_data_combine.py](1_PLU_BOC_data_combine.py)
 
-Interim outputs: multiple versions of hybrid zoning aimed to help evaluate BASIS data for each zoning attribute, and to construct the hybrid index used for UrbanSim. Please see [README.md](hybrid_index/README.md) for details on interim hybrid zoning.
-
-Final output: [index_urbansim_heuristics.csv](hybrid_index/idx_urbansim_heuristics.csv).
+Output:
+* [juris_basis_pba40_capacity_metrics.csv]
+* [juris_basis_pba40_capacity_metrics.log]
 
 ### [dev_capacity_calculation_module.py](dev_capacity_calculation_module.py)
 Calculate effective development intensity (refer to the [effective_max_dua](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L808) and [effective_max_far](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L852) calculations) for PBA40 and BASIS and compare the results. Uses different hybrid versions of BASIS BOC data as generated from the previous step.
