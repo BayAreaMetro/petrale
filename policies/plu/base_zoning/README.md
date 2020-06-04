@@ -29,7 +29,7 @@ Output:
 
 ### 1b [import_filegdb_layers.py](../../../basemap/import_filegdb_layers.py)
 
-This script is helpful for merging the output of the previous script, *p10_plu_boc_allAttrs.csv*, with the p10 parcel geographies into a geodatabase.
+This script is helpful for merging the output of the previous script, ``p10_plu_boc_allAttrs.csv``, with the p10 parcel geographies into a geodatabase.
 This one takes a while to run.  I copied the version I created here: ``M:\Data\GIS layers\UrbanSim_BASIS_zoning\UrbanSim_BASIS_zoning.gdb``
 
 ### 1c [create_jurisdiction_map.py](create_jurisdiction_map.py)
@@ -42,33 +42,32 @@ and creates pdf maps of BASIS vs PBA40 data by jurisdiction.  See [Jurisdiction 
 For each of the plu/boc variables (allowed development types and intensities), we have a set of BASIS data and a set of data used for PBA40.
 
 In order to determine if the BASIS data set is usable for a given variable X for a given jurisdiction, the script does the following:
-
-   1. Using PBA40 data for all variables other than *X* and BASIS data for *X*, calculate several metrics including dwelling unit capacity of a jurisdiction (for residential variables), nonresidential square footage capacity of a jurisdiction (for nonresidential variables)
-
-   2. Output those metrics for visualization with [juris_basis_pba40_capacity_metrics.twb](juris_basis_pba40_capacity_metrics.twb), which includes a threshold parameter for choosing a heuristic to use to determine how much difference in the capacity metric is OK
-
+* Using PBA40 data for all variables other than *X* and BASIS data for *X*, calculate several metrics including dwelling unit capacity of a jurisdiction (for residential variables), nonresidential square footage capacity of a jurisdiction (for nonresidential variables)
+* Output those metrics for visualization with [juris_basis_pba40_capacity_metrics.twb](juris_basis_pba40_capacity_metrics.twb), which includes a threshold parameter for choosing a heuristic to use to determine how much difference in the capacity metric is OK
 
 Input:
 * ``p10_plu_boc_allAttrs.csv``: parcels joined with PBA40 and BASIS zoning information (allowed development types as well as intensities) and nodev flag from [1_PLU_BOC_data_combine.py](1_PLU_BOC_data_combine.py)
 
 Output:
-* [juris_basis_pba40_capacity_metrics.csv](https://mtcdrive.box.com/s/5tuil7p7vz4pzp0zet2bo185obd2wzsx)
-* [juris_basis_pba40_capacity_metrics.log](https://mtcdrive.box.com/s/ihety0t5b9n3ad72obvkyulzt4n9xgti)
+* [juris_basis_pba40_capacity_metrics.csv](https://mtcdrive.box.com/s/5tuil7p7vz4pzp0zet2bo185obd2wzsx): capacity metrics for each jurisdiction for each variable
+* [juris_basis_pba40_capacity_metrics.log](https://mtcdrive.box.com/s/ihety0t5b9n3ad72obvkyulzt4n9xgti): debug log
+
+### [3_create_heuristic_hybrid_index.py](create_heuristic_hybrid_index.py)
+
+Creates the heuristic hybrid index given a threshold argument.
+
+Input:
+* ``p10_plu_boc_allAttrs.csv``: parcels joined with PBA40 and BASIS zoning information (allowed development types as well as intensities) and nodev flag from [1_PLU_BOC_data_combine.py](1_PLU_BOC_data_combine.py)
+* ``juris_basis_pba40_capacity_metrics.csv``: capacity metrics for each jurisdiction for each variable from [2_calculate_juris_basis_pba40_capacity_metrics.py](2_calculate_juris_basis_pba40_capacity_metrics.py)
+* *heuristic threshold*: Input argument between 0 and 1, denoting acceptable percent difference between BASIS and PBA40 capacity metrics to accept BASIS data for a given variable for a given jurisdiction.
+
+Output:
+* ``hybrid_index/idx_urbansim_heuristic.csv``, heuristic-driven hybrid index configuration for which BASIS variables to use for each jurisdiction.
 
 ### [dev_capacity_calculation_module.py](dev_capacity_calculation_module.py)
-Calculate effective development intensity (refer to the [effective_max_dua](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L808) and [effective_max_far](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L852) calculations) for PBA40 and BASIS and compare the results. Uses different hybrid versions of BASIS BOC data as generated from the previous step.
+Module with methods to calculate effective development intensity (refer to the [effective_max_dua](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L808) and [effective_max_far](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L852) calculations). 
 
-Input:
-* various versions of "p10_plu_boc" hybrid data generated from the previous step
 
-Output:
-* various versions of development capacity, including both based on PBA40 zoning and hybrid zoning.  
-
-### [create_heuristic_hybrid_index.py](create_heuristic_hybrid_index.py)
-Input:
-* various verions of interim hybrid zoning
-Output:
-* heuristic version of urbansim hybrid zoning
 
 Please see [README.md](hybrid_index/README.md) for details on the process.
 
