@@ -39,12 +39,21 @@ and creates pdf maps of BASIS vs PBA40 data by jurisdiction.  See [Jurisdiction 
 
 ### [2_calculate_juris_basis_pba40_capacity_metrics.py](2_calculate_juris_basis_pba40_capacity_metrics.py)
 
+For each of the plu/boc variables (allowed development types and intensities), we have a set of BASIS data and a set of data used for PBA40.
+
+In order to determine if the BASIS data set is usable for a given variable X for a given jurisdiction, the script does the following:
+
+   1. Using PBA40 data for all variables other than *X* and BASIS data for *X*, calculate several metrics including dwelling unit capacity of a jurisdiction (for residential variables), nonresidential square footage capacity of a jurisdiction (for nonresidential variables)
+
+   2. Output those metrics for visualization with [juris_basis_pba40_capacity_metrics.twb](juris_basis_pba40_capacity_metrics.twb), which includes a threshold parameter for choosing a heuristic to use to determine how much difference in the capacity metric is OK
+
+
 Input:
-* *p10_plu_boc_allAttrs.csv*: parcels joined with PBA40 and BASIS zoning information (allowed development types as well as intensities) and nodev flag from [1_PLU_BOC_data_combine.py](1_PLU_BOC_data_combine.py)
+* ``p10_plu_boc_allAttrs.csv``: parcels joined with PBA40 and BASIS zoning information (allowed development types as well as intensities) and nodev flag from [1_PLU_BOC_data_combine.py](1_PLU_BOC_data_combine.py)
 
 Output:
-* [juris_basis_pba40_capacity_metrics.csv]
-* [juris_basis_pba40_capacity_metrics.log]
+* [juris_basis_pba40_capacity_metrics.csv](https://mtcdrive.box.com/s/5tuil7p7vz4pzp0zet2bo185obd2wzsx)
+* [juris_basis_pba40_capacity_metrics.log](https://mtcdrive.box.com/s/ihety0t5b9n3ad72obvkyulzt4n9xgti)
 
 ### [dev_capacity_calculation_module.py](dev_capacity_calculation_module.py)
 Calculate effective development intensity (refer to the [effective_max_dua](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L808) and [effective_max_far](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L852) calculations) for PBA40 and BASIS and compare the results. Uses different hybrid versions of BASIS BOC data as generated from the previous step.
