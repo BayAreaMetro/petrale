@@ -32,7 +32,7 @@ if os.getenv("USERNAME")=="lzorn":
 
     PETRALE_GITHUB_DIR = "X:\\petrale"
     # location of current hybrid configuration
-    HYBRID_CONFIG   = os.path.join(PETRALE_GITHUB_DIR, "policies", "plu", "base_zoning", "hybrid_index", "idx_urbansim_heuristic_20.csv")
+    HYBRID_CONFIG_DIR   = os.path.join(PETRALE_GITHUB_DIR, "policies", "plu", "base_zoning", "hybrid_index")
 
 elif os.getenv("USERNAME")=="ywang":
     WORKSPACE_DIR   = "C:\\Users\\ywang\\Documents\\Python Scripts\\UrbanSim_BASIS_zoning"
@@ -45,18 +45,19 @@ elif os.getenv("USERNAME")=="ywang":
 
     PETRALE_GITHUB_DIR = "C:\\Users\\ywang\\Documents\\GitHub\\petrale"
     # location of current hybrid configuration
-    HYBRID_CONFIG   = os.path.join(PETRALE_GITHUB_DIR, "policies", "plu", "base_zoning", "hybrid_index", "idx_urbansim_heuristic_20.csv")
+    HYBRID_CONFIG_DIR  = os.path.join(PETRALE_GITHUB_DIR, "policies", "plu", "base_zoning", "hybrid_index")
 
 
 if __name__ == '__main__':
     pandas.options.display.max_rows = 999
 
     parser = argparse.ArgumentParser(description=USAGE, formatter_class=argparse.RawDescriptionHelpFormatter,)
+    parser.add_argument("--debug",         help="If on, saves a copy of the arcgis project with mods.", action='store_true')
     parser.add_argument("--jurisdiction",  help="Jurisdiction. If none passed, will process all", nargs='+', )
     parser.add_argument("--metric",        help="Metrics type(s). If none passed, will process all", nargs='+',
                                            choices=["DUA","FAR","height","HM","MR","RS","OF"])
+    parser.add_argument("--hybrid_config", help="Required arg. Hybrid config file in {}".format(HYBRID_CONFIG_DIR), required=True)
     args = parser.parse_args()
-    print(args)
 
     # read list of jurisdictions
     JURISDICTION_TO_COUNTY = collections.OrderedDict()
@@ -91,11 +92,11 @@ if __name__ == '__main__':
     # }
 
     # read hybrid configuration 
-    hybrid_config_df = pandas.read_csv(HYBRID_CONFIG)
+    hybrid_config_df = pandas.read_csv(os.path.join(HYBRID_CONFIG_DIR, args.hybrid_config))
     # print(hybrid_config_df.head())
     hybrid_config_df.set_index("juris_name", inplace=True)
     hybrid_config_dict = hybrid_config_df.to_dict(orient="index")
-    # print(hybrid_config_dict["berkeley"])
+    print(hybrid_config_dict["berkeley"])
     # e.g. {
     #  'juris_id': 'berk',
     #  'county': 'ala',
@@ -113,9 +114,9 @@ if __name__ == '__main__':
     #  'HS_idx': 0,
     #  'HT_idx': 0,
     #  'HM_idx': 1,
-    #  'MAX_DUA_idx': 0,
-    #  'MAX_FAR_idx': 0,
-    #  'MAX_HEIGHT_idx': 0,
+    #  'max_dua_idx': 0,
+    #  'max_far_idx': 0,
+    #  'max_height_idx': 0,
     #  'proportion_adj_dua': 1,
     #  'proportion_adj_far': 1, 
     #  'proportion_adj_height': 1
@@ -143,10 +144,10 @@ if __name__ == '__main__':
                  "Hybrid config: <ITA>https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/hybrid_index/idx_BASIS_devType_intensity_partial.csv</ITA></FNT>".format(now_str)
 
     METRICS_DEF = collections.OrderedDict([
-                   # ArcGIS project, detail name, BASIS jusidiction col, hybrid config col
-        ('DUA'    ,["UrbanSim_BASIS_zoning_intensity.aprx", 'DUA',                              'Check Residential Densities',     'MAX_DUA_idx'   ]),
-        ('FAR'    ,["UrbanSim_BASIS_zoning_intensity.aprx", 'FAR',                              'Check Floor Area Ratio',          'MAX_FAR_idx'   ]),
-        ('height' ,["UrbanSim_BASIS_zoning_intensity.aprx", 'HEIGHT',                           'Check Allowable Building Heights','MAX_HEIGHT_idx']),
+                   # ArcGIS project, detail name, BASIS jurisdiction col, hybrid config col
+        ('DUA'    ,["UrbanSim_BASIS_zoning_intensity.aprx", 'DUA',                              'Check Residential Densities',     'max_dua_idx'   ]),
+        ('FAR'    ,["UrbanSim_BASIS_zoning_intensity.aprx", 'FAR',                              'Check Floor Area Ratio',          'max_far_idx'   ]),
+        ('height' ,["UrbanSim_BASIS_zoning_intensity.aprx", 'HEIGHT',                           'Check Allowable Building Heights','max_height_idx']),
         ('HM'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow_HM_(Multi-family Housing)',  None,                              'HM_idx'        ]),
         ('MR'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow_MR_(Mixed-use Residential)', None,                              'MR_idx'        ]),
         ('RS'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow_RS_(Retail)',                None,                              'RS_idx'        ]),
@@ -260,8 +261,13 @@ if __name__ == '__main__':
             layout.exportToPDF(juris_pdf)
             print("  Wrote {}".format(juris_pdf))
 
+            # if instructed, save a copy of the arcgis project
+            if args.debug:
+                copy_filename = arc_project.replace(".aprx","_{}_{}.aprx".format(juris_code,metric))
+                aprx.saveACopy(copy_filename)
+                print("DEBUG: saved a copy of project to {}".format(copy_filename))
+
         # done with jurisdiction
         print("")
 
-            # sys.exit()
 
