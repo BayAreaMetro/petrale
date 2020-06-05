@@ -66,11 +66,18 @@ Output:
 ### [dev_capacity_calculation_module.py](dev_capacity_calculation_module.py)
 Module with methods to calculate effective development intensity (refer to the [effective_max_dua](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L808) and [effective_max_far](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L852) calculations). 
 
+### [4_create_hybrid_urbansim_input.py](create_hybrid_urbansim_input.py)
 
+Now that we have a hybrid config, let's create the input files for UrbanSim!
 
-Please see [README.md](hybrid_index/README.md) for details on the process.
+Input:
+*  ``p10_plu_boc_allAttrs.csv``: parcels joined with PBA40 and BASIS zoning information (allowed development types as well as intensities) and nodev flag from [1_PLU_BOC_data_combine.py](1_PLU_BOC_data_combine.py)
+* [hybrid_index/idx_urbansim_heuristic.csv](hybrid_index/idx_urbansim_heuristic.csv): hybrid configuration.  Will probably change when we have manual edits to but starting with heuristic version for now.
 
 ### [4_net_dev_capacity_calculation.ipynb](https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/4_net_dev_capacity_calculation.ipynb)
+
+TODO: What is the difference between this and calculations in dev_capacity_calculation_module?  These sound like there are more extensive metrics; 
+should they be in dev_capacity_calculation_module.py?
 
 Identify parcel characteristics in order to calculate net development capacity based on the following criteria:
     * Vacant land
