@@ -11,6 +11,8 @@ whether or not UrbanSim input is currently configured to use the BASIS data.
 import argparse, collections, csv, datetime, os, sys, time
 import arcpy, numpy, pandas, xlrd
 
+import dev_capacity_calculation_module
+
 COUNTY_JURISDICTIONS_CSV = "M:\\Data\\GIS layers\\Jurisdictions\\county_jurisdictions.csv"
 
 if os.getenv("USERNAME")=="lzorn":
@@ -55,7 +57,7 @@ if __name__ == '__main__':
     parser.add_argument("--debug",         help="If on, saves a copy of the arcgis project with mods.", action='store_true')
     parser.add_argument("--jurisdiction",  help="Jurisdiction. If none passed, will process all", nargs='+', )
     parser.add_argument("--metric",        help="Metrics type(s). If none passed, will process all", nargs='+',
-                                           choices=["DUA","FAR","height","HM","MR","RS","OF"])
+                                           choices=["DUA","FAR","height","HS","HT","HM","OF","HO","SC","IL","IW","IH","RS","RB","MR","MT","ME"])
     parser.add_argument("--hybrid_config", help="Required arg. Hybrid config file in {}".format(HYBRID_CONFIG_DIR), required=True)
     args = parser.parse_args()
 
@@ -139,19 +141,33 @@ if __name__ == '__main__':
     arcpy.env.workspace = WORKSPACE_GDB
     now_str = datetime.datetime.now().strftime("%Y/%m/%d, %H:%M")
 
-    source_str = "<FNT size=\"7\">Created by " \
-                 "<ITA>https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/create_jurisdiction_map.py</ITA> on {}. " \
-                 "Hybrid config: <ITA>https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/hybrid_index/idx_BASIS_devType_intensity_partial.csv</ITA></FNT>".format(now_str)
+    source_str = \
+        "<FNT size=\"7\">Created by " \
+        "<ITA>https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/create_jurisdiction_map.py</ITA> on {}. " \
+        "Hybrid config: <ITA>https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/hybrid_index/{}.csv</ITA></FNT>".format(
+            now_str, args.hybrid_config)
 
     METRICS_DEF = collections.OrderedDict([
-                   # ArcGIS project, detail name, BASIS jurisdiction col, hybrid config col
+                   # ArcGIS project,                        detail name,                        BASIS jurisdiction col,             hybrid config col
         ('DUA'    ,["UrbanSim_BASIS_zoning_intensity.aprx", 'DUA',                              'Check Residential Densities',     'max_dua_idx'   ]),
         ('FAR'    ,["UrbanSim_BASIS_zoning_intensity.aprx", 'FAR',                              'Check Floor Area Ratio',          'max_far_idx'   ]),
-        ('height' ,["UrbanSim_BASIS_zoning_intensity.aprx", 'HEIGHT',                           'Check Allowable Building Heights','max_height_idx']),
-        ('HM'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow_HM_(Multi-family Housing)',  None,                              'HM_idx'        ]),
-        ('MR'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow_MR_(Mixed-use Residential)', None,                              'MR_idx'        ]),
-        ('RS'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow_RS_(Retail)',                None,                              'RS_idx'        ]),
-        ('OF'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow_OF_(Office)',                None,                              'OF_idx'        ]),
+        ('height' ,["UrbanSim_BASIS_zoning_intensity.aprx", 'height',                           'Check Allowable Building Heights','max_height_idx']),
+        # residential
+        ('HS'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow HS (Single-family Housing)', None,                              'HS_idx'        ]),
+        ('HT'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow HT (Row-House Dwelling)',    None,                              'HT_idx'        ]),
+        ('HM'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow HM (Multi-family Housing)',  None,                              'HM_idx'        ]),
+        ('MR'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow MR (Mixed-use Residential)', None,                              'MR_idx'        ]),
+        # non residential
+        ('OF'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow OF (Office)',                None,                              'OF_idx'        ]),
+        ('HO'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow HO (Hotel)',                 None,                              'HO_idx'        ]),
+        ('SC'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow SC (School)',                None,                              'SC_idx'        ]),
+        ('IL'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow IL (Light Industrial)',      None,                              'IL_idx'        ]),
+        ('IW'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow IW (Warehouse+Logistics)',   None,                              'IW_idx'        ]),
+        ('IH'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow IH (Heavy Industrial)',      None,                              'IH_idx'        ]),
+        ('RS'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow RS (Retail)',                None,                              'RS_idx'        ]),
+        ('RB'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow RB (Big Box Retail)',        None,                              'RB_idx'        ]),
+        ('MT'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow MT (Mixed-use Retail)',      None,                              'MT_idx'        ]),
+        ('ME'     ,["UrbanSim_BASIS_zoning_devType.aprx",   'Allow ME (Mixed-use Office)',      None,                              'ME_idx'        ]),
     ])
 
     # these are the metrics we'll process
@@ -163,6 +179,8 @@ if __name__ == '__main__':
 
     prev_jurisdiction = "Palo Alto"
     prev_juris_code   = "palo_alto"
+
+    prev_allowdevtype_metric = "HM"
 
     for jurisdiction in JURISDICTION_TO_COUNTY.keys():
 
@@ -177,7 +195,7 @@ if __name__ == '__main__':
             basis_check_col  = METRICS_DEF[metric][2]
             basis_hybrid_col = METRICS_DEF[metric][3]
 
-            basis_check_val = False
+            basis_check_val  = False
             if basis_check_col:
                 if jurisdiction not in juris_review_dict:
                     print("Couldn't find jurisdiction {} in BASIS jurisdiction review {}".format(jurisdiction, JURIS_REVIEW))
@@ -187,16 +205,26 @@ if __name__ == '__main__':
             basis_hybrid_val = hybrid_config_dict[juris_code][basis_hybrid_col]
             print("  BASIS hybrid config val for {}: {}".format(basis_hybrid_col, basis_hybrid_val))
 
+            # allowed dev type has a generic map so needs subsitution for that as well
+            is_devtype      = False
+            map_metric      = metric
+            map_metric_name = metric_name
+            if metric in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
+                is_devtype      = True
+                map_metric      = prev_allowdevtype_metric
+                map_metric_name = METRICS_DEF[prev_allowdevtype_metric][1]
+            print("   map_metric:[{}]  map_metric_name:[{}]".format(map_metric, map_metric_name))
+
             # start fresh
             aprx       = arcpy.mp.ArcGISProject(arc_project)
-            layouts    = aprx.listLayouts("Layout_{}".format(metric_name))
+            layouts    = aprx.listLayouts("Layout_{}".format(map_metric))
             maps       = aprx.listMaps()
             juris_lyr  = {} # key: "BASIS" or "PBA40"
 
             assert(len(layouts)==1)
 
             for my_map in maps:
-                if my_map.name.endswith(metric) or my_map.name.endswith(metric_name):
+                if my_map.name.endswith(map_metric) or my_map.name.endswith(map_metric_name):
                     # process this one
                     print("  Processing map {}".format(my_map.name))
                 else:
@@ -205,12 +233,49 @@ if __name__ == '__main__':
 
                 for layer in my_map.listLayers():
                     if not layer.isFeatureLayer: continue
-                    print("    Processing layer {}: {}".format(layer.name, layer))
+                    print("    Processing layer {}".format(layer.name))
                     print("      Definition query: {}".format(layer.definitionQuery))
                     # modify to current jurisdiction
                     layer.definitionQuery = layer.definitionQuery.replace(prev_jurisdiction, jurisdiction)
                     layer.definitionQuery = layer.definitionQuery.replace(prev_juris_code,   juris_code)
+                    # modify to current devtype
+                    if is_devtype:
+                        layer.definitionQuery = layer.definitionQuery.replace(prev_allowdevtype_metric, metric)
+                        layer.name            = layer.name.replace(prev_allowdevtype_metric, metric)
+
                     print("      => Definition query: {}".format(layer.definitionQuery))
+
+                    # for devtype, may need to change variable used which means updating symbology
+                    if is_devtype:
+                        print("      Symbology: {}".format(layer.symbology))
+                        if hasattr(layer.symbology, 'renderer') and layer.symbology.renderer.type=='UniqueValueRenderer':
+                            
+                            fields     = layer.symbology.renderer.fields
+                            new_fields = [field.replace(prev_allowdevtype_metric, metric) for field in fields]
+
+                            # following example here: https://pro.arcgis.com/en/pro-app/arcpy/mapping/uniquevaluerenderer-class.htm
+                            sym = layer.symbology
+                            sym.updateRenderer('UniqueValueRenderer')
+                            sym.renderer.fields = new_fields
+                            print("      Symbology.renderer.fields: {} => {}".format(fields, new_fields))
+                            for grp in sym.renderer.groups:
+                                for itm in grp.items:
+                                    if itm.values == [['0']]:
+                                        itm.label        = 'Not Allowed'
+                                        itm.symbol.color = {'RGB': [199, 215, 158, 100]}  # light green
+                                        itm.symbol.size  = 0.0  # outline width => no outline
+                                    elif itm.values == [['1']]:
+                                        itm.label        = 'Allowed'
+                                        itm.symbol.color = {'RGB': [230, 152, 0, 100]}   # orange
+                                        itm.symbol.size  = 0.0  # outline width => no outline
+                                    elif itm.values == [['<Null>']]:
+                                        itm.label        = 'Missing'
+                                        itm.symbol.color = {'RGB': [0, 77, 168, 100]}  # blue
+                                        itm.symbol.size  = 0.0  # outline width => no outline
+                                    else:
+                                        print("      Don't recognize itm.values: {}".format(itm.values))
+                            layer.symbology = sym
+
 
                     # save this for extent
                     if layer.name == "Jurisdictions - primary":
@@ -244,13 +309,17 @@ if __name__ == '__main__':
                 if element.name == "input_pba40":
                     element.visible = not basis_hybrid_val  # visible if basis_hybrid_val==False
 
+                if is_devtype and element.name == "BASIS Label":
+                    element.text = "BASIS {}".format(metric_name)
+                if is_devtype and element.name == "PBA40 Label":
+                    element.text = "PBA40 {}".format(metric_name)
 
                 # zoom to the jurisdiction
                 if element.name.find("Map Frame") >= 0:
                     if element.name.endswith("BASIS"):
-                        map_type = "BASIS_"+metric_name
+                        map_type = "BASIS_"+map_metric
                     else:
-                        map_type = "PBA40_"+metric_name
+                        map_type = "PBA40_"+map_metric
 
                     # get the jurisdiction layer extent
                     layer_extent = element.getLayerExtent(juris_lyr[map_type])
