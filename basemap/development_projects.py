@@ -81,7 +81,7 @@ manual_dp   = os.path.join(SMELT_GDB, "manual_dp_20200131")
 basis_pb_new = os.path.join(SMELT_GDB, "basis_pb_new_20200312")
 
 # opportunity sites that keep their scen status from gis file
-opp_sites   = os.path.join(SMELT_GDB, "oppsites_20200424")
+opp_sites   = os.path.join(SMELT_GDB, "oppsites_20200605")
 
 
 #set up a process to make sure all incl = 1 records are in the results (also need to make sure that the feature class has column "incl")
