@@ -41,68 +41,10 @@ PLU_BOC_FILE                = os.path.join(PLU_BOC_DIR, '2020_06_03_p10_plu_boc_
 JURIS_CAPACITY_FILE         = "juris_basis_pba40_capacity_metrics.csv"
 LOG_FILE                    = "juris_basis_pba40_capacity_metrics.log"
 
-# human-readable idx values
-USE_PBA40 = 0
-USE_BASIS = 1
-
 def countMissing(df, attr):
     null_attr_count = len(df.loc[df["{}_basis".format(attr)].isnull()])
     logger.info('Number of parcels missing {}_basis info: {:,} or {:.1f}%'.format(attr,
                 null_attr_count, 100.0*null_attr_count/len(df)))
-
-
-def create_hybrid_parcel_data_from_juris_idx(df_original,hybrid_idx):
-    """
-    Apply hybrid jurisdiction index to plu_boc parcel data
-    * df_original is a parcel dataframe with pba40 and basis attributes
-    * hybrid_idx is a dataframe with juris_name and _idx columns for each allowed building type or intensity attribute
-      e.g. HS_idx, HT_idx, HM_idx, OF_idx, etc.... max_far_idx, max_dua_idx, etc
-      Note: XX_idx is one of [ USE_PBA40, USE_BASIS ]
-
-    Returns a dataframe with columns PARCEL_ID, juris_zmod, plus for each allowed building type or intensity attribute,
-    * XX_idx: one of [ USE_PBA40, USE_BASIS ]
-    * XX_urbansim: the value of XX_basis if XX_idx==USE_BASIS otherwise the value of XX_pba40
-
-    """
-    logger.info("Applying hybrid index; hybrid_idx:\n{}".format(hybrid_idx.head()))
-    # logger.info("df_original.dtypes: \n{}".format(df_original.dtypes))
-
-    # don't modify passed df
-    df = df_original.copy()
-    keep_cols = ['PARCEL_ID', 'juris_zmod']
-
-    # join parcel dataframe with jurisdiction hybrid_idx on juris_zmod == juris_name
-    # this brings in XX_idx
-    urbansim_df = pd.merge(left    =df_original.copy(),
-                           right   =hybrid_idx,
-                           left_on ='juris_zmod',
-                           right_on='juris_name',
-                           how     = 'left')
-
-    # bring in the allowed development type values
-    for dev_type in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
-        # default to BASIS
-        urbansim_df["{}_urbansim".format(dev_type)] = urbansim_df["{}_basis".format(dev_type)]
-        # but set to PBA40 if the idx says to use PBA40
-        urbansim_df.loc[ urbansim_df["{}_idx".format(dev_type)]==USE_PBA40, 
-                         "{}_urbansim".format(dev_type) ]                   = urbansim_df["{}_pba40".format(dev_type)]
-        # keep the idx and the new column
-        keep_cols.append("{}_idx".format(dev_type))
-        keep_cols.append("{}_urbansim".format(dev_type))
-
-    # bring in the intensity type values
-    for intensity in dev_capacity_calculation_module.INTENSITY_CODES:
-        # default to BASIS
-        urbansim_df["max_{}_urbansim".format(intensity)] = urbansim_df["max_{}_basis".format(intensity)]
-        # but set to PBA40 if the idx says to use PBA40
-        urbansim_df.loc[ urbansim_df["max_{}_idx".format(intensity)]==USE_PBA40, 
-                         "max_{}_urbansim".format(intensity) ]              = urbansim_df["max_{}_pba40".format(intensity)]
-
-        # keep the idx and the new column
-        keep_cols.append("max_{}_idx".format(intensity))
-        keep_cols.append("max_{}_urbansim".format(intensity))
-
-    return urbansim_df[keep_cols]
 
 
 if __name__ == '__main__':
@@ -151,10 +93,10 @@ if __name__ == '__main__':
     pba40_juris_idx.set_index('juris_name',inplace = True)
     for dev_type in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
         # use PBA40 allowed dev type
-        pba40_juris_idx["{}_idx".format(dev_type)] = USE_PBA40
+        pba40_juris_idx["{}_idx".format(dev_type)] = dev_capacity_calculation_module.USE_PBA40
     for intensity in dev_capacity_calculation_module.INTENSITY_CODES:
         # use PBA40 max intensity
-        pba40_juris_idx["max_{}_idx".format(intensity)] = USE_PBA40
+        pba40_juris_idx["max_{}_idx".format(intensity)] = dev_capacity_calculation_module.USE_PBA40
         # don't adjust
         pba40_juris_idx["proportion_adj_{}".format(intensity)] = 1.0
 
@@ -169,13 +111,13 @@ if __name__ == '__main__':
         # start with all PBA40 but use BASIS just for this
         test_hybrid_juris_idx = pba40_juris_idx.copy()
         if test_attr in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
-            test_hybrid_juris_idx["{}_idx".format(test_attr)    ] = USE_BASIS
+            test_hybrid_juris_idx["{}_idx".format(test_attr)    ] = dev_capacity_calculation_module.USE_BASIS
         else:
-            test_hybrid_juris_idx["max_{}_idx".format(test_attr)] = USE_BASIS
+            test_hybrid_juris_idx["max_{}_idx".format(test_attr)] = dev_capacity_calculation_module.USE_BASIS
 
 
         # apply the hybrid jurisdiction index to the parcel data
-        test_hybrid_parcel_idx = create_hybrid_parcel_data_from_juris_idx(plu_boc, test_hybrid_juris_idx)
+        test_hybrid_parcel_idx = dev_capacity_calculation_module.create_hybrid_parcel_data_from_juris_idx(logger, plu_boc, test_hybrid_juris_idx)
 
         # compute allowed development type - residential vs non-residential for each parcel
         test_hybrid_allow_dev_type = dev_capacity_calculation_module.set_allow_dev_type(test_hybrid_parcel_idx, boc_source="urbansim")
