@@ -74,6 +74,12 @@ Input:
 *  ``p10_plu_boc_allAttrs.csv``: parcels joined with PBA40 and BASIS zoning information (allowed development types as well as intensities) and nodev flag from [1_PLU_BOC_data_combine.py](1_PLU_BOC_data_combine.py)
 * [hybrid_index/idx_urbansim_heuristic.csv](hybrid_index/idx_urbansim_heuristic.csv): hybrid configuration.  Will probably change when we have manual edits to but starting with heuristic version for now.
 
+Output:
+
+* ``p10_plu_boc_hybrid.csv``, parcel dataset with hybrid intensity/allowed development type columns
+* ``zoning_parcels_pba50.csv``, maps parcels to a zoning id
+* ``zoning_lookup_pba50.csv``, maps zoning id to characteristics (intensity and allowed development type)
+
 ### [4_net_dev_capacity_calculation.ipynb](https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/4_net_dev_capacity_calculation.ipynb)
 
 TODO: What is the difference between this and calculations in dev_capacity_calculation_module?  These sound like there are more extensive metrics; 
