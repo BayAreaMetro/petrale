@@ -55,6 +55,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description=USAGE, formatter_class=argparse.RawDescriptionHelpFormatter,)
     parser.add_argument("--debug",         help="If on, saves a copy of the arcgis project with mods.", action='store_true')
+    parser.add_argument("--restart_juris", help="Jurisdiction to restart from")
     parser.add_argument("--jurisdiction",  help="Jurisdiction. If none passed, will process all", nargs='+', )
     parser.add_argument("--metric",        help="Metrics type(s). If none passed, will process all", nargs='+',
                                            choices=["DUA","FAR","height","HS","HT","HM","OF","HO","SC","IL","IW","IH","RS","RB","MR","MT","ME"])
@@ -135,6 +136,14 @@ if __name__ == '__main__':
 
         # use that instead
         JURISDICTION_TO_COUNTY = JURISDICTION_TO_COUNTY_arg
+    elif args.restart_juris:
+        print("Restarting at jurisdiction {}".format(args.restart_juris))
+        juris_list = list(JURISDICTION_TO_COUNTY.keys())
+        for juris in juris_list:
+            if juris == args.restart_juris: break
+
+            del JURISDICTION_TO_COUNTY[juris]
+
     print("Will process jurisdictions: {}".format(JURISDICTION_TO_COUNTY.keys()))
 
     # set the workspace
