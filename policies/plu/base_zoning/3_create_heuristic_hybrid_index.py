@@ -26,9 +26,6 @@ JURIS_CAPACITY_FILE         = os.path.join(PLU_BOC_DIR, '2020_06_03_juris_basis_
 OUTPUT_FILE                 = os.path.join(GITHUB_PETRALE_DIR, 'policies\\plu\\base_zoning\\hybrid_index', 'idx_urbansim_heuristic.csv')
 LOG_FILE                    = os.path.join(GITHUB_PETRALE_DIR, 'policies\\plu\\base_zoning\\hybrid_index', 'idx_urbansim_heuristic.log')
 
-# human-readable idx values
-USE_PBA40 = 0
-USE_BASIS = 1
 
 if __name__ == '__main__':
 
@@ -98,24 +95,24 @@ if __name__ == '__main__':
         # pull the select rows from capacity_juris_pba40_basis relevant for this variable
         capacity_juris_var = capacity_juris_pba40_basis.loc[ capacity_juris_pba40_basis['variable'] == variable, ].copy()
         # default to PBA40
-        capacity_juris_var[variable_idx] = USE_PBA40
+        capacity_juris_var[variable_idx] = dev_capacity_calculation_module.USE_PBA40
 
         # for variables that are res and nonres, require units AND sqft to be within threshold
         if is_res and is_nonres:
             capacity_juris_var.loc[ ((abs(capacity_juris_var.units_basis - capacity_juris_var.units_pba40) / capacity_juris_var.units_pba40) <= args.threshold) &
                                     ((abs(capacity_juris_var.Ksqft_basis - capacity_juris_var.Ksqft_pba40) / capacity_juris_var.Ksqft_pba40) <= args.threshold),
-                variable_idx ] = USE_BASIS
+                variable_idx ] = dev_capacity_calculation_module.USE_BASIS
 
         # for res variables, require units to be within threshold
         elif is_res:
             capacity_juris_var.loc[ (abs(capacity_juris_var.units_basis - capacity_juris_var.units_pba40) / capacity_juris_var.units_pba40) <= args.threshold,
-                variable_idx ] = USE_BASIS
+                variable_idx ] = dev_capacity_calculation_module.USE_BASIS
 
         # for nonres variables, require sqft to be within threshold
         elif is_nonres:
 
             capacity_juris_var.loc[ (abs(capacity_juris_var.Ksqft_basis - capacity_juris_var.Ksqft_pba40) / capacity_juris_var.Ksqft_pba40) <= args.threshold,
-                variable_idx ] = USE_BASIS
+                variable_idx ] = dev_capacity_calculation_module.USE_BASIS
 
         # bring into index_df
         index_df = pd.merge(left=index_df, right=capacity_juris_var[["juris_zmod",variable_idx]])
