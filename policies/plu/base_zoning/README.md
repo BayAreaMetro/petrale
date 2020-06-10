@@ -27,7 +27,7 @@ Output:
     * 'missing PBA40' (missing PBA40 data)
     * 'not developable' (parcels cannot be developed)
 
-### 1b [import_filegdb_layers.py](../../../basemap/import_filegdb_layers.py)
+### 1b [import_filegdb_layers.py](../../../utilities/import_filegdb_layers.py)
 
 This script is helpful for merging the output of the previous script, ``p10_plu_boc_allAttrs.csv``, with the p10 parcel geographies into a geodatabase.
 This one takes a while to run.  I copied the version I created here: ``M:\Data\GIS layers\UrbanSim_BASIS_zoning\UrbanSim_BASIS_zoning.gdb``
