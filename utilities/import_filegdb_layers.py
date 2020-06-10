@@ -2,6 +2,8 @@ USAGE = """
 
 Reads a feature class from an input geodatabase, joins with csv, and exports to new feature class in output geodatabase.
 
+Joins via https://pro.arcgis.com/en/pro-app/tool-reference/data-management/add-join.htm
+
 """
 
 import argparse, os, sys, time
@@ -12,15 +14,19 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=USAGE, formatter_class=argparse.RawDescriptionHelpFormatter,)
     parser.add_argument("input_gdb",    metavar="input.gdb",   help="Input geodatabase")
     parser.add_argument("input_layer",  metavar="input_layer", help="Geometry layer in input geodatabase")
+    parser.add_argument("input_field",  metavar="input_layer", help="Join field in input_layer")
     parser.add_argument("join_csv",     metavar="join.csv",    help="CSV layer for joining")
-    parser.add_argument("join_field",   metavar="join_field",  help="Join field in input_layer and join_csv")    
+    parser.add_argument("join_field",   metavar="join_field",  help="Join field in join_csv")
+    parser.add_argument("join_type",    choices=["KEEP_ALL","KEEP_COMMON"], default="KEEP_ALL", help="Outer join vs inner join.  Default is KEEP_ALL, or outer")
     parser.add_argument("output_gdb",   metavar="output.gdb",  help="Output geodatabase ")
 
     args = parser.parse_args()
     print(" {:15}: {}".format("input_gdb",   args.input_gdb))
     print(" {:15}: {}".format("input_layer", args.input_layer))
+    print(" {:15}: {}".format("input_field", args.input_field))
     print(" {:15}: {}".format("join_csv",    args.join_csv))
     print(" {:15}: {}".format("join_field",  args.join_field))
+    print(" {:15}: {}".format("join_type",   args.join_type))
     print(" {:15}: {}".format("output_gdb",  args.output_gdb))
 
     # our workspace will be the output_gdb
@@ -60,7 +66,7 @@ if __name__ == '__main__':
     keep_fields   = []
     for field in fields:
         # keep Geometry and join_field
-        if field.type == "Geometry" or field.name == args.join_field or field.required:
+        if field.type == "Geometry" or field.name == args.input_field or field.required:
             keep_fields.append(field.name)
         else:
             delete_fields.append(field.name)
@@ -70,7 +76,7 @@ if __name__ == '__main__':
     print("Deleting fields {}".format(delete_fields))
     # make sure we found both a geometry field and the join_field
     assert(len(keep_fields)>=2)
-    assert(args.join_field in keep_fields)
+    assert(args.input_field in keep_fields)
 
     # delete the layer if it already exists in the output gdb
     if arcpy.Exists(args.input_layer):
@@ -85,8 +91,9 @@ if __name__ == '__main__':
 
     # create join layer with input_layer and join_table
     print("Joining {} with {}".format(os.path.join(args.output_gdb, args.input_layer), table_name))
-    joined_table = arcpy.AddJoin_management(os.path.join(args.output_gdb, args.input_layer), args.join_field, 
-                                            os.path.join(args.output_gdb, table_name), args.join_field)
+    joined_table = arcpy.AddJoin_management(os.path.join(args.output_gdb, args.input_layer), args.input_field, 
+                                            os.path.join(args.output_gdb, table_name), args.join_field,
+                                            join_type=args.join_type)
 
     new_table_name = "{}_joined".format(table_name)
 
