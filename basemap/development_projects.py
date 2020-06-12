@@ -35,14 +35,14 @@ NOW = time.strftime("%Y_%m%d_%H%M")
 # note: this runs a lot better if these directories are a local/fast disk
 # Using a box drive or even a network drive tends to result in arcpy exceptions
 if os.getenv("USERNAME")=="lzorn":
-	WORKING_DIR		 = "C:\\Users\\lzorn\\Documents\\UrbanSim smelt\\2020 04 24"
+	WORKING_DIR		 = "C:\\Users\\lzorn\\Documents\\UrbanSim smelt\\2020 06 05b"
 	LOG_FILE		    = os.path.join(WORKING_DIR,"devproj_{}.log".format(NOW))
 	SMELT_GDB		   = os.path.join(WORKING_DIR,"smelt.gdb")
 	WORKSPACE_GDB       = "workspace_{}.GDB".format(NOW) # scratch
 elif os.getenv("USERNAME")=="blu":
-	WORKING_DIR		 = "D:\\Users\\blu\\Documents\\ArcGIS\\Projects\\DevPrj\\2020 04 24"
+	WORKING_DIR		 = "D:\\Users\\blu\\Documents\\ArcGIS\\Projects\\DevPrj\\2020 06 05b"
 	LOG_FILE		    = os.path.join(WORKING_DIR,"devproj_{}.log".format(NOW))
-	SMELT_GDB		   = "D:\\Users\\blu\\Documents\\ArcGIS\\Projects\\DevPrj\\2020 04 24\\smelt.gdb"
+	SMELT_GDB		   = "D:\\Users\\blu\\Documents\\ArcGIS\\Projects\\DevPrj\\2020 06 05b\\smelt.gdb"
 	WORKSPACE_GDB       = "workspace_{}.GDB".format(NOW) # scratch
 else:
 	WORKING_DIR		 = "E:\\baydata"
@@ -193,6 +193,8 @@ if __name__ == '__main__':
 	#not sure how cumbersome this approach would be
 	geoList = []
 
+	#count geom_id is null
+	gidnull = 'gidnull'
 	#based on Mike's ranking, start with manual dp list
 	countOne = countRow(manual_dp)
 	logger.info("Feature Class {} has {} records with incl = 1".format(manual_dp, countOne))
@@ -211,6 +213,7 @@ if __name__ == '__main__':
 		# rename any conflicting field names
 		
 		arcpy.AlterField_management(joinFN, "building_name", "m_building_name")
+		arcpy.AlterField_management(joinFN, "site_name", "m_site_name")
 		arcpy.AlterField_management(joinFN, "year_built", "m_year_built")
 		arcpy.AlterField_management(joinFN, "last_sale_price", "m_last_sale_price")
 		arcpy.AlterField_management(joinFN, "last_sale_year", "m_sale_date")
@@ -219,9 +222,9 @@ if __name__ == '__main__':
 		arcpy.AlterField_management(joinFN, "unit_ave_sqft", "m_unit_ave_sqft")
 		arcpy.AlterField_management(joinFN, "zip", "m_zips")
 		arcpy.AlterField_management(joinFN, "Average_Weighted_Rent", "m_average_weighted_rent")
-		arcpy.AlterField_management(joinFN, "x", "p_x") # this is from the parcel centroid
-		arcpy.AlterField_management(joinFN, "y", "p_y") # this is from the parcel centroid
-		arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id") # this is from the parcel 
+		arcpy.AlterField_management(joinFN, "x", "p_x") 
+		arcpy.AlterField_management(joinFN, "y", "p_y") 
+		arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id")#this is from the parcel file
 		
 		# add fields and calc values
 		# full list development_projects_id,raw_id,building_name,site_name,action,scen0,scen1,
@@ -232,6 +235,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "development_projects_id", "LONG")
 		arcpy.AddField_management(joinFN, "raw_id", "LONG")
 		arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
+		arcpy.AddField_management(joinFN, "site_name", "TEXT","","",200)
 		arcpy.AddField_management(joinFN, "scen0", "SHORT")
 		arcpy.AddField_management(joinFN, "scen1", "SHORT")
 		arcpy.AddField_management(joinFN, "scen2", "SHORT")
@@ -273,6 +277,7 @@ if __name__ == '__main__':
 		
 		arcpy.CalculateField_management(joinFN, "raw_id", '!manual_dp_id!')
 		arcpy.CalculateField_management(joinFN, "building_name", '!m_building_name!')
+		arcpy.CalculateField_management(joinFN, "site_name", '!m_site_name!')
 		arcpy.CalculateField_management(joinFN, "scen0", 1)
 		arcpy.CalculateField_management(joinFN, "scen1", 1)
 		arcpy.CalculateField_management(joinFN, "scen2", 1)
@@ -293,9 +298,9 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "scen25", 1)  # these are committed so 1 for all scens 
 		#not sure how to change zip field type
 		#arcpy.CalculateField_management(joinFN, "zip", '!m_zip!')
-		arcpy.CalculateField_management(joinFN, "x", '!p_x!') 
-		arcpy.CalculateField_management(joinFN, "y", '!p_y!') 
-		arcpy.CalculateField_management(joinFN, "geom_id", '!p_geom_id!')
+		arcpy.CalculateField_management(joinFN, "x", '!X_1!') #use spatial info from parcel file
+		arcpy.CalculateField_management(joinFN, "y", '!Y_1!') #use spatial info from parcel file
+		arcpy.CalculateField_management(joinFN, "geom_id", '!p_geom_id!') #use spatial info from parcel file
 		arcpy.CalculateField_management(joinFN, "year_built", '!m_year_built!')
 		#arcpy.CalculateField_management(joinFN, "duration", )
 		arcpy.CalculateField_management(joinFN, "residential_units", '!m_residential_units!')
@@ -324,7 +329,7 @@ if __name__ == '__main__':
 		else:
 			logger.fatal("Something is wrong in the code, please check")
 			raise
-		
+
 		### 3 DELETE OTHER FIELDS
 		FCfields = [f.name for f in arcpy.ListFields(joinFN)]
 		#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
@@ -334,6 +339,10 @@ if __name__ == '__main__':
 		"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 		fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 		arcpy.DeleteField_management(joinFN, fields2Delete)
+
+		arcpy.MakeTableView_management(joinFN,gidnull,"geom_id is NULL")
+		nullcount = arcpy.GetCount_management(gidnull)
+		logger.info("{} list has {} records with geom_id info missing".format(joinFN, nullcount))
 
 	gList = [row[0] for row in arcpy.da.SearchCursor(joinFN, 'PARCEL_ID')]
 	for geo in gList:
@@ -362,8 +371,8 @@ if __name__ == '__main__':
 		arcpy.AlterField_management(joinFN, "last_sale_price", "cs_last_sale_price")
 		arcpy.AlterField_management(joinFN, "last_sale_date", "cs_last_sale_date")
 		arcpy.AlterField_management(joinFN, "Average_Weighted_Rent", "cs_average_weighted_rent")
-		arcpy.AlterField_management(joinFN, "x", "p_x") # this is from the parcel centroid
-		arcpy.AlterField_management(joinFN, "y", "p_y") # this is from the parcel centroid
+		arcpy.AlterField_management(joinFN, "x", "p_x") 
+		arcpy.AlterField_management(joinFN, "y", "p_y") 
 		arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id") # this is from the parcel 
 	
 		# add fields and calc values
@@ -375,7 +384,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "development_projects_id", "LONG")
 		arcpy.AddField_management(joinFN, "raw_id", "LONG")
 		arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
-		arcpy.AddField_management(joinFN, "site_name", "TEXT","","",50)
+		arcpy.AddField_management(joinFN, "site_name", "TEXT","","",200)
 		arcpy.AddField_management(joinFN, "action", "TEXT","","",10)
 		arcpy.AddField_management(joinFN, "scen0", "SHORT")
 		arcpy.AddField_management(joinFN, "scen1", "SHORT")
@@ -453,9 +462,9 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "city", '!cs_city!')
 		arcpy.CalculateField_management(joinFN, "zip", '!cs_zip!')
 		arcpy.CalculateField_management(joinFN, "county", '!County_Name!')
-		arcpy.CalculateField_management(joinFN, "x", '!p_x!') 
-		arcpy.CalculateField_management(joinFN, "y", '!p_y!') 
-		arcpy.CalculateField_management(joinFN, "geom_id", '!p_geom_id!')
+		arcpy.CalculateField_management(joinFN, "x", '!p_x!') #use spatial info from parcel file
+		arcpy.CalculateField_management(joinFN, "y", '!p_y!') #use spatial info from parcel file
+		arcpy.CalculateField_management(joinFN, "geom_id", '!p_geom_id!') #use spatial info from parcel file
 		arcpy.CalculateField_management(joinFN, "year_built", '!cs_year_built!')
 		#arcpy.CalculateField_management(joinFN, "duration", )
 		#arcpy.CalculateField_management(joinFN, "building_type_id", )
@@ -508,6 +517,10 @@ if __name__ == '__main__':
 		fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 		arcpy.DeleteField_management(joinFN, fields2Delete)
 
+		arcpy.MakeTableView_management(joinFN,gidnull,"geom_id is NULL")
+		nullcount = arcpy.GetCount_management(gidnull)
+		logger.info("{} list has {} records with geom_id info missing".format(joinFN, nullcount))
+
 		###4 REMOVE DUPLICATES
 		#check again existing geomList and remove duplicates
 		with arcpy.da.UpdateCursor(joinFN, "PARCEL_ID") as cursor:
@@ -540,7 +553,7 @@ if __name__ == '__main__':
 	arcpy.AlterField_management(joinFN, "stories", "b_stories")
 	arcpy.AlterField_management(joinFN, "x", "p_x") # this is from the parcel centroid
 	arcpy.AlterField_management(joinFN, "y", "p_y") # this is from the parcel centroid
-	arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id")
+	arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id")# this is from the parcel
 	arcpy.AlterField_management(joinFN, "residential_units", "p_residential_units") 
 	arcpy.AlterField_management(joinFN, "edit_date", "p_edit_date")
 	# add fields and calc values
@@ -552,7 +565,7 @@ if __name__ == '__main__':
 	arcpy.AddField_management(joinFN, "development_projects_id", "LONG")
 	arcpy.AddField_management(joinFN, "raw_id", "LONG")
 	arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
-	arcpy.AddField_management(joinFN, "site_name", "TEXT","","",50)
+	arcpy.AddField_management(joinFN, "site_name", "TEXT","","",200)
 	arcpy.AddField_management(joinFN, "action", "TEXT","","",10)
 	arcpy.AddField_management(joinFN, "scen0", "SHORT")
 	arcpy.AddField_management(joinFN, "scen1", "SHORT")
@@ -661,7 +674,10 @@ if __name__ == '__main__':
 	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 	arcpy.DeleteField_management(joinFN, fields2Delete)
-	
+
+	arcpy.MakeTableView_management(joinFN,gidnull,"geom_id is NULL")
+	nullcount = arcpy.GetCount_management(gidnull)
+	logger.info("{} list has {} records with geom_id info missing".format(joinFN, nullcount))	
 	###4 REMOVE DUPLICATES
 	#check again existing geomList and remove duplicates
 	with arcpy.da.UpdateCursor(joinFN, "PARCEL_ID") as cursor:
@@ -703,7 +719,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "development_projects_id", "LONG")
 		arcpy.AddField_management(joinFN, "raw_id", "LONG")
 		arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
-		arcpy.AddField_management(joinFN, "site_name", "TEXT","","",50)
+		arcpy.AddField_management(joinFN, "site_name", "TEXT","","",200)
 		arcpy.AddField_management(joinFN, "action", "TEXT","","",10)
 		arcpy.AddField_management(joinFN, "scen0", "SHORT")
 		arcpy.AddField_management(joinFN, "scen1", "SHORT")
@@ -834,6 +850,9 @@ if __name__ == '__main__':
 		fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 		arcpy.DeleteField_management(joinFN, fields2Delete)
 
+		arcpy.MakeTableView_management(joinFN,gidnull,"geom_id is NULL")
+		nullcount = arcpy.GetCount_management(gidnull)
+		logger.info("{} list has {} records with geom_id info missing".format(joinFN, nullcount))
 		###4 REMOVE DUPLICATES
 		#check again existing geomList and remove duplicates
 		with arcpy.da.UpdateCursor(joinFN, "PARCEL_ID") as cursor:
@@ -877,7 +896,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "development_projects_id", "LONG")
 		arcpy.AddField_management(joinFN, "raw_id", "LONG")
 		arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
-		arcpy.AddField_management(joinFN, "site_name", "TEXT","","",50)
+		arcpy.AddField_management(joinFN, "site_name", "TEXT","","",200)
 		arcpy.AddField_management(joinFN, "action", "TEXT","","",10)
 		arcpy.AddField_management(joinFN, "scen0", "SHORT")
 		arcpy.AddField_management(joinFN, "scen1", "SHORT")
@@ -996,7 +1015,10 @@ if __name__ == '__main__':
 		"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 		fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 		arcpy.DeleteField_management(joinFN, fields2Delete)
-	
+
+		arcpy.MakeTableView_management(joinFN,gidnull,"geom_id is NULL")
+		nullcount = arcpy.GetCount_management(gidnull)
+		logger.info("{} list has {} records with geom_id info missing".format(joinFN, nullcount))	
 		###4 REMOVE DUPLICATES
 		#check again existing geomList and remove duplicates
 		with arcpy.da.UpdateCursor(joinFN, "PARCEL_ID") as cursor:
@@ -1038,7 +1060,8 @@ if __name__ == '__main__':
 		arcpy.AlterField_management(joinFN, "last_sale_price", "o_last_sale_price")
 		arcpy.AlterField_management(joinFN, "last_sale_year", "o_sale_date")
 		arcpy.AlterField_management(joinFN, "stories", "o_stories")
-	
+		arcpy.AlterField_management(joinFN, "building_name", "o_building_name")
+		arcpy.AlterField_management(joinFN, "site_name", "o_site_name")
 		arcpy.AlterField_management(joinFN, "scen0", "o_scen0")
 		arcpy.AlterField_management(joinFN, "scen1", "o_scen1")
 		arcpy.AlterField_management(joinFN, "scen2", "o_scen2")
@@ -1065,10 +1088,14 @@ if __name__ == '__main__':
 		arcpy.AlterField_management(joinFN, "rent_ave_unit", "o_rent_ave_unit")
 		arcpy.AlterField_management(joinFN, "zip", "o_zips")
 		arcpy.AlterField_management(joinFN, "Average_Weighted_Rent", "average_weighted_rent")
-		arcpy.AlterField_management(joinFN, "x", "p_x") # this is from the parcel centroid
-		arcpy.AlterField_management(joinFN, "y", "p_y") # this is from the parcel centroid
-		arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id") 
-		
+		arcpy.AlterField_management(joinFN, "x", "p_x")
+		arcpy.AlterField_management(joinFN, "y", "p_y")
+		arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id")
+		arcpy.AlterField_management(joinFN, "GEOM_ID_1", "p_geom_id2")
+
+		arcpy.AddField_management(joinFN, "development_projects_id", "LONG")
+		arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
+		arcpy.AddField_management(joinFN, "site_name", "TEXT","","",200)
 		arcpy.AddField_management(joinFN, "raw_id", "LONG")
 		arcpy.AddField_management(joinFN, "scen0", "SHORT")
 		arcpy.AddField_management(joinFN, "scen1", "SHORT")
@@ -1108,6 +1135,11 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "version", "SHORT")
 		
 		# NOTE THAT OPPSITES HAS SCEN SET IN GIS FILE
+		arcpy.CalculateField_management(joinFN, "raw_id", "!opp_id!")
+		arcpy.CalculateField_management(joinFN, "building_name", "!o_building_name!")
+		arcpy.CalculateField_management(joinFN, "site_name", "!o_site_name!")
+		arcpy.CalculateField_management(joinFN, "scen0", "!o_scen0!")
+		arcpy.CalculateField_management(joinFN, "scen0", "!o_scen0!")
 		arcpy.CalculateField_management(joinFN, "scen0", "!o_scen0!")
 		arcpy.CalculateField_management(joinFN, "scen1", "!o_scen1!")
 		arcpy.CalculateField_management(joinFN, "scen2", "!o_scen2!")
@@ -1127,9 +1159,11 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "scen24", "!o_scen24!")
 		arcpy.CalculateField_management(joinFN, "scen25", "!o_scen25!")
 		#arcpy.CalculateField_management(joinFN, "zip", '!o_zip!')
-		arcpy.CalculateField_management(joinFN, "x", '!p_x!') 
-		arcpy.CalculateField_management(joinFN, "y", '!p_y!') 
-		arcpy.CalculateField_management(joinFN, "geom_id", '!p_geom_id!')
+		#arcpy.CalculateField_management(joinFN, "zip", '!o_zip!')
+
+		arcpy.CalculateField_management(joinFN, "x", '!X_1!') 
+		arcpy.CalculateField_management(joinFN, "y", '!Y_1!') 
+		arcpy.CalculateField_management(joinFN, "geom_id", '!p_geom_id2!')
 		arcpy.CalculateField_management(joinFN, "year_built", '!o_year_built!')
 		arcpy.CalculateField_management(joinFN, "residential_units", '!o_residential_units!')
 		arcpy.CalculateField_management(joinFN, "unit_ave_sqft", '!o_unit_ave_sqft!')
@@ -1139,7 +1173,7 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "last_sale_year", '!o_sale_date!') #need to make into year
 		arcpy.CalculateField_management(joinFN, "last_sale_price", '!o_last_sale_price!')
 		arcpy.CalculateField_management(joinFN, "source", "'opp'")
-		arcpy.CalculateField_management(joinFN, "edit_date", 20200429)
+		arcpy.CalculateField_management(joinFN, "edit_date", 20200611)
 		arcpy.CalculateField_management(joinFN, "editor", "'MKR'")
 		
 		FCfields = [f.name for f in arcpy.ListFields(joinFN)]
@@ -1151,6 +1185,9 @@ if __name__ == '__main__':
 		fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 		arcpy.DeleteField_management(joinFN, fields2Delete)
 
+		arcpy.MakeTableView_management(joinFN,gidnull,"geom_id is NULL")
+		nullcount = arcpy.GetCount_management(gidnull)
+		logger.info("{} list has {} records with geom_id info missing".format(joinFN, nullcount))
 		###4 REMOVE DUPLICATES
 		#check again existing geomList and remove duplicates
 		with arcpy.da.UpdateCursor(joinFN, "PARCEL_ID") as cursor:
