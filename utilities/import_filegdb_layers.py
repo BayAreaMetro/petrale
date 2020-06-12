@@ -11,6 +11,8 @@ import arcpy, numpy, pandas
 
 if __name__ == '__main__':
 
+    start = time.time()
+
     parser = argparse.ArgumentParser(description=USAGE, formatter_class=argparse.RawDescriptionHelpFormatter,)
     parser.add_argument("input_gdb",    metavar="input.gdb",   help="Input geodatabase")
     parser.add_argument("input_layer",  metavar="input_layer", help="Geometry layer in input geodatabase")
@@ -77,6 +79,7 @@ if __name__ == '__main__':
     # make sure we found both a geometry field and the join_field
     assert(len(keep_fields)>=2)
     assert(args.input_field in keep_fields)
+    # delete the fields post join since the join might reduce the size substantially if it's an inner join
 
     # delete the layer if it already exists in the output gdb
     if arcpy.Exists(args.input_layer):
@@ -86,9 +89,6 @@ if __name__ == '__main__':
     # copy the input to output_gdb with the same name
     arcpy.CopyFeatures_management(os.path.join(args.input_gdb, args.input_layer),
                                   os.path.join(args.output_gdb, args.input_layer))
-
-    arcpy.DeleteField_management(os.path.join(args.output_gdb, args.input_layer), delete_fields)
-
     # create join layer with input_layer and join_table
     print("Joining {} with {}".format(os.path.join(args.output_gdb, args.input_layer), table_name))
     joined_table = arcpy.AddJoin_management(os.path.join(args.output_gdb, args.input_layer), args.input_field, 
@@ -105,3 +105,17 @@ if __name__ == '__main__':
     # save it
     arcpy.CopyFeatures_management(joined_table, os.path.join(args.output_gdb, new_table_name))
     print("Completed creation of {}".format(os.path.join(args.output_gdb, new_table_name)))
+
+    # NOW delete fields
+    # do these one at a time since sometimes they fail
+    for field in delete_fields:
+        try:
+            arcpy.DeleteField_management(os.path.join(args.output_gdb, new_table_name), [field])
+            print("Deleted field {}".format(field))
+        except:
+            print("Error deleting field {}: {}".format(field, sys.exc_info()))
+
+    num_rows = arcpy.GetCount_management(os.path.join(args.output_gdb, new_table_name))
+    print("{} has {} records".format(new_table_name, num_rows[0]))
+
+    print("Script took {0:0.1f} minutes".format((time.time()-start)/60.0))
