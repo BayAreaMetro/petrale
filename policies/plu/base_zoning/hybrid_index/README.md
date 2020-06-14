@@ -12,4 +12,4 @@ Thus, the files in this directory are:
 
 * [idx_urbansim_heuristic.csv](idx_urbansim_heuristic.csv): created by [script 3](../3_create_heuristic_hybrid_idx.py), heuristic-driven hybrid index configuration for which BASIS variables to use for each jurisdiction
 * [idx_urbansim_heuristic.log](idx_urbansim_heuristic.csv): debug log created by [script 3](../3_create_heuristic_hybrid_idx.py)
-* idx_urbansim.csv: the same as idx_urbansim_heuristic.csv but with manual edits
+* [idx_urbansim.csv](idx_urbansim.csv): the same as idx_urbansim_heuristic.csv but with manual edits
