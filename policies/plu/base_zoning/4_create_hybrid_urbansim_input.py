@@ -28,7 +28,7 @@ PLU_BOC_DIR                 = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outp
 PLU_BOC_FILE                = os.path.join(PLU_BOC_DIR, '2020_06_03_p10_plu_boc_allAttrs.csv')
 HYBRID_INDEX_DIR            = os.path.join(GITHUB_PETRALE_DIR, 'policies\\plu\\base_zoning\\hybrid_index')
 # TODO: change to idx_urbansim.csv when we have one
-HYBRID_INDEX_FILE           = os.path.join(HYBRID_INDEX_DIR, "idx_urbansim_heuristic.csv")
+HYBRID_INDEX_FILE           = os.path.join(HYBRID_INDEX_DIR, "idx_urbansim.csv")
 
 # output file locations
 HYBRID_ZONING_OUTPUT_DIR    = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs\\hybrid_base_zoning')
@@ -36,8 +36,8 @@ HYBRID_ZONING_OUTPUT_DIR    = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outp
 HYBRID_PARCELS_FILE         = 'p10_plu_boc_hybrid.csv'
 LOG_FILE                    = "create_hybrid_urbansim_input.log"
 # UrbanSim Inputs
-ZONING_PARCELS_FILE         = 'zoning_parcels_pba50.csv'
-ZONING_LOOKUP_FILE          = 'zoning_lookup_pba50.csv'
+ZONING_PARCELS_FILE         = 'zoning_parcels_hybrid_pba50.csv'
+ZONING_LOOKUP_FILE          = 'zoning_lookup_hybrid_pba50.csv'
 
 
 if __name__ == '__main__':
@@ -117,7 +117,9 @@ if __name__ == '__main__':
     plu_boc_urbansim.replace({-1: None}, inplace = True)
 
     # create zoning_lookup table with unique jurisdiction and zoning attributes
-    zoning_lookup_pba50 = plu_boc_urbansim[['county_name','juris_zmod'] + dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES + ['max_dua','max_far','max_height']].drop_duplicates()     
+    zoning_lookup_pba50 = plu_boc_urbansim[['county_name','juris_zmod'] + \
+      dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES + \
+      ['max_dua','max_far','max_height']].drop_duplicates()     
 
     # sort zoning type by county and jurisdiction and assign zoning_id
     zoning_lookup_pba50.sort_values(by=['county_name', 'juris_zmod'], inplace = True)
