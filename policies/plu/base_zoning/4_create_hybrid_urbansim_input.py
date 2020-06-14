@@ -23,7 +23,7 @@ elif os.getenv('USERNAME')  =='lzorn':
 
 
 # input file locations
-PBA40_ZONING_PARCELS_FILE   = os.path.join(BOX_DIR, 'OLD Horizon Large General Input Data', '2015_12_21_zoning_parcels.csv') # what is this for?
+PREV_ZONING_PARCELS_FILE    = os.path.join(BOX_DIR, 'Current PBA50 Large General Input Data', '2020_04_15_zoning_parcels.csv') # what is this for?
 PLU_BOC_DIR                 = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs')
 PLU_BOC_FILE                = os.path.join(PLU_BOC_DIR, '2020_06_03_p10_plu_boc_allAttrs.csv')
 HYBRID_INDEX_DIR            = os.path.join(GITHUB_PETRALE_DIR, 'policies\\plu\\base_zoning\\hybrid_index')
@@ -133,9 +133,9 @@ if __name__ == '__main__':
                                                  how = 'left')
     zoning_parcels_pba50 = plu_boc_urbansim_ID[['PARCEL_ID','geom_id','juris_zmod','jurisdiction_id','zoning_id_pba50','nodev_zmod']]
 
-    # bring into other attributes from Horizon:
-    zoning_parcels_pba40 = pd.read_csv(PBA40_ZONING_PARCELS_FILE, usecols = ['geom_id','prop'])
-    zoning_parcels_pba50 = zoning_parcels_pba50.merge(zoning_parcels_pba40, on = 'geom_id', how = 'left')          
+    # bring into other attributes from previous parcel zoning file
+    zoning_parcels_prev  = pd.read_csv(PREV_ZONING_PARCELS_FILE, usecols = ['geom_id','prop'])
+    zoning_parcels_pba50 = zoning_parcels_pba50.merge(zoning_parcels_prev, on = 'geom_id', how = 'left')          
 
 
     ## assign zoning name to each zoning_id based on the most frequent occurance of zoning name among all the parcels with the same zoning_id
@@ -163,14 +163,10 @@ if __name__ == '__main__':
 
     # change field names to be consistent with the previous version
     zoning_lookup_pba50.rename(columns = {'zoning_id_pba50'  :'id',
-                        'juris_zmod'       :'juris',
-                        'zoning_name_pba50':'name'}, inplace = True)
+                                          'juris_zmod'       :'juris',
+                                          'zoning_name_pba50':'name'}, inplace = True)
     logger.info('zoning_lookup has {} unique zoning_ids; zoning_lookup table header:'.format(len(zoning_lookup_pba50)))
-    logger.info(zoning_lookup_pba50.head())
-    
-    # export
-    logger.info('Export zoning_lookup table with the following attributes: {}'.format(zoning_lookup_pba50.dtypes))
-    zoning_parcels_pba50.to_csv(ZONING_PARCELS_FILE,index = False)            
+    logger.info(zoning_lookup_pba50.head())         
 
     # lastly, append zone name to zoning_parcel
     zoning_parcels_pba50 = zoning_parcels_pba50.merge(zoning_lookup_pba50[['id','name']], 
@@ -183,9 +179,21 @@ if __name__ == '__main__':
                                            'jurisdiction_id': 'juris',
                                            'nodev_zmod'     : 'nodev',
                                            'name'           : 'zoning'}, inplace = True)
-    logger.info('zoning_parcels_pba50 has {} records; table header:'.format(len(zoning_parcels_pba50)))
-    logger.info(zoning_parcels_pba50.head())
+    # remove lines with null geom_id
+    logger.info('zoning_parcels_pba50 is length {} but has {} rows with null geom_id; removing'.format(
+                len(zoning_parcels_pba50),
+                len(zoning_parcels_pba50.loc[pd.isnull(zoning_parcels_pba50['geom_id'])])))
+    zoning_parcels_pba50 = zoning_parcels_pba50.loc[pd.notnull(zoning_parcels_pba50['geom_id']),]
+    logger.info('zoning_parcels_pba50 is length {}'.format(len(zoning_parcels_pba50)))
+    
+    # so we can convert geom_id to int
+    zoning_parcels_pba50['geom_id'] = zoning_parcels_pba50['geom_id'].round(0).astype(np.int64)
 
-    # export 
+    logger.info('zoning_parcels_pba50 has {} records; table head:\n{}'.format(len(zoning_parcels_pba50), zoning_parcels_pba50.head()))
+
+    # export
+    logger.info('Export zoning_lookup table with the following attributes: {}'.format(zoning_lookup_pba50.dtypes))
+    zoning_parcels_pba50.to_csv(ZONING_PARCELS_FILE,index = False)   
+
     logger.info('Export zoning_parcels table with the following attributes: {}'.format(zoning_parcels_pba50.dtypes))
     zoning_lookup_pba50.to_csv(ZONING_LOOKUP_FILE,index = False)
