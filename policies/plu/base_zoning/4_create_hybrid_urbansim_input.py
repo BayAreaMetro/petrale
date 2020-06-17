@@ -14,6 +14,8 @@ import numpy as np
 import argparse, os, logging, sys, time
 import dev_capacity_calculation_module
 
+today = time.strftime('%Y_%m_%d')
+
 if os.getenv('USERNAME')    =='ywang':
     BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
     GITHUB_PETRALE_DIR      = 'C:\\Users\\{}\\Documents\\GitHub\\petrale\\'.format(os.getenv('USERNAME'))
