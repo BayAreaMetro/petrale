@@ -75,7 +75,7 @@ rfother1115 = os.path.join(SMELT_GDB,"rf19_othertypes1115") # redfin other data 
 basis_pipeline = os.path.join(SMELT_GDB, "basis_pipeline_20200228")
 
 ### manually maintained pipeline data
-manual_dp   = os.path.join(SMELT_GDB, "manual_dp_20200617")
+manual_dp   = os.path.join(SMELT_GDB, "manual_dp_20200618")
 
 ### basis parcel/building new data
 basis_pb_new = os.path.join(SMELT_GDB, "basis_pb_new_20200312")
