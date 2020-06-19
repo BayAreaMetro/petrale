@@ -1,0 +1,1455 @@
+taz_key,county,district,neighborhood,Shape_Length,Shape_Area
+1,sfr,Financial District,Foot of California,1200.319391,81249.79582
+2,sfr,Financial District,Montgomey and California,1426.665119,125601.4539
+3,sfr,Chinatown,Gate,974.8749577,58430.36961
+4,sfr,Financial District,Montgomery BART Station,1338.807439,80392.35784
+5,sfr,Downtown,Union Square,1915.672414,210988.8806
+6,sfr,Downtown,Sutter,1594.85705,123302.2945
+7,sfr,Downtown,Theater District,1803.3498,184660.4417
+8,sfr,Downtown,Taylor,2008.942754,196756.4769
+9,sfr,Downtown,Civic Center,2877.893357,450650.9957
+10,sfr,SOMA,San Franscisco Mart and Federal Building,2326.486691,303375.5139
+11,sfr,SOMA,Mall/Skid Row/Garage/Court,2452.915207,327367.2223
+12,sfr,South Financial District,YBC and New Montgomery,1895.293308,216871.8241
+13,sfr,South Financial District,Transbay West,1332.721076,108708.7673
+14,sfr,South Financial District,Transbay East,1439.1053,128534.168
+15,sfr,South Financial District,One Market,1449.36179,107060.2408
+16,sfr,South Financial District,Folsom fr Emb to 3rd,3959.153697,478291.729
+17,sfr,South Financial District,South Park and South Beach,5238.432883,626131.0519
+18,sfr,SOMA,Fourth and Brannan,2819.021363,427368.6712
+19,sfr,SOMA,Hall of Justice and Showcase Centers,3160.683905,508948.5342
+20,sfr,SOMA,Folsom,2860.464649,402911.1364
+21,sfr,SOMA,Moscone South,2434.25717,320748.1869
+22,sfr,Financial District,Embarcadero Center and Ferry Terminal,4865.948834,319306.2761
+23,sfr,North Beach Fish Wharf,Levis Plaza,4828.284269,364989.0453
+24,sfr,Financial District,Montgomey and Columbus,1610.330771,157624.2972
+25,sfr,Chinatown,Portsmouth Square,1136.284981,82064.53191
+26,sfr,Chinatown,Commercial,962.4496047,56522.94109
+27,sfr,Chinatown,Slope,1586.893875,102223.9369
+28,sfr,Nob and Russian Hills,Nob Hill,1777.360408,177284.428
+29,sfr,Nob and Russian Hills,Masonic Aud and Hotels,1893.483326,155642.6586
+30,sfr,Downtown,Geary,1813.058808,186407.4096
+31,sfr,Downtown,Sutter,1606.604753,124887.0742
+32,sfr,Nob and Russian Hills,California,2028.801482,246467.0521
+33,sfr,Nob and Russian Hills,Hyde and Jackson,2017.180327,236390.6248
+34,sfr,Nob and Russian Hills,Hyde and Union,2057.626343,252947.681
+35,sfr,Nob and Russian Hills,Broadway Tunnel,1907.548191,225910.2855
+36,sfr,North Beach Fish Wharf,Columbus Ave W,2079.244144,183034.6656
+37,sfr,North Beach Fish Wharf,Columbus Ave E,2266.049663,187088.0358
+38,sfr,North Beach Fish Wharf,Telegraph Hill,3109.559301,335495.6415
+39,sfr,Nob and Russian Hills,Macondry,2298.523312,267515.6321
+40,sfr,Nob and Russian Hills,Aquatic Park to Lombard St,4305.958933,514982.4284
+41,sfr,North Beach Fish Wharf,Fish Wharf,21592.9427,776463.2548
+42,sfr,Treasure Island,Treasure Island,12372.85467,2423632.127
+43,sfr,Marina,Fort Mason,13137.79027,800914.7407
+44,sfr,Marina,Lombard Street,3141.266424,533259.9665
+45,sfr,Marina,Union Street,2995.469194,365831.3212
+46,sfr,Pacific Heights,Lafayette Park,2640.592998,410652.4426
+47,sfr,Pacific Heights,Fillmore,1974.63068,235011.1557
+48,sfr,Pacific Heights,Alta Plaza,2568.999064,353912.2614
+49,sfr,Pacific Heights,Broadway,3758.489215,546275.4108
+50,sfr,Marina,Cow Hollow,3064.489881,497469.8507
+51,sfr,Marina,Palace of Fine Arts,11560.90485,458486.5646
+52,sfr,Laurel Heights Presidio,Presidio,11877.63181,6118965.398
+53,sfr,Richmond District,Golden Gate Park,14694.56039,4490575.237
+54,sfr,Richmond District,Sutro Heights S and Baths,6909.070969,1113869.01
+55,sfr,Richmond District,Sutro Heights N,2764.016162,397437.2755
+56,sfr,Richmond District,Lands End,5115.412264,1073645.668
+57,sfr,Laurel Heights Presidio,Seacliff,5072.772505,549965.4126
+58,sfr,Richmond District,Clement and 29th,3032.211964,407759.9393
+59,sfr,Richmond District,George Washington HS,3823.06771,814792.6329
+60,sfr,Richmond District,Cabrillo and 25th,2529.279823,352522.9341
+61,sfr,Richmond District,Anza and 25th,2585.011132,363449.1396
+62,sfr,Richmond District,Clement and 19th,3335.036524,625808.6398
+63,sfr,Richmond District,Balboa and 17th,2969.139223,530297.2909
+64,sfr,Richmond District,Balboa and 10th,3128.853555,590659.1865
+65,sfr,Richmond District,Clement and 10th,3029.111044,533101.57
+66,sfr,Richmond District,Clement and 4th,2766.493168,419307.2542
+67,sfr,Richmond District,Balboa and 4th,2576.906582,384019.4005
+68,sfr,Richmond District,Angelo Rossi Pk,2456.223787,293275.6897
+69,sfr,Western Addition,USF,4029.472259,838863.7711
+70,sfr,Laurel Heights Presidio,Euclid,3923.815131,716389.583
+71,sfr,Laurel Heights Presidio,Presidio Heights,3377.727775,580878.6024
+72,sfr,Pacific Heights,Divisadero,2108.06106,233545.8841
+73,sfr,Pacific Heights,Fillmore,2394.443767,278990.0789
+74,sfr,Pacific Heights,Japantown,3714.216758,310816.8125
+75,sfr,Pacific Heights,Geary and Franklin,1816.571131,172472.4298
+76,sfr,Western Addition,State Building,1810.841066,158119.5047
+77,sfr,Western Addition,Fillmore Center and Cathedral Hill,2451.790652,296746.4428
+78,sfr,Western Addition,Jefferson Square,2597.896825,368630.6543
+79,sfr,Western Addition,Hayes Valley,2224.190222,272697.9246
+80,sfr,Western Addition,Filmore and Hayes,2012.285245,245683.4059
+81,sfr,Castro Haight,Lower,3061.235462,442108.6729
+82,sfr,Castro Haight,Duboce Triangle,2683.616407,297393.1503
+83,sfr,Castro Haight,Corona Heights,3124.12912,469178.5985
+84,sfr,Castro Haight,Buena Vista,3493.391156,490329.5898
+85,sfr,Western Addition,Alamo Square,2312.647298,308866.7156
+86,sfr,Western Addition,Kaiser,3112.065546,514015.1947
+87,sfr,Western Addition,NOPA,2985.547703,370183.0477
+88,sfr,Castro Haight,Upper,3017.95365,342913.5397
+89,sfr,Castro Haight,Cole Valley and Parnassus Heights,3395.673431,607825.7373
+90,sfr,Sunset District,UCSF North,3515.691593,344984.7858
+91,sfr,Twin Peaks and West of Twin Peaks,UCSF South/Greenbelt/Laguna Honda,5498.757697,1275873.813
+92,sfr,Twin Peaks and West of Twin Peaks,Midtown Terrace,5740.533428,1094142.127
+93,sfr,Twin Peaks and West of Twin Peaks,Upper Market,6112.369807,957094.0431
+94,sfr,Castro Haight,Village,2299.424615,276716.792
+95,sfr,Noe Valley Diamond Heights,Eureka,2459.930475,343228.7447
+96,sfr,Noe Valley Diamond Heights,Diamond and Clipper,2966.28934,311114.0989
+97,sfr,Noe Valley Diamond Heights,Clipper and Noe,2489.588182,349104.8235
+98,sfr,Noe Valley Diamond Heights,Sanchez and 22nd St,2659.210695,417117.3256
+99,sfr,Mission,Guerero and 24th Sts,2423.751109,321098.1612
+100,sfr,Mission,24th St BART Station,2396.51936,312669.8926
+101,sfr,Mission,Mission Street 17th to 22nd,2558.597816,345842.8625
+102,sfr,Mission,Guerero Street 17th to 22nd,2611.632825,359353.9353
+103,sfr,Castro Haight,Dolores,3063.990462,556754.0333
+104,sfr,Castro Haight,Church Street,2578.218371,273330.7958
+105,sfr,Mission,Camp St,2683.558252,347197.5063
+106,sfr,Mission,16th St BART Statoion and Mission Curve,3168.889311,453070.9843
+107,sfr,Mission,Northeast Mission,4763.160066,895038.5766
+108,sfr,Potrero Hill and Dogpatch,16th and Rhode Island,2942.200587,460288.6499
+109,sfr,Mission Bay,Caltrain,16306.67524,542924.3531
+110,sfr,Mission Bay,Mission Bay,7880.122929,1108362.073
+111,sfr,Potrero Hill and Dogpatch,Dogpatch and Docks,12108.23375,1358110.174
+112,sfr,Potrero Hill and Dogpatch,18th and Connecticut,2137.152459,275445.2295
+113,sfr,Potrero Hill and Dogpatch,Southeastern Slope,3998.10846,751017.9526
+114,sfr,Potrero Hill and Dogpatch,Southern Heights,4699.346269,592721.0835
+115,sfr,Mission,General Hosptial and Potrero Ave,3130.895559,293724.6352
+116,sfr,Mission,Mistral,3050.919679,577886.1135
+117,sfr,Mission,22nd and Treat,2295.878754,281872.5032
+118,sfr,Mission,Garfield Square,2077.744538,249015.7685
+119,sfr,Mission,25th and Florida,1832.632567,161872.116
+120,sfr,Mission,25th and Potrero,2276.771479,311372.902
+121,sfr,Bernal Heights,Eastern,3908.537854,560499.537
+122,sfr,Bernal Heights,Bernal Hill,3881.346732,656093.6044
+123,sfr,Bernal Heights,Mission and Valencia,3171.113887,383452.0845
+124,sfr,Bernal Heights,Holly Park,2780.772403,375598.052
+125,sfr,Bernal Heights,Southern,5303.028322,348949.7433
+126,sfr,Bernal Heights,St Marys,4014.583985,469890.1517
+127,sfr,Noe Valley Diamond Heights,Chenery,4106.699146,500982.7019
+128,sfr,Noe Valley Diamond Heights,Church and 28th,2871.4472,494103.4982
+129,sfr,Noe Valley Diamond Heights,Diamond and 28th,4646.917357,597800.9324
+130,sfr,Noe Valley Diamond Heights,Glen Canyon,7104.447156,1239799.949
+131,sfr,Twin Peaks and West of Twin Peaks,Mount Davidson,5895.431966,1428921.282
+132,sfr,OMI,Westwood Park,4236.558424,818942.6624
+133,sfr,OMI,Sunnyside,5564.918937,1060408.256
+134,sfr,OMI,Balboa Park and Cayuga,5060.850472,1097384.977
+135,sfr,Crocker Excelsior,Brazil and Lisbon,2739.955729,406994.0202
+136,sfr,Crocker Excelsior,Peru,2853.564127,357595.2492
+137,sfr,Crocker Excelsior,Northeast,4274.624515,562368.8428
+138,sfr,Portola,280 and 101,6222.729033,1157055.199
+139,sfr,Bay View Hunters Point,Silver,3682.632617,665730.2183
+140,sfr,Bay View Hunters Point,Bayview Circle,2802.402191,409686.1087
+141,sfr,Bay View Hunters Point,Bayview W,2508.229589,208442.5211
+142,sfr,Bay View Hunters Point,Islais Creek Area,12599.06647,3579886.148
+143,sfr,Bay View Hunters Point,Bayview E,2713.219529,222566.6803
+144,sfr,Bay View Hunters Point,Hilltop Pk,4118.049151,502090.0859
+145,sfr,Bay View Hunters Point,India Basin,9147.10879,1463975.341
+146,sfr,Bay View Hunters Point,Naval Yard,17113.67498,2119287.783
+147,sfr,Bay View Hunters Point,Bayview SE,4540.346976,854181.0881
+148,sfr,Bay View Hunters Point,Gilman,3825.852355,852263.6629
+149,sfr,Bay View Hunters Point,Candlestick Point and Little Hollywood,8974.268261,2173140.856
+150,sfr,Bay View Hunters Point,Paul Ave,3637.955908,640284.2396
+151,sfr,Portola,Mansell and Girard,2720.36263,241448.2304
+152,sfr,Portola,Dwight and Bowdoin,5265.743472,738892.4741
+153,sfr,Visitacion Valley,Wilde Av,4029.325687,400721.4928
+154,sfr,Visitacion Valley,Rutland and Sunnydale,3012.51619,380371.2194
+155,sfr,Visitacion Valley,Visitacion Valley Playground,2805.068574,330983.1828
+156,sfr,Visitacion Valley,Velasco,2086.266391,188208.363
+157,sfr,Visitacion Valley,Sunnydale,2470.705312,276231.2836
+158,sfr,Visitacion Valley,McLaren Park,7051.406782,1603483.518
+159,sfr,Crocker Excelsior,Cordova,4029.980102,756809.2491
+160,sfr,Crocker Excelsior,Persian and Moscow,2578.045984,399116.3406
+161,sfr,Crocker Excelsior,Italy,2528.760099,335702.3496
+162,sfr,Crocker Excelsior,Morse,2861.470827,369876.3148
+163,sfr,Crocker Excelsior,Hanover,4071.403128,426280.5807
+164,sfr,OMI,Outer Mission,5844.016902,778946.235
+165,sfr,OMI,Balboa Park BART Station,3747.164486,747008.3856
+166,sfr,OMI,Ingleside,4030.677188,819897.4324
+167,sfr,OMI,Oceanview,3923.379971,770036.269
+168,sfr,OMI,Merced Heights,5257.349921,1130029.573
+169,sfr,OMI,St Francis Wood and Ingleside Heights,7075.425774,1875494.92
+170,sfr,Twin Peaks and West of Twin Peaks,West Portal,5381.770255,1243274.591
+171,sfr,Twin Peaks and West of Twin Peaks,Laguna Honda,3569.03799,516981.1549
+172,sfr,Twin Peaks and West of Twin Peaks,Parkside,4682.863964,972597.3775
+173,sfr,Twin Peaks and West of Twin Peaks,Golden Gate Heights,3834.809231,588082.0285
+174,sfr,Twin Peaks and West of Twin Peaks,Grand View Park,3949.55893,753307.3505
+175,sfr,Sunset District,Shopping District,2387.794919,350728.4725
+176,sfr,Sunset District,19th Ave East,2424.834608,356955.2322
+177,sfr,Sunset District,Judah and 23rd,3805.479089,879047.1978
+178,sfr,Sunset District,Judah and 33rd,3701.163446,824190.131
+179,sfr,Sunset District,Lawton and 40th St,4609.755583,940200.0112
+180,sfr,Sunset District,Car Town,2454.870418,372195.9604
+181,sfr,Sunset District,Noriega and 46th Ave,4867.765118,938179.7323
+182,sfr,Sunset District,Taravel and 46th,4518.744248,1031204.748
+183,sfr,Sunset District,Parkside,5081.802857,1147168.977
+184,sfr,Sunset District,Parkside,4535.594924,1156655.416
+185,sfr,Sunset District,Quintara and 23rd,4628.869314,1233690.814
+186,sfr,Sunset District,Stern Grove,5242.410196,1510663.378
+187,sfr,Southwest San Francisco,Merced Manor,5279.185026,878626.78
+188,sfr,Southwest San Francisco,Stonestown and State University,4233.453362,945508.5484
+189,sfr,Southwest San Francisco,Park Merced,4565.938735,813447.163
+190,sfr,Southwest San Francisco,Zoo/Lake Merced/Golf Club,12421.37615,5692380.511
+191,smt,Daly City,Westlake Pk,7214.454548,2030357.772
+192,smt,Daly City,Westlake Shopping,4883.031824,557906.6825
+193,smt,Daly City,Broadmoor E,6659.616676,1985927.031
+194,smt,Daly City,Seton Med Ctr,5278.874178,1493663.755
+195,smt,Daly City,Broadmoor W,6085.676396,957774.1206
+196,smt,Daly City,Mussel Rock,11357.41772,2693509.606
+197,smt,Daly City,Higate Dr N,4685.033419,724156.6303
+198,smt,Daly City,Higate Dr S,4898.601293,819028.5003
+199,smt,Daly City,Serramonte,5437.601333,1258049.582
+200,smt,Daly City,Cemetaries,13152.34161,6699604.012
+201,smt,Daly City,Colma BART,5513.741284,1093846.554
+202,smt,Brisbane,Hillside,6188.979038,1345189.255
+203,smt,Daly City,Original Daly City,3924.147544,767145.1534
+204,smt,Daly City,Daly City BART,5286.9879,831975.4005
+205,smt,Brisbane,Bellevue Av,5021.819426,928808.4166
+206,smt,Brisbane,Southern Hills,8678.442251,2171941.433
+207,smt,Brisbane,Cow Palace,5895.925911,1162347.097
+208,smt,Brisbane,Bayshore and Brisbane,21818.83184,14469225.27
+209,smt,South San Francisco,Sign Hill,9445.648419,4266758.103
+210,smt,South San Francisco,Downtown N,3136.193549,480127.8157
+211,smt,South San Francisco,Downtown,5778.823972,934526.7327
+212,smt,South San Francisco,Oyster Point,31321.76692,9936375.606
+213,smt,South San Francisco,Avalon,6899.647586,2698007.366
+214,smt,South San Francisco,BART SW and Winston Manor,6518.044189,1855350.223
+215,smt,South San Francisco,Chestnut,6000.176765,1077105.706
+216,smt,South San Francisco,BART and Sunshine Gardens,7483.282067,1095599.058
+217,smt,South San Francisco,BART W and  W Winston Manor,6265.015772,1167417.332
+218,smt,South San Francisco,Gellert E,8449.925227,1204108.868
+219,smt,Pacifica,Gellert W,5007.830266,941909.6508
+220,smt,Pacifica,Sunset Ridge,7683.618881,1794990.755
+221,smt,Pacifica,Fairmont,6011.897142,1229165.859
+222,smt,Pacifica,Manor Beach,7523.969911,1358513.736
+223,smt,Pacifica,Sharp Park,8521.738598,3537256.178
+224,smt,Pacifica,Vallemar,14729.37855,7289800.592
+225,smt,Pacifica,Shelter Cove,16856.22478,4496503.391
+226,smt,Pacifica,Linde Mar,18217.10645,8004865.521
+227,smt,Pacifica,Terra Nova Blvd,24018.62797,12230128.08
+228,smt,Pacifica,SF Jail,4452.463339,1035442.369
+229,smt,San Bruno,Skyline College,8214.292556,2105644.789
+230,smt,South San Francisco,Westborough,5841.425838,1461916.448
+231,smt,South San Francisco,Selick Pk,5653.32435,1278829.348
+232,smt,San Bruno,Sellick Pk,7443.686328,1785985.17
+233,smt,San Bruno,Crestmoor Canyon,7382.590772,2862337.081
+234,smt,San Bruno,Tanforan and Bayhill,7639.004282,2293451.148
+235,smt,San Bruno,Mills Park,3896.143207,894858.0282
+236,smt,San Bruno,Crystal Springs,8090.974834,2006297.411
+237,smt,San Bruno,Downtown and CalTrain,6860.547661,1118045.629
+238,smt,San Bruno,Belle Air,8647.505574,1743290.887
+239,smt,Millbrae,SFO,16076.73867,7849340.857
+240,smt,Millbrae,BART and CalTrain Station,9999.368341,2022615.411
+241,smt,Millbrae,Millbrae Meadows E,7271.328265,1614202.374
+242,smt,Millbrae,Millbrae Meadows W,7882.823401,1439354.437
+243,smt,Millbrae,Hillcrest,5357.595211,1103623.837
+244,smt,Millbrae,Downtown,4494.083864,1033166.405
+245,smt,Millbrae,Murchison,6364.493384,1545966.694
+246,smt,Burlingame Hillsborough,Trousdale and Peninsula Hosp,16591.44479,4077746.509
+247,smt,Burlingame Hillsborough,Hillsdale Dr,4571.48531,941398.713
+248,smt,Burlingame Hillsborough,"Broadway, Vaillage and Bayfront",8709.864845,2674599.633
+249,smt,Burlingame Hillsborough,Burlingame HS,12536.09389,2601303.215
+250,smt,Burlingame Hillsborough,Terrace,5584.478943,1110824.573
+251,smt,Burlingame Hillsborough,Burlingame,4813.307123,1098045.514
+252,smt,Burlingame Hillsborough,Hillsborough,15231.06977,8499406.069
+253,smt,San Mateo,San Mateo Park,5259.791454,1217921.639
+254,smt,Burlingame Hillsborough,Hillsborough Park,20144.978,8010832.292
+255,smt,San Mateo,Baywood Knolls,7112.858194,1416850.997
+256,smt,San Mateo,Parrot Park,5871.623109,934381.6215
+257,smt,San Mateo,Downtown,5346.838717,1021636.739
+258,smt,San Mateo,North Central,3842.479685,773672.6139
+259,smt,San Mateo,San Mateo HS,4425.650592,822338.3715
+260,smt,San Mateo,Bowie Estate,4996.40143,1209281.582
+261,smt,San Mateo,N Shoreview,13272.02095,2434085.926
+262,smt,San Mateo,S Shoreview,6076.599368,1229648.264
+263,smt,San Mateo,Horrall,3497.635849,591906.298
+264,smt,San Mateo,Parkside,5850.604901,1069673.363
+265,smt,Foster City Redwood Shores,Bridgepointe,7723.577797,1473367.651
+266,smt,Foster City Redwood Shores,Central,14897.68749,3821781.279
+267,smt,Foster City Redwood Shores,Gull Av,7273.851657,1051281.09
+268,smt,Foster City Redwood Shores,Erckenbrack,6472.869035,929829.7374
+269,smt,Foster City Redwood Shores,Marlin Pk,4799.013106,1068092.818
+270,smt,Foster City Redwood Shores,Ketch,3186.855414,608459.0164
+271,smt,Foster City Redwood Shores,Farragut,5087.125563,1154702.919
+272,smt,Foster City Redwood Shores,Boothbay Pk,6992.600388,924338.2282
+273,smt,Foster City Redwood Shores,Port Royal,8946.117408,1177839.315
+274,smt,San Mateo,Los Prados,7724.967464,1637003.12
+275,smt,San Mateo,Nesbit,9446.799937,1697969.482
+276,smt,San Mateo,Lauriedale,3402.008005,509002.6673
+277,smt,San Mateo,San Mateo Village,5816.417941,1249484.397
+278,smt,San Mateo,Bay Meadows,6351.069128,1966759.143
+279,smt,San Mateo,Hayward Park E,5383.658044,1333066.174
+280,smt,San Mateo,Hayward Park W,4590.007426,1121338.597
+281,smt,San Mateo,Beresford Manor,5301.063699,1129700.709
+282,smt,San Mateo,Beresford,6645.129957,1980224.196
+283,smt,San Mateo,The Lanes,5483.102402,1270944.422
+284,smt,San Mateo,Hillsdale,6216.241026,1007890.65
+285,smt,San Mateo,Laurel,5623.879795,1263153.139
+286,smt,San Mateo,Belle Monte,7089.232315,2515799.867
+287,smt,San Mateo,Belmont W,6471.914837,1346880.765
+288,smt,San Mateo,Ralston Av S,12213.30549,6047389.724
+289,smt,San Mateo,Ralston Av N,8897.960796,2901653.462
+290,smt,San Mateo,Sugarloaf,8329.817207,2254778.293
+291,smt,San Mateo,Bayridge,11672.41738,2860367.043
+292,smt,San Mateo,Highlands,8874.710764,3382420.13
+293,smt,Southwest San Mateo County,Montara Moss Beach,37477.8105,20342221.72
+294,smt,Southwest San Mateo County,El Granada,30199.36021,24055400.93
+295,smt,Southwest San Mateo County,Skyline,61625.67969,89697234.39
+296,smt,Southwest San Mateo County,Half Moon Bay,60704.79746,112633309.5
+297,smt,Southwest San Mateo County,La Honda,129734.2975,468447993.1
+298,smt,Atherton Portola Valley,Portola Valley,39241.04097,40224576.06
+299,smt,Atherton Portola Valley,Phleger,44769.90512,45065578.71
+300,smt,Atherton Portola Valley,Woodside Heights,21016.49149,9462287.129
+301,smt,Redwood City,Farmhill Rd,10456.80276,3329326.576
+302,smt,Redwood City,Emerald Hills,15181.28098,5443086.772
+303,smt,Redwood City,Sequoia Hospital,8107.101644,2046936.123
+304,smt,San Carlos,Palomar Park,13237.04347,5914062.188
+305,smt,San Carlos,Big Canyon Pk,5341.768779,996236.4414
+306,smt,San Carlos,Highlands Pk,10496.5284,2392165.019
+307,smt,San Carlos,Arguello Pk,7691.140809,1921072.218
+308,smt,San Carlos,Alameda De Las Pulgas N,5589.960873,1062769.491
+309,smt,San Carlos,Downtown,8707.76567,2027003.038
+310,smt,San Carlos,East,10297.84936,3319998.278
+311,smt,Foster City Redwood Shores,Redwood Shores W,9914.536709,3460717.757
+312,smt,Foster City Redwood Shores,Redwood Shores E,14547.48607,3771348.706
+313,smt,Redwood City,Bair Island and Rewdood Port,52244.45619,25522040.37
+314,smt,Redwood City,Broadway and Woodside,7397.525949,1437033.126
+315,smt,Redwood City,Downtown,9926.585256,1714817.01
+316,smt,Redwood City,Cordilleras Addition,3383.211772,502371.5911
+317,smt,Redwood City,Sequoia,6587.028528,1437537.936
+318,smt,San Carlos,White Oaks,4329.221596,966961.194
+319,smt,Redwood City,Alameda De Las Pulgas S,6599.151466,1201250.901
+320,smt,Redwood City,Valota Rd,5955.646697,1366633.631
+321,smt,Atherton Portola Valley,Woodside Plaza,4449.726117,1127870.897
+322,smt,Atherton Portola Valley,Rutherford Av,6940.688565,1750809.023
+323,smt,Redwood City,Redwood Junction S,5202.617663,1126244.396
+324,smt,Redwood City,Palm Park,3618.738519,535995.2638
+325,smt,Redwood City,Central,5102.731256,1090976.738
+326,smt,Redwood City,Redwood Junction N,4834.523935,587360.7428
+327,smt,Redwood City,Dumbarton,4813.998343,938882.5135
+328,smt,Redwood City,N Fair Oaks,5596.656523,1067558.833
+329,smt,Redwood City,Trailer Village,6936.101466,1202708.626
+330,smt,Redwood City,Page St,4735.239016,1036028.617
+331,smt,Southeastern San Mateo County,Belle Haven,27536.5111,10216943.48
+332,smt,Southeastern San Mateo County,Ravenswood,11973.17481,3951693.67
+333,smt,Southeastern San Mateo County,East Palo Alto E,8849.194638,3252033.251
+334,smt,Southeastern San Mateo County,East Palo Alto W,5486.261555,1265845.912
+335,smt,Southeastern San Mateo County,101 and University Av,6730.874203,1043780.127
+336,smt,Southeastern San Mateo County,Willow Oaks,5780.404297,1358869.757
+337,smt,Southeastern San Mateo County,Saint Patrick's,5671.532442,1414716.292
+338,smt,Southeastern San Mateo County,Flood Pk,6798.960424,877569.6418
+339,smt,Atherton Portola Valley,Lindenwood,10534.59599,4189466.547
+340,smt,Menlo Park,CalTrain Station and SRI,8999.453584,2005720.938
+341,smt,Menlo Park,Downtown,5563.059422,1293380.011
+342,smt,Atherton Portola Valley,West Atherton,16312.77925,8886240.974
+343,smt,Menlo Park,Santa Cruz and San Mateo,6847.463418,1274554.798
+344,smt,Menlo Park,West Menlo Park N,6737.333236,1651837.959
+345,smt,Menlo Park,West Menlo Park S,8422.157051,1603219.377
+346,smt,Atherton Portola Valley,Sharon Heights,12205.9663,4522493.685
+347,scl,Palo Alto,Hills,83151.09913,135381275
+348,scl,Palo Alto,Coyote Hill,9971.972646,2960965.641
+349,scl,Palo Alto,Business Park,10466.64274,2882149.094
+350,scl,Palo Alto,Subdivison Housing,7134.641755,2133011.2
+351,scl,Palo Alto,HS/California Ave/College Ave,7432.367496,1477738.804
+352,scl,Palo Alto,Housing Towers,1762.109112,181105.0078
+353,scl,Palo Alto,Esconiddio Village,2869.850778,495866.0484
+354,scl,Palo Alto,East Campus,6851.326014,2089205.493
+355,scl,Palo Alto,Mall/Hospital/West Campus,11779.62343,4130965.857
+356,scl,Palo Alto,Downtown,6641.147809,1949268.683
+357,scl,Palo Alto,Northeast,6796.29124,2019883.044
+358,scl,Palo Alto,101 and Embarcadero West,6344.241417,2193760.591
+359,scl,Palo Alto,North California Ave,5248.898127,1535646.491
+360,scl,Palo Alto,Hoover Park,5355.898349,1651339.028
+361,scl,Palo Alto,Greer Pk,5685.154158,2012210.115
+362,scl,Palo Alto,Ramos Pk,7510.443062,2231437.969
+363,scl,Palo Alto,Mitchell Pk,3988.300894,1012092.63
+364,scl,Palo Alto,Greenmeadow,3915.218712,918646.6298
+365,scl,Mountain View,Del Medio,3429.871529,649725.6938
+366,scl,Palo Alto,Park Blvd,6933.360831,1393095.309
+367,scl,Palo Alto,Alta Mesa,6576.975002,2111082.917
+368,scl,Mountain View,Los Altos Hills,16999.29222,9136337.908
+369,scl,Mountain View,Greater Miranda,7725.693995,2569996.164
+370,scl,Mountain View,Downtown Los Altos,7860.215496,2316615.122
+371,scl,Mountain View,Los Altos N,6935.288841,1754995.276
+372,scl,Mountain View,San Antonio Center,4113.985334,1036406.97
+373,scl,Mountain View,Monta Loma,4412.611591,1067577.996
+374,scl,Mountain View,Old Middlefield,6247.704357,1593495.023
+375,scl,Mountain View,Sierra Vista Av,3236.185749,577820.6605
+376,scl,Mountain View,Rex Manor,5876.033048,1556910.57
+377,scl,Mountain View,CalTrain N,5951.632335,1572388.732
+378,scl,Mountain View,Downtown,5081.09163,1025581.521
+379,scl,Mountain View,Castro Pk,4059.004736,974796.005
+380,scl,Mountain View,Rengstorff Pk,2968.223819,516082.5297
+381,scl,Mountain View,McKelvey Pk,9461.004955,1748219.184
+382,scl,Mountain View,Bubb Pk,3979.441479,922044.0047
+383,scl,Mountain View,El Camino Hospital,5336.214482,1375287.891
+384,scl,Mountain View,Los Altos E,11892.77287,2633600.855
+385,scl,Mountain View,Loyola,9417.561331,2633880.37
+386,scl,Mountain View,Montclaire,6172.696708,2034770.768
+387,scl,Mountain View,Grant Pk,6758.081144,1885828.748
+388,scl,Mountain View,Loyola Corners,9953.162392,3522657.324
+389,scl,Mountain View,Cooper Pk,8507.121835,2137732.55
+390,scl,Mountain View,Landels School Park,4549.180294,1037551.284
+391,scl,Sunnyvale,Sylvan Pk,7957.393954,1709949.916
+392,scl,Sunnyvale,Acalanes Dr,3045.746611,431376.1209
+393,scl,Sunnyvale,Leota Av,4121.379241,972165.8865
+394,scl,Sunnyvale,Downtown West,4710.518486,1304178.109
+395,scl,Sunnyvale,CalTrain NW,6126.890826,1658917.215
+396,scl,Sunnyvale,Sunnyvale Golf Course,6120.329118,1496314.302
+397,scl,Mountain View,Whisman Station,5131.297212,1240620.11
+398,scl,Mountain View,E Dana St,4417.965956,894188.4594
+399,scl,Mountain View,Middlefield Station,6109.250833,1272815.795
+400,scl,Mountain View,Whisman Pk,4194.716883,1044388.259
+401,scl,Mountain View,Shoreline,32131.41445,19577257.68
+402,scl,Mountain View,Moffet Field,12101.41098,6353138.726
+403,scl,Sunnyvale,Borregas,9900.750246,4429783.126
+404,scl,North San Jose,Alviso,49194.89543,39450915.22
+405,scl,North San Jose,N McCarthy Blvd,25643.12334,13267981.21
+406,scl,North San Jose,I880/Milpitas Station,8549.747099,3046869.026
+407,scl,North San Jose,Brokaw,10284.29295,3989549.559
+408,scl,North San Jose,Component,6648.205029,2423950.422
+409,scl,North San Jose,Plumeria,6420.691001,2141175.481
+410,scl,North San Jose,Cisco South,7487.45588,2303097.559
+411,scl,North San Jose,Cisco Station,5424.049668,1128412.328
+412,scl,North San Jose,Tasman and 1st,9698.560117,4110627.71
+413,scl,Santa Clara,Agnews,5156.8022,1422955.693
+414,scl,Santa Clara,Aldo,7215.08175,2996605.436
+415,scl,Santa Clara,Great Am Levi Stadium,10278.56676,4606976.373
+416,scl,Santa Clara,Fairway Glen,12591.42387,3347592.77
+417,scl,Santa Clara,Old Ironsides,4085.011635,930492.5058
+418,scl,Sunnyvale,Reamwood Station,4840.014868,980687.6083
+419,scl,Sunnyvale,Sandia,3802.562617,837272.8197
+420,scl,Sunnyvale,Lakewood Pk,4279.063117,885078.147
+421,scl,Sunnyvale,Vienna Station,6581.258733,1381146.405
+422,scl,Sunnyvale,Tasman and Morse,5798.418208,1380182.308
+423,scl,Sunnyvale,San Miguel,4476.726884,942072.509
+424,scl,Sunnyvale,Columbia Pk,5079.313482,1561358.657
+425,scl,Sunnyvale,Sunnyvale Square,3777.045913,673740.0214
+426,scl,Sunnyvale,CalTrain N,6102.637682,1311934.02
+427,scl,Sunnyvale,CalTrain NW,8051.069495,2973817.283
+428,scl,Sunnyvale,CalTrain NE,6132.481943,1753240.202
+429,scl,Santa Clara,Oakmead Village Dr,5684.220845,1535106.856
+430,scl,Santa Clara,Scott and San Tomas,7366.320439,2232525.348
+431,scl,Santa Clara,Walsch Av W,5292.627069,1247557.534
+432,scl,Santa Clara,Walsch Av E,8858.848879,3306283.024
+433,scl,Santa Clara,Rotary Pk,5268.510452,954170.7301
+434,scl,San Jose Civic Center,Airport,10597.89154,4932634.147
+435,scl,San Jose Civic Center,Gish Station,6644.532245,2049732.01
+436,scl,Santa Clara,Carli Pk,5317.975487,1374459.964
+437,scl,Santa Clara,Warburton Pk,4301.495845,1074206.194
+438,scl,Santa Clara,Bowers Pk,5608.334031,1424258.257
+439,scl,Santa Clara,Central Park,4388.759232,1075165.229
+440,scl,Santa Clara,Santa Clara HS,5306.982144,1397532.093
+441,scl,Santa Clara,Koreatown SE,4857.247242,1215179.981
+442,scl,Santa Clara,Wilcox HS,4824.93059,990946.8667
+443,scl,Santa Clara,Lawrence CalTrain,5097.425631,924438.9076
+444,scl,Santa Clara,Koreatown NE,5311.278409,1538396.123
+445,scl,Sunnyvale,Koreatown NW,5561.062907,1426880.556
+446,scl,Sunnyvale,CalTrain SW,5969.108793,1461351.775
+447,scl,Sunnyvale,Ponderosa Pk,4985.250711,1159962.001
+448,scl,Sunnyvale,Gavello Glen,5542.658851,1251524.353
+449,scl,Sunnyvale,Stratford Gardens,5839.559632,1454656.461
+450,scl,Sunnyvale,Downtown,4778.307629,1320033.605
+451,scl,Sunnyvale,Las Palmas Pk,5593.117914,1883323.867
+452,scl,Sunnyvale,Fremont HS,4826.682866,1272785.177
+453,scl,Sunnyvale,De Anza Pk,6997.68921,2493142.921
+454,scl,Sunnyvale,The Dalles W,5770.088068,1996502.491
+455,scl,Sunnyvale,The Dalles E,4865.432926,1245852.494
+456,scl,Sunnyvale,Alberta Av,4900.168814,1307850.883
+457,scl,Sunnyvale,Ortega Pk,6246.227569,1573379.132
+458,scl,Sunnyvale,Panama Pk,4744.869526,1016865.661
+459,scl,Sunnyvale,Koreatown SW,6584.348407,2605195.439
+460,scl,Cupertino,Apple 2,6777.17505,2688696.293
+461,scl,Santa Clara,Homeridge Pk,5493.702178,1502283.394
+462,scl,Santa Clara,Maywood Park,5510.714084,1546650.549
+463,scl,Santa Clara,Prineridge and Tanoak,5053.097393,1135959.321
+464,scl,Santa Clara,Pruneridge Golf Club,5643.035098,1326757.116
+465,scl,Santa Clara,Prineridge and Los Padres,6582.130815,2134704.798
+466,scl,Santa Clara,Cory and Valley Fair Mall,6659.186031,1678665.885
+467,scl,Southwest San Jose,Santana Row,4778.062992,1329685.367
+468,scl,Campbell,Castlemont E,5328.96178,1449829.337
+469,scl,Southwest San Jose,Castlemont SW,3873.332812,857181.4058
+470,scl,Southwest San Jose,Lynhaven and Hamman Park,5914.230632,2026805.795
+471,scl,Southwest San Jose,Cypress and North Lake,5517.579409,1487455.744
+472,scl,Southwest San Jose,Blackford,4160.856737,1092314.606
+473,scl,Southwest San Jose,Eden,4554.06817,1092428.18
+474,scl,Southwest San Jose,Payne School,4186.807276,1006476.107
+475,scl,Southwest San Jose,Westgate Ctr,5152.127874,1573677.449
+476,scl,Southwest San Jose,Rogers and Country Lane,7207.910336,2468873.501
+477,scl,Southwest San Jose,Strawberry Park,5973.809204,1827321.629
+478,scl,Southwest San Jose,Villa Center,5267.391957,1100295.119
+479,scl,Cupertino,Calvert,6190.859599,2241259.497
+480,scl,Cupertino,Lynbrook HS,5129.866912,1322361.301
+481,scl,Cupertino,Orchard Farms,5447.220217,1510879.094
+482,scl,Cupertino,Alderbrook Ln,5343.818278,1423465.902
+483,scl,Cupertino,Calabazas Pk,5474.392647,1451468.617
+484,scl,Cupertino,Creekside Park,6031.985458,2286395.346
+485,scl,Cupertino,Apple 1,6527.192255,2605240.199
+486,scl,Cupertino,Memorial Park,5562.074606,1897269.989
+487,scl,Cupertino,Homestead,10838.28705,2085934.588
+488,scl,Cupertino,Stevens Creek and Foothill,14047.37755,6591224.049
+489,scl,Cupertino,Monte Vista HS,13840.2722,7974410.497
+490,scl,Cupertino,De Anza College,10311.99075,2653042.615
+491,scl,Cupertino,Jollyman Pk,4896.970195,996427.0899
+492,scl,Cupertino,De Anza Shopping Ctr,5456.053951,1704359.806
+493,scl,Gatos Sereno Saratoga,Saratoga Ctr,8476.720766,3234050.158
+494,scl,Gatos Sereno Saratoga,Saratoga HS,8847.448526,3701887.827
+495,scl,Gatos Sereno Saratoga,Pierce and Mount Eden,19932.38311,13836452.6
+496,scl,Gatos Sereno Saratoga,Downtown Saratoga,16856.1542,11957686.46
+497,scl,Gatos Sereno Saratoga,W Valley College,11801.45486,8454500.847
+498,scl,Gatos Sereno Saratoga,Prospect HS,8904.665448,2339523.491
+499,scl,Southwest San Jose,Westmont N,9242.387683,2452741.739
+500,scl,Campbell,Westmont S,5411.499837,1591114.698
+501,scl,Campbell,San Tomas Pk,4706.4011,1301561.29
+502,scl,Southwest San Jose,San Tomas Plaza,4574.282012,1201490.193
+503,scl,Campbell,Downtown Campbell W,5988.21613,1768680.214
+504,scl,Campbell,Downtown Campbell E,10823.03633,2982097.076
+505,scl,Campbell,W Sunnyoaks Av,5714.537591,1670062.12
+506,scl,Campbell,Capri,5447.624644,1338463.216
+507,scl,Gatos Sereno Saratoga,La Rinconada,9639.869088,3429458.146
+508,scl,Gatos Sereno Saratoga,Los Gatos Creek,8558.595322,1614500.221
+509,scl,Gatos Sereno Saratoga,Vasona,10343.16427,1947487.632
+510,scl,Gatos Sereno Saratoga,Monte Sereno,12272.05965,3137950.331
+511,scl,Gatos Sereno Saratoga,Los Gatos,21593.6144,11894465.42
+512,scl,Outer Santa Clara Country,Lexington Hills,68664.1569,140343011.3
+513,scl,Gatos Sereno Saratoga,Worcester Pk,22354.85663,13654336.73
+514,scl,Gatos Sereno Saratoga,Belgatos Pk,15518.02105,9374016.98
+515,scl,Cambrian,Cambrian,6182.919791,2310892.723
+516,scl,Cambrian,Blossom,6347.419292,1540834.421
+517,scl,Cambrian,Los Gatos Cemetery,7450.057976,2065991.624
+518,scl,Gatos Sereno Saratoga,Blossom Hill,8427.235167,2944486.726
+519,scl,Cambrian,Cambrian Pk W,7974.788411,3043123.234
+520,scl,Cambrian,Cambrian Pk E,5481.131653,1707957.96
+521,scl,Cambrian,Vizcaya,6013.700858,1737124.196
+522,scl,Cambrian,Curtner and New Jersey,6489.269838,1908161.389
+523,scl,Cambrian,Curtner and Dumbarton,7404.078373,2626870.633
+524,scl,Cambrian,Curtner and Briarwood,6066.376623,1881763.874
+525,scl,Southern Central San Jose,Cottle and Hustead,6521.957092,1728068.076
+526,scl,Southern Central San Jose,Willow Glen HS,7141.097861,2495246.453
+527,scl,Southern Central San Jose,Willow Glen E,8231.407534,2761181.871
+528,scl,Southwest San Jose,Willow Glen W,6276.008446,1898018.55
+529,scl,Southwest San Jose,Meridian Post Office,5426.479144,1412942.929
+530,scl,Campbell,Pruneyard Plaza,9529.955081,2578689.609
+531,scl,Southwest San Jose,Hamilton Place,5458.470748,1126379.928
+532,scl,Southwest San Jose,Del Marietta-Southwest,5429.066521,989859.911
+533,scl,Southwest San Jose,San Jose City College,6119.039981,1813451.638
+534,scl,Southwest San Jose,Fruitdale,6469.672439,1934540.137
+535,scl,Diridon Area and Burbank,Burbank,5401.670828,1328434.729
+536,scl,Diridon Area and Burbank,Buena Vista,4804.540595,885332.7964
+537,scl,Diridon Area and Burbank,Race,5892.661103,1641059.575
+538,scl,Diridon Area and Burbank,Diridon Station,3396.963322,672334.1108
+539,scl,San Jose Civic Center,San Jose Market Center,7033.655863,2078559.719
+540,scl,Diridon Area and Burbank,Garden Alameda,5343.819996,1341568.952
+541,scl,Diridon Area and Burbank,San Jose Rose Garden,6862.247465,2141253.878
+542,scl,Diridon Area and Burbank,College Park,4089.132629,1012519.317
+543,scl,Santa Clara,Santa Clara University,6423.888346,1483005.2
+544,scl,Santa Clara,Downtown SW,7799.033006,1606840.289
+545,scl,Santa Clara,Downtown NE,5528.855414,960349.3002
+546,scl,San Jose Civic Center,Civic Center,7022.586134,1879962.536
+547,scl,San Jose Civic Center,East Northside,6100.873154,1953401.276
+548,scl,San Jose Civic Center,Japantown,6742.209354,1884429.579
+549,scl,Central San Jose,Saint James,3615.964472,802211.0382
+550,scl,Central San Jose,Julian,3785.046025,830782.575
+551,scl,Central San Jose,Five Wounds,5631.131614,1558861.761
+552,scl,Southern Central San Jose,San Jose Mobile Homes,3252.214692,617823.836
+553,scl,Southern Central San Jose,Olinder,4344.374386,869279.593
+554,scl,Central San Jose,Naglee Park,3506.788179,746684.0185
+555,scl,Southern Central San Jose,Naglee Park S,4853.757561,1217579.203
+556,scl,Central San Jose,San Jose State South,2065.826373,240896.2491
+557,scl,Central San Jose,San Fernando and 2nd/San Jose State,3930.541931,721903.5897
+558,scl,Central San Jose,Core and San Fernando Station,6953.574448,1652563.368
+559,scl,Southern Central San Jose,Virgina Station,5222.590772,1532181.639
+560,scl,Southern Central San Jose,Convention Center,4606.302039,1019487.884
+561,scl,Southern Central San Jose,Spartan Stadium,4377.126048,1132918.386
+562,scl,Southern Central San Jose,Tamien Station,3372.904933,692564.5707
+563,scl,Southern Central San Jose,Monterey and Phelan,12576.75714,6434896.716
+564,scl,San Jose S,Canoas,6444.946782,2271608.1
+565,scl,San Jose S,Waterford Pk,5171.869678,1226715.041
+566,scl,San Jose S,Communications Hill,9774.609348,4453288.08
+567,scl,Southeast San Jose,Cramer-Umbarger,5370.351963,1784179.515
+568,scl,Southeast San Jose,Capitol and Monterey NE,4983.296379,1414064.55
+569,scl,Southeast San Jose,Seven Trees N,3566.831275,601584.1093
+570,scl,Southeast San Jose,Seven Trees S,3298.243946,585969.0673
+571,scl,Southeast San Jose,Melody,5183.856259,1205154.439
+572,scl,Southeast San Jose,Hellyer,5547.293976,1583423.165
+573,scl,Southeast San Jose,Ramblewood,5772.538819,1331107.621
+574,scl,Southeast San Jose,Hermes,5933.398894,1098850.78
+575,scl,Southern Central San Jose,Los Lagos,7037.547652,1684563.553
+576,scl,Southern Central San Jose,Stonegate E,4256.669025,1075299.422
+577,scl,Southern Central San Jose,Kilchoan Wy,4677.43904,928667.7754
+578,scl,Southern Central San Jose,Summerside,5801.255816,1066410.38
+579,scl,Southern Central San Jose,Kelley Pk,6167.045259,1777184.211
+580,scl,Southern Central San Jose,Santee Dr,4369.325285,801952.5587
+581,scl,San Jose Wilbur Tropicana Overfelt,Tampa Wy,6785.296959,839984.5684
+582,scl,Eastridge Evergreen,Alvin Av,5662.16578,1445778.746
+583,scl,Eastridge Evergreen,Eastridge Mall,6519.825268,2324118.553
+584,scl,San Jose Wilbur Tropicana Overfelt,Reid-Hillview Airport,5939.541159,1666678.274
+585,scl,San Jose Wilbur Tropicana Overfelt,Dorsa W,4397.139076,749495.8313
+586,scl,San Jose Wilbur Tropicana Overfelt,Dorsa E,5038.594444,1120950.892
+587,scl,San Jose Wilbur Tropicana Overfelt,Hillview,3096.904891,388331.083
+588,scl,San Jose Wilbur Tropicana Overfelt,Cassell,4136.63128,999322.7339
+589,scl,San Jose Wilbur Tropicana Overfelt,Lombard,4390.945215,1037391.764
+590,scl,San Jose Wilbur Tropicana Overfelt,Cinderella Ln,3779.023723,672120.8055
+591,scl,San Jose Wilbur Tropicana Overfelt,Mayfair,4975.297954,1544111.171
+592,scl,San Jose Wilbur Tropicana Overfelt,Thunderbird Suenos,5038.382661,1195846.644
+593,scl,Berryessa,Las Plumas W,5462.234371,1344343.613
+594,scl,Berryessa,Plata Arroyo,3480.651942,753032.0526
+595,scl,Berryessa,Regional Med Ctr,4327.825925,1137753.234
+596,scl,Berryessa,Overfelt Gardens,4487.531967,1216046.965
+597,scl,Berryessa,Las Plumas E,3891.495751,884481.6347
+598,scl,Berryessa,BART,6591.215004,2070697.984
+599,scl,Berryessa,Flickinger,5009.045934,1109800.352
+600,scl,Berryessa,Vinci,4946.709594,1146352.523
+601,scl,Berryessa,"Carmine, Townsend and Notting Hill",6285.902587,2175276.733
+602,scl,Berryessa,Mobile Homes,5919.998301,1472470.973
+603,scl,Berryessa,Gish,6008.091789,1591084.674
+604,scl,Berryessa,Casa Del Lago,6167.915678,1294110.832
+605,scl,Berryessa,McKay to Cropley Station,9147.800882,4505950.826
+606,scl,Milpitas,South Main Street,6563.591257,2003118.07
+607,scl,Milpitas,Great Mall,8054.481065,2658778.513
+608,scl,Milpitas,Kaiser,8038.881565,3334516.121
+609,scl,Milpitas,Town Square,5456.894711,1728675.317
+610,scl,Milpitas,Beresford,3707.352245,633764.8219
+611,scl,Milpitas,Marylinn,6353.610239,1793212.469
+612,scl,Milpitas,Dixon Landing,6174.851052,1811095.113
+613,scl,Milpitas,Sunnyhills,4162.781407,866627.0336
+614,scl,Milpitas,HS,6070.088913,1593495.141
+615,scl,Milpitas,Ed Levin Pk,20189.54852,17002767.2
+616,scl,Milpitas,Cardoza Pk,5497.960278,1028332.881
+617,scl,Milpitas,Foothill Pk,4220.850579,1037297.727
+618,scl,Milpitas,Unidas Ranch,15620.16949,9118750.001
+619,scl,Milpitas,Murphy Pk,5268.939561,1206200.974
+620,scl,Milpitas,Sinnott Pk,4736.389042,1124394.569
+621,scl,San Jose Eastside,Northwood,4793.630641,1110711.479
+622,scl,San Jose Eastside,Old Piedmont N,4899.035931,1365344.293
+623,scl,San Jose Eastside,Old Piedmont S,6114.95992,1616950.31
+624,scl,San Jose Eastside,Cataldi Pk,3785.340114,936507.5886
+625,scl,San Jose Eastside,Berryessa and Hostetter Stations,5588.262424,1476026.598
+626,scl,San Jose Eastside,Pinnacle,6007.251939,1443322.697
+627,scl,San Jose Eastside,Penitencia Creek,6530.003561,1704044.53
+628,scl,San Jose Eastside,Upper Sierra,21258.06714,18601266.61
+629,scl,San Jose Eastside,E Foothills,11823.4857,3137040.125
+630,scl,San Jose Eastside,Toyon,5325.741458,1673001.696
+631,scl,San Jose Eastside,Penitencia Station,4652.159568,1045889.886
+632,scl,San Jose Eastside,McKee Station,4981.047777,1520343.551
+633,scl,San Jose Eastside,Alum Rock N,5843.863698,1948220.189
+634,scl,San Jose Wilbur Tropicana Overfelt,Granite Creek,4531.444674,1139664.816
+635,scl,San Jose Eastside,Alum Rock E,4454.292046,994339.8663
+636,scl,San Jose Eastside,Alum Rock S,5062.737887,1343526.8
+637,scl,San Jose Eastside,Alum Rock Pk,29599.19756,15396313.87
+638,scl,San Jose Eastside,Mt Pleasant Pk,4055.425871,1007616.222
+639,scl,San Jose Eastside,Doncaster-Warrington,4608.567401,998863.5874
+640,scl,San Jose Eastside,Ocala,4200.110503,862243.0805
+641,scl,San Jose Eastside,Mt Pleasant HS,5273.869209,1078132.736
+642,scl,San Jose Eastside,Balcom Rd,24249.68296,15036408.55
+643,scl,San Jose Eastside,Flint Av N,5709.696935,1443203.284
+644,scl,Eastridge Evergreen,Lake Cunningham,5969.288928,1999598.799
+645,scl,Eastridge Evergreen,Flint Av S,4414.774359,1131276.046
+646,scl,Eastridge Evergreen,Remington Wy N,3916.768472,827847.2605
+647,scl,Eastridge Evergreen,Quimby N,6092.531959,1613151.404
+648,scl,Eastridge Evergreen,Quimby S,13687.01215,4229901.667
+649,scl,Eastridge Evergreen,Remington Wy S,4914.467503,1120838.733
+650,scl,Eastridge Evergreen,Evergreen N,5293.930022,1643080.414
+651,scl,Southeast San Jose,Silver Creek N,5764.799997,1665061.408
+652,scl,Southeast San Jose,Evergreen S,8128.200332,1453799.915
+653,scl,Southeast San Jose,Evergreen Valley College,23081.42266,19036748.99
+654,scl,Southeast San Jose,The Villages,15200.78437,9186958.28
+655,scl,Southeast San Jose,Silver Creek S,23333.15223,15236859.79
+656,scl,Southeast San Jose,Silver Creek and Hellyer,22206.64182,19737712.78
+657,scl,Southeast San Jose,Sunspring S,11710.894,2778016.701
+658,scl,San Jose Coyote Valley,Avenida Espanda S,9605.237346,2304232.757
+659,scl,San Jose Coyote Valley,Avenida Espanda N,5113.929019,1042641.896
+660,scl,San Jose Coyote Valley,Great Oaks Blvd,7861.616208,2857766.318
+661,scl,San Jose Coyote Valley,Edenvale,10620.97571,3942477.205
+662,scl,Southeast San Jose,La Colina Pk,5276.457535,1424192.678
+663,scl,Southeast San Jose,Santa Teresa HS,5460.424218,1199491.249
+664,scl,Southeast San Jose,Calero Pk,6663.65108,1800636.598
+665,scl,Southeast San Jose,Miner Pk,6284.36434,1944711.532
+666,scl,Southeast San Jose,Blossom Gardens,4411.300483,1026111.263
+667,scl,Southeast San Jose,Oak Grove HS,3920.755027,948659.8319
+668,scl,Southeast San Jose,Dear Run 2,6265.124402,1640696.117
+669,scl,Southeast San Jose,Sunspring N,6371.302111,1628401.48
+670,scl,Southeast San Jose,Claitor,8239.113865,2253183.105
+671,scl,Southeast San Jose,The Woods,5121.391104,1051541.686
+672,scl,Southeast San Jose,Vistapark and Bluefield,4576.626616,1077962.494
+673,scl,Southeast San Jose,Martial Cottle Pk,5879.609191,1987841.382
+674,scl,Southeast San Jose,Comanche Pk,7371.897525,2173652.247
+675,scl,Southeast San Jose,Sunrise Plaza,5583.166949,1654237.403
+676,scl,Cambrian,Almaden Station,7461.013091,2626991.279
+677,scl,Cambrian,Oakridge Mall,7531.805103,1688129.304
+678,scl,Cambrian,Gunderson HS,5535.270927,1384407.46
+679,scl,Cambrian,Tatra,5100.004906,1594870.593
+680,scl,Cambrian,Terrell Pk,6911.234287,2491381.118
+681,scl,San Jose S,Calvary,5901.715043,1351987.888
+682,scl,Cambrian,Paul Moore Pk,5946.898099,1883205.163
+683,scl,Cambrian,Desin Square,4596.772353,1250845.275
+684,scl,Cambrian,Branham Hills,5857.846892,2079813.676
+685,scl,Cambrian,Branham HS,5029.311436,1544845.299
+686,scl,Cambrian,Hammer,5487.818763,1300624.854
+687,scl,Cambrian,Almaden Plaza,6661.470658,1253111.307
+688,scl,Almaden Valley,Princeton Plaza,8640.728121,2818190.475
+689,scl,Almaden Valley,Almaden Meadows,6158.633498,1922729.489
+690,scl,Almaden Valley,Guadalupe Oak Grove Pk,7976.262002,2849830.025
+691,scl,Almaden Valley,Almaden Country Club,7862.885034,2272514.317
+692,scl,Almaden Valley,Glenview Serenity,6266.580071,1267333.284
+693,scl,Almaden Valley,Almaden E,7408.307605,1736724.457
+694,scl,Almaden Valley,Graystone,8043.364933,2454084.297
+695,scl,Almaden Valley,Almaden W,29989.2532,24063031.87
+696,scl,San Jose Coyote Valley,Santa Teresa Hills,49136.82635,37982001.25
+697,scl,San Jose Coyote Valley,Coyote Valley,45282.66797,78008812.47
+698,scl,Morgan Hill,Hill and Main,20347.50363,14856640.37
+699,scl,Morgan Hill,Hill and Tenant,16452.98033,9102226.133
+700,scl,Morgan Hill,Morgan Hill E,21744.50056,10906668.33
+701,scl,Morgan Hill,Watsonville Rd,10753.16744,5463067.332
+702,scl,Morgan Hill,Morgan Hill W,11815.54777,6346314.13
+703,scl,Morgan Hill,Llagas Rd,25441.81059,16843488.42
+704,scl,Outer Santa Clara Country,Mt Madona,121437.1697,264469447.6
+705,scl,Gilroy,Gilroy HS,28284.41793,28158671.69
+706,scl,Gilroy,Old Gilroy,63960.62774,97312642.56
+707,scl,Gilroy,Downtown E,11880.26386,4113872.996
+708,scl,Gilroy,Downtown W,6637.077395,2384965.371
+709,scl,Gilroy,Las Animas Pk,7519.618274,2074212.936
+710,scl,Gilroy,Kern Av,7328.975737,2650889.737
+711,scl,Gilroy,Rancho Hills Dr,16472.90639,13593394.65
+712,scl,Outer Santa Clara Country,San Martin W,40146.35847,41008279.14
+713,scl,Outer Santa Clara Country,San Martin E,50256.38545,51773162.91
+714,scl,Outer Santa Clara Country,Mount Hamilton,261250.4676,1515964034
+715,ala,Eastern Alameda County,Larwrence Livermore and 580 Business Pk and REMAI*,132078.0772,558201726.8
+716,ala,Livermore,Almond Pk,10503.59319,5017368.226
+717,ala,Livermore,Jensen,8166.45898,2681724.402
+718,ala,Livermore,Big Trees Pk,9567.054389,5465275.93
+719,ala,Livermore,Springtown,8823.997762,3687845.445
+720,ala,Eastern Alameda County,Livermore N,29123.13347,45976282.48
+721,ala,Livermore,Vintage Square,9721.08507,4619565.601
+722,ala,Livermore,Downtown N,6872.261657,2388245.123
+723,ala,Livermore,Station and Downtown SE,10393.60573,3959209.472
+724,ala,Livermore,Downtown S,8273.996506,3001744.987
+725,ala,Livermore,Vineyard Av E,11313.02564,4716645.943
+726,ala,Livermore,Concannon Blvd W,8996.127723,3638438.094
+727,ala,Livermore,Sunset,4794.811936,1278742.303
+728,ala,Livermore,Airport,16241.98898,12592231.83
+729,ala,Dublin,Dublin E,22873.1905,29062530.81
+730,ala,Dublin,Camp Parks,13218.74418,11400500.77
+731,ala,Dublin,Dougherty Hills,6137.98957,1582290.455
+732,ala,Dublin,Central Dublin,9435.450999,3172925.348
+733,ala,Dublin,West Dublin BART,8291.327085,3175917.306
+734,ala,Dublin,Dublin Hills,16005.34399,12526014.37
+735,ala,Pleasanton,Sunol N,45414.92829,50251476.18
+736,ala,Pleasanton,West of 680 and Stoneridge,17886.44408,6119187.214
+737,ala,Pleasanton,Hacienda West,9351.845932,3922465.78
+738,ala,Pleasanton,Paseo Santa Cruz,6348.372107,2042093.325
+739,ala,Pleasanton,Downtown and Fairgrounds,11104.86884,4889603.669
+740,ala,Pleasanton,Amador Valley,5994.980201,1785825.612
+741,ala,Pleasanton,Sports Park,6624.374292,2111751.944
+742,ala,Pleasanton,Hacienda East,13668.90944,6933151.106
+743,ala,Pleasanton,Mohr Park,13195.41579,9046830.347
+744,ala,Pleasanton,Pleasanton E,6484.38235,2082846.754
+745,ala,Pleasanton,Vineyard Av W,16625.70066,8155509.423
+746,ala,Eastern Alameda County,Sunol S,94684.92471,268885570.5
+747,ala,Mission Hills,Mission Peak,16238.47398,13676897.62
+748,ala,Warm Springs,Warm Springs SE,6759.198971,1597939.43
+749,ala,Warm Springs,Warm Springs E,6126.825198,1673148.724
+750,ala,Warm Springs,Warm Springs SW,8925.861011,3152638.815
+751,ala,Warm Springs,W Industrial,73461.73314,45368516.82
+752,ala,Warm Springs,E Industrial,11251.57147,6471485.522
+753,ala,Mission Hills,Arroyo Agua Caliente,6766.555356,2393055.322
+754,ala,Mission Hills,Mission Ohlone,18975.87017,15564528.89
+755,ala,Mission Hills,Cameron Hills,9118.616476,5150294.211
+756,ala,Mission Hills,Mission Valley,11103.51006,4165705.532
+757,ala,Irvington,Grimmer Pk,4530.052056,782381.6654
+758,ala,Irvington,Irvington SE,5251.997767,1614783.097
+759,ala,Irvington,Irvington SW,6722.633948,2038375.911
+760,ala,Irvington,Irvington NW,5623.337178,1555271.258
+761,ala,Irvington,Irvington HS,6617.887067,2395252.247
+762,ala,Fremont,Guadalupe,3798.49672,833424.7464
+763,ala,Fremont,Central District E,4431.387923,1066660.514
+764,ala,Fremont,Sundale,6626.331762,1937666.329
+765,ala,Fremont,Mowry E,4798.375571,1300777.045
+766,ala,Fremont,Mowry W,4847.763894,1255704.392
+767,ala,Newark,NewPark,15209.85023,8454509.93
+768,ala,Newark,Newark Waterfront,33053.4112,24910883.06
+769,ala,Ardenwood,Ardenwood S,26617.25782,23444948.6
+770,ala,Newark,Mayhews Landing Pk,5986.917881,2093754.899
+771,ala,Newark,Lakeshore Park,7814.209945,3013929.806
+772,ala,Newark,Newark W,4891.511119,1000372.439
+773,ala,Newark,Newark E,6752.084116,1975153.913
+774,ala,Fremont,Centerville,8239.328432,2243456.676
+775,ala,Fremont,Mowry N,6482.239674,2495150.678
+776,ala,Fremont,Parkmont,6877.510862,2035086.29
+777,ala,Fremont,Central District W,5495.171455,1497451.729
+778,ala,Fremont,BART Station and Central Park,10816.3934,5414993.374
+779,ala,Fremont,Gomes Pk,7001.857888,1819427.858
+780,ala,Mission Hills,Canyon Heights Dr,14047.26408,8091946.097
+781,ala,Fremont,Niles Canyon,21538.91686,15197136.32
+782,ala,Fremont,Niles,8620.843125,3248020.407
+783,ala,Fremont,Quarry Lakes,8512.128357,3302885.978
+784,ala,Fremont,Brookvale,6258.494479,1975064.331
+785,ala,Fremont,Cabrillo Pk,5968.285459,1663657.294
+786,ala,Fremont,Patterson Park,4707.756744,1317426.599
+787,ala,Ardenwood,Crandall Creek,7087.900721,1876189.676
+788,ala,Ardenwood,Ardenwood N,5444.845784,1712201.721
+789,ala,Ardenwood,Harvey Park,6430.270097,1314964.51
+790,ala,Union City,Accinelli Park,8557.417834,2625510.967
+791,ala,Union City,Contempo Park,3326.427973,673053.3992
+792,ala,Union City,Veterans Park S,4096.537142,926464.7018
+793,ala,Union City,Veterans Park N,4695.632781,984981.6515
+794,ala,Union City,Don Edwards,9814.452312,2464280.6
+795,ala,Union City,Alvarado Park,6692.658495,1851034.225
+796,ala,Union City,Union Landing,8951.129941,3531813.859
+797,ala,Union City,Central Av,11967.58295,4250649.756
+798,ala,Union City,Tropics MH,6318.135215,1431845.898
+799,ala,Ardenwood,Northgate,6304.320704,1622746.552
+800,ala,Union City,Civic Center,6981.225835,1823076.223
+801,ala,Union City,Union City BART,8307.380301,3176034.58
+802,ala,Union City,Downtown Union City,4808.503417,1146842.362
+803,ala,Union City,Appian Way,26925.44293,27760990.6
+804,ala,Hayward,Taper Park,8332.606462,2445418.374
+805,ala,Hayward,Carpenter E,7139.203746,2013562.389
+806,ala,Hayward,Carpenter W,13617.36383,6770658.646
+807,ala,Hayward,Tennyson-Alquire,4813.528724,987697.0329
+808,ala,Hayward,Palma Ceia Park,4087.723548,855445.5766
+809,ala,Hayward,Mount Eden HS,5866.602141,1724309.039
+810,ala,Hayward,Airport,44350.26902,49665384.26
+811,ala,Hayward,Chabot,6633.076852,2582459.64
+812,ala,Hayward,Southland,5496.557522,1592069.419
+813,ala,Hayward,Southgate,4590.828439,1028334.908
+814,ala,Hayward,Harder-Tennyson NW,4214.003113,856278.6527
+815,ala,Hayward,Harder-Tennyson NE,3501.972699,632942.3243
+816,ala,Hayward,Harder-Tennyson SW,4057.481869,816971.5757
+817,ala,Hayward,Harder-Tennyson SE,3908.17311,850679.7642
+818,ala,Hayward,Sorenson W,5483.394467,1268823.262
+819,ala,Hayward,Sorenson E,5182.920227,671591.1019
+820,ala,Hayward,Quarry,71301.766,58152814
+821,ala,Hayward,CSU East Bay,19424.62767,4559827.795
+822,ala,Hayward,Fairview S,10213.6781,4270554.324
+823,ala,Hayward,Fairview W,8794.679137,3035833.029
+824,ala,Hayward,Mission/Foothill,8628.894478,1988006.181
+825,ala,Hayward,Jackson Traingle NE,5028.145861,1086299.471
+826,ala,Hayward,Jackson Traingle SW,4137.550787,907248.6732
+827,ala,Hayward,Birchfield Park,4283.541189,1024706.173
+828,ala,Hayward,Burbank,5964.013176,1835417.685
+829,ala,Hayward,Centennial Park,3782.157955,797756.4855
+830,ala,Hayward,Longwood,4548.990663,1206242.2
+831,ala,Central Alameda Unincorporated,Hayward Acres,3635.009573,638051.8515
+832,ala,Central Alameda Unincorporated,McConaghy Park,6166.99682,1266502.764
+833,ala,Central Alameda Unincorporated,San Lorenzo Park,5735.927037,1310533.566
+834,ala,Central Alameda Unincorporated,Arroyo HS,9619.582316,2464331.99
+835,ala,Central Alameda Unincorporated,San Lorenzo W,5836.145479,1336858.322
+836,ala,Central Alameda Unincorporated,San Lorenzo E,7261.184949,1274367.475
+837,ala,Central Alameda Unincorporated,Cherryland W,7823.380995,2086629.601
+838,ala,Central Alameda Unincorporated,Cherryland E,4895.085402,1030280.54
+839,ala,Hayward,Downtown,5917.204568,1329622.875
+840,ala,Central Alameda Unincorporated,Grove Way W,6313.641106,1990384.76
+841,ala,Hayward,Upper B Street,6921.911806,1323392.499
+842,ala,Central Alameda Unincorporated,Grove Way E,5316.335515,959309.9163
+843,ala,Central Alameda Unincorporated,Fairview N,8826.729772,2394416.025
+844,ala,Central Alameda Unincorporated,Redwood Chabot Parks,68061.80246,105703870.5
+845,ala,Central Alameda Unincorporated,Columbia,14361.88268,5454035.567
+846,ala,Central Alameda Unincorporated,Forest Av,5687.59307,1905171.397
+847,ala,Central Alameda Unincorporated,BART,5833.502566,987796.4073
+848,ala,Central Alameda Unincorporated,Sutter Eden,4622.953168,1098464.508
+849,ala,Central Alameda Unincorporated,Castro Valley HS,4973.97591,1318332.963
+850,ala,Central Alameda Unincorporated,Redwood HS,7064.777657,2361360.241
+851,ala,Central Alameda Unincorporated,Lake Chabot,13329.8669,3601480.458
+852,ala,Central Alameda Unincorporated,Stanton,7360.672237,2266303.142
+853,ala,Central Alameda Unincorporated,El Portal Ridge,10462.72186,2617365.79
+854,ala,Central Alameda Unincorporated,Ashland N,3729.215536,813224.2159
+855,ala,Central Alameda Unincorporated,Ashland S,5945.07034,1196895.848
+856,ala,Central Alameda Unincorporated,Bayfair BART,6861.784192,1494446.167
+857,ala,Central Alameda Unincorporated,San Lorenzo HS,8107.440416,1322507.77
+858,ala,San Leandro,Lewelling Playground,7040.210809,1480180.533
+859,ala,San Leandro,Stenzel Park,5350.673921,1229727.501
+860,ala,San Leandro,Heron Bay,14755.97188,5342592.675
+861,ala,San Leandro,Kaiser,8544.697016,2582752.205
+862,ala,San Leandro,Bradrick,10732.07011,3248778.632
+863,ala,San Leandro,Bayfair Center,6191.002611,1519396.841
+864,ala,San Leandro,SL Hospital,7326.353223,1756035.397
+865,ala,San Leandro,Upper Bal,5982.944949,1287730.896
+866,ala,San Leandro,Fairmont Ridge,10923.32944,3698209.69
+867,ala,San Leandro,Estudillo and Morgan,3981.491564,812817.3643
+868,ala,San Leandro,Victoria Pk E,5553.196142,1082963.871
+869,ala,San Leandro,Victoria Pk W,4251.962358,1025336.55
+870,ala,San Leandro,Siempre Verde Pk,4801.246585,1067603.274
+871,ala,San Leandro,Downtown,6450.759258,1671874.529
+872,ala,San Leandro,Thrasher Pk,6585.746956,2174141.708
+873,ala,San Leandro,Mulford Gardens,18389.12276,6393543.775
+874,ala,OAK,Oakland Airport,19207.00822,10376213.02
+875,ala,OAK,Coliseum,23127.85815,6321991.383
+876,ala,OAK,Brookfield Village,3159.597907,488518.1025
+877,ala,OAK,Sobrante Park,3980.848052,722630.8425
+878,ala,East Oakland,North Stonehurst,4501.033079,1023555.871
+879,ala,East Oakland,Durant Manor and Neywood,3475.279867,716975.6014
+880,ala,East Oakland,Cox,3154.734102,586009.4364
+881,ala,East Oakland,Las Palmas,4302.004958,591839.5701
+882,ala,East Oakland,Foothill Square,4589.906967,755761.8002
+883,ala,Oakland Hills,Knowland Park,13056.46895,6933233.216
+884,ala,Oakland Hills,Sequoyah,12144.98991,4509272.618
+885,ala,Oakland Hills,Merritt College,17666.96441,8643806.351
+886,ala,East Oakland,Eastmont Hills,6917.243233,1518152.505
+887,ala,East Oakland,Toler Heights and Golf Links,7474.829309,1767019.995
+888,ala,East Oakland,Castlemont,3950.772866,816353.2772
+889,ala,East Oakland,Eastmont,3060.711144,528145.3112
+890,ala,East Oakland,Arroyo Viejo,3814.447416,847122.1872
+891,ala,East Oakland,Webster,3740.204992,762109.2094
+892,ala,East Oakland,Highland and Elmhurst Park,5060.548511,1247411.254
+893,ala,East Oakland,Woodland,4475.44353,827248.3003
+894,ala,East Oakland,Fitchburg,4774.675997,801472.532
+895,ala,East Oakland,BART Coliseum OAK Station,5254.030964,1187892.375
+896,ala,OAK,Coliseum Way,8764.433892,2372921.638
+897,ala,East Oakland,Fremont,3393.990599,521129.7263
+898,ala,East Oakland,Seminary and Frick,3171.006303,494175.5848
+899,ala,East Oakland,Seminary and Frick,5089.7739,1134764.772
+900,ala,East Oakland,"Hegenberger, Havenscourt, and Eastmont Mall",5207.221285,1068022.711
+901,ala,East Oakland,Millsmont,4151.987187,912487.2383
+902,ala,MacArthur Blvd,Mills College,6418.060733,1222883.261
+903,ala,East Oakland,Maxwell Park,3849.812027,916164.9759
+904,ala,East Oakland,Fairfax,4855.040468,1023858.683
+905,ala,Fruitvale,Allendale and Jefferson,4033.768924,1031604.564
+906,ala,MacArthur Blvd,Laurel,3843.487552,872452.4564
+907,ala,MacArthur Blvd,MacArthur at the 13,7153.857332,1149672.225
+908,ala,MacArthur Blvd,Upper Laurel,4598.673275,863937.3009
+909,ala,MacArthur Blvd,Redwood Heights,6964.694424,899873.987
+910,ala,MacArthur Blvd,Upper Dimond,6588.769643,1674435.993
+911,ala,Oakland Hills,Woodminster,6983.155688,1908198.276
+912,ala,Oakland Hills,Joaquin Miller,11751.59446,4900074.515
+913,ala,Oakland Hills,Montclair E,9131.739983,3067304.708
+914,ala,Oakland Hills,Broadway Terrace E,12219.706,4105720.918
+915,ala,Oakland Hills,Lake Temescal,7076.180278,1827681.799
+916,ala,Oakland Hills,Broadway Terrace W,8044.916202,2761389.071
+917,ala,Piedmont,Piedmont W,5322.754415,1355041.942
+918,ala,Piedmont,Piedmont E,8527.113315,2989925.232
+919,ala,Oakland Hills,Montclair W,4634.643856,1107069.057
+920,ala,Oakland Hills,Dimond Canyon,4998.808418,1205626.428
+921,ala,MacArthur Blvd,Oakmore,3788.450284,625217.3907
+922,ala,MacArthur Blvd,Glenview,5154.504101,1011504.162
+923,ala,MacArthur Blvd,Dimond,4533.505112,1171829.576
+924,ala,Fruitvale,Hacienda,3894.193826,748197.154
+925,ala,Fruitvale,St Elizabeth,3730.713389,717263.2462
+926,ala,Fruitvale,Fruitvale Station and Waterfront,6514.251185,1843373.893
+927,ala,Fruitvale,Hawthorne,2704.863433,391212.788
+928,ala,Fruitvale,Oak Tree,2820.502823,409562.4319
+929,ala,Fruitvale,Sausal Creek,2874.307168,482287.945
+930,ala,MacArthur Blvd,Meadowbrook,3049.040525,562505.6173
+931,ala,MacArthur Blvd,Highlland Park,3451.467225,543242.3271
+932,ala,Oakland Eastlake,14th and 24th,3610.897379,520953.4395
+933,ala,Oakland Eastlake,San Antonio,4086.306136,937447.3577
+934,ala,Oakland Eastlake,Clinton,3361.692831,596415.8874
+935,ala,Oakland Eastlake,Park Blvd Plaza,2975.83377,411437.6805
+936,ala,MacArthur Blvd,Bella Vista,2852.72489,428478.6758
+937,ala,Lake Merritt,Trestlle Glen South,6765.526686,808395.3169
+938,ala,Lake Merritt,Trestlle Glen North,5254.978746,1260888.466
+939,ala,Lake Merritt,Grand Lake East,4117.275544,649509.7567
+940,ala,Lake Merritt,Grand Lake West,2974.61285,509800.0319
+941,ala,Lake Merritt,Adams Point North,3706.285219,385467.1172
+942,ala,Lake Merritt,Adams Point South,4228.634347,379991.2515
+943,ala,Lake Merritt,Cleveland Heights,4075.704984,851363.2065
+944,ala,Lake Merritt,Merritt,3495.278399,430289.4997
+945,ala,Lake Merritt,Gold Coast,5518.453112,1265350.543
+946,ala,Oakland Waterfront,Regional Agencies and Laney College,4504.719445,924432.0838
+947,ala,Oakland Waterfront,Brooklyn Basin Waterfront,12154.05296,2104782.987
+948,ala,Alameda City,Hibbardsville,8164.640237,1318432.315
+949,ala,Alameda City,Marina,4848.683887,1024741.131
+950,ala,Alameda City,East End North,4698.176805,982989.5762
+951,ala,Alameda City,East End South,5912.772485,1403161.189
+952,ala,Alameda City,South,10965.02665,4532873.283
+953,ala,Alameda City,North,6308.599868,2224187.511
+954,ala,Alameda City,Alameda Town Center,4323.101492,846407.6962
+955,ala,Alameda City,Encinal Ave,3077.89208,523653.5528
+956,ala,Alameda City,Central-Encinal Curve,3633.71483,833302.9124
+957,ala,Alameda City,South Shore Central,3845.905207,677361.001
+958,ala,Alameda City,South Shore West,5362.635991,975746.2057
+959,ala,Alameda City,Central Avel,4187.795312,834579.9343
+960,ala,Alameda City,Marina Village and Fortmann Basin,9559.03967,1931668.521
+961,ala,Alameda City,Bayport and College of Alameda,6462.437645,1870945.691
+962,ala,Alameda City,Woodstock,3498.345681,570984.9644
+963,ala,Alameda City,West End,7548.275959,1000256.283
+964,ala,Alameda City,Alameda Point,15443.15798,5888497.895
+965,ala,West Oakland,Mid and South Prescott,15238.38579,4182929.108
+966,ala,West Oakland,Inner,7210.459578,1253763.362
+967,ala,Oakland Waterfront,Jack London Square and Warehose District,3845.079939,523381.4831
+968,ala,Oakland CBD,12th Street East,2413.962199,341156.5261
+969,ala,Oakland CBD,12th Street West,2346.577736,328386.0535
+970,ala,Oakland CBD,19th Street West,2733.848077,401242.6209
+971,ala,Oakland CBD,19th Street East,3247.339181,377859.9151
+972,ala,Oakland CBD,Harrison,4418.78013,845483.0871
+973,ala,North Oakland,Piedmont Ave Lower,3286.560206,375841.1058
+974,ala,North Oakland,Piedmont Ave Upper,4215.069146,799634.7845
+975,ala,North Oakland,Broadway W,4071.979257,667594.4314
+976,ala,North Oakland,MacArhur BART and Temescal,4316.26661,886308.8562
+977,ala,North Oakland,West MacArhur BART,4651.900594,1156544.635
+978,ala,West Oakland,Hoover,4108.672976,770822.9753
+979,ala,Oakland CBD,Pill Hill and North Gate,4176.515461,841768.5776
+980,ala,West Oakland,Grand Ave South: MLK to Market,2640.260072,399721.5388
+981,ala,West Oakland,Preservation Park,2382.680817,315317.6095
+982,ala,West Oakland,Acorn E,2559.431243,360991.5249
+983,ala,West Oakland,Grand Ave South: Market to Adeline,2429.292133,336393.0522
+984,ala,West Oakland,Grand Ave South: Adeline to Mandela,3099.000366,427468.6793
+985,ala,West Oakland,Acorn W,2540.575774,305814.3592
+986,ala,West Oakland,Prescott between Peralta and Mandela,3231.067776,276356.3509
+987,ala,West Oakland,Prescott,2328.471098,300857.8879
+988,ala,West Oakland,"Outer, Army Base, and Clawson",18799.30095,5809990.02
+989,ala,West Oakland,Grand Ave North,3631.957885,633727.7628
+990,ala,West Oakland,McClymonds,2962.936175,465612.4522
+991,ala,Emeryville,Emeryville,13090.64682,3207319.979
+992,ala,North Oakland,Gaskill,2832.30209,425329.6352
+993,ala,North Oakland,Golden Gate and Paradise Park,4009.636818,691693.917
+994,ala,Berkeley W,Acton and Prince,2660.163824,328812.2813
+995,ala,Berkeley S,Woolsey and King,2868.209805,504538.7831
+996,ala,North Oakland,Santa Fe,4432.390269,886045.8131
+997,ala,North Oakland,Idora Park,2413.55659,298167.9037
+998,ala,North Oakland,Rockridge S,5435.255263,1114813.985
+999,ala,North Oakland,Rockridge N,3864.154791,591895.0835
+1000,ala,North Oakland,Fairview Park,3789.611421,685137.5599
+1001,ala,North Oakland,Bushrod,3471.24985,592524.6879
+1002,ala,Berkeley S,Ashby BART Station,3716.760557,394523.392
+1003,ala,Berkeley S,Alta Bates,2983.185452,331549.7097
+1004,ala,Berkeley S,Tunnel Rd,4696.628221,1027490.383
+1005,ala,Oakland Hills,Claremont,14521.64307,6832547.33
+1006,ala,Berkeley S,Derby,3589.533791,737684.5869
+1007,ala,Central Berkeley,Panoramic,2633.914614,344115.5705
+1008,ala,Central Berkeley,Southside,2822.525378,407253.5151
+1009,ala,Berkeley S,Telegraph and Parker,2830.802647,402895.8023
+1010,ala,Berkeley S,Willard,3023.751997,531534.2206
+1011,ala,Berkeley S,Shattuck and Adeline,3289.802398,629913.3325
+1012,ala,Berkeley S,Ward and McGee,3552.144191,761958.7731
+1013,ala,Berkeley W,Acton and Derby,3471.955102,726011.4918
+1014,ala,Berkeley W,Waterfront,21241.37335,4742782.361
+1015,ala,Berkeley W,South,2876.006532,460974.7781
+1016,ala,Berkeley W,Strawberry Creek Park,3502.571158,759417.9795
+1017,ala,Central Berkeley,Civic Center,3460.768466,746341.7164
+1018,ala,Central Berkeley,Downtown Berkeley,3095.967856,543821.4167
+1019,ala,Central Berkeley,University of California,6608.996611,1746148.029
+1020,ala,Central Berkeley,Northside,3127.521448,463077.2607
+1021,ala,Central Berkeley,Hearst and Shattuck,2795.014921,466121.831
+1022,ala,Central Berkeley,Ohlone Park,3023.591756,553730.6647
+1023,ala,Berkeley W,N Berkeley BART,3332.009851,663056.92
+1024,ala,Berkeley W,North,3198.754897,540570.9568
+1025,ala,Berkeley W,Gilman and Hopkins,4042.257714,856306.3342
+1026,ala,North Berkeley,Rose and McGee,3052.553788,536254.5437
+1027,ala,North Berkeley,Vine and Shattuck,3043.220637,568333.6194
+1028,ala,North Berkeley,Hills S,7757.293297,1358132.813
+1029,ala,North Berkeley,Hills N,7883.044187,1491909.284
+1030,ala,North Berkeley,Cragmont,3768.395601,744987.7684
+1031,ala,North Berkeley,Indian Rock,6456.258313,1351945.296
+1032,ala,North Berkeley,Northbrae,3078.534128,473203.661
+1033,ala,North Berkeley,Solano and Colusa,6019.404082,1105652.238
+1034,ala,Albany,Albany SE,3812.825704,788876.1247
+1035,ala,Albany,Albany HS,3223.694919,552785.8855
+1036,ala,Albany,Albany NW,2950.240327,456526.169
+1037,ala,Albany,Albany SW,2678.214241,413963.4448
+1038,ala,Albany,University Village and Golden Gate Fields,10198.21925,1373790.972
+1039,ala,Albany,Hill and Waterfront,4642.046809,1023764.003
+1040,cnc,El Cerrito and Kensington,Central and Carlson,2504.484902,243983.168
+1041,cnc,El Cerrito and Kensington,Plaza and BART Station,3400.144696,677876.1703
+1042,cnc,El Cerrito and Kensington,El Cerrito HS,4540.193264,619214.7199
+1043,cnc,El Cerrito and Kensington,Kensington W,5770.936497,1382204.643
+1044,cnc,El Cerrito and Kensington,Kensington E,5832.251369,886379.8707
+1045,cnc,El Cerrito and Kensington,El Cerrito Hills North,8298.95066,2457223.917
+1046,cnc,El Cerrito and Kensington,El Cerrito Hills South,4625.779169,1017294.9
+1047,cnc,El Cerrito and Kensington,Midtown North,3805.049519,803381.6755
+1048,cnc,El Cerrito and Kensington,Midtown South,3389.676762,664418.6561
+1049,cnc,Richmond,Richmond Annex,6785.216596,1346209.813
+1050,cnc,Richmond,Laurel Park,9606.312259,1928102.504
+1051,cnc,El Cerrito and Kensington,Del Norte BART Station,7133.345765,1096305.802
+1052,cnc,El Cerrito and Kensington,Snowdon Av,3805.646912,638097.7506
+1053,cnc,El Cerrito and Kensington,Barrett Av,6314.792721,1582782.138
+1054,cnc,East Richmond,E Richmond,5788.786368,995627.8239
+1055,cnc,Richmond,Barrett and 37th,5450.175227,1289619.271
+1056,cnc,Richmond,Barrett and 28th,4010.710224,991385.3094
+1057,cnc,Richmond,Belding Woods,3417.935705,654920.9622
+1058,cnc,Richmond,Pullman and Park Plaza,7032.006057,1874677.213
+1059,cnc,Richmond,Pt Isabel,20397.91733,5767739.831
+1060,cnc,Richmond,"Santa Fe, Coronado, and Cortez",6943.471476,1684150.001
+1061,cnc,Richmond,City Center and Atchison Village,6358.197361,1263494.111
+1062,cnc,Richmond,W Shoreline,48211.41745,17481065.15
+1063,cnc,Richmond,Iron Triangle,5464.042792,1217571.601
+1064,cnc,Richmond,Visalia Av,4535.052963,827279.9835
+1065,cnc,Richmond,North and East,5499.674008,1560251.597
+1066,cnc,East Richmond,San Pablo SE,6945.691936,1641607.06
+1067,cnc,Richmond,San Pablo SW,5850.789867,1434454.477
+1068,cnc,Richmond,Shields-Reid,13301.3076,5841039.87
+1069,cnc,Richmond,Hilltop Pt Pinole,25994.98239,12632280.07
+1070,cnc,Richmond,Stanton Av,5167.737273,1003192.735
+1071,cnc,Richmond,San Pablo NW,5358.061731,1053818.865
+1072,cnc,East Richmond,San Pablo NE,6314.407915,1299583.997
+1073,cnc,East Richmond,Rollingwood,6695.882668,1795599.698
+1074,cnc,East Richmond,Hilltop Green,8860.31497,4386767.666
+1075,cnc,East Richmond,Hasford Heights,6889.002423,1510237.072
+1076,cnc,East Richmond,E Richmond Heights,7034.195509,1305750.556
+1077,cnc,East Richmond,Wildcat Canyon,23229.27402,15683235.89
+1078,cnc,East Richmond,El Sobrante SW,7173.757252,2150332.656
+1079,cnc,East Richmond,El Sobrante NE,16470.68097,10167494.83
+1080,cnc,Carquinez S,Tara Hills,7717.033517,1983484.029
+1081,cnc,Carquinez S,Bayview-Montalvin,8082.264993,1691358.934
+1082,cnc,Carquinez S,Pinole,7101.185041,2098363.126
+1083,cnc,Carquinez S,Hercules,16222.69688,7039507.944
+1084,cnc,Carquinez S,Pinole Ridge,18655.38489,10108329.2
+1085,cnc,Carquinez S,Valley Oak Villas,8377.804791,2899583.086
+1086,cnc,Carquinez S,Country Run,11650.70538,3224602.306
+1087,cnc,Carquinez S,San Pablo Reservoir,76754.49299,112560039.8
+1088,cnc,Carquinez S,Crockett Hills,17402.2033,15940361.43
+1089,cnc,Carquinez S,Rodeo,17388.17019,6895584.486
+1090,cnc,Carquinez S,Crockett,21886.92084,11122541.12
+1091,cnc,Carquinez S,Martinez W,20837.44895,12169325.29
+1092,cnc,Carquinez S,Downtown Martinez,11283.37772,1518270.025
+1093,cnc,Carquinez S,Uptown,7076.236377,1621937.626
+1094,cnc,Carquinez S,Mountain View,7843.61215,3083358.74
+1095,cnc,Carquinez S,Vine Hill,25130.7025,15500672.8
+1096,cnc,Carquinez S,Morello N,16061.32749,8303058.375
+1097,cnc,Bayshore Antioch,Port Chicago,36573.9854,40243248.4
+1098,cnc,Concord,Concord Naval Weapons,27143.28181,30464792.93
+1099,cnc,Concord,Concord Blvd and Ayers,8463.22266,3858057.602
+1100,cnc,Eastern Contra Costa,Clayton N,17492.84214,10725642.65
+1101,cnc,Eastern Contra Costa,Clayton S,10261.94439,2785726.285
+1102,cnc,Danville Alamo,Mt Diablo,47391.26856,64398418.68
+1103,cnc,Concord,Clayton SW,16266.34353,9325882.568
+1104,cnc,Concord,Larwin Av,6120.457004,1319965.793
+1105,cnc,Concord,Plumleigh Ln,3247.717958,413921.5056
+1106,cnc,Concord,Newhall Pk,10032.88101,2642950.565
+1107,cnc,Concord,Joan Av,4741.048716,1304835.862
+1108,cnc,Concord,Concord Blvd and Glazier,7476.292045,2367871.59
+1109,cnc,Concord,Concord Blvd and Landana,7985.853156,3068193.126
+1110,cnc,Concord,Concord Blvd and 6th,7378.437884,2828692.158
+1111,cnc,Concord,Concord NE,8226.751507,2156911.687
+1112,cnc,Concord,Concord N,9673.845404,2774681.582
+1113,cnc,Concord,Downtown Concord,5207.735239,1105378.216
+1114,cnc,Concord,Meadow Homes,4792.100489,663462.3548
+1115,cnc,Concord,Ellis Lake,4167.126332,699517.8796
+1116,cnc,Concord,Concord BART Station,6124.090998,1772744.534
+1117,cnc,Concord,Lime Ridge,8077.550413,2774655.39
+1118,cnc,Concord,Shary,7863.911751,3185956.649
+1119,cnc,Concord,Mohr,6957.753998,2795311.059
+1120,cnc,Concord,Cambridge,6622.718861,1964236.787
+1121,cnc,Pleasant Hill,Contra Costa Centre,12808.59536,3570636.244
+1122,cnc,Concord,Buchanan Fields,14173.31519,8299461.956
+1123,cnc,Carquinez S,Pacheco,7269.873636,2245607.911
+1124,cnc,Carquinez S,Morello S,12593.26418,4469271.892
+1125,cnc,Carquinez S,S Alhambra Av,13409.75362,5177141.109
+1126,cnc,Carquinez S,Hidden,13084.84602,5380711.225
+1127,cnc,Pleasant Hill,DVC,10615.01075,4420986.88
+1128,cnc,Pleasant Hill,Pleasant Hill,7887.658255,1881585.006
+1129,cnc,Pleasant Hill,Oak Park Blvd,8987.759479,2923260.749
+1130,cnc,Pleasant Hill,Dinosaur Hill Pk,9282.412488,2363198.404
+1131,cnc,Pleasant Hill,Briones,35775.49185,26512604.8
+1132,cnc,Lamorinda,Happy Valley,28791.4204,9788060.99
+1133,cnc,Walnut Creek,Overlook,11709.93178,6648213.744
+1134,cnc,Walnut Creek,Larkey Park,7964.609775,2660267.291
+1135,cnc,Walnut Creek,Diablo Hills,7797.622891,2642803.708
+1136,cnc,Walnut Creek,Contra Costa Centre SE,7128.021776,1594846.434
+1137,cnc,Walnut Creek,Shadelands,7745.926052,3684863.478
+1138,cnc,Walnut Creek,Valley Verde,8934.823857,4345759.009
+1139,cnc,Walnut Creek,Rancho Paraiso,12743.15609,7436648.228
+1140,cnc,Walnut Creek,Encina Grande,6071.805091,1963750.237
+1141,cnc,Walnut Creek,San Miguel,13789.28964,6663226.935
+1142,cnc,Walnut Creek,Joaquin Ranch,15324.26321,5999222.036
+1143,cnc,Walnut Creek,Indian Valley,9433.683997,3326536.893
+1144,cnc,Walnut Creek,Walnut Knolls,8813.755455,2616277.458
+1145,cnc,Walnut Creek,BART and Downtown,6602.877032,2224980.751
+1146,cnc,Walnut Creek,Broadway Plaza and Kaiser,6931.398985,1145805.02
+1147,cnc,Walnut Creek,Saranap SE,11745.14894,5568053.22
+1148,cnc,Danville Alamo,Rossmoor,13521.52134,8022055.181
+1149,cnc,Walnut Creek,Saranap NW,13336.06784,3737834.707
+1150,cnc,Lamorinda,Stanley,9353.906955,3612451.503
+1151,cnc,Lamorinda,Los Pallos,14357.26556,9103900.919
+1152,cnc,Lamorinda,Downtown Lafayette,14663.56052,8967715.622
+1153,cnc,Lamorinda,Northwood,10958.83012,5172590.463
+1154,cnc,Lamorinda,Orinda N,21680.14317,14481324.99
+1155,cnc,Lamorinda,El Toyonal,20150.66971,13738855.08
+1156,cnc,Lamorinda,Orinda S,17952.7545,13722375.33
+1157,cnc,Lamorinda,Canyon,19023.8446,13774063.67
+1158,cnc,Lamorinda,Moraga N,11593.32857,6927751.232
+1159,cnc,Lamorinda,Rheem Valley,19082.03031,11753353.93
+1160,cnc,Lamorinda,Moraga Valley,23894.31996,23576511.64
+1161,cnc,Danville Alamo,Danville W,35103.82045,40638498.63
+1162,cnc,Danville Alamo,Alamo,6697.44652,1139323.492
+1163,cnc,Walnut Creek,Rudgear,17580.6208,8776058.442
+1164,cnc,Danville Alamo,Round Hill,31979.31098,20497653.45
+1165,cnc,Danville Alamo,Diablo,28225.12935,16004254.35
+1166,cnc,Danville Alamo,Danville E,19839.97413,15852304.65
+1167,cnc,Danville Alamo,Crow Canyon,16793.94966,11086734.5
+1168,cnc,San Ramon,Business Park,12597.82242,7330665.152
+1169,cnc,Danville Alamo,Osage Pk,10416.21767,3694275.014
+1170,cnc,San Ramon,Bolllinger Hills,20340.9936,7121774.827
+1171,cnc,San Ramon,SW San Ramon,18696.86486,17176266.81
+1172,cnc,San Ramon,Golf Club W,6209.163522,2145874.965
+1173,cnc,San Ramon,Broadmoor,5344.579976,1779529.52
+1174,cnc,San Ramon,Golf Club E,10488.83993,3257983.24
+1175,cnc,San Ramon,Gale Ranch,24069.03818,10893761.28
+1176,cnc,Danville Alamo,Blackhawk Windemere,93716.0509,298722379.1
+1177,cnc,Eastern Contra Costa,Byron Discovery Bay,110807.3786,185517037.3
+1178,cnc,Eastern Contra Costa,Brentwood W,33333.85018,39021731.51
+1179,cnc,Eastern Contra Costa,Brentwood E,29200.05874,40182519.27
+1180,cnc,Eastern Contra Costa,Oakley E,26339.4177,23724116.75
+1181,cnc,Eastern Contra Costa,Islands,72352.02655,114635164.1
+1182,cnc,Eastern Contra Costa,Oakley NW,34998.53315,9509536.505
+1183,cnc,Bayshore Antioch,Wilbur Av E,20270.17456,7537740.542
+1184,cnc,Bayshore Antioch,Hillcrest Pk,9356.750973,3970873.184
+1185,cnc,Bayshore Antioch,Oakley SW,18359.588,12059777.96
+1186,cnc,Bayshore Antioch,Deer Valley and Blue Rock,12548.50777,7302366.383
+1187,cnc,Bayshore Antioch,Garrow Dr,9283.854628,3695196.731
+1188,cnc,Bayshore Antioch,Antioch E,9934.521691,3530147.471
+1189,cnc,Bayshore Antioch,Antioch Downtown,19940.02653,8221452.907
+1190,cnc,Bayshore Antioch,Sycamore Dr,3790.091671,703496.9082
+1191,cnc,Bayshore Antioch,Antioch HS,6463.098809,1602294.883
+1192,cnc,Bayshore Antioch,Gentrytown Pk,4810.679861,1499185.503
+1193,cnc,Bayshore Antioch,Delta Fair Center,12913.66097,3076778.441
+1194,cnc,Bayshore Antioch,G St and Longview,6191.530736,2121993.719
+1195,cnc,Eastern Contra Costa,Contra Loma,52767.49979,103331527.9
+1196,cnc,Eastern Contra Costa,Black Diamond Mines,16235.65593,14031487.7
+1197,cnc,Bayshore Antioch,County East Mall,5157.450245,1451653.953
+1198,cnc,Bayshore Antioch,Los Medianos,5756.744904,2002726.254
+1199,cnc,Bayshore Antioch,Buchanan Pk,8065.367974,3584060.645
+1200,cnc,Eastern Contra Costa,Keller Canyon,22136.9627,20099850.97
+1201,cnc,Bayshore Antioch,Leland and Range,11557.27918,2394216.777
+1202,cnc,Bayshore Antioch,Leland and Crestview,4280.246312,820845.3621
+1203,cnc,Bayshore Antioch,Pittsburg Civic Center,5973.391691,1621931.749
+1204,cnc,Bayshore Antioch,California Av,6404.080629,1416852.404
+1205,cnc,Bayshore Antioch,Pittsburg Waterfront,37438.32539,9921472.64
+1206,cnc,Bayshore Antioch,Pittsburg Downtown,9297.728292,1985209.204
+1207,cnc,Bayshore Antioch,Willow Pass and Range,12192.24695,4869912.167
+1208,cnc,Bayshore Antioch,Pittsburg BART,7867.657185,2388341
+1209,cnc,Bayshore Antioch,Stake Pt,11914.75125,6038282.292
+1210,cnc,Bayshore Antioch,Mc Avoy,13231.53737,5080639.696
+1211,sol,Carquinez N,Benicia Gateway,50690.61927,47293906.53
+1212,sol,Carquinez N,Benicia S,18867.35571,3085087.911
+1213,sol,Carquinez N,Benicia N,7769.106734,1688372.911
+1214,sol,Carquinez N,Overlook Pk,7289.61605,2679281.663
+1215,sol,Carquinez N,Southampton Rd,8429.137179,2856915.274
+1216,sol,Carquinez N,Cambridge Dr,7641.64939,2660397.205
+1217,sol,Carquinez N,Lake Herman,20080.83663,10248348.1
+1218,sol,Carquinez N,Georgia and Southport,7910.015433,2253382.806
+1219,sol,Carquinez N,Skyview Memorial,6537.393792,1875227.675
+1220,sol,Carquinez N,Glen Cove,12585.27018,5155362.816
+1221,sol,Carquinez N,Beverly Hills Pk,7035.643213,2449227.283
+1222,sol,Carquinez N,Seaview and CA Maritime Academy,7635.74032,1523593.667
+1223,sol,Carquinez N,South Vallejo,9331.374874,2262665.733
+1224,sol,Carquinez N,Downtown,3850.087393,815099.3768
+1225,sol,Carquinez N,Old City,3345.277469,726889.2955
+1226,sol,Carquinez N,Wilson Pk,4415.082709,1057284.215
+1227,sol,Carquinez N,Benicia Rd and Annette,5203.209255,1138453.162
+1228,sol,Carquinez N,Carquinez Cemetary,5715.035539,1318079.575
+1229,sol,Carquinez N,Oakwood E,5009.519563,1342191.32
+1230,sol,Carquinez N,Oakwood N,8354.443513,3381197.815
+1231,sol,Carquinez N,Oakwood W,4223.803827,1111149.975
+1232,sol,Carquinez N,Tolumne and Solano,4363.058112,1181794.478
+1233,sol,Carquinez N,Tuolumne St and Nebraska,4792.379936,1218503.414
+1234,sol,Carquinez N,Sutter St,5186.720967,1367217.852
+1235,sol,Carquinez N,St Vicent's Hill,5144.483169,860581.8015
+1236,sol,Carquinez N,River Pk,7640.395114,1590905.662
+1237,sol,Carquinez N,Terrace Pk,3537.75554,581258.4138
+1238,sol,Carquinez N,Mare Island,48673.41588,38903642.56
+1239,sol,Carquinez N,North Vallejo W,7734.193761,1683794.262
+1240,sol,Carquinez N,North Vallejo E,11536.18233,3408593.685
+1241,sol,Carquinez N,Flosden Acres,6929.501872,2331314.584
+1242,sol,Carquinez N,Kaiser,8941.015957,2233170.26
+1243,sol,Carquinez N,Discovery Kingdom,8988.175553,3315968.245
+1244,sol,Carquinez N,Chabot Terrace,6063.217776,2042792.166
+1245,sol,Carquinez N,Borges,6576.224868,2580138.822
+1246,sol,Carquinez N,Gateway Plaza,23239.54008,22039602.46
+1247,sol,Fairfield,Cordelia W,53512.40988,54945724.79
+1248,sol,Fairfield,Green Valley,52700.55737,92943231.79
+1249,sol,Fairfield,Cordelia E,43860.04199,47600137.58
+1250,sol,Fairfield,Southwestern City,19284.67543,15359364.68
+1251,sol,Southeastern Solano County,Suisun City,181173.6463,231081740.4
+1252,sol,Southeastern Solano County,Travis AFB,26552.06155,19708091.21
+1253,sol,Fairfield,Fairfield E,9733.486365,4221377.637
+1254,sol,Fairfield,Pintail E,5681.735909,1718158.52
+1255,sol,Fairfield,Pintail W,5093.333338,1311908.963
+1256,sol,Fairfield,Country Club Estates,8545.597193,3775292.995
+1257,sol,Fairfield,Tabor Park,6700.496716,1938432.668
+1258,sol,Fairfield,Dover Park,4616.423613,917453.2872
+1259,sol,Fairfield,Tabor and Kidder,4858.812329,1308670.044
+1260,sol,Fairfield,North Texas St E,5233.280801,793286.8708
+1261,sol,Fairfield,Heritage Park,5699.808238,1345759.197
+1262,sol,Fairfield,Station NW,3894.015845,892339.8368
+1263,sol,Fairfield,North Texas St W,4742.929355,1138106.64
+1264,sol,Fairfield,Cemetary,5253.168675,1578246.407
+1265,sol,Fairfield,Solano Mall and Northbay Medical Center,6046.657718,1638389.431
+1266,sol,Fairfield,Linear ParK,5070.001354,1424747.801
+1267,sol,Fairfield,Mankas Pk,6437.376059,1817493.982
+1268,sol,Fairfield,Rancho Solano,27148.32619,35027702.93
+1269,sol,Fairfield,Paradise Valley,16508.47008,9068266.635
+1270,sol,Fairfield,Cordero Junction,34037.87596,35073249.65
+1271,sol,Vacaville,Cypress Lakes,20611.22091,18833431.86
+1272,sol,Vacaville,State Medical,7657.938329,3576943.192
+1273,sol,Vacaville,Three Oaks,17609.89,8603694.466
+1274,sol,Vacaville,Padan Pk,6843.405766,2548182.478
+1275,sol,Vacaville,Beeland,4871.243973,1090762.613
+1276,sol,Vacaville,Notre Dame School,5146.636445,1102111.685
+1277,sol,Vacaville,Meadowlands Pk,5765.468503,1680795.186
+1278,sol,Vacaville,Nelson Pk,12639.82413,5687395.995
+1279,sol,Northeastern Solano County,Vacaville NE,41247.28621,55955394.69
+1280,sol,Vacaville,Nut Tree,11619.66373,6783954.629
+1281,sol,Vacaville,Vacaville Commons,6515.004883,2524293.313
+1282,sol,Vacaville,Browns Valley Rd,15897.52928,11733255.03
+1283,sol,Vacaville,Vacaville HS,6194.191699,1833645.813
+1284,sol,Vacaville,Central Vacaville,14768.12706,6126763.171
+1285,sol,Vacaville,N Orchard Pk,10508.38379,5027368.978
+1286,sol,Northeastern Solano County,Pleasant Valley,86444.81313,227538538.6
+1287,sol,Northeastern Solano County,Dixon Periphery,126648.4679,444269760.1
+1288,sol,Northeastern Solano County,West Dixon,16536.68182,10229473.31
+1289,sol,Northeastern Solano County,East Dixon,22126.9254,16755179.35
+1290,sol,Southeastern Solano County,Rio Vista,151257.6647,596042636.4
+1291,nap,Southern Napa County,AmCanyon E,58551.38809,75142464.84
+1292,nap,Southern Napa County,Airport to AmCanyon W,35476.42391,38805301.26
+1293,nap,Napa City,Riverpark,21200.42719,14771786.7
+1294,nap,Napa City,College and Hospital,13678.36364,5136444.433
+1295,nap,Napa City,Silverado and Soscol,11690.43865,4818126.558
+1296,nap,Napa City,Silverado and 1st,14053.96545,6584164.119
+1297,nap,Napa City,E Pueblo Av,6661.210161,2623445.834
+1298,nap,Napa City,Downtown N,6663.02744,1259104.979
+1299,nap,Napa City,Downtown E,4573.257598,1021202.706
+1300,nap,Napa City,Los Robles,3900.737435,880215.2091
+1301,nap,Napa City,Downtown W,6000.336464,1389727.404
+1302,nap,Napa City,Outlets,10517.00974,6344663.285
+1303,nap,Napa City,Westview Dr,7577.307889,2249575.535
+1304,nap,Napa City,W Pueblo Av,8441.363651,2816751.358
+1305,nap,Napa City,Napa HS,6722.633941,1974424.6
+1306,nap,Napa City,Union Salvador,9392.124203,5363698.475
+1307,nap,Napa City,Union W,8330.732257,3357814.271
+1308,nap,Sonoma Valley,Los Carneros,102528.1037,153372591.7
+1309,nap,Southern Napa County,Oak Knoll,60797.45681,59983199.99
+1310,nap,Southern Napa County,Yountville,14893.96096,3793029.954
+1311,nap,Southern Napa County,Silverado,117666.5911,373423895.6
+1312,nap,Northern Napa County,Lake Berryessa,145717.7253,758485718
+1313,nap,Northern Napa County,Angwin,76716.28818,182003357.8
+1314,nap,Northern Napa County,Saint Helena,22512.26796,12817431.95
+1315,nap,Northern Napa County,Oakville Rutherford,78287.17396,133235522.7
+1316,nap,Northern Napa County,Howell Mountain,85044.76162,178549070.1
+1317,nap,Northern Napa County,Calistoga,14372.48844,6761926.745
+1318,son,Sonoma Valley,Kenwood Glen Ellen,67567.80318,103117932.3
+1319,son,Sonoma Valley,Boyes Hot Springs,26900.24651,16055647.85
+1320,son,Sonoma Valley,Mission Highliands,29133.05188,32236211.97
+1321,son,Sonoma Valley,El Verano,9985.760868,2904042.242
+1322,son,Sonoma Valley,Temelec,39785.87152,61427313.92
+1323,son,Sonoma Valley,Downtown,12657.75756,7202053.982
+1324,son,Sonoma Valley,Schelville,74893.96565,156104447.8
+1325,son,Petaluma,Petaluma Marsh,103807.5127,180565315.1
+1326,son,Petaluma,Petaluma South,21662.19449,20291838.54
+1327,son,Petaluma,Petaluma SW,20236.80912,13805686.08
+1328,son,Sebastopol Graton,Coastguard Training,53887.6569,121325020.5
+1329,son,Petaluma,Skillman Ln,21217.59048,15655875.85
+1330,son,Petaluma,Cypress Hills Cemetary,8689.862993,2442799
+1331,son,Petaluma,Downtown N,10324.8563,3016245.559
+1332,son,Petaluma,Downtown,10048.87863,3602437.239
+1333,son,Petaluma,Miwok Pk,4556.469268,1240725.439
+1334,son,Petaluma,Crinella,5331.418639,1665544.465
+1335,son,Petaluma,McDowell and Worthington,9273.534247,3433299.036
+1336,son,Petaluma,Sonoma Mountain Pkwy,16713.87205,14718186.01
+1337,son,Rohnert Cotati,Rohnert Cotati W,34927.71856,28415378.41
+1338,son,Rohnert Cotati,Central Cotati,9223.892662,3318607.049
+1339,son,Rohnert Cotati,Cotati E,6591.736785,2437323.064
+1340,son,Rohnert Cotati,Sonoma Mountain Village,8226.638155,4200989.193
+1341,son,Rohnert Cotati,Copeland Creek,39257.95985,36075947.17
+1342,son,Rohnert Cotati,Sonoma SU,7239.325583,2179865.898
+1343,son,Rohnert Cotati,Cotati N,5428.503331,1183704.031
+1344,son,Rohnert Cotati,Central Rohnert Park,5304.416907,1754592.518
+1345,son,Rohnert Cotati,Rohnert Park E,4432.20808,1114329.292
+1346,son,Rohnert Cotati,Foxtail S,8279.755612,2982467.553
+1347,son,Rohnert Cotati,Foxtail N,9485.182063,4466825.354
+1348,son,Outer Santa Rosa,S Santa Rosa Av,17135.19233,8813004.907
+1349,son,Outer Santa Rosa,South Park,19959.40691,12618375.94
+1350,son,Outer Santa Rosa,Bennett Valley,33702.07523,26750647.7
+1351,son,Outer Santa Rosa,Strawberry Pk,6204.182603,1555301.38
+1352,son,Outer Santa Rosa,Annadel Heights,29516.45664,14600137.5
+1353,son,Sonoma Valley,Annadel and Hood,61380.28178,88614635.46
+1354,son,Northern Sonoma County,Calistoga Rd,57818.63389,121503771
+1355,son,Outer Santa Rosa,Rincon Valley N,6357.684454,1839557.067
+1356,son,Outer Santa Rosa,Mission Blvd,8488.057637,2762748.681
+1357,son,Outer Santa Rosa,Rincon Valley S,10802.30135,2002809.374
+1358,son,Outer Santa Rosa,Howarth Pk,16159.69337,5397208.957
+1359,son,Central Santa Rosa,Memorial Hospital,7861.450677,2505423.985
+1360,son,Central Santa Rosa,South,4291.889539,980102.4684
+1361,son,Central Santa Rosa,North,5355.87104,1270619.143
+1362,son,Central Santa Rosa,King and Benton,5333.868595,1319199.15
+1363,son,Central Santa Rosa,Steele Ln,7732.380452,2164079.026
+1364,son,Central Santa Rosa,King and Pacific,5267.834958,1202660.887
+1365,son,Outer Santa Rosa,Alta Vista,9930.749566,3449822.626
+1366,son,Outer Santa Rosa,Fountain Grove,25392.83135,21092739.4
+1367,son,Northern Sonoma County,Shiloh Ranch,24668.53431,23851502.91
+1368,son,Outer Santa Rosa,Schultz Airport,28752.3753,20719910.54
+1369,son,Outer Santa Rosa,Hopper Av,10981.9053,5231683.995
+1370,son,Outer Santa Rosa,Piner Rd,23919.46169,27522454.76
+1371,son,Central Santa Rosa,Piner HS,6842.255927,2309088.489
+1372,son,Central Santa Rosa,Marlow and Steele,5575.59677,1668070.506
+1373,son,Central Santa Rosa,Schulz,5788.962397,2027445.199
+1374,son,Central Santa Rosa,Coddington SMART,7215.055329,2503529.302
+1375,son,Central Santa Rosa,College and Hallyard,9117.314183,3330706.63
+1376,son,Central Santa Rosa,RR Square,7345.890363,2242563.943
+1377,son,Central Santa Rosa,Imwalle Gardens,8251.836026,1796304.986
+1378,son,Central Santa Rosa,Roseland NW,10097.0411,3181012.346
+1379,son,Central Santa Rosa,Roseland SE,6023.203615,1352614.174
+1380,son,Outer Santa Rosa,S Santa Rosa,16498.71264,12666735.45
+1381,son,Outer Santa Rosa,Wright,26520.47696,32806225.12
+1382,son,Outer Santa Rosa,Riccas Corner,23571.81386,24750870.8
+1383,son,Sebastopol Graton,Graton,37056.54578,41637978.9
+1384,son,Sebastopol Graton,Sebastopol N,15219.95922,10820700.44
+1385,son,Sebastopol Graton,Sebastopol SW,13240.16634,8663424.876
+1386,son,Sebastopol Graton,Sebastopol SE,19846.80492,8410362.263
+1387,son,Sebastopol Graton,Blucher Creek,35699.49254,45661733.57
+1388,son,Sebastopol Graton,English Hill,48032.97536,69496346.54
+1389,son,Sonoma Coast,Bodega,75198.41429,137903286.8
+1390,son,Sonoma Coast,Russian River SW,64608.08823,76043473.89
+1391,son,Sonoma Coast,Russian River NW,46231.55078,59628366.56
+1392,son,Sebastopol Graton,Russian River SE,43298.15857,41794807.56
+1393,son,Northern Sonoma County,Russian River NE,55542.08142,46393068.32
+1394,son,Northern Sonoma County,Windsor W,45287.73471,37358392.62
+1395,son,Northern Sonoma County,Central Windsor,15367.51334,7099328.181
+1396,son,Northern Sonoma County,Windsor E,43448.20507,62270356.62
+1397,son,Northern Sonoma County,Healdsburg Ridge,45070.40224,65795993.97
+1398,son,Northern Sonoma County,Healdsburg E,8638.53038,3231110.983
+1399,son,Northern Sonoma County,Healdsburg W,13364.26662,3532081.304
+1400,son,Northern Sonoma County,Mill Creek,113019.6464,223540346.6
+1401,son,Northern Sonoma County,Geyserville,133348.7001,581207162.9
+1402,son,Northern Sonoma County,Cloverdale,85194.8121,216267010
+1403,son,Sonoma Coast,N Coast,264397.4608,1027161965
+1404,mar,Novato,Airport Petaluma Pt,51399.11167,33925448.26
+1405,mar,Novato,Novato E,14401.53611,10643868.21
+1406,mar,Novato,Bel Marin Keys,23145.83266,10870703.61
+1407,mar,Novato,Hamilton,18909.11904,9709897.115
+1408,mar,Novato,Ignacio S,21497.8933,17418759.83
+1409,mar,Novato,Ignacio N,13988.75734,5962339.275
+1410,mar,Novato,Lynwood Hill,9070.841476,2130659.446
+1411,mar,Novato,Novato S,8625.33864,4673999.471
+1412,mar,Novato,Downtown,12189.56975,5814762.614
+1413,mar,Novato,Novato N,15802.31347,9353421.925
+1414,mar,Novato,Novato W,31291.54221,41355293.72
+1415,mar,Marin County W,Marin N,175131.3958,512085581.5
+1416,mar,Marin County W,Point Reyes,177088.0336,304606056.9
+1417,mar,Marin County W,Kent Lake,68454.13732,72832353.81
+1418,mar,Marin County W,San Geronimo,33684.72263,25235682.88
+1419,mar,Central Marin County,Oak Manor,14242.95159,4482204.276
+1420,mar,Central Marin County,Sleepy Hollow,18756.62748,10281323.6
+1421,mar,San Rafael,Northgate Mall,10353.10259,4693365.656
+1422,mar,San Rafael,Terra Linda,14625.40802,7114053.353
+1423,mar,Central Marin County,Lucas Valley,26685.78781,19889378.05
+1424,mar,San Rafael,Saint Vincent's,22766.37082,12431247.13
+1425,mar,San Rafael,Santa Venetia,21710.7625,11406012.8
+1426,mar,San Rafael,Point San Pedro,18842.71748,9311631.972
+1427,mar,San Rafael,San Rafael HS,16257.20893,6781681.045
+1428,mar,San Rafael,I580,16439.24774,4423106.453
+1429,mar,San Rafael,Andersen Dr W and Bret Harte,7638.489166,2910333.101
+1430,mar,San Rafael,Downtown,9191.564909,2314826.39
+1431,mar,San Rafael,San Rafael Hill,12622.3116,4766292.883
+1432,mar,Central Marin County,San Anselmo E,10343.78885,2848789.377
+1433,mar,Central Marin County,San Anselmo W,7110.976104,1411939.161
+1434,mar,Central Marin County,Fairfax,24352.01062,7783111.64
+1435,mar,Central Marin County,Ross,11385.9159,4049731.237
+1436,mar,Central Marin County,Kentfield,17139.56529,6668453.83
+1437,mar,Central Marin County,Greenbrae,8348.168275,2929355.248
+1438,mar,Marin County S,Meadowsweet,24518.85741,6634884.69
+1439,mar,Tiburon Corte Madera,San Quentin,1528.375137,103888.4732
+1440,mar,Central Marin County,Larkspur,15692.58317,4966744.021
+1441,mar,Marin County S,Corte Madera,11825.25562,3666659.603
+1442,mar,Marin County S,Mill Valley E,14149.40926,5312654.509
+1443,mar,Marin County S,Alto,14345.50494,3367660.936
+1444,mar,Marin County S,Strawberry,10790.75097,2527210.817
+1445,mar,Tiburon Peninsula,Reed,19656.68272,5910375.895
+1446,mar,Tiburon Peninsula,Tiburon,22488.15395,10357770.48
+1447,mar,Tiburon Peninsula,Belvedere,7749.850669,1603349.383
+1448,mar,Marin County S,Sausalito,18385.75245,3936705.9
+1449,mar,Marin County S,Marin City,6996.985166,1483970.831
+1450,mar,Marin County S,Tamapais Valley,23139.08464,8916216.795
+1451,mar,Marin County S,Homestead Valley,18306.85387,3988692.951
+1452,mar,Marin County S,Mill Valley W,16321.85723,4466787.515
+1453,mar,Marin County W,Headlands,68813.23081,58077259.22
+1454,mar,Marin County W,Bolinas,39887.12387,46920513.84
