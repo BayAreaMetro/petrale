@@ -35,14 +35,14 @@ NOW = time.strftime("%Y_%m%d_%H%M")
 # note: this runs a lot better if these directories are a local/fast disk
 # Using a box drive or even a network drive tends to result in arcpy exceptions
 if os.getenv("USERNAME")=="lzorn":
-	WORKING_DIR		 = "C:\\Users\\lzorn\\Documents\\UrbanSim smelt\\2020 06 05b"
+	WORKING_DIR		 = "C:\\Users\\lzorn\\Documents\\UrbanSim smelt\\2020 06 17"
 	LOG_FILE		    = os.path.join(WORKING_DIR,"devproj_{}.log".format(NOW))
 	SMELT_GDB		   = os.path.join(WORKING_DIR,"smelt.gdb")
 	WORKSPACE_GDB       = "workspace_{}.GDB".format(NOW) # scratch
 elif os.getenv("USERNAME")=="blu":
-	WORKING_DIR		 = "D:\\Users\\blu\\Documents\\ArcGIS\\Projects\\DevPrj\\2020 06 05b"
+	WORKING_DIR		 = "D:\\Users\\blu\\Documents\\ArcGIS\\Projects\\DevPrj\\2020 06 17"
 	LOG_FILE		    = os.path.join(WORKING_DIR,"devproj_{}.log".format(NOW))
-	SMELT_GDB		   = "D:\\Users\\blu\\Documents\\ArcGIS\\Projects\\DevPrj\\2020 06 05b\\smelt.gdb"
+	SMELT_GDB		   = "D:\\Users\\blu\\Documents\\ArcGIS\\Projects\\DevPrj\\2020 06 17\\smelt.gdb"
 	WORKSPACE_GDB       = "workspace_{}.GDB".format(NOW) # scratch
 else:
 	WORKING_DIR		 = "E:\\baydata"
@@ -75,7 +75,7 @@ rfother1115 = os.path.join(SMELT_GDB,"rf19_othertypes1115") # redfin other data 
 basis_pipeline = os.path.join(SMELT_GDB, "basis_pipeline_20200228")
 
 ### manually maintained pipeline data
-manual_dp   = os.path.join(SMELT_GDB, "manual_dp_20200131")
+manual_dp   = os.path.join(SMELT_GDB, "manual_dp_20200617")
 
 ### basis parcel/building new data
 basis_pb_new = os.path.join(SMELT_GDB, "basis_pb_new_20200312")
@@ -516,6 +516,17 @@ if __name__ == '__main__':
 		"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 		fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 		arcpy.DeleteField_management(joinFN, fields2Delete)
+
+		#zero out non res sqft for residential types (HS, HM, HT)
+		with arcpy.da.UpdateCursor(joinFN, ["building_type","non_residential_sqft"]) as cursor:
+			for row in cursor:
+				if row[0] == 'HT':
+					row[1] = 0
+				elif row[0] == 'HS':
+					row[1] = 0
+				elif row[0] == 'HM':
+					row[1] = 0
+				cursor.updateRow(row)
 
 		arcpy.MakeTableView_management(joinFN,gidnull,"geom_id is NULL")
 		nullcount = arcpy.GetCount_management(gidnull)
@@ -1886,10 +1897,7 @@ if __name__ == '__main__':
 	else:
 		logger.info("There is a net increase of {} square feet of nonresidential from {} sqft  to {} sqft  after incorporating the 'built' projects".format(sum_value4 - sum_value2, sum_value2, sum_value4))
 
-	#ideally we want net increase of units and nonresidential sqft, so for now use that as a test
-	if (sum_value1 < sum_value3) & (sum_value2 < sum_value4):
-		arcpy.TableToTable_conversion(rawp10_b15_pba50, WORKING_DIR, "{}_buildings.csv".format(NOW))
-		logger.info("Transform {} to building table".format(rawp10_b15_pba50))
-	else:
-		logger.info("Something is wrong")
+	arcpy.TableToTable_conversion(rawp10_b15_pba50, WORKING_DIR, "{}_buildings.csv".format(NOW))
+	logger.info("Transform {} to building table".format(rawp10_b15_pba50))
+
 
