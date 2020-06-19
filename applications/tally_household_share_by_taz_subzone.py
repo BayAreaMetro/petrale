@@ -66,8 +66,17 @@ if __name__ == '__main__':
     # c = no walk
     taz_subzone_hh['SHRT'] = taz_subzone_hh['a']/taz_subzone_hh['tothh']
     taz_subzone_hh['LONG'] = taz_subzone_hh['b']/taz_subzone_hh['tothh']
+    taz_subzone_hh['NONE'] = taz_subzone_hh['c']/taz_subzone_hh['tothh']
     taz_subzone_hh['TAZ']  = taz_subzone_hh['ZONE_ID'].astype(int)
     print(taz_subzone_hh.head()) 
 
     taz_subzone_hh[['TAZ','SHRT','LONG']].to_csv(args.output_file, index=False, float_format='%.2f')
     print("Wrote {} rows to {}".format(len(taz_subzone_hh), args.output_file))
+
+    # save unpivoted for tableau
+    taz_subzone_hh_unpivot = pandas.melt(taz_subzone_hh, id_vars=['TAZ'], value_vars=['SHRT','LONG','NONE'], value_name="share")
+    print("taz_subzone_hh_unpivot.head():\n{}".format(taz_subzone_hh_unpivot.head()))
+ 
+    unpivot_file = args.output_file.replace(".csv","_unpivot.csv")
+    taz_subzone_hh_unpivot.to_csv(unpivot_file, index=False, float_format='%.2f')
+    print("Wrote {} rows to {}".format(len(taz_subzone_hh_unpivot), unpivot_file))
