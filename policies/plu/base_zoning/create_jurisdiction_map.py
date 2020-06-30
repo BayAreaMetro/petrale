@@ -60,6 +60,7 @@ if __name__ == '__main__':
     parser.add_argument("--metric",        help="Metrics type(s). If none passed, will process all", nargs='+',
                                            choices=["DUA","FAR","height","HS","HT","HM","OF","HO","SC","IL","IW","IH","RS","RB","MR","MT","ME"])
     parser.add_argument("--hybrid_config", help="Required arg. Hybrid config file in {}".format(HYBRID_CONFIG_DIR), required=True)
+    parser.add_argument("--output_type",   help="Type of map to export", choices=["pdf","png"], default="pdf")
     args = parser.parse_args()
 
     # read list of jurisdictions
@@ -153,7 +154,7 @@ if __name__ == '__main__':
     source_str = \
         "<FNT size=\"7\">Created by " \
         "<ITA>https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/create_jurisdiction_map.py</ITA> on {}. " \
-        "Hybrid config: <ITA>https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/hybrid_index/{}.csv</ITA></FNT>".format(
+        "Hybrid config: <ITA>https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/hybrid_index/{}</ITA></FNT>".format(
             now_str, args.hybrid_config)
 
     METRICS_DEF = collections.OrderedDict([
@@ -335,9 +336,15 @@ if __name__ == '__main__':
                     # apply extent to mapframe camera
                     element.camera.setExtent(layer_extent)
 
-            juris_pdf = "{}_{}.pdf".format(juris_code, metric_name)
-            layout.exportToPDF(juris_pdf)
-            print("  Wrote {}".format(juris_pdf))
+            if args.output_type == "pdf":
+                juris_pdf = "{}_{}.pdf".format(juris_code, metric_name)
+                layout.exportToPDF(juris_pdf)
+                print("  Wrote {}".format(juris_pdf))
+            elif args.output_type == "png":
+                juris_png = "{}_{}.png".format(juris_code, metric_name)
+                layout.exportToPNG(juris_png, resolution=300)    
+                print("  Wrote {}".format(juris_png))
+
 
             # if instructed, save a copy of the arcgis project
             if args.debug:
