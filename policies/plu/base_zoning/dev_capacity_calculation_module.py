@@ -9,6 +9,8 @@ Calculates the development capacity (residential units, non-residential sqft) un
     # 2. hybrid verion, eg. "idx_urbansim_heuristic.csv"
     # 3. folder dir for the ouput parcel-level development capacity, eg. "C:\Users\ywang\Box\Modeling and Surveys\Urban Modeling\
     #                                                                     Bay Area UrbanSim 1.5\PBA50\Policies\Base zoning\outputs\capacity"
+    # 4. upzoning files, eg. 'zoning_mods_21', 'zoning_mods_22', 'zoning_mods_23' for Draft/Final Blueprint
+
 
 import pandas as pd
 import numpy as np
@@ -17,6 +19,7 @@ import os, argparse, time, logging
 
 if os.getenv('USERNAME')=='ywang':
     GITHUB_PETRALE_DIR  = 'C:\\Users\\{}\\Documents\\GitHub\\petrale\\'.format(os.getenv('USERNAME'))
+    GITHUB_URBANSIM_DIR = 'C:\\Users\\{}\\Documents\\GitHub\\bayarea_urbansim\\data'.format(os.getenv('USERNAME'))
 elif os.getenv('USERNAME')=='lzorn':
     GITHUB_PETRALE_DIR  = 'X:\\petrale'
 
@@ -136,6 +139,113 @@ def create_hybrid_parcel_data_from_juris_idx(logger, df_original,hybrid_idx):
     return urbansim_df[keep_cols]
 
 
+def apply_upzoning_to_hybrid_parcel_data(df_original, upzoning_scenario):
+    """
+    Apply upzoning to parcels by adjusting the allowable development types and intensities.
+    
+    Inputs: 
+     * df_original: parcel-level hybrid base zoning
+
+     * upzoning_version: version of zoning_mods for upzoning, e.g. 's20', 's21', 's22', 
+                         's23' for Draft/Final Blueprint
+
+    Returns a dataframe with columns PARCEL_ID, juris_zmod, plus XX_upzoning for each allowed 
+    development type or intensity attribute.
+    """
+    upzoning_zmods_file = os.path.join(GITHUB_URBANSIM_DIR, 'zoning_mods_'+upzoning_scenario+'.csv')
+
+    if not os.path.exists(upzoning_zmods_file):
+            print('Error: file {} not found'.format(upzoning_zmods_file))
+            raise
+
+    usecols = ['pba50zoningmodcat','add_bldg', 'drop_bldg', 
+               'dua_up', 'far_up', 'dua_down', 'far_down', 'res_rent_cat']
+    upzoning_zmods_df = pd.read_csv(upzoning_zmods_file, usecols = usecols)
+
+    logger.info("Applying upzoning {}; zoning_mods:\n{}".format(upzoning_scenario,
+            upzoning_zmods_df.head()))
+
+    # merge upzoning into base zoning
+    zoning_base_pba50 = df_original.merge(upzoning_zmods_df,
+                                          on = 'pba50zoningmodcat', 
+                                          how = 'left')
+
+    keep_cols = list(df_original)
+
+    # create allowed development type and intensity columns for upzoning
+    for dev_type in ALLOWED_BUILDING_TYPE_CODES:
+        # default to hybrid 'urbansim'
+        zoning_base_pba50["{}_{}".format(dev_type, upzoning_scenario)] = \
+                zoning_base_pba50["{}_urbansim".format(dev_type)]
+
+        # keep the new column
+        keep_cols.append("{}_{}".format(dev_type, upzoning_scenario))
+
+    for intensity in INTENSITY_CODES:
+        # default to hybrid 'urbansim'
+        zoning_base_pba50["max_{}_{}".format(intensity, upzoning_scenario)] = \
+                zoning_base_pba50["max_{}_urbnasim".format(intensity)]
+
+        # keep the new column
+        keep_cols.append("max_{}_{}".format(intensity, upzoning_scenario))
+
+
+    # Get a list of development types that have modifications in pba50zoningmod
+    add_bldg_types = list(pba50zoningmods.add_bldg.dropna().unique())
+    logger.info('Development types enabled disallowed by upzoning:\n{}'.format(add_bldg_types))
+    drop_bldg_types = list(pba50zoningmods.drop_bldg.dropna().unique())
+    logger.info('Development types disallowed by upzoning:\n{}'.format(drop_bldg_types))
+
+
+    # Make a copy and then modify the alowed dev types
+    #zoning_modify_type = zoning_base_pba50.copy()
+
+    if len(add_bldg_types) > 0:
+        for devType in add_bldg_types:
+            add_bldg_parcels = zoning_base_pba50[add_bldg].notnull()
+            zoning_base_pba50.loc[add_bldg_parcels, devType+'_'+upzoning_scenario] = 1
+
+    if len(drop_bldg_types) > 0:
+        for devType in drop_bldg_types:
+            drop_bldg_parcels = zoning_base_pba50[drop_bldg].notnull()
+            zoning_base_pba50.loc[drop_bldg_parcels,devType+'_'+upzoning_scenario] = 0
+
+    # Compare allowed dev types before and after applying pba50zoningmod
+    for devType in add_bldg_types + drop_bldg_types:
+        logger.info('Out of {:,} parcels: \n {:,} parcels allow {} before applying pba50zoningmod dev type adjustment;\
+                    \n {:,} parcels allow {} after applying pba50zoningmod dev type adjustment.'.format(len(zoning_base_pba50),
+                    len(zoning_base_pba50.loc[zoning_base_pba50[devType+'_urbansim'] == 1]), devType,
+                    len(zoning_base_pba50.loc[zoning_base_pba50[devType+'_'+upzoning_scenario] == 1]), devType))
+
+
+    # Make a copy and then modify the intensities
+    #zoning_modify_intensity = zoning_modify_type.copy()
+
+    for intensity in ['dua','far']:
+
+        # modify intensity when 'intensity_up' is not null
+        up_parcels = zoning_base_pba50['{}_up'.format(intensity)].notnull()
+
+        # the effective max_dua is the larger of base zoning max_dua and the pba50 max_dua
+        zoning_base_pba50.loc[up_parcels, 'max_{}_{}'.format(intensity, upzoning_scenario)] = \
+                zoning_base_pba50[['max_{}_{}'.format(intensity, upzoning_scenario),'{}_up'.format(intensity)]].max(axis = 1)
+
+        # modify intensity when 'intensity_up' is not null
+        down_parcels = zoning_base_pba50['{}_down'.format(intensity)].notnull()
+
+        # the effective max_dua is the larger of base zoning max_dua and the pba50 max_dua
+        zoning_base_pba50.loc[down_parcels, 'max_{}_{}'.format(intensity, upzoning_scenario)] = \
+                zoning_base_pba50[['max_{}_{}'.format(intensity, upzoning_scenario),'{}_down'.format(intensity)]].min(axis = 1)
+
+        # Compare max_dua and max_far before and after applying pba50zoningmod
+        logger.info('Before applying pba50zoningmod intensity adjustment: \n', zoning_base_pba50[['max_'+intensity+'_urbansim']].describe())
+        logger.info('After applying pba50zoningmod intensity adjustment: \n', zoning_base_pba50[['max_'+intensity+'_'+upzoning_scenario]].describe())
+
+    parcel_upzoning = zoning_base_pba50[keep_cols]
+    logger.info('Generate parcel-level upzoning table of {:,} records: \n {}'.format(len(parcel_upzoning), parcel_upzoning.head()))
+    return parcel_upzoning
+
+
 def calculate_capacity(df_original,boc_source,nodev_source,pass_thru_cols=[]):
     """
     Calculate the development capacity in res units, non-res sqft, and employee estimates
@@ -200,7 +310,9 @@ def zoning_to_capacity(hybrid_zoning, hybrid_version, capacity_output_dir):
 
     print('Parcel count by county:\n{}'.format(p10_plu_boc.county_name.value_counts()))
 
-    # convert all 
+
+    ## calculate capacity based on base zoning
+
 
     # Calculate capacity
     capacity_pba40_allAtts    = calculate_capacity(p10_plu_boc,'pba40','zmod')
@@ -230,6 +342,9 @@ def zoning_to_capacity(hybrid_zoning, hybrid_version, capacity_output_dir):
               dev_type+'_pba40'    for dev_type in ALLOWED_BUILDING_TYPE_CODES] + [
               dev_type+'_urbansim' for dev_type in ALLOWED_BUILDING_TYPE_CODES]:
         capacity_allAtts[i] = capacity_allAtts[i].fillna(-1).astype(np.int64)
+
+
+    ## calculate capacity based on upzoning
 
     print('Export parcel-level capacity results for {:,} parcels. Head:\n{}Dtypes:\n{}'.format(len(capacity_allAtts),capacity_allAtts.head(),capacity_allAtts.dtypes))
 
@@ -261,14 +376,18 @@ if __name__ == '__main__':
 
 
     parser = argparse.ArgumentParser(description=USAGE, formatter_class=argparse.RawDescriptionHelpFormatter,)
-    parser.add_argument('hybrid_zoning', metavar="hybrid_zoning.csv",  help="Input hybrid zoning")
-    parser.add_argument('hybrid_version', metavar="hybrid_version",    help="Version of input hybrid zoning")
-    parser.add_argument('capacity_output', metavar="capacity_output",  help="Capacity output folder")
+    parser.add_argument('hybrid_zoning',    metavar="hybrid_zoning.csv",  help="Input hybrid zoning")
+    parser.add_argument('hybrid_version',   metavar="hybrid_version",     help="Version of input hybrid zoning")
+    parser.add_argument('capacity_output',  metavar="capacity_output",    help="Capacity output folder")
+    #parser.add_argument('upzoning_zmods',   metavar='zoningmods.csv',     help='Zoningmods for upzoning')
+    parser.add_argument('upzoning_scenario',metavar='upzoning_scenario',   help="Scenario of input upzoning zoning")
 
     args = parser.parse_args()
-    print(" {:15}: {}".format('hybrid_zoning',  args.hybrid_zoning))
-    print(" {:15}: {}".format('hybrid_version', args.hybrid_version))
-    print(" {:15}: {}".format('capacity_output', args.capacity_output))
+    print(" {:15}: {}".format('hybrid_zoning',    args.hybrid_zoning))
+    print(" {:15}: {}".format('hybrid_version',   args.hybrid_version))
+    print(" {:15}: {}".format('capacity_output',  args.capacity_output))
+    #print(" {:15}: {}".format('upzoning',         args.upzoning_zmods))
+    print(" {:15}: {}".format('upzoning_scenario',args.upzoning_scenario))
 
     zoning_to_capacity(args.hybrid_zoning, args.hybrid_version, args.capacity_output)
 
