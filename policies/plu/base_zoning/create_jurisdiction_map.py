@@ -154,7 +154,7 @@ if __name__ == '__main__':
     source_str = \
         "<FNT size=\"7\">Created by " \
         "<ITA>https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/create_jurisdiction_map.py</ITA> on {}. " \
-        "Hybrid config: <ITA>https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/hybrid_index/{}.csv</ITA></FNT>".format(
+        "Hybrid config: <ITA>https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/hybrid_index/{}</ITA></FNT>".format(
             now_str, args.hybrid_config)
 
     METRICS_DEF = collections.OrderedDict([
