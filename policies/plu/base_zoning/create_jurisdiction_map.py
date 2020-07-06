@@ -8,7 +8,7 @@ whether or not UrbanSim input is currently configured to use the BASIS data.
 
 """
 
-import argparse, collections, csv, datetime, os, sys, time
+import argparse, collections, csv, datetime, os, sys, time, traceback
 import arcpy, numpy, pandas, xlrd
 
 import dev_capacity_calculation_module
@@ -184,7 +184,7 @@ if __name__ == '__main__':
     if args.metric:
         metric_list = args.metric
     else:
-        metric_list = METRICS_DEF.keys()
+        metric_list = list(METRICS_DEF.keys())
     print("Will process metrics: {}".format(metric_list))
 
     prev_jurisdiction = "Palo Alto"
@@ -197,160 +197,188 @@ if __name__ == '__main__':
         juris_code = jurisdiction.lower().replace(" ","_").replace(".","")
         print("Creating map for {} ({})".format(jurisdiction, juris_code))
 
-        for metric in metric_list:
+        metric_idx = 0
+        while metric_idx < len(metric_list):
+            metric = metric_list[metric_idx]
 
-            print("  Creating map for metric {}".format(metric))
-            arc_project      = METRICS_DEF[metric][0]
-            metric_name      = METRICS_DEF[metric][1]
-            basis_check_col  = METRICS_DEF[metric][2]
-            basis_hybrid_col = METRICS_DEF[metric][3]
+            try:
 
-            basis_check_val  = False
-            if basis_check_col:
-                if jurisdiction not in juris_review_dict:
-                    print("Couldn't find jurisdiction {} in BASIS jurisdiction review {}".format(jurisdiction, JURIS_REVIEW))
-                else:
-                    basis_check_val = juris_review_dict[jurisdiction][basis_check_col]
-                    print("  BASIS check val for {}: {}".format(basis_check_col, basis_check_val))
-            basis_hybrid_val = hybrid_config_dict[juris_code][basis_hybrid_col]
-            print("  BASIS hybrid config val for {}: {}".format(basis_hybrid_col, basis_hybrid_val))
-
-            # allowed dev type has a generic map so needs subsitution for that as well
-            is_devtype      = False
-            map_metric      = metric
-            map_metric_name = metric_name
-            if metric in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
-                is_devtype      = True
-                map_metric      = prev_allowdevtype_metric
-                map_metric_name = METRICS_DEF[prev_allowdevtype_metric][1]
-            print("   map_metric:[{}]  map_metric_name:[{}]".format(map_metric, map_metric_name))
-
-            # start fresh
-            aprx       = arcpy.mp.ArcGISProject(arc_project)
-            layouts    = aprx.listLayouts("Layout_{}".format(map_metric))
-            maps       = aprx.listMaps()
-            juris_lyr  = {} # key: "BASIS" or "PBA40"
-
-            assert(len(layouts)==1)
-
-            for my_map in maps:
-                if my_map.name.endswith(map_metric) or my_map.name.endswith(map_metric_name):
-                    # process this one
-                    print("  Processing map {}".format(my_map.name))
-                else:
-                    print("  Skipping map {}".format(my_map.name))
-                    continue
-
-                for layer in my_map.listLayers():
-                    if not layer.isFeatureLayer: continue
-                    print("    Processing layer {}".format(layer.name))
-                    print("      Definition query: {}".format(layer.definitionQuery))
-                    # modify to current jurisdiction
-                    layer.definitionQuery = layer.definitionQuery.replace(prev_jurisdiction, jurisdiction)
-                    layer.definitionQuery = layer.definitionQuery.replace(prev_juris_code,   juris_code)
-                    # modify to current devtype
-                    if is_devtype:
-                        layer.definitionQuery = layer.definitionQuery.replace(prev_allowdevtype_metric, metric)
-                        layer.name            = layer.name.replace(prev_allowdevtype_metric, metric)
-
-                    print("      => Definition query: {}".format(layer.definitionQuery))
-
-                    # for devtype, may need to change variable used which means updating symbology
-                    if is_devtype:
-                        print("      Symbology: {}".format(layer.symbology))
-                        if hasattr(layer.symbology, 'renderer') and layer.symbology.renderer.type=='UniqueValueRenderer':
-                            
-                            fields     = layer.symbology.renderer.fields
-                            new_fields = [field.replace(prev_allowdevtype_metric, metric) for field in fields]
-
-                            # following example here: https://pro.arcgis.com/en/pro-app/arcpy/mapping/uniquevaluerenderer-class.htm
-                            sym = layer.symbology
-                            sym.updateRenderer('UniqueValueRenderer')
-                            sym.renderer.fields = new_fields
-                            print("      Symbology.renderer.fields: {} => {}".format(fields, new_fields))
-                            for grp in sym.renderer.groups:
-                                for itm in grp.items:
-                                    if itm.values == [['0']]:
-                                        itm.label        = 'Not Allowed'
-                                        itm.symbol.color = {'RGB': [199, 215, 158, 100]}  # light green
-                                        itm.symbol.size  = 0.0  # outline width => no outline
-                                    elif itm.values == [['1']]:
-                                        itm.label        = 'Allowed'
-                                        itm.symbol.color = {'RGB': [230, 152, 0, 100]}   # orange
-                                        itm.symbol.size  = 0.0  # outline width => no outline
-                                    elif itm.values == [['<Null>']]:
-                                        itm.label        = 'Missing'
-                                        itm.symbol.color = {'RGB': [0, 77, 168, 100]}  # blue
-                                        itm.symbol.size  = 0.0  # outline width => no outline
-                                    else:
-                                        print("      Don't recognize itm.values: {}".format(itm.values))
-                            layer.symbology = sym
-
-
-                    # save this for extent
-                    if layer.name == "Jurisdictions - primary":
-                        juris_lyr[my_map.name] = layer
-                        print("      saving juris_lyr[{}]".format(my_map.name))
-
-            layout = layouts[0]
-
-
-            print("  Processing layout {}".format(layout.name))
-            for element in layout.listElements():
-                print("    Processing element {}: {}".format(element.name, element))
-
-                if element.name == "Source":
-                    element.text = source_str
-                if element.name == "Jurisdiction":
-                    element.text = jurisdiction
-
-                if element.name == "juris_review_false":
-                    element.visible = not basis_check_val   # visible if basis_check_val==False
-                if element.name == "juris_review_true":
-                    element.visible =  basis_check_val      # visible if basis_check_val==True
-
-                if element.name == "arrow_basis":
-                    element.visible = basis_hybrid_val      # visible if basis_hybrid_val==True
-                if element.name == "input_basis":
-                    element.visible = basis_hybrid_val      # visible if basis_hybrid_val==True
-
-                if element.name == "arrow_pba40":
-                    element.visible = not basis_hybrid_val  # visible if basis_hybrid_val==False
-                if element.name == "input_pba40":
-                    element.visible = not basis_hybrid_val  # visible if basis_hybrid_val==False
-
-                if is_devtype and element.name == "BASIS Label":
-                    element.text = "BASIS {}".format(metric_name)
-                if is_devtype and element.name == "PBA40 Label":
-                    element.text = "PBA40 {}".format(metric_name)
-
-                # zoom to the jurisdiction
-                if element.name.find("Map Frame") >= 0:
-                    if element.name.endswith("BASIS"):
-                        map_type = "BASIS_"+map_metric
+                print("  Creating map for metric {}".format(metric))
+                arc_project      = METRICS_DEF[metric][0]
+                metric_name      = METRICS_DEF[metric][1]
+                basis_check_col  = METRICS_DEF[metric][2]
+                basis_hybrid_col = METRICS_DEF[metric][3]
+    
+                basis_check_val  = False
+                if basis_check_col:
+                    if jurisdiction not in juris_review_dict:
+                        print("Couldn't find jurisdiction {} in BASIS jurisdiction review {}".format(jurisdiction, JURIS_REVIEW))
                     else:
-                        map_type = "PBA40_"+map_metric
+                        basis_check_val = juris_review_dict[jurisdiction][basis_check_col]
+                        print("  BASIS check val for {}: {}".format(basis_check_col, basis_check_val))
+                basis_hybrid_val = hybrid_config_dict[juris_code][basis_hybrid_col]
+                print("  BASIS hybrid config val for {}: {}".format(basis_hybrid_col, basis_hybrid_val))
+    
+                # allowed dev type has a generic map so needs subsitution for that as well
+                is_devtype      = False
+                map_metric      = metric
+                map_metric_name = metric_name
+                if metric in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
+                    is_devtype      = True
+                    map_metric      = prev_allowdevtype_metric
+                    map_metric_name = METRICS_DEF[prev_allowdevtype_metric][1]
+                print("   map_metric:[{}]  map_metric_name:[{}]".format(map_metric, map_metric_name))
+    
+                # start fresh
+                aprx       = arcpy.mp.ArcGISProject(arc_project)
+                layouts    = aprx.listLayouts("Layout_{}".format(map_metric))
+                maps       = aprx.listMaps()
+                juris_lyr  = {} # key: "BASIS" or "PBA40"
+    
+                assert(len(layouts)==1)
+    
+                for my_map in maps:
+                    if my_map.name.endswith(map_metric) or my_map.name.endswith(map_metric_name):
+                        # process this one
+                        print("  Processing map {}".format(my_map.name))
+                    else:
+                        print("  Skipping map {}".format(my_map.name))
+                        continue
+    
+                    for layer in my_map.listLayers():
+                        if not layer.isFeatureLayer: continue
+                        print("    Processing layer {}".format(layer.name))
+                        print("      Definition query: {}".format(layer.definitionQuery))
+                        # modify to current jurisdiction
+                        layer.definitionQuery = layer.definitionQuery.replace(prev_jurisdiction, jurisdiction)
+                        layer.definitionQuery = layer.definitionQuery.replace(prev_juris_code,   juris_code)
+                        # modify to current devtype
+                        if is_devtype:
+                            layer.definitionQuery = layer.definitionQuery.replace(prev_allowdevtype_metric, metric)
+                            layer.name            = layer.name.replace(prev_allowdevtype_metric, metric)
+    
+                        print("      => Definition query: {}".format(layer.definitionQuery))
+    
+                        # for devtype, may need to change variable used which means updating symbology
+                        if is_devtype:
+                            print("      Symbology: {}".format(layer.symbology))
+                            if hasattr(layer.symbology, 'renderer') and layer.symbology.renderer.type=='UniqueValueRenderer':
+                                
+                                fields     = layer.symbology.renderer.fields
+                                new_fields = [field.replace(prev_allowdevtype_metric, metric) for field in fields]
+    
+                                # following example here: https://pro.arcgis.com/en/pro-app/arcpy/mapping/uniquevaluerenderer-class.htm
+                                sym = layer.symbology
+                                sym.updateRenderer('UniqueValueRenderer')
+                                sym.renderer.fields = new_fields
+                                print("      Symbology.renderer.fields: {} => {}".format(fields, new_fields))
+                                for grp in sym.renderer.groups:
+                                    for itm in grp.items:
+                                        if itm.values == [['0']]:
+                                            itm.label        = 'Not Allowed'
+                                            itm.symbol.color = {'RGB': [199, 215, 158, 100]}  # light green
+                                            itm.symbol.size  = 0.0  # outline width => no outline
+                                        elif itm.values == [['1']]:
+                                            itm.label        = 'Allowed'
+                                            itm.symbol.color = {'RGB': [230, 152, 0, 100]}   # orange
+                                            itm.symbol.size  = 0.0  # outline width => no outline
+                                        elif itm.values == [['<Null>']]:
+                                            itm.label        = 'Missing'
+                                            itm.symbol.color = {'RGB': [0, 77, 168, 100]}  # blue
+                                            itm.symbol.size  = 0.0  # outline width => no outline
+                                        else:
+                                            print("      Don't recognize itm.values: {}".format(itm.values))
+                                layer.symbology = sym
+    
+    
+                        # save this for extent
+                        if layer.name == "Jurisdictions - primary":
+                            juris_lyr[my_map.name] = layer
+                            print("      saving juris_lyr[{}]".format(my_map.name))
+    
+                layout = layouts[0]
+    
+    
+                print("  Processing layout {}".format(layout.name))
+                for element in layout.listElements():
+                    print("    Processing element {}: {}".format(element.name, element))
+    
+                    if element.name == "Source":
+                        element.text = source_str
+                    if element.name == "Jurisdiction":
+                        element.text = jurisdiction
+    
+                    if element.name == "juris_review_false":
+                        element.visible = not basis_check_val   # visible if basis_check_val==False
+                    if element.name == "juris_review_true":
+                        element.visible =  basis_check_val      # visible if basis_check_val==True
+    
+                    if element.name == "arrow_basis":
+                        element.visible = basis_hybrid_val      # visible if basis_hybrid_val==True
+                    if element.name == "input_basis":
+                        element.visible = basis_hybrid_val      # visible if basis_hybrid_val==True
+    
+                    if element.name == "arrow_pba40":
+                        element.visible = not basis_hybrid_val  # visible if basis_hybrid_val==False
+                    if element.name == "input_pba40":
+                        element.visible = not basis_hybrid_val  # visible if basis_hybrid_val==False
+    
+                    if is_devtype and element.name == "BASIS Label":
+                        element.text = "BASIS {}".format(metric_name)
+                    if is_devtype and element.name == "PBA40 Label":
+                        element.text = "PBA40 {}".format(metric_name)
+    
+                    # zoom to the jurisdiction
+                    if element.name.find("Map Frame") >= 0:
+                        if element.name.endswith("BASIS"):
+                            map_type = "BASIS_"+map_metric
+                        else:
+                            map_type = "PBA40_"+map_metric
+    
+                        # get the jurisdiction layer extent
+                        layer_extent = element.getLayerExtent(juris_lyr[map_type])
+                        # apply extent to mapframe camera
+                        element.camera.setExtent(layer_extent)
+    
+                if args.output_type == "pdf":
+                    juris_pdf = "{}_{}.pdf".format(juris_code, metric_name)
+                    layout.exportToPDF(juris_pdf)
+                    print("  Wrote {}".format(juris_pdf))
+                elif args.output_type == "png":
+                    juris_png = "{}_{}.png".format(juris_code, metric_name)
+                    layout.exportToPNG(juris_png, resolution=300)    
+                    print("  Wrote {}".format(juris_png))
+    
+    
+                # if instructed, save a copy of the arcgis project
+                if args.debug:
+                    copy_filename = arc_project.replace(".aprx","_{}_{}.aprx".format(juris_code,metric))
+                    aprx.saveACopy(copy_filename)
+                    print("DEBUG: saved a copy of project to {}".format(copy_filename))
 
-                    # get the jurisdiction layer extent
-                    layer_extent = element.getLayerExtent(juris_lyr[map_type])
-                    # apply extent to mapframe camera
-                    element.camera.setExtent(layer_extent)
+                # successfully completed this metric
+                metric_idx += 1
+            except:
 
-            if args.output_type == "pdf":
-                juris_pdf = "{}_{}.pdf".format(juris_code, metric_name)
-                layout.exportToPDF(juris_pdf)
-                print("  Wrote {}".format(juris_pdf))
-            elif args.output_type == "png":
-                juris_png = "{}_{}.png".format(juris_code, metric_name)
-                layout.exportToPNG(juris_png, resolution=300)    
-                print("  Wrote {}".format(juris_png))
+                print("======= Unexpected error: {}".format(sys.exc_info()))
+                exc_type, exc_value, exc_tb = sys.exc_info()
+                traceback.print_exception(exc_type, exc_value, exc_tb)
+                # print("======= Retrying {} {}".format(jurisdiction, metric))
+                # print("")
+                # print("")
+                # continue
 
-
-            # if instructed, save a copy of the arcgis project
-            if args.debug:
-                copy_filename = arc_project.replace(".aprx","_{}_{}.aprx".format(juris_code,metric))
-                aprx.saveACopy(copy_filename)
-                print("DEBUG: saved a copy of project to {}".format(copy_filename))
+                # This exception seems to occur sporadically running this script:
+                # Traceback (most recent call last):
+                #   File "X:\petrale\policies\plu\base_zoning\create_jurisdiction_map.py", line 273, in <module>
+                #     sym.renderer.fields = new_fields
+                #   File "C:\Program Files\ArcGIS\Pro\Resources\ArcPy\arcpy\arcobjects\_base.py", line 109, in _set
+                #     return setattr(self._arc_object, attr_name, cval(val))
+                # RuntimeError: Invalid set of Fileds : ['p10_plu_boc_allAttrs_IW_basis']
+                
+                # note: I tried to retry using the continue line above, but in practice it ended up looping and being
+                # unable to resolve the issue.  So just quit
+                sys.exit(2)
 
         # done with jurisdiction
         print("")
