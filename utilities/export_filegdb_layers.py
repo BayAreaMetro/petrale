@@ -25,6 +25,12 @@ if __name__ == '__main__':
 
     arcpy.env.workspace = args.geodatabase
 
+    # a dictionary of fields with required data type
+    # add to this dictionary as needed
+    field_types = {'parcel_id': 'LONG', 
+                   'zone_id':   'SHORT',
+                   'geom_id_s': 'TEXT'}
+
     if not args.layer:
         print("workspace: {}".format(arcpy.env.workspace))
         for dataset in arcpy.ListDatasets():
@@ -33,6 +39,23 @@ if __name__ == '__main__':
     
         print("  feature classes: {} ".format(arcpy.ListFeatureClasses()))
         print("  tables: {} ".format(arcpy.ListTables()))
+
+    if args.layer in arcpy.ListFeatureClasses() or args.layer in arcpy.ListTables():
+        # convert field types as needed
+        for field in arcpy.ListFields(args.layer):
+            for update_field in field_types.keys():
+                if field.name.lower() == update_field:
+                    new_type = field_types[update_field]
+                    f_name = field.name
+                    f_aliasName = field.aliasName
+                    # create a new field with the correct data type
+                    arcpy.AddField_management(args.layer, "temp", new_type)
+                    # calculate the value based on the old field
+                    arcpy.CalculateField_management(args.layer, "temp", 'int(round(!field!))', "PYTHON3")
+                    # delete the old field
+                    arcpy.AlterField_management(args.layer, f_name, f_name+"_old", f_aliasName+"_old")
+                    # rename the new field
+                    arcpy.AlterField_management(args.layer, "temp", f_name, f_aliasName)
 
     if args.layer in arcpy.ListFeatureClasses():
 
