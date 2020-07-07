@@ -279,22 +279,6 @@ def calculate_capacity(df_original,boc_source,nodev_source,
      * is_under_built_[boc_source]
      * res_zoned_existing_ratio_[boc_source]
      * nonres_zoned_existing_ratio_[boc_source]
-     
-     And if calculate_net = True, additionally columns for net capacity based on various criteria
-     * units_net_vacant_[boc_source]: capacity only of vacant parcels
-     * sqft_net_vacant_[boc_source]
-     * Ksqft_net_vacant_[boc_source]
-     * emp_net_vacant_[boc_source]
-
-     * units_net_ub_[boc_source]: capacity only of vacant or under-built parcels
-     * sqft_net_ub_[boc_source]
-     * Ksqft_net_ub_[boc_source]
-     * emp_net_ub_[boc_source]
-
-     * units_net_ub_noProt_[boc_source]: capacity of parcels that are vacant or under-built, but without protected (old) building
-     * sqft_net_ub_noProt_[boc_source]
-     * Ksqft_net_ub_noProt_[boc_source]
-     * emp_net_ub_noProt_[boc_source]
     
     """
     
@@ -410,29 +394,6 @@ def calculate_capacity(df_original,boc_source,nodev_source,
         # ratio of existing non-res sqft to zoned non-res sqft
         capacity_with_building['nonres_zoned_existing_ratio_' + boc_source] = \
                 (capacity_with_building['non_residential_sqft'] / capacity_with_building['sqft_raw_' + boc_source]).replace(np.inf, 1).clip(lower=0)
-
-
-        # calculate net capacity by different criteria
-        # 1. only of vacant parcels
-        for capacity_type in ["units", "sqft", "Ksqft", "emp"]:
-            capacity_with_building[capacity_type+'_net_vacant_'+boc_source] = capacity_with_building[capacity_type+'_raw_'+boc_source]
-            capacity_with_building.loc[capacity_with_building.parcel_vacant == False,
-                                       capacity_type+'_net_vacant_'+boc_source] = 0
-
-        # 2. only of vacant or under-built parcels
-        for capacity_type in ["units", "sqft", "Ksqft", "emp"]:
-            capacity_with_building[capacity_type+'_net_ub_'+boc_source] = capacity_with_building[capacity_type+'_raw_'+boc_source]
-            capacity_with_building.loc[(capacity_with_building.parcel_vacant == False) &
-                                       (capacity_with_building['is_under_built_' + boc_source] == False),
-                                        capacity_type+'_net_ub_'+boc_source] = 0
-
-        # 3. of vacant or under-built but no protected (old) building parcels
-        for capacity_type in ["units", "sqft", "Ksqft", "emp"]:
-            capacity_with_building[capacity_type+'_net_ub_noProt_'+boc_source] = capacity_with_building[capacity_type+'_raw_'+boc_source]
-            capacity_with_building.loc[((capacity_with_building.parcel_vacant == False) &
-                                        (capacity_with_building['is_under_built_' + boc_source] == False)) | 
-                                       (capacity_with_building['is_under_built_' + boc_source] == True),
-                                        capacity_type+'_net_ub_noProt_'+boc_source] = 0
 
         return capacity_with_building
 
