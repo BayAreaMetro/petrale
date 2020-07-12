@@ -126,7 +126,7 @@ if __name__ == '__main__':
     ## export needed fields
 
     # Parcel attribute:
-    p_att = ['PARCEL_ID', 'geom_id', 'jurisdiction_id', 'juris_name_full', 'juris','ACRES']
+    p_att = ['PARCEL_ID', 'geom_id', 'jurisdiction_id', 'juris_name_full', 'juris_id', 'juris','ACRES']
 
     # PBA40 fields:
     pba40_att = ['pda_id_pba40', 'tpp_id', 'exp_id', 'opp_id', 
