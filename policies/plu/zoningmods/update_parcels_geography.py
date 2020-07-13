@@ -58,7 +58,7 @@ if __name__ == '__main__':
     basemap_p10['PARCEL_ID'] = basemap_p10['PARCEL_ID'].apply(lambda x: int(round(x)))
     basemap_p10['geom_id_s'] = basemap_p10['geom_id_s'].apply(lambda x: int(x))
 
-    logger.info('Read {} records from {}, with {} unique Parcel IDs, and header: /n {}'.format(
+    logger.info('Read {} records from {}, with {} unique Parcel IDs, and header: \n {}'.format(
             len(basemap_p10), 
             basemap_p10_file,
             len(basemap_p10.PARCEL_ID.unique()),
@@ -73,7 +73,7 @@ if __name__ == '__main__':
                            usecols = pg_pba40_cols)
     pg_pba40.rename(columns = {'pda_id': 'pda_id_pba40'}, inplace = True)
 
-    logger.info('Read {} records from {}, with header: /n {}'.format(
+    logger.info('Read {} records from {}, with header: \n {}'.format(
             len(pg_pba40),
             pg_pba40_file,
             pg_pba40.head()))
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     pba50_attrs = pd.read_csv(pba50_attrs_file,
                               usecols = pba50_attrs_cols)
 
-    logger.info('Read {} records from {}, with header: /n {}'.format(
+    logger.info('Read {} records from {}, with header: \n {}'.format(
             len(pba50_attrs),
             pba50_attrs_file,
             pba50_attrs.head()))
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     pda_pba50 = pd.read_csv(pda_pba50_file)
     pda_pba50.rename(columns = {'pda_id': 'pda_id_pba50'}, inplace = True)
 
-    logger.info('Read {} records from {}, with {} unique Parcel IDs, header: /n {}'.format(
+    logger.info('Read {} records from {}, with {} unique Parcel IDs, header: \n {}'.format(
             len(pda_pba50),
             pda_pba50_file,
             len(pda_pba50.parcel_id.unique()),
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     ## export needed fields
 
     # Parcel attribute:
-    p_att = ['PARCEL_ID', 'geom_id', 'jurisdiction_id', 'juris_name_full', 'juris','ACRES']
+    p_att = ['PARCEL_ID', 'geom_id', 'jurisdiction_id', 'juris_name_full', 'juris_id', 'juris','ACRES']
 
     # PBA40 fields:
     pba40_att = ['pda_id_pba40', 'tpp_id', 'exp_id', 'opp_id', 
@@ -142,7 +142,7 @@ if __name__ == '__main__':
     # export:
     pg_pba50_all = pg_pba50_merge[p_att + pba40_att + hor_att + pba50_att]
 
-    logger.info('Export {} records with {} unique PARCEL IDs to {} with the following fields: /n {}'.format(len(pg_pba50_all),
+    logger.info('Export {} records with {} unique PARCEL IDs to {} with the following fields: \n {}'.format(len(pg_pba50_all),
                                                                                                             len(pg_pba50_all.PARCEL_ID.unique()),
                                                                                                             PBA50_LARGE_INPUT_DIR,
                                                                                                             pg_pba50_all.dtypes))
