@@ -400,23 +400,6 @@ def calculate_capacity(df_original,boc_source,nodev_source,
     return capacity_raw
 
 
-
-def calculate_net_capacity(raw_capacity_by_parcel, parcel_building_df_original, 
-                           boc_source, nodev_source, pass_thru_cols=[]):
-    """
-    
-    Calculate net development capacity.
-
-    Inputs: 
-    * parcel-level development capacity calculated by "calculate_capacity"
-    * 
-
-    Outputs:
-    # parcel-level net capacity 
-    """
-
-
-
 def zoning_to_capacity(parcel_zoning_file, hybrid_version, upzoning_scenario, capacity_output_dir):
 
     """
