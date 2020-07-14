@@ -246,16 +246,14 @@ def apply_upzoning_to_hybrid_parcel_data(df_original, upzoning_scenario):
     return parcel_upzoning
 
 
-def calculate_capacity(df_original,boc_source,nodev_source,
-                       building_parcel_df_original,
-                       calculate_net=True, pass_thru_cols=[]):
+def calculate_capacity(df_original,boc_source,nodev_source,pass_thru_cols=[]):
     """
     Calculate the development capacity in res units, non-res sqft, and employee estimates
     
     Inputs:
      * df_original:                 parcel-zoning dataframe, mapping parcel_id to zoning attributes including
                                     allowable development types and development intensities
-     * boc_source:                  source of parcel-zoning data, could be 'pba40', 'basis', or 'upzoning'
+     * boc_source:                  source of parcel-zoning data, could be 'pba40', 'basis', 'urbansim', or 'upzoning'
      * nodev_source:                which 'nodev' labels for parcels are used, either 'pba40' or 'basis'
      * building_parcel_df_original: parcel data joined to building data, which is used to determine parcel
                                     existing characteristics - these characteristics determine if a parcel's
@@ -318,86 +316,177 @@ def calculate_capacity(df_original,boc_source,nodev_source,
         "emp_raw_"          +boc_source
     ]
 
-    capacity_raw = df[keep_cols]
-
-    if calculate_net:
-
-        building_parcel_df = building_parcel_df_original.copy()
-
-        # label vacant building based on building's development_type_id
-        # https://github.com/BayAreaMetro/petrale/blob/master/incoming/dv_buildings_det_type_lu.csv
-        building_parcel_df["building_vacant"] = 0.0
-        building_parcel_df.loc[building_parcel_df.development_type_id== 0, "building_vacant"] = 1.0
-        building_parcel_df.loc[building_parcel_df.development_type_id== 15, "building_vacant"] = 1.0
-
-        # parcel_building_df_original is building-level data, therefore need to 
-        # aggregate buildings at the parcel level
-        building_groupby_parcel = building_parcel_df.groupby(['PARCEL_ID']).agg({
-            'LAND_VALUE'          :'max',
-            'improvement_value'   :'sum',
-            'residential_units'   :'sum',
-            'residential_sqft'    :'sum',
-            'non_residential_sqft':'sum',
-            'building_sqft'       :'sum',
-            'year_built'          :'min',
-            'building_id'         :'min',
-            'building_vacant'     :'prod'}) # all buildings must be vacant to call this building_vacant
-
-        # Identify vacant parcels
-        building_groupby_parcel["parcel_vacant"] = False
-        building_groupby_parcel.loc[ building_groupby_parcel['building_id'].isnull(),   "parcel_vacant" ] = True
-        building_groupby_parcel.loc[ building_groupby_parcel['building_vacant'] == 1.0, "parcel_vacant" ] = True
-        building_groupby_parcel.loc[(building_groupby_parcel['improvement_value'   ] == 0) & 
-                                    (building_groupby_parcel['residential_units'   ] == 0) &
-                                    (building_groupby_parcel['residential_sqft'    ] == 0) &
-                                    (building_groupby_parcel['non_residential_sqft'] == 0) &
-                                    (building_groupby_parcel['building_sqft'       ] == 0), "parcel_vacant"] = True
-        logger.info("Vacant parcel statistics: \n {}".format(building_groupby_parcel["parcel_vacant"].value_counts()))
-
-        # Identify parcels with old buildings which are protected (if multiple buildings on one parcel, take the oldest)
-        # and not build on before-1940 parcels
-        building_groupby_parcel['building_age'] = 'missing'
-        building_groupby_parcel.loc[building_groupby_parcel.year_built >= 2000, 'building_age' ] = 'after 2000'
-        building_groupby_parcel.loc[building_groupby_parcel.year_built <  2000, 'building_age' ] = '1980-2000'
-        building_groupby_parcel.loc[building_groupby_parcel.year_built <  1980, 'building_age' ] = '1940-1980'
-        building_groupby_parcel.loc[building_groupby_parcel.year_built <  1940, 'building_age' ] = 'before 1940'
-
-        building_groupby_parcel['has_old_building'] = np.nan
-        building_groupby_parcel.loc[building_groupby_parcel.building_age == 'before 1940','has_old_building'] = True
-        logger.info('Parcel statistics by the age of the oldest building: \n {}'.format(building_groupby_parcel["building_age"].value_counts()))
-
-        # Calculate parcel's investment-land ratio
-        building_groupby_parcel['ILR'] = building_groupby_parcel['improvement_value'] / building_groupby_parcel['LAND_VALUE']
-        building_groupby_parcel.loc[building_groupby_parcel['LAND_VALUE'] == 0, 'ILR'] = 'n/a'
+    return df[keep_cols]
 
 
-        # join to raw capacity dataframe
-        capacity_with_building = pd.merge(left=capacity_raw, 
-                                          right=building_groupby_parcel,
-                                          how="left", 
-                                          on="PARCEL_ID")
+def calculate_net_capacity(df_original,boc_source,nodev_source,
+                           building_parcel_df_original,
+                           pass_thru_cols=[]):
+    """
+    Calculate the net development capacity in res units, non-res sqft, and employee estimates
+    
+    Inputs:
+     * df_original:                 parcel-zoning dataframe, mapping parcel_id to zoning attributes including
+                                    allowable development types and development intensities
+     * boc_source:                  source of parcel-zoning data, could be 'pba40', 'basis', 'urbansim', or 'upzoning'
+     * nodev_source:                which 'nodev' labels for parcels are used, either 'pba40' or 'basis'
+     * building_parcel_df_original: parcel data joined to building data, which is used to determine parcel
+                                    existing characteristics - these characteristics determine if a parcel's
+                                    net capacity is zero or equals the raw capacity
 
-        # Identify under-built parcels and calculate the net units capacity for under-built parcels
-        new_units = (capacity_with_building['units_raw_' + boc_source] - 
-                     capacity_with_building['residential_units']       - 
-                     capacity_with_building['non_residential_sqft'] / SQUARE_FEET_PER_DU).clip(lower=0)
-        ratio = (new_units / capacity_with_building['residential_units']).replace(np.inf, 1)
-        capacity_with_building['is_under_built_' + boc_source] = ratio > 0.5
-        logger.info('under_built parcels counts ({}): \n {}'.format(boc_source, 
-                (capacity_with_building['is_under_built_' + boc_source].value_counts())))
+    Returns dataframe with columns:
+     * PARCEL_ID
+     * columns in pass_thru_cols
+     * parcel_vacant
+     * has_old_building
+     * is_under_built_[boc_source]
+     * res_zoned_existing_ratio_[boc_source]
+     * nonres_zoned_existing_ratio_[boc_source]
+
+       net capacity based on various criteria:
+     * units_net_vacant_[boc_source]: capacity only of vacant parcels
+     * sqft_net_vacant_[boc_source]
+     * Ksqft_net_vacant_[boc_source]
+     * emp_net_vacant_[boc_source]
+
+     * units_net_ub_[boc_source]: capacity only of vacant or under-built parcels
+     * sqft_net_ub_[boc_source]
+     * Ksqft_net_ub_[boc_source]
+     * emp_net_ub_[boc_source]
+
+     * units_net_ub_noProt_[boc_source]: capacity of parcels that are vacant or under-built, but without protected (old) building
+     * sqft_net_ub_noProt_[boc_source]
+     * Ksqft_net_ub_noProt_[boc_source]
+     * emp_net_ub_noProt_[boc_source]
+    
+    """
+    capacity_raw = calculate_capacity(df_original,boc_source,nodev_source,
+                       building_parcel_df_original,
+                       calculate_net=True, pass_thru_cols=[])
+
+    building_parcel_df = building_parcel_df_original.copy()
+
+    # label vacant building based on building's development_type_id
+    # https://github.com/BayAreaMetro/petrale/blob/master/incoming/dv_buildings_det_type_lu.csv
+    building_parcel_df["building_vacant"] = 0.0
+    building_parcel_df.loc[building_parcel_df.development_type_id== 0, "building_vacant"] = 1.0
+    building_parcel_df.loc[building_parcel_df.development_type_id== 15, "building_vacant"] = 1.0
+
+    # parcel_building_df_original is building-level data, therefore need to 
+    # aggregate buildings at the parcel level
+    building_groupby_parcel = building_parcel_df.groupby(['PARCEL_ID']).agg({
+        'LAND_VALUE'          :'max',
+        'improvement_value'   :'sum',
+        'residential_units'   :'sum',
+        'residential_sqft'    :'sum',
+        'non_residential_sqft':'sum',
+        'building_sqft'       :'sum',
+        'year_built'          :'min',
+        'building_id'         :'min',
+        'building_vacant'     :'prod'}) # all buildings must be vacant to call this building_vacant
+
+    # Identify vacant parcels
+    building_groupby_parcel["parcel_vacant"] = False
+    building_groupby_parcel.loc[ building_groupby_parcel['building_id'].isnull(),   "parcel_vacant" ] = True
+    building_groupby_parcel.loc[ building_groupby_parcel['building_vacant'] == 1.0, "parcel_vacant" ] = True
+    building_groupby_parcel.loc[(building_groupby_parcel['improvement_value'   ] == 0) & 
+                                (building_groupby_parcel['residential_units'   ] == 0) &
+                                (building_groupby_parcel['residential_sqft'    ] == 0) &
+                                (building_groupby_parcel['non_residential_sqft'] == 0) &
+                                (building_groupby_parcel['building_sqft'       ] == 0), "parcel_vacant"] = True
+    logger.info("Vacant parcel statistics: \n {}".format(building_groupby_parcel["parcel_vacant"].value_counts()))
+
+    # Identify parcels with old buildings which are protected (if multiple buildings on one parcel, take the oldest)
+    # and not build on before-1940 parcels
+    building_groupby_parcel['building_age'] = 'missing'
+    building_groupby_parcel.loc[building_groupby_parcel.year_built >= 2000, 'building_age' ] = 'after 2000'
+    building_groupby_parcel.loc[building_groupby_parcel.year_built <  2000, 'building_age' ] = '1980-2000'
+    building_groupby_parcel.loc[building_groupby_parcel.year_built <  1980, 'building_age' ] = '1940-1980'
+    building_groupby_parcel.loc[building_groupby_parcel.year_built <  1940, 'building_age' ] = 'before 1940'
+
+    building_groupby_parcel['has_old_building'] = np.nan
+    building_groupby_parcel.loc[building_groupby_parcel.building_age == 'before 1940','has_old_building'] = True
+    logger.info('Parcel statistics by the age of the oldest building: \n {}'.format(building_groupby_parcel["building_age"].value_counts()))
+
+    # Calculate parcel's investment-land ratio
+    building_groupby_parcel['ILR'] = building_groupby_parcel['improvement_value'] / building_groupby_parcel['LAND_VALUE']
+    building_groupby_parcel.loc[building_groupby_parcel['LAND_VALUE'] == 0, 'ILR'] = 'n/a'
 
 
-        # Calculate zoned capacity to existing capactiy ratio
-        # ratio of existing res units to zoned res units
-        capacity_with_building['res_zoned_existing_ratio_' + boc_source] = \
-                (capacity_with_building['residential_units'] / capacity_with_building['units_raw_' + boc_source]).replace(np.inf, 1).clip(lower=0)
-        # ratio of existing non-res sqft to zoned non-res sqft
-        capacity_with_building['nonres_zoned_existing_ratio_' + boc_source] = \
-                (capacity_with_building['non_residential_sqft'] / capacity_with_building['sqft_raw_' + boc_source]).replace(np.inf, 1).clip(lower=0)
+    # join to raw capacity dataframe
+    capacity_with_building = pd.merge(left=capacity_raw, 
+                                      right=building_groupby_parcel,
+                                      how="left", 
+                                      on="PARCEL_ID")
 
-        return capacity_with_building
+    # Identify under-built parcels and calculate the net units capacity for under-built parcels
+    new_units = (capacity_with_building['units_raw_' + boc_source] - 
+                 capacity_with_building['residential_units']       - 
+                 capacity_with_building['non_residential_sqft'] / SQUARE_FEET_PER_DU).clip(lower=0)
+    ratio = (new_units / capacity_with_building['residential_units']).replace(np.inf, 1)
+    capacity_with_building['is_under_built_' + boc_source] = ratio > 0.5
+    logger.info('under_built parcels counts ({}): \n {}'.format(boc_source, 
+            (capacity_with_building['is_under_built_' + boc_source].value_counts())))
 
-    return capacity_raw
+
+    # Calculate zoned capacity to existing capactiy ratio
+    # ratio of existing res units to zoned res units
+    capacity_with_building['res_zoned_existing_ratio_' + boc_source] = \
+            (capacity_with_building['residential_units'] / capacity_with_building['units_raw_' + boc_source]).replace(np.inf, 1).clip(lower=0)
+    # ratio of existing non-res sqft to zoned non-res sqft
+    capacity_with_building['nonres_zoned_existing_ratio_' + boc_source] = \
+            (capacity_with_building['non_residential_sqft'] / capacity_with_building['sqft_raw_' + boc_source]).replace(np.inf, 1).clip(lower=0)
+
+
+    # calculate net capacity by different criteria
+    # 1. only of vacant parcels
+    for capacity_type in ["units", "sqft", "Ksqft", "emp"]:
+        capacity_with_building[capacity_type+'_net_vacant_'+boc_source] = capacity_with_building[capacity_type+'_raw_'+boc_source]
+        capacity_with_building.loc[capacity_with_building.parcel_vacant == False,
+                                   capacity_type+'_net_vacant_'+boc_source] = 0
+
+    # 2. only of vacant or under-built parcels
+    for capacity_type in ["units", "sqft", "Ksqft", "emp"]:
+        capacity_with_building[capacity_type+'_net_ub_'+boc_source] = capacity_with_building[capacity_type+'_raw_'+boc_source]
+        capacity_with_building.loc[(capacity_with_building.parcel_vacant == False) &
+                                   (capacity_with_building['is_under_built_' + boc_source] == False),
+                                    capacity_type+'_net_ub_'+boc_source] = 0
+
+    # 3. of vacant or under-built but no protected (old) building parcels
+    for capacity_type in ["units", "sqft", "Ksqft", "emp"]:
+        capacity_with_building[capacity_type+'_net_ub_noProt_'+boc_source] = capacity_with_building[capacity_type+'_raw_'+boc_source]
+        capacity_with_building.loc[((capacity_with_building.parcel_vacant == False) &
+                                    (capacity_with_building['is_under_built_' + boc_source] == False)) | 
+                                   (capacity_with_building['is_under_built_' + boc_source] == True),
+                                    capacity_type+'_net_ub_noProt_'+boc_source] = 0
+
+    keep_cols = ['PARCEL_ID'] + pass_thru_cols + \
+    [
+        "units_net_vacant_"            +boc_source,
+        "sqft_net_vacant_"             +boc_source,
+        "Ksqft_net_vacant_"            +boc_source,
+        "emp_net_vacant_"              +boc_source,
+
+        "units_net_ub_"                +boc_source,
+        "sqft_net_ub_"                 +boc_source,
+        "Ksqft_net_ub_"                +boc_source,
+        "emp_net_ub_"                  +boc_source,
+
+        "units_net_ub_noProt_"         +boc_source,
+        "sqft_net_ub_noProt_"          +boc_source,
+        "Ksqft_net_ub_noProt_"         +boc_source,
+        "emp_net_ub_noProt_"           +boc_source,
+
+        "parcel_vacant",
+        "has_old_building",
+        "ILR",
+
+        'is_under_built_'              + boc_source,
+        'res_zoned_existing_ratio_'    + boc_source,
+        'nonres_zoned_existing_ratio_' + boc_source        
+    ]
+
+    return capacity_with_building[keep_cols]
 
 
 def zoning_to_capacity(parcel_zoning_file, hybrid_version, upzoning_scenario, capacity_output_dir):
