@@ -9,6 +9,7 @@ USAGE="""
    * number of parcels and number of parcel-acres for each permutation of allowed_res and/or allowed_nonres given the PBA40 vs BASIS value of that variable
 
   Input:  p10_plu_boc_allAttrs.csv, p10 combined with pba40 and basis boc data output by 1_PLU_BOC_data_combine.py
+          buildings.csv, b10 building data
   Output: juris_basis_pba40_capacity_metrics.csv
           juris_basis_pba40_capacity_metrics.log
   In test mode (specified by --test), outputs files to cwd and without date prefix; otherwise, outputs to PLU_BOC_DIR with date prefix
@@ -26,9 +27,11 @@ today = time.strftime('%Y_%m_%d')
 
 if os.getenv('USERNAME')    =='ywang':
     BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
+    BOX_SMELT_DIR           = 'C:\\Users\\{}\\Box\\baydata\\smelt\\2020 03 12'.format(os.getenv('USERNAME'))
     GITHUB_PETRALE_DIR      = 'C:\\Users\\{}\\Documents\\GitHub\\petrale\\'.format(os.getenv('USERNAME'))
 elif os.getenv('USERNAME')  =='lzorn':
-    BOX_DIR                 = 'C:\\Users\\lzorn\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
+    BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
+    BOX_SMELT_DIR           = 'C:\\Users\\{}\\Box\\baydata\\smelt\\2020 03 12'.format(os.getenv('USERNAME'))
     GITHUB_PETRALE_DIR      = 'X:\\petrale'
 
     
@@ -83,6 +86,21 @@ if __name__ == '__main__':
     logger.info("Read {:,} rows from {}".format(len(plu_boc), PLU_BOC_FILE))
     logger.info("\n{}".format(plu_boc.head()))
 
+    ## B10 buildings with p10 parcel data
+    basemap_b10_file = os.path.join(BOX_SMELT_DIR, 'b10.csv')
+    basemap_b10 = pd.read_csv(basemap_b10_file)
+    # conver PARCEL_ID to integer:
+    basemap_b10['parcel_id'] = basemap_b10['parcel_id'].apply(lambda x: int(round(x)))
+    logger.info("Read {:,} rows from {}".format(len(basemap_b10), basemap_b10_file))
+    logger.info("\n{}".format(basemap_b10.head()))
+    logger.info('Number of unique PARCEL_ID: {}'.format(len(basemap_b10.PARCEL_ID.unique())))
+    # join parcels to buildings which is used to determine current built-out condition when calculating net capacity
+    building_parcel = pd.merge(left=basemap_b10, 
+                               right=basemap_p10[['PARCEL_ID','LAND_VALUE']],
+                               left_on='parcel_id', 
+                               right_on='PARCEL_ID', 
+                               how='outer')
+
     ## Create test hybrid indices on the fly, representing:
     #  What if we used PBA40 data for all fields and BASIS data for this one field
     #  How would that affect capacity for each jurisdiction?
@@ -132,30 +150,70 @@ if __name__ == '__main__':
 
         # calculate capacity for PBA40 and BASIS test, where the BASIS test uses the "urbansim" index,
         # which is really a test of BASIS for this attribute only
-        capacity_pba40 = dev_capacity_calculation_module.calculate_capacity(test_hybrid_parcel_idx,"pba40",   "zmod",
-                                                                            pass_thru_cols=["juris_zmod"])
-        capacity_basis = dev_capacity_calculation_module.calculate_capacity(test_hybrid_parcel_idx,"urbansim","zmod",
-                                                                            pass_thru_cols=["juris_zmod"])
+        capacity_pba40     = dev_capacity_calculation_module.calculate_capacity(test_hybrid_parcel_idx,"pba40",   "zmod",
+                                                                                pass_thru_cols=["juris_zmod"])
+        capacity_basisTest = dev_capacity_calculation_module.calculate_capacity(test_hybrid_parcel_idx,"basisTest","zmod",
+                                                                                pass_thru_cols=["juris_zmod"])
 
         logger.debug("capacity_pba40.head():\n{}".format(capacity_pba40.head()))
-        logger.debug("capacity_basis.head():\n{}".format(capacity_basis.head()))
+        logger.debug("capacity_basisTest.head():\n{}".format(capacity_basisTest.head()))
 
         # should we keep capacity cols based on test_attr?
-        capacity_juris_pba40 = capacity_pba40.groupby(["juris_zmod"])[["units_pba40",   "Ksqft_pba40"   ,"emp_pba40"   ]].sum().reset_index()
-        capacity_juris_basis = capacity_basis.groupby(["juris_zmod"])[["units_urbansim","Ksqft_urbansim","emp_urbansim"]].sum().reset_index()
+        capacity_juris_pba40     = capacity_pba40.groupby(["juris_zmod"])[["units_raw_pba40",
+                                                                           "Ksqft_raw_pba40",
+                                                                           "emp_raw_pba40"]].sum().reset_index()
+        capacity_juris_basisTest = capacity_basisTest.groupby(["juris_zmod"])[["units_raw_basisTest",
+                                                                               "Ksqft_raw_basisTest",
+                                                                               "emp_raw_basisTest"]].sum().reset_index()
 
         logger.debug("capacity_juris_pba40.head():\n{}".format(capacity_juris_pba40.head()))
-        logger.debug("capacity_juris_basis.head():\n{}".format(capacity_juris_basis.head()))
+        logger.debug("capacity_juris_basisTest.head():\n{}".format(capacity_juris_basisTest.head()))
 
-        # put them together, add variable name, and rename to call it basis to be clearer
-        capacity_juris_pba40_basis = pd.merge(left=capacity_juris_pba40, right=capacity_juris_basis, on="juris_zmod")
-        capacity_juris_pba40_basis["variable"] = test_attr
-        capacity_juris_pba40_basis.rename(columns = {
-            "units_urbansim":"units_basis",
-            "Ksqft_urbansim":"Ksqft_basis",
-            "emp_urbansim"  :"emp_basis",
-        }, inplace = True)
-        logger.debug("capacity_juris_pba40_basis.head():\n{}".format(capacity_juris_pba40_basis.head()))
+        # calculate net capacity
+        net_capacity_pba40     = dev_capacity_calculation_module.calculate_net_capacity(test_hybrid_parcel_idx,"pba40",   "zmod",
+                                                                                        building_parcel, pass_thru_cols=["juris_zmod"])
+        net_capacity_basisTest = dev_capacity_calculation_module.calculate_net_capacity(test_hybrid_parcel_idx,"basisTest","zmod",
+                                                                                        building_parcel, pass_thru_cols=["juris_zmod"]) 
+
+        logger.debug("net_capacity_pba40.head():\n{}".format(net_capacity_pba40.head()))
+        logger.debug("net_capacity_basisTest.head():\n{}".format(net_capacity_basisTest.head()))
+
+        net_capacity_juris_pba40     = net_capacity_pba40.groupby(["juris_zmod"])[["units_net_vacant_pba40",
+                                                                                   "Ksqft_net_vacant_pba40",
+                                                                                   "emp_net_vacant_pba40",
+                                                                                   "units_net_ub_pba40",
+                                                                                   "Ksqft_net_ub_pba40",
+                                                                                   "emp_net_ub_pba40",
+                                                                                   "units_net_ub_noProt_pba40",
+                                                                                   "Ksqft_net_ub_noProt_pba40",
+                                                                                   "emp_net_vacant_pba40"]].sum().reset_index()
+        net_capacity_juris_basisTest = net_capacity_basisTest.groupby(["juris_zmod"])[["units_net_vacant_basisTest",
+                                                                                       "Ksqft_net_vacant_basisTest",
+                                                                                       "emp_net_vacant_basisTest",
+                                                                                       "units_net_ub_basisTest",
+                                                                                       "Ksqft_net_ub_basisTest",
+                                                                                       "emp_net_ub_basisTest",
+                                                                                       "units_net_ub_noProt_basisTest",
+                                                                                       "Ksqft_net_ub_noProt_basisTest",
+                                                                                       "emp_net_vacant_basisTest"]].sum().reset_index()
+
+        logger.debug("net_capacity_juris_pba40.head():\n{}".format(net_capacity_juris_pba40.head()))
+        logger.debug("net_capacity_juris_basisTest.head():\n{}".format(net_capacity_juris_basisTest.head()))
+
+        # put them together and add variable name
+        capacity_juris_pba40_basisTest     = pd.merge(left=capacity_juris_pba40, 
+                                                      right=capacity_juris_basisTest, 
+                                                      on="juris_zmod")
+        net_capacity_juris_pba40_basisTest = pd.merge(left=net_capacity_juris_pba40, 
+                                                      right=net_capacity_juris_basisTest, 
+                                                      on="juris_zmod")
+        capacities_juris_pba40_basisTest   = pd.merge(left=capacity_juris_pba40_basisTest,
+                                                      right=net_capacity_juris_pba40_basisTest,
+                                                      on="juris_zmod")
+
+        capacities_juris_pba40_basisTest["variable"] = test_attr
+
+        logger.debug("capacities_juris_pba40_basisTest.head():\n{}".format(capacities_juris_pba40_basisTest.head()))
 
         # special metrics for allowed building development type:
         #   count where attribute changes and allow_res/allow_nonres changes, in terms of parcels and acreage
@@ -189,9 +247,11 @@ if __name__ == '__main__':
             dev_type_metric_juris["variable"] = test_attr
             logger.debug("dev_type_metric_juris.head(20):\n{}".format(dev_type_metric_juris.head(20)))
 
-            # add to capacity_juris_pba40_basis
-            capacity_juris_pba40_basis = pd.merge(left=capacity_juris_pba40_basis, right=dev_type_metric_juris,
-                                                  how="left", on=["juris_zmod","variable"])
+            # add to capacities_juris_pba40_basisTest
+            capacities_juris_pba40_basisTest = pd.merge(left=capacities_juris_pba40_basisTest, 
+                                                        right=dev_type_metric_juris,
+                                                        how="left", 
+                                                        on=["juris_zmod","variable"])
 
             # for development building type codes, also look at how this affects allowed res or nonres
             for devtype in ["res","nonres"]:
@@ -224,14 +284,16 @@ if __name__ == '__main__':
                 allow_juris["variable"] = test_attr
                 logger.debug("allow_juris.head():\n{}".format(allow_juris.head()))
 
-                # add to capacity_juris_pba40_basis
-                capacity_juris_pba40_basis = pd.merge(left=capacity_juris_pba40_basis, right=allow_juris,
-                                                      how="left", on=["juris_zmod","variable"])
+                # add to capacities_juris_pba40_basisTest
+                capacities_juris_pba40_basisTest = pd.merge(left=capacities_juris_pba40_basisTest, 
+                                                            right=allow_juris,
+                                                            how="left", 
+                                                            on=["juris_zmod","variable"])
 
-        logger.debug("capacity_juris_pba40_basis.head():\n{}".format(capacity_juris_pba40_basis.head()))
+        logger.debug("capacities_juris_pba40_basisTest.head():\n{}".format(capacities_juris_pba40_basisTest.head()))
 
         # add to the full set
-        capacity_metrics = pd.concat([capacity_metrics, capacity_juris_pba40_basis], axis="index", sort=True)
+        capacity_metrics = pd.concat([capacity_metrics, capacities_juris_pba40_basisTest], axis="index", sort=True)
     
 
     # bring juris_zmod and variable to the left to be more intuitive
