@@ -86,14 +86,24 @@ if __name__ == '__main__':
     logger.info("Read {:,} rows from {}".format(len(plu_boc), PLU_BOC_FILE))
     logger.info("\n{}".format(plu_boc.head()))
 
-    ## B10 buildings with p10 parcel data
+    ## B10 buildings with p10 parcels data
     basemap_b10_file = os.path.join(BOX_SMELT_DIR, 'b10.csv')
     basemap_b10 = pd.read_csv(basemap_b10_file)
     # conver PARCEL_ID to integer:
     basemap_b10['parcel_id'] = basemap_b10['parcel_id'].apply(lambda x: int(round(x)))
     logger.info("Read {:,} rows from {}".format(len(basemap_b10), basemap_b10_file))
     logger.info("\n{}".format(basemap_b10.head()))
-    logger.info('Number of unique PARCEL_ID: {}'.format(len(basemap_b10.PARCEL_ID.unique())))
+    logger.info('Number of unique PARCEL_ID: {}'.format(len(basemap_b10.parcel_id.unique())))
+
+    basemap_p10_file = os.path.join(BOX_SMELT_DIR, 'p10.csv')
+    basemap_p10 = pd.read_csv(basemap_p10_file,
+                              usecols =['PARCEL_ID','geom_id_s','ACRES','LAND_VALUE'])
+    # conver PARCEL_ID to integer:
+    basemap_p10['PARCEL_ID'] = basemap_p10['PARCEL_ID'].apply(lambda x: int(round(x)))
+    logger.info("Read {:,} rows from {}".format(len(basemap_p10), basemap_p10_file))
+    logger.info("\n{}".format(basemap_p10.head()))
+    logger.info('Number of unique PARCEL_ID: {}'.format(len(basemap_p10.PARCEL_ID.unique())))
+
     # join parcels to buildings which is used to determine current built-out condition when calculating net capacity
     building_parcel = pd.merge(left=basemap_b10, 
                                right=basemap_p10[['PARCEL_ID','LAND_VALUE']],
@@ -150,9 +160,9 @@ if __name__ == '__main__':
 
         # calculate capacity for PBA40 and BASIS test, where the BASIS test uses the "urbansim" index,
         # which is really a test of BASIS for this attribute only
-        capacity_pba40     = dev_capacity_calculation_module.calculate_capacity(test_hybrid_parcel_idx,"pba40",   "zmod",
+        capacity_pba40     = dev_capacity_calculation_module.calculate_capacity(test_hybrid_parcel_idx,"pba40","zmod",
                                                                                 pass_thru_cols=["juris_zmod"])
-        capacity_basisTest = dev_capacity_calculation_module.calculate_capacity(test_hybrid_parcel_idx,"basisTest","zmod",
+        capacity_basisTest = dev_capacity_calculation_module.calculate_capacity(test_hybrid_parcel_idx,"basis","zmod",
                                                                                 pass_thru_cols=["juris_zmod"])
 
         logger.debug("capacity_pba40.head():\n{}".format(capacity_pba40.head()))
@@ -162,18 +172,18 @@ if __name__ == '__main__':
         capacity_juris_pba40     = capacity_pba40.groupby(["juris_zmod"])[["units_raw_pba40",
                                                                            "Ksqft_raw_pba40",
                                                                            "emp_raw_pba40"]].sum().reset_index()
-        capacity_juris_basisTest = capacity_basisTest.groupby(["juris_zmod"])[["units_raw_basisTest",
-                                                                               "Ksqft_raw_basisTest",
-                                                                               "emp_raw_basisTest"]].sum().reset_index()
+        capacity_juris_basisTest = capacity_basisTest.groupby(["juris_zmod"])[["units_raw_basis",
+                                                                               "Ksqft_raw_basis",
+                                                                               "emp_raw_basis"]].sum().reset_index()
 
         logger.debug("capacity_juris_pba40.head():\n{}".format(capacity_juris_pba40.head()))
         logger.debug("capacity_juris_basisTest.head():\n{}".format(capacity_juris_basisTest.head()))
 
         # calculate net capacity
-        net_capacity_pba40     = dev_capacity_calculation_module.calculate_net_capacity(test_hybrid_parcel_idx,"pba40",   "zmod",
-                                                                                        building_parcel, pass_thru_cols=["juris_zmod"])
-        net_capacity_basisTest = dev_capacity_calculation_module.calculate_net_capacity(test_hybrid_parcel_idx,"basisTest","zmod",
-                                                                                        building_parcel, pass_thru_cols=["juris_zmod"]) 
+        net_capacity_pba40     = dev_capacity_calculation_module.calculate_net_capacity(logger, test_hybrid_parcel_idx,"pba40","zmod",
+                                                                                        building_parcel, net_pass_thru_cols=["juris_zmod"])
+        net_capacity_basisTest = dev_capacity_calculation_module.calculate_net_capacity(logger, test_hybrid_parcel_idx,"basis","zmod",
+                                                                                        building_parcel, net_pass_thru_cols=["juris_zmod"]) 
 
         logger.debug("net_capacity_pba40.head():\n{}".format(net_capacity_pba40.head()))
         logger.debug("net_capacity_basisTest.head():\n{}".format(net_capacity_basisTest.head()))
@@ -186,16 +196,16 @@ if __name__ == '__main__':
                                                                                    "emp_net_ub_pba40",
                                                                                    "units_net_ub_noProt_pba40",
                                                                                    "Ksqft_net_ub_noProt_pba40",
-                                                                                   "emp_net_vacant_pba40"]].sum().reset_index()
-        net_capacity_juris_basisTest = net_capacity_basisTest.groupby(["juris_zmod"])[["units_net_vacant_basisTest",
-                                                                                       "Ksqft_net_vacant_basisTest",
-                                                                                       "emp_net_vacant_basisTest",
-                                                                                       "units_net_ub_basisTest",
-                                                                                       "Ksqft_net_ub_basisTest",
-                                                                                       "emp_net_ub_basisTest",
-                                                                                       "units_net_ub_noProt_basisTest",
-                                                                                       "Ksqft_net_ub_noProt_basisTest",
-                                                                                       "emp_net_vacant_basisTest"]].sum().reset_index()
+                                                                                   "emp_net_ub_noProt_pba40"]].sum().reset_index()
+        net_capacity_juris_basisTest = net_capacity_basisTest.groupby(["juris_zmod"])[["units_net_vacant_basis",
+                                                                                       "Ksqft_net_vacant_basis",
+                                                                                       "emp_net_vacant_basis",
+                                                                                       "units_net_ub_basis",
+                                                                                       "Ksqft_net_ub_basis",
+                                                                                       "emp_net_ub_basis",
+                                                                                       "units_net_ub_noProt_basis",
+                                                                                       "Ksqft_net_ub_noProt_basis",
+                                                                                       "emp_net_ub_noProt_basis"]].sum().reset_index()
 
         logger.debug("net_capacity_juris_pba40.head():\n{}".format(net_capacity_juris_pba40.head()))
         logger.debug("net_capacity_juris_basisTest.head():\n{}".format(net_capacity_juris_basisTest.head()))

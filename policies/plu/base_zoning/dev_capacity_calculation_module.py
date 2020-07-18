@@ -139,113 +139,6 @@ def create_hybrid_parcel_data_from_juris_idx(logger, df_original,hybrid_idx):
     return urbansim_df[keep_cols]
 
 
-def apply_upzoning_to_hybrid_parcel_data(df_original, upzoning_scenario):
-    """
-    Apply upzoning to parcels by adjusting the allowable development types and intensities.
-    
-    Inputs: 
-     * df_original: parcel-level hybrid base zoning
-
-     * upzoning_version: version of zoning_mods for upzoning, e.g. 's20', 's21', 's22', 
-                         's23' for Draft/Final Blueprint
-
-    Returns a dataframe with columns PARCEL_ID, juris_zmod, plus XX_upzoning for each allowed 
-    development type or intensity attribute.
-    """
-    upzoning_zmods_file = os.path.join(GITHUB_URBANSIM_DIR, 'zoning_mods_'+upzoning_scenario+'.csv')
-
-    if not os.path.exists(upzoning_zmods_file):
-            print('Error: file {} not found'.format(upzoning_zmods_file))
-            raise
-
-    usecols = ['pba50zoningmodcat','add_bldg', 'drop_bldg', 
-               'dua_up', 'far_up', 'dua_down', 'far_down', 'res_rent_cat']
-    upzoning_zmods_df = pd.read_csv(upzoning_zmods_file, usecols = usecols)
-
-    logger.info("Applying upzoning {}; zoning_mods:\n{}".format(upzoning_scenario,
-            upzoning_zmods_df.head()))
-
-    # merge upzoning into base zoning
-    zoning_base_pba50 = df_original.merge(upzoning_zmods_df,
-                                          on = 'pba50zoningmodcat', 
-                                          how = 'left')
-
-    keep_cols = list(df_original)
-
-    # create allowed development type and intensity columns for upzoning
-    for dev_type in ALLOWED_BUILDING_TYPE_CODES:
-        # default to hybrid 'urbansim'
-        zoning_base_pba50["{}_{}".format(dev_type, upzoning_scenario)] = \
-                zoning_base_pba50["{}_urbansim".format(dev_type)]
-
-        # keep the new column
-        keep_cols.append("{}_{}".format(dev_type, upzoning_scenario))
-
-    for intensity in INTENSITY_CODES:
-        # default to hybrid 'urbansim'
-        zoning_base_pba50["max_{}_{}".format(intensity, upzoning_scenario)] = \
-                zoning_base_pba50["max_{}_urbnasim".format(intensity)]
-
-        # keep the new column
-        keep_cols.append("max_{}_{}".format(intensity, upzoning_scenario))
-
-
-    # Get a list of development types that have modifications in pba50zoningmod
-    add_bldg_types = list(pba50zoningmods.add_bldg.dropna().unique())
-    logger.info('Development types enabled disallowed by upzoning:\n{}'.format(add_bldg_types))
-    drop_bldg_types = list(pba50zoningmods.drop_bldg.dropna().unique())
-    logger.info('Development types disallowed by upzoning:\n{}'.format(drop_bldg_types))
-
-
-    # Make a copy and then modify the alowed dev types
-    #zoning_modify_type = zoning_base_pba50.copy()
-
-    if len(add_bldg_types) > 0:
-        for devType in add_bldg_types:
-            add_bldg_parcels = zoning_base_pba50[add_bldg].notnull()
-            zoning_base_pba50.loc[add_bldg_parcels, devType+'_'+upzoning_scenario] = 1
-
-    if len(drop_bldg_types) > 0:
-        for devType in drop_bldg_types:
-            drop_bldg_parcels = zoning_base_pba50[drop_bldg].notnull()
-            zoning_base_pba50.loc[drop_bldg_parcels,devType+'_'+upzoning_scenario] = 0
-
-    # Compare allowed dev types before and after applying pba50zoningmod
-    for devType in add_bldg_types + drop_bldg_types:
-        logger.info('Out of {:,} parcels: \n {:,} parcels allow {} before applying pba50zoningmod dev type adjustment;\
-                    \n {:,} parcels allow {} after applying pba50zoningmod dev type adjustment.'.format(len(zoning_base_pba50),
-                    len(zoning_base_pba50.loc[zoning_base_pba50[devType+'_urbansim'] == 1]), devType,
-                    len(zoning_base_pba50.loc[zoning_base_pba50[devType+'_'+upzoning_scenario] == 1]), devType))
-
-
-    # Make a copy and then modify the intensities
-    #zoning_modify_intensity = zoning_modify_type.copy()
-
-    for intensity in ['dua','far']:
-
-        # modify intensity when 'intensity_up' is not null
-        up_parcels = zoning_base_pba50['{}_up'.format(intensity)].notnull()
-
-        # the effective max_dua is the larger of base zoning max_dua and the pba50 max_dua
-        zoning_base_pba50.loc[up_parcels, 'max_{}_{}'.format(intensity, upzoning_scenario)] = \
-                zoning_base_pba50[['max_{}_{}'.format(intensity, upzoning_scenario),'{}_up'.format(intensity)]].max(axis = 1)
-
-        # modify intensity when 'intensity_up' is not null
-        down_parcels = zoning_base_pba50['{}_down'.format(intensity)].notnull()
-
-        # the effective max_dua is the larger of base zoning max_dua and the pba50 max_dua
-        zoning_base_pba50.loc[down_parcels, 'max_{}_{}'.format(intensity, upzoning_scenario)] = \
-                zoning_base_pba50[['max_{}_{}'.format(intensity, upzoning_scenario),'{}_down'.format(intensity)]].min(axis = 1)
-
-        # Compare max_dua and max_far before and after applying pba50zoningmod
-        logger.info('Before applying pba50zoningmod intensity adjustment: \n', zoning_base_pba50[['max_'+intensity+'_urbansim']].describe())
-        logger.info('After applying pba50zoningmod intensity adjustment: \n', zoning_base_pba50[['max_'+intensity+'_'+upzoning_scenario]].describe())
-
-    parcel_upzoning = zoning_base_pba50[keep_cols]
-    logger.info('Generate parcel-level upzoning table of {:,} records: \n {}'.format(len(parcel_upzoning), parcel_upzoning.head()))
-    return parcel_upzoning
-
-
 def calculate_capacity(df_original,boc_source,nodev_source,pass_thru_cols=[]):
     """
     Calculate the development capacity in res units, non-res sqft, and employee estimates
@@ -319,9 +212,9 @@ def calculate_capacity(df_original,boc_source,nodev_source,pass_thru_cols=[]):
     return df[keep_cols]
 
 
-def calculate_net_capacity(df_original,boc_source,nodev_source,
+def calculate_net_capacity(logger, df_original,boc_source,nodev_source,
                            building_parcel_df_original,
-                           pass_thru_cols=[]):
+                           net_pass_thru_cols=[]):
     """
     Calculate the net development capacity in res units, non-res sqft, and employee estimates
     
@@ -360,9 +253,7 @@ def calculate_net_capacity(df_original,boc_source,nodev_source,
      * emp_net_ub_noProt_[boc_source]
     
     """
-    capacity_raw = calculate_capacity(df_original,boc_source,nodev_source,
-                       building_parcel_df_original,
-                       calculate_net=True, pass_thru_cols=[])
+    capacity_raw = calculate_capacity(df_original,boc_source,nodev_source,pass_thru_cols=net_pass_thru_cols)
 
     building_parcel_df = building_parcel_df_original.copy()
 
@@ -404,7 +295,7 @@ def calculate_net_capacity(df_original,boc_source,nodev_source,
     building_groupby_parcel.loc[building_groupby_parcel.year_built <  1980, 'building_age' ] = '1940-1980'
     building_groupby_parcel.loc[building_groupby_parcel.year_built <  1940, 'building_age' ] = 'before 1940'
 
-    building_groupby_parcel['has_old_building'] = np.nan
+    building_groupby_parcel['has_old_building'] = False
     building_groupby_parcel.loc[building_groupby_parcel.building_age == 'before 1940','has_old_building'] = True
     logger.info('Parcel statistics by the age of the oldest building: \n {}'.format(building_groupby_parcel["building_age"].value_counts()))
 
@@ -429,7 +320,7 @@ def calculate_net_capacity(df_original,boc_source,nodev_source,
             (capacity_with_building['is_under_built_' + boc_source].value_counts())))
 
 
-    # Calculate zoned capacity to existing capactiy ratio
+    # Calculate existing capactiy to zoned capacity ratio
     # ratio of existing res units to zoned res units
     capacity_with_building['res_zoned_existing_ratio_' + boc_source] = \
             (capacity_with_building['residential_units'] / capacity_with_building['units_raw_' + boc_source]).replace(np.inf, 1).clip(lower=0)
@@ -457,10 +348,10 @@ def calculate_net_capacity(df_original,boc_source,nodev_source,
         capacity_with_building[capacity_type+'_net_ub_noProt_'+boc_source] = capacity_with_building[capacity_type+'_raw_'+boc_source]
         capacity_with_building.loc[((capacity_with_building.parcel_vacant == False) &
                                     (capacity_with_building['is_under_built_' + boc_source] == False)) | 
-                                   (capacity_with_building['is_under_built_' + boc_source] == True),
+                                   (capacity_with_building.has_old_building == True),
                                     capacity_type+'_net_ub_noProt_'+boc_source] = 0
 
-    keep_cols = ['PARCEL_ID'] + pass_thru_cols + \
+    keep_cols = ['PARCEL_ID'] + net_pass_thru_cols + \
     [
         "units_net_vacant_"            +boc_source,
         "sqft_net_vacant_"             +boc_source,
