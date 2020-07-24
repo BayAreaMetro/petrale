@@ -169,12 +169,12 @@ if __name__ == '__main__':
         logger.debug("capacity_basisTest.head():\n{}".format(capacity_basisTest.head()))
 
         # should we keep capacity cols based on test_attr?
-        capacity_juris_pba40     = capacity_pba40.groupby(["juris_zmod"])[["units_raw_pba40",
-                                                                           "Ksqft_raw_pba40",
-                                                                           "emp_raw_pba40"]].sum().reset_index()
-        capacity_juris_basisTest = capacity_basisTest.groupby(["juris_zmod"])[["units_raw_basis",
-                                                                               "Ksqft_raw_basis",
-                                                                               "emp_raw_basis"]].sum().reset_index()
+        capacity_juris_pba40     = capacity_pba40.groupby(["juris_zmod"])[["zoned_du_pba40",
+                                                                           "zoned_Ksqft_pba40",
+                                                                           "job_spaces_pba40"]].sum().reset_index()
+        capacity_juris_basisTest = capacity_basisTest.groupby(["juris_zmod"])[["zoned_du_basis",
+                                                                               "zoned_Ksqft_basis",
+                                                                               "job_spaces_basis"]].sum().reset_index()
 
         logger.debug("capacity_juris_pba40.head():\n{}".format(capacity_juris_pba40.head()))
         logger.debug("capacity_juris_basisTest.head():\n{}".format(capacity_juris_basisTest.head()))
@@ -188,24 +188,24 @@ if __name__ == '__main__':
         logger.debug("net_capacity_pba40.head():\n{}".format(net_capacity_pba40.head()))
         logger.debug("net_capacity_basisTest.head():\n{}".format(net_capacity_basisTest.head()))
 
-        net_capacity_juris_pba40     = net_capacity_pba40.groupby(["juris_zmod"])[["units_net_vacant_pba40",
-                                                                                   "Ksqft_net_vacant_pba40",
-                                                                                   "emp_net_vacant_pba40",
-                                                                                   "units_net_ub_pba40",
-                                                                                   "Ksqft_net_ub_pba40",
-                                                                                   "emp_net_ub_pba40",
-                                                                                   "units_net_ub_noProt_pba40",
-                                                                                   "Ksqft_net_ub_noProt_pba40",
-                                                                                   "emp_net_ub_noProt_pba40"]].sum().reset_index()
-        net_capacity_juris_basisTest = net_capacity_basisTest.groupby(["juris_zmod"])[["units_net_vacant_basis",
-                                                                                       "Ksqft_net_vacant_basis",
-                                                                                       "emp_net_vacant_basis",
-                                                                                       "units_net_ub_basis",
-                                                                                       "Ksqft_net_ub_basis",
-                                                                                       "emp_net_ub_basis",
-                                                                                       "units_net_ub_noProt_basis",
-                                                                                       "Ksqft_net_ub_noProt_basis",
-                                                                                       "emp_net_ub_noProt_basis"]].sum().reset_index()
+        net_capacity_juris_pba40     = net_capacity_pba40.groupby(["juris_zmod"])[["zoned_du_vacant_pba40",
+                                                                                   "zoned_Ksqft_vacant_pba40",
+                                                                                   "job_spaces_vacant_pba40",
+                                                                                   "zoned_du_vac_ub_pba40",
+                                                                                   "zoned_Ksqft_vac_ub_pba40",
+                                                                                   "job_spaces_vac_ub_pba40",
+                                                                                   "zoned_du_vac_ub_noProt_pba40",
+                                                                                   "zoned_Ksqft_vac_ub_noProt_pba40",
+                                                                                   "job_spaces_vac_ub_noProt_pba40"]].sum().reset_index()
+        net_capacity_juris_basisTest = net_capacity_basisTest.groupby(["juris_zmod"])[["zoned_du_vacant_basis",
+                                                                                       "zoned_Ksqft_vacant_basis",
+                                                                                       "job_spaces_vacant_basis",
+                                                                                       "zoned_du_vac_ub_basis",
+                                                                                       "zoned_Ksqft_vac_ub_basis",
+                                                                                       "job_spaces_vac_ub_basis",
+                                                                                       "zoned_du_vac_ub_noProt_basis",
+                                                                                       "zoned_Ksqft_vac_ub_noProt_basis",
+                                                                                       "job_spaces_vac_ub_noProt_basis"]].sum().reset_index()
 
         logger.debug("net_capacity_juris_pba40.head():\n{}".format(net_capacity_juris_pba40.head()))
         logger.debug("net_capacity_juris_basisTest.head():\n{}".format(net_capacity_juris_basisTest.head()))
