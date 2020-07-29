@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
     # Read baus output parcel data
     baus_parcel_file = os.path.join(BOX_DIR, args.baus_output_dir, BAUS_OUTPUT_PARCEL_FILE)
-    parcel_cols = ['parcel_id', 'zoned_du_underbuild', 'zoned_du', 'zoned_du_underbuild_nodev']
+    parcel_cols = ['parcel_id', 'zoned_du_underbuild', 'zoned_du', 'zoned_du_underbuild_nodev', 'totemp']
     baus_parcel = pd.read_csv(baus_parcel_file,
                               usecols = parcel_cols)
     logger.info('Read {:,} rows from {}, with {:,} unique parcel_ids'.format(len(baus_parcel), 
@@ -117,16 +117,21 @@ if __name__ == '__main__':
                                     'non_residential_sqft'     :'nonRes_sqft_baus',
                                     'zoned_du_underbuild'      :'zoned_du_underbuild_baus',
                                     'zoned_du'                 :'zoned_du_baus',
-                                    'zoned_du_underbuild_nodev':'zoned_du_underbuild_nodev_baus'}, inplace = True)
+                                    'zoned_du_underbuild_nodev':'zoned_du_underbuild_noProt_baus',
+                                    'totemp'                   :'totemp_baus'}, inplace = True)
 
     logger.info('Export baus development capacity by parcel with header: \n {}'.format(baus_capacity.head()))
     baus_capacity.to_csv(BAUS_CAPACITY_PARCEL_FILE, index = False)
 
 
     # Aggregate to jurisdiction level
-    baus_capacity_juris = baus_capacity.groupby(['juris_name_full'])['res_units_baus', 'nonRes_sqft_baus',
-                                                                     'job_spaces_baus', 'zoned_du_underbuild_baus',
-                                                                     'zoned_du_baus', 'zoned_du_underbuild_nodev_baus'].sum().reset_index()
+    baus_capacity_juris = baus_capacity.groupby(['juris_name_full'])['zoned_du_baus',
+                                                                     'zoned_du_underbuild_baus',
+                                                                     'zoned_du_underbuild_noProt_baus',
+                                                                     'res_units_baus',
+                                                                     'nonRes_sqft_baus',
+                                                                     'job_spaces_baus',
+                                                                     'totemp_baus'].sum().reset_index()
     baus_capacity_juris['nonRes_Ksqft_baus'] = baus_capacity_juris['nonRes_sqft_baus'] / 1000.0
     baus_capacity_juris.drop(columns = ['nonRes_sqft_baus'], inplace = True)
 
