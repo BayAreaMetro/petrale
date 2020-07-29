@@ -46,6 +46,13 @@ PARCEL_ZONINGMODS_PBA50_FILE = os.path.join(PBA50_ZONINGMODS_DIR, 'p10_pba50_att
 BOX_UPZONING_DIR             = os.path.join(BOX_DIR, 'Policies\\Zoning Modifications\\capacity')
 
 
+# raw and net development capacity metrics
+RAW_CAPACITY_CODES           = ['zoned_du',                   'zoned_Ksqft',                   'job_spaces']
+NET_CAPACITY_CODES           = ['zoned_du_vacant',            'zoned_Ksqft_vacant',            'job_spaces_vacant',
+                                'zoned_du_underbuild',        'zoned_Ksqft_underbuild',        'job_spaces_underbuild',
+                                'zoned_du_underbuild_noProt', 'zoned_Ksqft_underbuild_noProt', 'job_spaces_underbuild_noProt']
+
+
 def apply_upzoning_to_parcel_data(logger, parcel_basezoning_original, upzoning_scenario):
     """
     Apply upzoning to parcels by adjusting the allowable development types and intensities.
@@ -162,12 +169,14 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
 
-    UPZONING_CAPACITY_FILE  = "upzoning_capacity_{}.csv".format(args.zoningmods_scenario)
-    LOG_FILE                = "upzoning_capacity_{}.log".format(args.zoningmods_scenario)
+    UPZONING_CAPACITY_PARCEL_FILE = "upzoning_capacity_parcel_{}.csv".format(args.zoningmods_scenario)
+    UPZONING_CAPACITY_JURIS_FILE  = "upzoning_capacity_juris_{}.csv".format(args.zoningmods_scenario)
+    LOG_FILE                      = "upzoning_capacity_{}.log".format(args.zoningmods_scenario)
 
     if args.test == False:
-        LOG_FILE               = os.path.join(BOX_UPZONING_DIR, "{}_{}".format(today, LOG_FILE))
-        UPZONING_CAPACITY_FILE = os.path.join(BOX_UPZONING_DIR, "{}_{}".format(today, UPZONING_CAPACITY_FILE))
+        LOG_FILE                      = os.path.join(BOX_UPZONING_DIR, "{}_{}".format(today, LOG_FILE))
+        UPZONING_CAPACITY_PARCEL_FILE = os.path.join(BOX_UPZONING_DIR, "{}_{}".format(today, UPZONING_CAPACITY_PARCEL_FILE))
+        UPZONING_CAPACITY_JURIS_FILE  = os.path.join(BOX_UPZONING_DIR, "{}_{}".format(today, UPZONING_CAPACITY_JURIS_FILE))
 
     pd.set_option('max_columns',   200)
     pd.set_option('display.width', 200)
@@ -187,9 +196,9 @@ if __name__ == '__main__':
     fh.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p'))
     logger.addHandler(fh)
 
-    logger.info("BOX_UPZONING_DIR       = {}".format(BOX_UPZONING_DIR))
-    logger.info("UPZONING_CAPACITY_FILE = {}".format(UPZONING_CAPACITY_FILE))
-
+    logger.info("BOX_UPZONING_DIR              = {}".format(BOX_UPZONING_DIR))
+    logger.info("UPZONING_CAPACITY_PARCEL_FILE = {}".format(UPZONING_CAPACITY_PARCEL_FILE))
+    logger.info("UPZONING_CAPACITY_JURIS_FILE  = {}".format(UPZONING_CAPACITY_JURIS_FILE))
 
     ## Read p10 parcels data
     basemap_p10_file = os.path.join(BOX_SMELT_DIR, 'p10.csv')
@@ -235,10 +244,9 @@ if __name__ == '__main__':
     logger.info("Generating p10_upzoning_pba50 with {} records;\n Headers:\n{}".format(len(p10_upzoning_pba50),
                                                                                        p10_upzoning_pba50.head()))
 
-    # if test run, export combined zoning data for QA/QC
-    if args.test == True:
-      logger.info("Export p10_upzoning_pba50")
-      p10_upzoning_pba50.to_csv('p10_upzoning_pba50_{}.csv'.format(args.zoningmods_scenario), index = False)
+    # export combined zoning data for QA/QC
+    #logger.info("Export p10_upzoning_pba50")
+    #p10_upzoning_pba50.to_csv('p10_upzoning_pba50_{}.csv'.format(args.zoningmods_scenario), index = False)
 
 
     ## B10 buildings with p10 parcels data
@@ -283,24 +291,12 @@ if __name__ == '__main__':
                                                                                  pass_thru_cols=["juris_id"])
     logger.debug("raw_capacity_basezoning.head():\n{}".format(raw_capacity_basezoning.head()))
 
-    juris_raw_capacity_basezoning = raw_capacity_basezoning.groupby(["juris_id"])[["zoned_du_basezoning",
-                                                                                   "zoned_Ksqft_basezoning",
-                                                                                   "job_spaces_basezoning"]].sum().reset_index()
-    logger.debug("juris_raw_capacity_basezoning.head():\n{}".format(juris_raw_capacity_basezoning.head()))
-
-
     logger.info("Running step ------ Calculating raw development capacity under {}".format('zoning_mods_'+args.zoningmods_scenario))
     raw_capacity_upzoning = dev_capacity_calculation_module.calculate_capacity(p10_upzoning_pba50,
                                                                                args.zoningmods_scenario,
                                                                                "basezoning",
                                                                                pass_thru_cols=["juris_id"])
     logger.debug("raw_capacity_upzoning.head():\n{}".format(raw_capacity_upzoning.head()))
-
-    juris_raw_capacity_upzoning = raw_capacity_upzoning.groupby(["juris_id"])[["zoned_du_"+args.zoningmods_scenario,
-                                                                               "zoned_Ksqft_"+args.zoningmods_scenario,
-                                                                               "job_spaces_"+args.zoningmods_scenario]].sum().reset_index()
-    logger.debug("juris_raw_capacity_upzoning.head():\n{}".format(juris_raw_capacity_upzoning.head()))
-
     
     logger.info("Running step ------ Calculating net development capacity under basezoning")
 
@@ -310,19 +306,7 @@ if __name__ == '__main__':
                                                                                      "basezoning",
                                                                                      building_parcel,
                                                                                      net_pass_thru_cols=["juris_id"])
-    logger.debug("net_capacity_basezoning.head():\n{}".format(net_capacity_basezoning.head()))
-
-    juris_net_capacity_basezoning = net_capacity_basezoning.groupby(["juris_id"])[["zoned_du_vacant_basezoning",
-                                                                                   "zoned_Ksqft_vacant_basezoning",
-                                                                                   "job_spaces_vacant_basezoning",
-                                                                                   "zoned_du_vac_ub_basezoning",
-                                                                                   "zoned_Ksqft_vac_ub_basezoning",
-                                                                                   "job_spaces_vac_ub_basezoning",
-                                                                                   "zoned_du_vac_ub_noProt_basezoning",
-                                                                                   "zoned_Ksqft_vac_ub_noProt_basezoning",
-                                                                                   "job_spaces_vac_ub_noProt_basezoning"]].sum().reset_index()
-    logger.debug("juris_net_capacity_basezoning.head():\n{}".format(juris_net_capacity_basezoning.head()))
-    
+    logger.debug("net_capacity_basezoning.head():\n{}".format(net_capacity_basezoning.head()))   
 
     logger.info("Running step ------ Calculating net development capacity under {}".format('zoning_mods_'+args.zoningmods_scenario))
     net_capacity_upzoning = dev_capacity_calculation_module.calculate_net_capacity(logger, 
@@ -333,22 +317,26 @@ if __name__ == '__main__':
                                                                                    net_pass_thru_cols=["juris_id"])
     logger.debug("net_capacity_upzoning.head():\n{}".format(net_capacity_upzoning.head()))
 
-    juris_net_capacity_upzoning = net_capacity_upzoning.groupby(["juris_id"])[["zoned_du_vacant_"+args.zoningmods_scenario,
-                                                                               "zoned_Ksqft_vacant_"+args.zoningmods_scenario,
-                                                                               "job_spaces_vacant_"+args.zoningmods_scenario,
-                                                                               "zoned_du_vac_ub_"+args.zoningmods_scenario,
-                                                                               "zoned_Ksqft_vac_ub_"+args.zoningmods_scenario,
-                                                                               "job_spaces_vac_ub_"+args.zoningmods_scenario,
-                                                                               "zoned_du_vac_ub_noProt_"+args.zoningmods_scenario,
-                                                                               "zoned_Ksqft_vac_ub_noProt_"+args.zoningmods_scenario,
-                                                                               "job_spaces_vac_ub_noProt_"+args.zoningmods_scenario]].sum().reset_index()
-    logger.debug("juris_net_capacity_upzoning.head():\n{}".format(juris_net_capacity_upzoning.head()))
+    parcel_capacity_all = raw_capacity_basezoning.merge(net_capacity_basezoning,
+                                                        on = 'juris_id').merge(parcel_capacity_upzoning,
+                                                                               on = 'juris_id').merge(raw_capacity_upzoning,
+                                                                                                      on = 'juris_id').merge(net_capacity_upzoning,
+                                                                                                                             on = 'juris_id')
+    # export parcel-level capacity
+    logger.info('Export development capacity by parcel: \n{}'.format(parcel_capacity_all.dtypes))
+    parcel_capacity_all.to_csv(UPZONING_CAPACITY_PARCEL_FILE, index = False)
 
-    capacity_all = juris_raw_capacity_basezoning.merge(juris_raw_capacity_upzoning,
-                                                       on = 'juris_id').merge(juris_net_capacity_basezoning,
-                                                                              on = 'juris_id').merge(juris_net_capacity_upzoning,
-                                                                                                     on = 'juris_id')
+    
+    ## calculate jurisdiction-level capacity
+    juris_capacity_basezoning = parcel_capacity_all.groupby(["juris_id"])[[raw_metrics + '_basezoning' for raw_metrics in RAW_CAPACITY_CODES] + 
+                                                                          [net_metrics + '_basezoning' for net_metrics in NET_CAPACITY_CODES]].sum().reset_index()
 
-    logger.debug("capacity_all.head:\n{}".format(capacity_all.head()))
-    logger.info("Export development capacity by jurisdiciton: \n{}".format(capacity_all.dtypes))
-    capacity_all.to_csv(UPZONING_CAPACITY_FILE, index = False)
+    juris_capacity_upzoning   = parcel_capacity_all.groupby(["juris_id"])[[raw_metrics + '_' + args.zoningmods_scenario for raw_metrics in RAW_CAPACITY_CODES] + 
+                                                                          [net_metrics + '_' + args.zoningmods_scenario for net_metrics in NET_CAPACITY_CODES]].sum().reset_index()
+                                                                   
+
+    logger.debug("juris_capacity_upzoning.head():\n{}".format(juris_capacity_upzoning.head()))
+
+    ## export jurisdiction-level capacity
+    logger.info("Export upzoning development capacity by jurisdiciton: \n{}".format(juris_capacity_upzoning.dtypes))
+    juris_capacity_upzoning.to_csv(UPZONING_CAPACITY_FILE, index = False)
