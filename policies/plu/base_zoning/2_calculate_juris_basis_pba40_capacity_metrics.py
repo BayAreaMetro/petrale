@@ -191,21 +191,21 @@ if __name__ == '__main__':
         net_capacity_juris_pba40     = net_capacity_pba40.groupby(["juris_zmod"])[["zoned_du_vacant_pba40",
                                                                                    "zoned_Ksqft_vacant_pba40",
                                                                                    "job_spaces_vacant_pba40",
-                                                                                   "zoned_du_vac_ub_pba40",
-                                                                                   "zoned_Ksqft_vac_ub_pba40",
-                                                                                   "job_spaces_vac_ub_pba40",
-                                                                                   "zoned_du_vac_ub_noProt_pba40",
-                                                                                   "zoned_Ksqft_vac_ub_noProt_pba40",
-                                                                                   "job_spaces_vac_ub_noProt_pba40"]].sum().reset_index()
+                                                                                   "zoned_du_underbuild_pba40",
+                                                                                   "zoned_Ksqft_underbuild_pba40",
+                                                                                   "job_spaces_underbuild_pba40",
+                                                                                   "zoned_du_underbuild_noProt_pba40",
+                                                                                   "zoned_Ksqft_underbuild_noProt_pba40",
+                                                                                   "job_spaces_underbuild_noProt_pba40"]].sum().reset_index()
         net_capacity_juris_basisTest = net_capacity_basisTest.groupby(["juris_zmod"])[["zoned_du_vacant_basis",
                                                                                        "zoned_Ksqft_vacant_basis",
                                                                                        "job_spaces_vacant_basis",
-                                                                                       "zoned_du_vac_ub_basis",
-                                                                                       "zoned_Ksqft_vac_ub_basis",
-                                                                                       "job_spaces_vac_ub_basis",
-                                                                                       "zoned_du_vac_ub_noProt_basis",
-                                                                                       "zoned_Ksqft_vac_ub_noProt_basis",
-                                                                                       "job_spaces_vac_ub_noProt_basis"]].sum().reset_index()
+                                                                                       "zoned_du_underbuild_basis",
+                                                                                       "zoned_Ksqft_underbuild_basis",
+                                                                                       "job_spaces_underbuild_basis",
+                                                                                       "zoned_du_underbuild_noProt_basis",
+                                                                                       "zoned_Ksqft_underbuild_noProt_basis",
+                                                                                       "job_spaces_underbuild_noProt_basis"]].sum().reset_index()
 
         logger.debug("net_capacity_juris_pba40.head():\n{}".format(net_capacity_juris_pba40.head()))
         logger.debug("net_capacity_juris_basisTest.head():\n{}".format(net_capacity_juris_basisTest.head()))
