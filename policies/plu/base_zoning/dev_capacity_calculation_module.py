@@ -286,7 +286,7 @@ def calculate_net_capacity(logger, df_original,boc_source,nodev_source,
                                 (building_groupby_parcel['residential_sqft'    ] == 0) &
                                 (building_groupby_parcel['non_residential_sqft'] == 0) &
                                 (building_groupby_parcel['building_sqft'       ] == 0), "parcel_vacant"] = True
-    logger.info("Vacant parcel statistics: \n {}".format(building_groupby_parcel["parcel_vacant"].value_counts()))
+    logger.info("Vacant parcel statistics: \n {}".format(building_groupby_parcel.parcel_vacant.value_counts()))
 
     # Identify parcels with old buildings which are protected (if multiple buildings on one parcel, take the oldest)
     # and not build on before-1940 parcels
@@ -298,15 +298,20 @@ def calculate_net_capacity(logger, df_original,boc_source,nodev_source,
 
     building_groupby_parcel['has_old_building'] = False
     building_groupby_parcel.loc[building_groupby_parcel.building_age == 'before 1940','has_old_building'] = True
-    logger.info('Parcel statistics by the age of the oldest building: \n {}'.format(building_groupby_parcel["building_age"].value_counts()))
+    logger.info('Parcel statistics by the age of the oldest building: \n {}'.format(building_groupby_parcel.building_age.value_counts()))
 
 
-    # Identify single-family parcels smaller than 0.5 acre, or parcels smaller than 2000 sqft
+    # Identify single-family parcels smaller than 0.5 acre
     building_groupby_parcel['small_HS_parcel'] = False
-    small_HS_idx = (building_groupby_parcel.residential_units == 1 & building_groupby_parcel.ACRES < 0.5) | \
-            (building_groupby_parcel.ACRES * SQUARE_FEET_PER_ACRE < 2000)
+    small_HS_idx = (building_groupby_parcel.residential_units == 1.0) & (building_groupby_parcel.ACRES < 0.5)                   
     building_groupby_parcel.loc[small_HS_idx, 'small_HS_parcel'] = True
+    logger.info("Small single-family parcel statistics: \n {}".format(building_groupby_parcel.small_HS_parcel.value_counts()))
 
+    # Identify parcels smaller than 2000 sqft
+    building_groupby_parcel['small_parcel'] = False
+    small_parcel_idx = (building_groupby_parcel.ACRES * SQUARE_FEET_PER_ACRE) < 2000
+    building_groupby_parcel.loc[small_parcel_idx, 'small_parcel'] = True
+    logger.info("Small parcel (<2000 sqft) statistics: \n {}".format(building_groupby_parcel.small_parcel.value_counts()))
 
     # Calculate parcel's investment-land ratio
     building_groupby_parcel['ILR'] = building_groupby_parcel['improvement_value'] / building_groupby_parcel['LAND_VALUE']
@@ -325,7 +330,7 @@ def calculate_net_capacity(logger, df_original,boc_source,nodev_source,
                  capacity_with_building['non_residential_sqft'] / SQUARE_FEET_PER_DU).clip(lower=0)
     ratio = (new_units / capacity_with_building['residential_units']).replace(np.inf, 1)
     capacity_with_building['is_under_built_' + boc_source] = ratio > 0.5
-    logger.info('under_built parcels counts ({}): \n {}'.format(boc_source, 
+    logger.info('Under_built parcel statistics  ({}): \n {}'.format(boc_source, 
             (capacity_with_building['is_under_built_' + boc_source].value_counts())))
 
 
@@ -356,7 +361,8 @@ def calculate_net_capacity(logger, df_original,boc_source,nodev_source,
         capacity_with_building[capacity_type+'_underbuild_noProt_'+boc_source] = capacity_with_building[capacity_type+'_'+boc_source]
         capacity_with_building.loc[(capacity_with_building['is_under_built_' + boc_source] == False) |
                                    (capacity_with_building.has_old_building == True) |
-                                   (capacity_with_building.small_HS_parcel == True),
+                                   (capacity_with_building.small_HS_parcel == True) |
+                                   (capacity_with_building.small_parcel == True),
                                    capacity_type+'_underbuild_noProt_'+boc_source] = 0
 
     keep_cols = ['PARCEL_ID'] + net_pass_thru_cols + \
