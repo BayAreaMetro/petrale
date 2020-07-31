@@ -9,7 +9,7 @@ USAGE="""
           p10_pba50_attr.csv, p10 combined with zoningmods categories data
   Output: upzoning_capacity.csv
 
-  Run with (scenario 23 as an example): python calculate_upzoning_capacity.py --zoningmods_scenario "23" --test
+  Run with (scenario 23 as an example): python calculate_upzoning_capacity.py --baus_output_dir "Draft Blueprint runs\Blueprint Plus Crossing (s23)\v1.7.1- FINAL DRAFT BLUEPRINT" --baus_run_id 98 --zoningmods_scenario "23" --test
 
   In test mode (specified by --test), outputs files to cwd and without date prefix; otherwise, outputs to PLU_BOC_DIR with date prefix
 
@@ -28,22 +28,11 @@ if os.getenv('USERNAME')     =='ywang':
     BOX_DIR                  = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
     BOX_SMELT_DIR            = 'C:\\Users\\{}\\Box\\baydata\\smelt\\2020 03 12'.format(os.getenv('USERNAME'))
     GITHUB_URBANSIM_DIR      = 'C:\\Users\\{}\\Documents\\GitHub\\bayarea_urbansim\\data'.format(os.getenv('USERNAME'))
+
 elif os.getenv('USERNAME')   =='lzorn':
     BOX_DIR                  = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
     BOX_SMELT_DIR            = 'C:\\Users\\{}\\Box\\baydata\\smelt\\2020 03 12'.format(os.getenv('USERNAME'))
     GITHUB_URBANSIM_DIR      = 'C:\\Users\\{}\\Documents\\GitHub\\bayarea_urbansim\\data'.format(os.getenv('USERNAME'))
-
-# input files
-URBANSIM_BASEZONING_DIR      = os.path.join(BOX_DIR, 'Current PBA50 Large General Input Data')
-PARCEL_ZONING_ID_FILE        = os.path.join(URBANSIM_BASEZONING_DIR, '2020_06_22_zoning_parcels_hybrid_pba50.csv')
-BASEZONING_LOOKUP_FILE       = os.path.join(URBANSIM_BASEZONING_DIR, '2020_06_22_zoning_lookup_hybrid_pba50.csv')
-
-PBA50_ZONINGMODS_DIR         = os.path.join(BOX_DIR, 'Policies\\Zoning Modifications')
-PARCEL_ZONINGMODS_PBA50_FILE = os.path.join(PBA50_ZONINGMODS_DIR, 'p10_pba50_attr_20200416.csv')
-
-# output file
-# In test mode (specified by --test), outputs to cwd and without date prefix; otherwise, outputs to URBANSIM_UPZONING_DIR with date prefix
-BOX_UPZONING_DIR             = os.path.join(BOX_DIR, 'Policies\\Zoning Modifications\\capacity')
 
 
 # raw and net development capacity metrics
@@ -51,6 +40,13 @@ RAW_CAPACITY_CODES           = ['zoned_du',                   'zoned_Ksqft',    
 NET_CAPACITY_CODES           = ['zoned_du_vacant',            'zoned_Ksqft_vacant',            'job_spaces_vacant',
                                 'zoned_du_underbuild',        'zoned_Ksqft_underbuild',        'job_spaces_underbuild',
                                 'zoned_du_underbuild_noProt', 'zoned_Ksqft_underbuild_noProt', 'job_spaces_underbuild_noProt']
+BAUS_CAPACITY_CODES          = ['residential_units',
+                                'job_spaces',
+                                'non_residential_sqft',
+                                'zoned_du_underbuild',
+                                'zoned_du',
+                                'zoned_du_underbuild_nodev',
+                                'totemp']
 
 
 def apply_upzoning_to_parcel_data(logger, parcel_basezoning_original, upzoning_scenario):
@@ -160,23 +156,46 @@ def apply_upzoning_to_parcel_data(logger, parcel_basezoning_original, upzoning_s
     logger.info('Generate parcel-level upzoning table of {:,} records: \n {}'.format(len(parcel_upzoning), parcel_upzoning.head()))
     return parcel_upzoning
 
+def summary_juris_capacity(parcel_capacity, groupby_field, capacity_metrics):
+    return parcel_capacity.groupby([groupby_field])[capacity_metrics].sum().reset_index()
+
+
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description=USAGE, formatter_class=argparse.RawDescriptionHelpFormatter,)
+    parser.add_argument("--baus_output_dir", help="urbansim run results folder")
+    parser.add_argument("--baus_run_id", help="urbansim run id in integer")
     parser.add_argument("--zoningmods_scenario", choices=["21","22","23"], help="zoningmods scenario, choosing from '21', '22', '23'")
     parser.add_argument("--test", action="store_true", help="Test mode")
     args = parser.parse_args()
 
+    ## inputs
+    URBANSIM_BASEZONING_DIR      = os.path.join(BOX_DIR, 'Current PBA50 Large General Input Data')
+    PARCEL_ZONING_ID_FILE        = os.path.join(URBANSIM_BASEZONING_DIR, '2020_06_22_zoning_parcels_hybrid_pba50.csv')
+    BASEZONING_LOOKUP_FILE       = os.path.join(URBANSIM_BASEZONING_DIR, '2020_06_22_zoning_lookup_hybrid_pba50.csv')
+    URBANSIM_INPUT_FILE          = os.path.join(URBANSIM_BASEZONING_DIR, '2020_07_10_parcels_geography.csv')
 
-    UPZONING_CAPACITY_PARCEL_FILE = "upzoning_capacity_parcel_{}.csv".format(args.zoningmods_scenario)
-    UPZONING_CAPACITY_JURIS_FILE  = "upzoning_capacity_juris_{}.csv".format(args.zoningmods_scenario)
-    LOG_FILE                      = "upzoning_capacity_{}.log".format(args.zoningmods_scenario)
+    BAUS_OUTPUT_PARCEL_FILE      = os.path.join(BOX_DIR, args.baus_output_dir, 'run{}_parcel_data_2050.csv'.format(str(args.baus_run_id)))
+    BAUS_OUTPUT_BUILDING_FILE    = os.path.join(BOX_DIR, args.baus_output_dir, 'run{}_building_data_2050.csv'.format(str(args.baus_run_id)))
+
+    PBA50_ZONINGMODS_DIR         = os.path.join(BOX_DIR, 'Policies\\Zoning Modifications')
+    PARCEL_ZONINGMODS_PBA50_FILE = os.path.join(PBA50_ZONINGMODS_DIR, 'p10_pba50_attr_20200416.csv')
+
+    # output
+    # In test mode (specified by --test), outputs to cwd and without date prefix; otherwise, outputs to URBANSIM_UPZONING_DIR with date prefix
+    BOX_UPZONING_DIR                    = os.path.join(BOX_DIR, 'Policies\\Zoning Modifications\\capacity')
+
+    PARCEL_CAPACITY_BASEZONING_FILE     = 'parcel_capacity_basezoning.csv'
+    PARCEL_CAPACITY_UPZONING_FILE       = 'parcel_capacity_upzoning_{}.csv'.format(args.zoningmods_scenario)  
+    COMPARE_JURIS_CAPACITY_FILE         = "compare_juris_capacity_{}.csv".format(args.zoningmods_scenario)
+    LOG_FILE                            = "compare_juris_capacity_{}.log".format(args.zoningmods_scenario)
 
     if args.test == False:
-        LOG_FILE                      = os.path.join(BOX_UPZONING_DIR, "{}_{}".format(today, LOG_FILE))
-        UPZONING_CAPACITY_PARCEL_FILE = os.path.join(BOX_UPZONING_DIR, "{}_{}".format(today, UPZONING_CAPACITY_PARCEL_FILE))
-        UPZONING_CAPACITY_JURIS_FILE  = os.path.join(BOX_UPZONING_DIR, "{}_{}".format(today, UPZONING_CAPACITY_JURIS_FILE))
+        LOG_FILE                        = os.path.join(BOX_UPZONING_DIR, "{}_{}".format(today, LOG_FILE))
+        PARCEL_CAPACITY_BASEZONING_FILE = os.path.join(BOX_UPZONING_DIR, "{}_{}".format(today, PARCEL_CAPACITY_BASEZONING_FILE))
+        PARCEL_CAPACITY_UPZONING_FILE   = os.path.join(BOX_UPZONING_DIR, "{}_{}".format(today, PARCEL_CAPACITY_UPZONING_FILE  ))
+        COMPARE_JURIS_CAPACITY_FILE     = os.path.join(BOX_UPZONING_DIR, "{}_{}".format(today, COMPARE_JURIS_CAPACITY_FILE    ))
 
     pd.set_option('max_columns',   200)
     pd.set_option('display.width', 200)
@@ -196,9 +215,10 @@ if __name__ == '__main__':
     fh.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p'))
     logger.addHandler(fh)
 
-    logger.info("BOX_UPZONING_DIR              = {}".format(BOX_UPZONING_DIR))
-    logger.info("UPZONING_CAPACITY_PARCEL_FILE = {}".format(UPZONING_CAPACITY_PARCEL_FILE))
-    logger.info("UPZONING_CAPACITY_JURIS_FILE  = {}".format(UPZONING_CAPACITY_JURIS_FILE))
+    logger.info("BOX_UPZONING_DIR                = {}".format(BOX_UPZONING_DIR))
+    logger.info("PARCEL_CAPACITY_BASEZONING_FILE = {}".format(PARCEL_CAPACITY_BASEZONING_FILE))
+    logger.info("PARCEL_CAPACITY_UPZONING_FILE   = {}".format(PARCEL_CAPACITY_UPZONING_FILE))
+    logger.info("COMPARE_JURIS_CAPACITY_FILE     = {}".format(COMPARE_JURIS_CAPACITY_FILE))
 
     ## Read p10 parcels data
     basemap_p10_file = os.path.join(BOX_SMELT_DIR, 'p10.csv')
@@ -256,11 +276,11 @@ if __name__ == '__main__':
     basemap_b10['parcel_id'] = basemap_b10['parcel_id'].apply(lambda x: int(round(x)))
     logger.info("Read {:,} rows from {}".format(len(basemap_b10), basemap_b10_file))
     logger.info("\n{}".format(basemap_b10.head()))
-    logger.info('Number of unique PARCEL_ID: {}'.format(len(basemap_b10.parcel_id.unique())))
+    logger.info('b10 building data has {:,} unique PARCEL_ID:'.format(len(basemap_b10.parcel_id.unique())))
 
     # join parcels to buildings which is used to determine current built-out condition when calculating net capacity
     building_parcel = pd.merge(left=basemap_b10, 
-                               right=basemap_p10[['PARCEL_ID','LAND_VALUE']],
+                               right=basemap_p10[['PARCEL_ID','LAND_VALUE','ACRES']],
                                left_on='parcel_id', 
                                right_on='PARCEL_ID', 
                                how='outer')
@@ -285,58 +305,128 @@ if __name__ == '__main__':
 
     logger.info("Running step ------ Calculating raw development capacity under basezoning")
 
-    raw_capacity_basezoning = dev_capacity_calculation_module.calculate_capacity(p10_upzoning_pba50,
-                                                                                 "basezoning",
-                                                                                 "basezoning",
-                                                                                 pass_thru_cols=["juris_id"])
-    logger.debug("raw_capacity_basezoning.head():\n{}".format(raw_capacity_basezoning.head()))
+    raw_parcel_capacity_basezoning = dev_capacity_calculation_module.calculate_capacity(p10_upzoning_pba50,
+                                                                                        "basezoning",
+                                                                                        "basezoning",
+                                                                                        pass_thru_cols=["juris_id"])
+    logger.debug("raw_parcel_capacity_basezoning.head():\n{}".format(raw_parcel_capacity_basezoning.head()))
 
     logger.info("Running step ------ Calculating raw development capacity under {}".format('zoning_mods_'+args.zoningmods_scenario))
-    raw_capacity_upzoning = dev_capacity_calculation_module.calculate_capacity(p10_upzoning_pba50,
-                                                                               args.zoningmods_scenario,
-                                                                               "basezoning",
-                                                                               pass_thru_cols=["juris_id"])
-    logger.debug("raw_capacity_upzoning.head():\n{}".format(raw_capacity_upzoning.head()))
+    raw_parcel_capacity_upzoning = dev_capacity_calculation_module.calculate_capacity(p10_upzoning_pba50,
+                                                                                      args.zoningmods_scenario,
+                                                                                      "basezoning",
+                                                                                      pass_thru_cols=["juris_id"])
+    logger.debug("raw_parcel_capacity_upzoning.head():\n{}".format(raw_parcel_capacity_upzoning.head()))
     
     logger.info("Running step ------ Calculating net development capacity under basezoning")
 
-    net_capacity_basezoning = dev_capacity_calculation_module.calculate_net_capacity(logger, 
-                                                                                     p10_upzoning_pba50,
-                                                                                     "basezoning",
-                                                                                     "basezoning",
-                                                                                     building_parcel,
-                                                                                     net_pass_thru_cols=["juris_id"])
-    logger.debug("net_capacity_basezoning.head():\n{}".format(net_capacity_basezoning.head()))   
+    net_parcel_capacity_basezoning = dev_capacity_calculation_module.calculate_net_capacity(logger, 
+                                                                                            p10_upzoning_pba50,
+                                                                                            "basezoning",
+                                                                                            "basezoning",
+                                                                                            building_parcel,
+                                                                                            net_pass_thru_cols=["juris_id"])
+    logger.debug("net_parcel_capacity_basezoning.head():\n{}".format(net_parcel_capacity_basezoning.head()))   
 
     logger.info("Running step ------ Calculating net development capacity under {}".format('zoning_mods_'+args.zoningmods_scenario))
-    net_capacity_upzoning = dev_capacity_calculation_module.calculate_net_capacity(logger, 
-                                                                                   p10_upzoning_pba50,
-                                                                                   args.zoningmods_scenario,
-                                                                                   "basezoning",
-                                                                                   building_parcel,
-                                                                                   net_pass_thru_cols=["juris_id"])
-    logger.debug("net_capacity_upzoning.head():\n{}".format(net_capacity_upzoning.head()))
+    net_parcel_capacity_upzoning = dev_capacity_calculation_module.calculate_net_capacity(logger, 
+                                                                                          p10_upzoning_pba50,
+                                                                                          args.zoningmods_scenario,
+                                                                                          "basezoning",
+                                                                                          building_parcel,
+                                                                                          net_pass_thru_cols=["juris_id"])
+    logger.debug("net_parcel_capacity_upzoning.head():\n{}".format(net_parcel_capacity_upzoning.head()))
 
-    parcel_capacity_all = raw_capacity_basezoning.merge(net_capacity_basezoning,
-                                                        on = 'juris_id').merge(parcel_capacity_upzoning,
-                                                                               on = 'juris_id').merge(raw_capacity_upzoning,
-                                                                                                      on = 'juris_id').merge(net_capacity_upzoning,
-                                                                                                                             on = 'juris_id')
-    # export parcel-level capacity
-    logger.info('Export development capacity by parcel: \n{}'.format(parcel_capacity_all.dtypes))
-    parcel_capacity_all.to_csv(UPZONING_CAPACITY_PARCEL_FILE, index = False)
+
+    ## Get development capacity from BAUS run results
+
+    # Read baus output parcel data
+    parcel_cols = ['parcel_id', 'zoned_du_underbuild', 'zoned_du', 'zoned_du_underbuild_nodev', 'totemp']
+    baus_parcel = pd.read_csv(BAUS_OUTPUT_PARCEL_FILE,
+                              usecols = parcel_cols)
+    logger.info('Read {:,} rows from {}, with {:,} unique parcel_ids'.format(len(baus_parcel), 
+                                                                             BAUS_OUTPUT_PARCEL_FILE, 
+                                                                             len(baus_parcel.parcel_id.unique())))
+
+    # Read baus output building data
+    blg_cols = ['residential_units', 'non_residential_sqft', 'parcel_id', 'job_spaces']
+    baus_blg = pd.read_csv(BAUS_OUTPUT_BUILDING_FILE,
+                           usecols = blg_cols)
+    logger.info('Read {:,} rows from {}, with {:,} unique parcel_ids'.format(len(baus_blg), 
+                                                                             BAUS_OUTPUT_BUILDING_FILE, 
+                                                                             len(baus_blg.parcel_id.unique())))
+    # Aggregate building data to parcel level
+    baus_blg_agg = baus_blg.groupby(['parcel_id']).sum().reset_index()
+
+    # Merge parcel and building data to get baus output capacity
+    parcel_capacity_baus = baus_parcel.merge(baus_blg_agg,
+                                             on = 'parcel_id',
+                                             how = 'outer')
+
+    # Read parcel_id to jurisdiction mapping and join to capacity
+    parcel_juris = pd.read_csv(URBANSIM_INPUT_FILE,
+                               usecols = ['PARCEL_ID','juris_name_full'])
+    parcel_capacity_baus = parcel_capacity_baus.merge(parcel_juris,
+                                                      left_on = 'parcel_id',
+                                                      right_on = 'PARCEL_ID',
+                                                      how = 'outer')
 
     
-    ## calculate jurisdiction-level capacity
-    juris_capacity_basezoning = parcel_capacity_all.groupby(["juris_id"])[[raw_metrics + '_basezoning' for raw_metrics in RAW_CAPACITY_CODES] + 
-                                                                          [net_metrics + '_basezoning' for net_metrics in NET_CAPACITY_CODES]].sum().reset_index()
+    ## calculate jurisdiction-level capacity and compare
 
-    juris_capacity_upzoning   = parcel_capacity_all.groupby(["juris_id"])[[raw_metrics + '_' + args.zoningmods_scenario for raw_metrics in RAW_CAPACITY_CODES] + 
-                                                                          [net_metrics + '_' + args.zoningmods_scenario for net_metrics in NET_CAPACITY_CODES]].sum().reset_index()
-                                                                   
+    juris_raw_capacity_basezoning = summary_juris_capacity(raw_parcel_capacity_basezoning, 
+                                                           'juris_id', 
+                                                           [raw_metrics + '_basezoning' for raw_metrics in RAW_CAPACITY_CODES])
 
-    logger.debug("juris_capacity_upzoning.head():\n{}".format(juris_capacity_upzoning.head()))
+    juris_net_capacity_basezoning = summary_juris_capacity(net_parcel_capacity_basezoning, 
+                                                           'juris_id', 
+                                                           [net_metrics + '_basezoning' for net_metrics in NET_CAPACITY_CODES])                                                    
 
-    ## export jurisdiction-level capacity
-    logger.info("Export upzoning development capacity by jurisdiciton: \n{}".format(juris_capacity_upzoning.dtypes))
-    juris_capacity_upzoning.to_csv(UPZONING_CAPACITY_FILE, index = False)
+    juris_raw_capacity_upzoning   = summary_juris_capacity(raw_parcel_capacity_upzoning, 
+                                                           'juris_id', 
+                                                           [raw_metrics + '_' + args.zoningmods_scenario for raw_metrics in RAW_CAPACITY_CODES])
+
+    juris_net_capacity_upzoning   = summary_juris_capacity(net_parcel_capacity_upzoning, 
+                                                           'juris_id', 
+                                                           [net_metrics + '_' + args.zoningmods_scenario for net_metrics in NET_CAPACITY_CODES])
+    
+    juris_capacity_baus           = summary_juris_capacity(parcel_capacity_baus, 
+                                                           'juris_name_full', 
+                                                           BAUS_CAPACITY_CODES)
+    # add 'baus' label to field names
+    juris_capacity_baus.rename(columns = {'residential_units'        :'res_units_baus',
+                                          'job_spaces'               :'job_spaces_baus',
+                                          'non_residential_sqft'     :'nonRes_sqft_baus',
+                                          'zoned_du_underbuild'      :'zoned_du_underbuild_baus',
+                                          'zoned_du'                 :'zoned_du_baus',
+                                          'zoned_du_underbuild_nodev':'zoned_du_underbuild_noProt_baus',
+                                          'totemp'                   :'totemp_baus',
+                                          'juris_name_full'          :'jurisdiction'}, inplace = True)
+
+    juris_capacity_baus['nonRes_Ksqft_baus'] = juris_capacity_baus['nonRes_sqft_baus'] / 1000.0
+    juris_capacity_baus.drop(columns = ['nonRes_sqft_baus'], inplace = True)
+
+     # merge 
+    juris_capacity_compare    = juris_raw_capacity_basezoning.merge(juris_net_capacity_basezoning,
+                                                                    on = 'juris_id').merge(juris_raw_capacity_upzoning,
+                                                                                           on = 'juris_id').merge(juris_net_capacity_upzoning,
+                                                                                                                  on = 'juris_id').merge(juris_capacity_baus,
+                                                                                                                                         left_on = 'juris_id',
+                                                                                                                                         right_on = 'jurisdiction')
+    juris_capacity_compare.drop(columns = ['juris_id'], inplace = True)
+
+    logger.debug("juris_capacity_compare.head():\n{}".format(juris_capacity_compare.head()))
+
+
+    ## Export data
+    # export parcel-level capacity
+#    logger.info('Export development capacity by parcel for basezoning: \n{}'.format(parcel_capacity_basezoning.dtypes))
+#    parcel_capacity_basezoning.to_csv(PARCEL_CAPACITY_BASEZONING_FILE, index = False)
+
+#    logger.info('Export development capacity by parcel for upzoning scenario {}: \n{}'.format(args.zoningmods_scenario,
+#                                                                                              parcel_capacity_upzoning.dtypes))
+#    parcel_capacity_upzoning.to_csv(PARCEL_CAPACITY_UPZONING_FILE, index = False)
+
+    # export jurisdiction-level capacity comparison
+    logger.info("Export development capacity comparison by jurisdiciton: \n{}".format(juris_capacity_compare.dtypes))
+    juris_capacity_compare.to_csv(COMPARE_JURIS_CAPACITY_FILE, index = False)
