@@ -1,5 +1,7 @@
 
 # coding: utf-8
+
+
 #The script is used for process geograpy summary files and combine different run results for visualization in Tableau
 import pandas as pd
 import numpy as np
@@ -9,18 +11,19 @@ from functools import reduce
 
 #PBA40 folder
 PBA40_DIR                  = os.path.join(os.environ["USERPROFILE"],
-                            "Box\Modeling and Surveys\Share Data\plan-bay-area-2040\RTP17 UrbanSim Output\\r7224c\\")
+                            "Box\\Modeling and Surveys\\Share Data\\plan-bay-area-2040\\RTP17 UrbanSim Output\\r7224c\\")
 
 # The location of Urbansim outputs
 URBANSIM_OUTPUT_BOX_DIR    = os.path.join(os.environ["USERPROFILE"],
-                            "Box\Modeling and Surveys\Urban Modeling\Bay Area UrbanSim 1.5\PBA50")
+                            "Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50")
 
 
 # Final draft blueprint output
-DBP_DIR                    = "Draft Blueprint runs\Blueprint Plus Crossing (s23)\\v1.7.1- FINAL DRAFT BLUEPRINT"
+DBP_DIR                    = "Draft Blueprint runs\\Blueprint Plus Crossing (s23)\\v1.7.1- FINAL DRAFT BLUEPRINT"
 
 # Add new runs here: for comparison -- using v1.8 as a placeholder for now
-DBP_CLEANER_DIR                 = "Draft Blueprint runs\Blueprint Plus Crossing (s23)\\v1.8 - final cleaner"
+DBP_CLEANER_DIR                 = "Draft Blueprint runs\\Blueprint Plus Crossing (s23)\\v1.8 - final cleaner"
+
 
 # A list of paths of runs, which would be read and produce summaries altogether
 PATH_LIST      = [PBA40_DIR, DBP_DIR, DBP_CLEANER_DIR] # ---Add new run paths to this list---
@@ -31,6 +34,50 @@ VIZ            = "Visualizations"
 #Output will into this workbook
 OUTPUT_FILE    = os.path.join(URBANSIM_OUTPUT_BOX_DIR, VIZ, 
                                          "PBA50_growth_{}_allruns.csv")
+
+#calculate growth at the regional level for main variables using taz summaries
+def county_calculator(DF1, DF2):
+    if ('zone_id' in DF1.columns) & ('zone_id' in DF2.columns):
+        DF1.rename(columns={'zone_id': 'TAZ'}, inplace=True)
+        DF2.rename(columns={'zone_id': 'TAZ'}, inplace=True)    
+        
+    if ('TAZ' in DF1.columns) & ('TAZ' in DF2.columns):
+        DF_merge = DF1.merge(DF2, on = 'TAZ')
+        DF_merge['TOTPOP GROWTH'] = DF_merge['TOTPOP_y']-DF_merge['TOTPOP_x']
+        DF_merge['TOTEMP GROWTH'] = DF_merge['TOTEMP_y']-DF_merge['TOTEMP_x']
+        DF_merge['AGREMPN GROWTH'] = DF_merge['AGREMPN_y']-DF_merge['AGREMPN_x']
+        DF_merge['FPSEMPN GROWTH'] = DF_merge['FPSEMPN_y']-DF_merge['FPSEMPN_x']
+        DF_merge['HEREMPN GROWTH'] = DF_merge['HEREMPN_y']-DF_merge['HEREMPN_x']
+        DF_merge['MWTEMPN GROWTH'] = DF_merge['MWTEMPN_y']-DF_merge['MWTEMPN_x']
+        DF_merge['OTHEMPN GROWTH'] = DF_merge['OTHEMPN_y']-DF_merge['OTHEMPN_x']
+        DF_merge['RETEMPN GROWTH'] = DF_merge['RETEMPN_y']-DF_merge['RETEMPN_x']
+        DF_merge['TOTHH GROWTH'] = DF_merge['TOTHH_y']-DF_merge['TOTHH_x']
+        #DF_merge['HHINCQ1 GROWTH'] = DF_merge['HHINCQ1_y']-DF_merge['HHINCQ1_x']
+        #DF_merge['HHINCQ2 GROWTH'] = DF_merge['HHINCQ2_y']-DF_merge['HHINCQ2_x']
+        #DF_merge['HHINCQ3 GROWTH'] = DF_merge['HHINCQ3_y']-DF_merge['HHINCQ3_x']
+        #DF_merge['HHINCQ4 GROWTH'] = DF_merge['HHINCQ4_y']-DF_merge['HHINCQ4_x']
+                   
+        DF_COLUMNS = ['COUNTY_x',
+                      'TOTPOP GROWTH',
+                      'TOTEMP GROWTH',
+                      'AGREMPN GROWTH',
+                      'FPSEMPN GROWTH',
+                      'HEREMPN GROWTH',
+                      'MWTEMPN GROWTH',
+                      'OTHEMPN GROWTH',
+                      'RETEMPN GROWTH',
+                      'TOTHH GROWTH'
+                      #'HHINCQ1 GROWTH',
+                      #'HHINCQ2 GROWTH',
+                      #'HHINCQ3 GROWTH',
+                      #'HHINCQ4 GROWTH']
+        
+        DF_TAZ_GROWTH = DF_merge[DF_COLUMNS].copy()
+        DF_COUNTY_GROWTH = DF_TAZ_GROWTH.groupby(['COUNTY_x']).sum().reset_index()
+        #add county mapping
+        return DF_COUNTY_GROWTH
+    else:
+        print ('Merge cannot be performed')
 
 #calculate the growth between 2015 and 2050 for taz summaries
 def taz_calculator(DF1, DF2):
@@ -172,6 +219,7 @@ def nontaz_calculator(DF1, DF2):
     DF_GROWTH = DF_merge[DF_COLUMNS].copy()
     return DF_GROWTH
 
+
 #This is to have an easier way to read summary files, particularly when you don't know the run id, only the folder
 
 #load the file by looking for the file location, geography level, base year, and end year summary files
@@ -221,11 +269,13 @@ def FILELOADER(path, geo, baseyear, endyear):
     
     return summary_baseyear, summary_endyear, runid
 
+
 if __name__ == "__main__":
     
     #process taz file first, since it is different from other files
     GEO = 'taz'
     DF_LIST = []
+    DF_COUNTY_LIST = []
     
     for path in PATH_LIST:
         #Read PBA40 file
@@ -255,9 +305,17 @@ if __name__ == "__main__":
         
         DF_LIST.append(DF)
         
+        DF_COUNTY = county_calculator(summary_baseyear, summary_endyear)
+        DF_COUNTY['RUNID'] = summary_runid
+        DF_COUNTY_LIST.append(DF_COUNTY)
+        
     DF_MERGE = reduce(lambda left,right: pd.merge(left, right, on = 'TAZ', how='outer'), DF_LIST)
     DF_MERGE.reset_index(drop=True, inplace=True)
     DF_MERGE.to_csv(OUTPUT_FILE.format(GEO))
+    
+    DF_COUNTY_UNION = pd.concat(DF_COUNTY_LIST)
+    DF_COUNTY_UNION.set_index(['RUNID','COUNTY_x'])
+    DF_COUNTY_UNION.to_csv(OUTPUT_FILE.format('county'))
     
     #then process other geography summaries     
     GEO = ['pda','juris','superdistrict']
