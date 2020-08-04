@@ -225,7 +225,7 @@ if __name__ == '__main__':
     ## Read p10 parcels data
     basemap_p10_file = os.path.join(M_SMELT_DIR, 'p10.csv')
     basemap_p10 = pd.read_csv(basemap_p10_file,
-                              usecols =['PARCEL_ID', 'ACRES','LAND_VALUE'])
+                              usecols =['PARCEL_ID', 'ACRES', 'LAND_VALUE'])
     # conver PARCEL_ID to integer:
     basemap_p10['PARCEL_ID'] = basemap_p10['PARCEL_ID'].apply(lambda x: int(round(x)))
     logger.info("Read {:,} rows from {}".format(len(basemap_p10), basemap_p10_file))
@@ -299,7 +299,8 @@ if __name__ == '__main__':
     parcel_taz = pd.read_csv(URBANSIM_PARCEL_TAZ_FILE,
     	                     usecols = ['PARCEL_ID', 'ZONE_ID'])
     parcel_taz.PARCEL_ID = parcel_taz.PARCEL_ID.apply(lambda x: int(round(x)))
-    
+    parcel_taz.ZONE_ID   = parcel_taz.ZONE_ID.apply(lambda x: int(round(x)))
+
     p10_upzoning_pba50 = p10_upzoning_pba50.merge(parcel_taz,
     	                                          on = 'PARCEL_ID',
     	                                          how = 'left')
