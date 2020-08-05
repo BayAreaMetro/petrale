@@ -1,19 +1,11 @@
 
 **[calculate_upzoning_capacity.py](calculate_upzoning_capacity.py)**: calculate the raw and net zoned development capacity under certain zoningmod scenario, and compare the calculated capacity with BAUS run output for the same zoningmod scenario at TAZ and jurisdiction levels.
 Development capacity metrics:
-
-	| Calculated_RAW_CAPACITY | 'zoned_du',                 'zoned_Ksqft',                   'job_spaces' |
-	| Calculated_NET_CAPACITY | 'zoned_du_vacant',            'zoned_Ksqft_vacant',            'job_spaces_vacant',
-	                            'zoned_du_underbuild',        'zoned_Ksqft_underbuild',        'job_spaces_underbuild',
-	                            'zoned_du_underbuild_noProt', 'zoned_Ksqft_underbuild_noProt', 'job_spaces_underbuild_noProt' |
-	| BAUS_OUTPUT_CAPACITY | 'residential_units',
-	                           'job_spaces',
-	                           'non_residential_sqft',
-	                           'zoned_du_underbuild',
-	                           'zoned_du',
-	                           'zoned_du_underbuild_nodev',
-	                           'totemp' |
-
+* Calculated_RAW_CAPACITY: 'zoned_du', 'zoned_Ksqft', 'job_spaces'
+* Calculated_NET_CAPACITY: 'zoned_du_vacant', 'zoned_Ksqft_vacant', 'job_spaces_vacant',
+	                   'zoned_du_underbuild', 'zoned_Ksqft_underbuild', 'job_spaces_underbuild',
+	                   'zoned_du_underbuild_noProt', 'zoned_Ksqft_underbuild_noProt', 'job_spaces_underbuild_noProt'
+* BAUS_OUTPUT_CAPACITY: 'residential_units', 'job_spaces', 'non_residential_sqft', 'zoned_du_underbuild', 'zoned_du', 'zoned_du_underbuild_nodev', 'totemp'
 
 
 **[update_parcels_geography.py](update_parcels_geography.py)**: update the 'parcels_geography' file to incorporate [upzoning parameters](https://github.com/BayAreaMetro/bayarea_urbansim/blob/datatypes_dict/data/%5Bmod_date%5D_parcels_geography_dict.csv) into Draft Blueprint.
