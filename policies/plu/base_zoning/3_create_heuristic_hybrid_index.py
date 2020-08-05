@@ -12,15 +12,15 @@ import dev_capacity_calculation_module
 
 
 if os.getenv('USERNAME')    =='ywang':
-    BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50\\Policies\\Base zoning'.format(os.getenv('USERNAME'))
+    M_DIR                   = 'M:\\Data\\Urban\\BAUS\\PBA50\\Draft_Blueprint\\Base zoning'
     GITHUB_PETRALE_DIR      = 'C:\\Users\\{}\\Documents\\GitHub\\petrale\\'.format(os.getenv('USERNAME'))
 elif os.getenv('USERNAME')  =='lzorn':
-    BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50\\Policies\\Base zoning'.format(os.getenv('USERNAME'))
+    M_DIR                   = 'M:\\Data\\Urban\\BAUS\\PBA50\\Draft_Blueprint\\Base zoning'
     GITHUB_PETRALE_DIR      = 'X:\\petrale\\'.format(os.getenv('USERNAME'))
 
 # input file locations
-PLU_BOC_DIR                 = os.path.join(BOX_DIR, 'outputs')
-JURIS_CAPACITY_FILE         = os.path.join(PLU_BOC_DIR, '2020_06_03_juris_basis_pba40_capacity_metrics.csv')
+PLU_BOC_M_DIR               = os.path.join(M_DIR, 'outputs')
+JURIS_CAPACITY_FILE         = os.path.join(PLU_BOC_M_DIR, '2020_06_03_juris_basis_pba40_capacity_metrics.csv')
 
 # output file
 OUTPUT_FILE                 = os.path.join(GITHUB_PETRALE_DIR, 'policies\\plu\\base_zoning\\hybrid_index', 'idx_urbansim_heuristic.csv')
