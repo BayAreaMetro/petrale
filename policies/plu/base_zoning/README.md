@@ -52,7 +52,7 @@ Output:
 * [juris_basis_pba40_capacity_metrics.csv](https://mtcdrive.box.com/s/5tuil7p7vz4pzp0zet2bo185obd2wzsx): capacity metrics for each jurisdiction for each variable
 * [juris_basis_pba40_capacity_metrics.log](https://mtcdrive.box.com/s/ihety0t5b9n3ad72obvkyulzt4n9xgti): debug log
 
-### [3_create_heuristic_hybrid_index.py](create_heuristic_hybrid_index.py)
+### [3_create_heuristic_hybrid_index.py](3_create_heuristic_hybrid_index.py)
 
 Creates the heuristic hybrid index given a threshold argument.
 
@@ -64,9 +64,12 @@ Output:
 * [hybrid_index/idx_urbansim_heuristic.csv](hybrid_index/idx_urbansim_heuristic.csv), heuristic-driven hybrid index configuration for which BASIS variables to use for each jurisdiction
 
 ### [dev_capacity_calculation_module.py](dev_capacity_calculation_module.py)
-Module with methods to calculate effective development intensity (refer to the [effective_max_dua](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L808) and [effective_max_far](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L852) calculations). 
+Module with methods to calculate 
+* effective development capacity (refer to the [effective_max_dua](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L808) and [effective_max_far](https://github.com/UDST/bayarea_urbansim/blob/0fb7776596075fa7d2cba2b9fbc92333354ba6fa/baus/variables.py#L852) calculations)
+* raw development capacity (built-out capacity based on zoning)
+* net development capacity (development capacity excluding parcels with certain characteristics)
 
-### [4_create_hybrid_urbansim_input.py](create_hybrid_urbansim_input.py)
+### [4_create_hybrid_urbansim_input.py](4_create_hybrid_urbansim_input.py)
 
 Now that we have a hybrid config, let's create the input files for UrbanSim!
 
@@ -79,23 +82,3 @@ Output:
 * ``p10_plu_boc_hybrid.csv``, parcel dataset with hybrid intensity/allowed development type columns
 * ``zoning_parcels_pba50.csv``, maps parcels to a zoning id
 * ``zoning_lookup_pba50.csv``, maps zoning id to characteristics (intensity and allowed development type)
-
-### [4_net_dev_capacity_calculation.ipynb](https://github.com/BayAreaMetro/petrale/blob/master/policies/plu/base_zoning/4_net_dev_capacity_calculation.ipynb)
-
-TODO: What is the difference between this and calculations in dev_capacity_calculation_module?  These sound like there are more extensive metrics; 
-should they be in dev_capacity_calculation_module.py?
-
-Identify parcel characteristics in order to calculate net development capacity based on the following criteria:
-    * Vacant land
-    * Under-built parcels, defined as parcels whose additional residential units (zoned units minus existing residential units and equivalent units of non-residential sqft) are at least 50% more than existing residential units
-    * Parcels with high zoned capacity / existing capacity ratio
-    * Parcels without buildings before the year 1940
-    * Parcels smaller than or equal to a half acre cannot have single family homes (?)
-
-Input:
-* [UrbanSim parcels](https://mtcdrive.box.com/s/sgy1uorcgt7uhh29fja7v93c21ppiudq)
-* [PBA40 UrbanSim buildings](https://mtcdrive.box.com/s/sgy1uorcgt7uhh29fja7v93c21ppiudq)
-* Raw development capacity calculated from [3_dev_capacity_calculation.ipynb](3_dev_capacity_calculation.ipynb) under the preferred hybrid version. Current script uses [hybrid_3 raw capacity](https://mtcdrive.box.com/s/qtysq31wvzudl9b9vjjz7etgm9i4z9se).
-
-Output:
-* ['capacity_gross_net.csv'](https://mtcdrive.box.com/s/axhulwng5olq2jign52s0dwznmii59n7): development capacity in residential units, non-residential sqft and employment at parcel-level with parcels labelled in 'is_vacant', 'is_under_built', 'res_zoned_existing_ratio', 'nonres_zoned_existing_ratio', 'has_old_building', 'ILR' (investment-land value ratio).
