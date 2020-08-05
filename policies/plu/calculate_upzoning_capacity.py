@@ -7,6 +7,7 @@ USAGE="""
           zoning_parcels_hybrid_pba50.csv, p10 combined with zoning_id data output by 4_create_hybrid_urbansim_input.py
           zoning_lookup_hybrid_pba50.csv, lookup table of zoning_id to allowable development types and intensities
           p10_pba50_attr.csv, p10 combined with zoningmods categories data
+          
   Output: compare_juris_capacity.csv, jurisdiction-level development capacity metrics
           compare_taz_capacity.csv, TAZ-level development capacity metrics
 
