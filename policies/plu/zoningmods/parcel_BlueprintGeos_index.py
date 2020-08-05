@@ -20,7 +20,7 @@ today = time.strftime('%Y_%m_%d')
 if os.getenv('USERNAME')=='ywang':
     WORK_DIR            = 'M:\\Data\\GIS layers\\Blueprint Land Use Strategies\\ID_idx'
     URBANSIM_DIR        = 'C:\\Users\\{}\\Documents\\GitHub\\bayarea_urbansim'.format(os.getenv('USERNAME'))
-    BOX_DIR             = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5'.format(os.getenv('USERNAME'))
+    BOX_DIR             = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim'.format(os.getenv('USERNAME'))
     
 # output folders
 PBA50_PARCEL_GEO_DIR    = os.path.join(BOX_DIR, 'PBA50\\Current PBA50 Large General Input Data')
