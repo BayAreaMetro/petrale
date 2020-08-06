@@ -11,21 +11,23 @@ today = time.strftime('%Y_%m_%d')
 ## set up the directories
 
 if os.getenv('USERNAME')    =='ywang':
-    BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
-    BOX_SMELT_DIR           = 'C:\\Users\\{}\\Box\\baydata\\smelt\\2020 03 12'.format(os.getenv('USERNAME'))
+    BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim\\PBA50'.format(os.getenv('USERNAME'))
+    M_URBANSIM_DIR          = 'M:\\Data\\Urban\\BAUS\\PBA50'
+    M_SMELT_DIR             = 'M:\\Data\\GIS layers\\UrbanSim smelt\\2020 03 12'
     GITHUB_PETRALE_DIR      = 'C:\\Users\\{}\\Documents\\GitHub\\petrale'.format(os.getenv('USERNAME'))
     GITHUB_URBANSIM_DIR     = 'C:\\Users\\{}\\Documents\\GitHub\\bayarea_urbansim\\data'.format(os.getenv('USERNAME'))
 
 elif os.getenv('USERNAME')  =='lzorn':
-    BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
-    BOX_SMELT_DIR           = 'C:\\Users\\{}\\Box\\baydata\\smelt\\2020 03 12'.format(os.getenv('USERNAME'))
+    BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim\\PBA50'.format(os.getenv('USERNAME'))
+    M_URBANSIM_DIR          = 'M:\\Data\\Urban\\BAUS\\PBA50'
+    M_SMELT_DIR             = 'M:\\Data\\GIS layers\\UrbanSim smelt\\2020 03 12'
     GITHUB_PETRALE_DIR      = 'X:\\petrale'
     GITHUB_URBANSIM_DIR     = 'X:\\bayarea_urbansim\\data'
 
 # input file locations
-PBA40_ZONING_BOX_DIR        = os.path.join(BOX_DIR, 'OLD Horizon Large General Input Data')
-PBA50_ZONINGMOD_DIR         = os.path.join(BOX_DIR, 'Policies\\Zoning Modifications')
-OTHER_INPUTS_DIR            = os.path.join(BOX_DIR, 'Policies\\Base zoning\\inputs')
+PBA40_ZONING_BOX_DIR        = os.path.join(M_URBANSIM_DIR, 'Horizon', 'Large General Input Data')
+PBA50_ZONINGMOD_DIR         = os.path.join(M_URBANSIM_DIR, 'Draft_Blueprint', 'Zoning Modifications')
+OTHER_INPUTS_DIR            = os.path.join(M_URBANSIM_DIR, 'Draft_Blueprint', 'Base zoning', 'input')
     
 # output file location
 DATA_OUTPUT_DIR             = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs')

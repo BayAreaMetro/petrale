@@ -13,7 +13,7 @@ import numpy as np
 
 
 if os.getenv('USERNAME')=='ywang':
-    BOX_DIR             = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
+    BOX_DIR             = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim\\PBA50'.format(os.getenv('USERNAME'))
     HORIZON_DIR         = os.path.join(BOX_DIR, 'OLD Horizon Large General Input Data')  
     DRAFTBLUEPRINT_DIR  = os.path.join(BOX_DIR, 'Current PBA50 Large General Input Data')
     PBA50_ZONING_DIR    = os.path.join(BOX_DIR, 'Policies', 'Zoning Modifications')

@@ -19,7 +19,6 @@ import os, argparse, time, logging
 
 if os.getenv('USERNAME')=='ywang':
     GITHUB_PETRALE_DIR  = 'C:\\Users\\{}\\Documents\\GitHub\\petrale\\'.format(os.getenv('USERNAME'))
-    GITHUB_URBANSIM_DIR = 'C:\\Users\\{}\\Documents\\GitHub\\bayarea_urbansim\\data'.format(os.getenv('USERNAME'))
 elif os.getenv('USERNAME')=='lzorn':
     GITHUB_PETRALE_DIR  = 'X:\\petrale'
 
@@ -157,12 +156,12 @@ def calculate_capacity(df_original,boc_source,nodev_source,pass_thru_cols=[]):
     Returns dataframe with columns:
      * PARCEL_ID
      * columns in pass_thru_cols
-     * units_[boc_source]_raw: residential units, calculated from ACRES x max_dua_[boc_source]
+     * zoned_du_[boc_source]: residential units, calculated from ACRES x max_dua_[boc_source]
                            (set to zero if allow_res_[boc_source]==0 or nodev_[nodev_source]==1)
-     * sqft_[boc_source]_raw : building sqft, calculated from ACRES x max_far_[boc_source]
+     * zoned_sqft_[boc_source] : building sqft, calculated from ACRES x max_far_[boc_source]
                            (set to zero if allow_nonres_[boc_source]==0 or nodev_[nodev_source]==1)
-     * Ksqft_[boc_source]_raw: sqft_[boc_source]/1,000
-     * emp_[boc_source]_raw  : estimate of employees from sqft_[boc_source]
+     * zoned_Ksqft_[boc_source]: sqft_[boc_source]/1,000
+     * job_spaces_[boc_source]  : estimate of employees from sqft_[boc_source]
 
      And if calculate_net = True, additionally columns to determine raw vs. net capacity:
      * parcel_vacant
@@ -176,20 +175,20 @@ def calculate_capacity(df_original,boc_source,nodev_source,pass_thru_cols=[]):
     df = df_original.copy()
     
     # DUA calculations apply to parcels 'allowRes'
-    df['units_raw_'+boc_source] = df['ACRES'] * df['max_dua_'+boc_source]   
+    df['zoned_du_'+boc_source] = df['ACRES'] * df['max_dua_'+boc_source]   
     
     # zero out units for 'nodev' parcels or parcels that don't allow residential
     zero_unit_idx = (df['allow_res_'+boc_source] == 0) | (df['nodev_'+nodev_source] == 1)
-    df.loc[zero_unit_idx,'units_raw_'   +boc_source] = 0
+    df.loc[zero_unit_idx,'zoned_du_'   +boc_source] = 0
         
     # FAR calculations apply to parcels 'allowNonRes'
-    df['sqft_raw_' +boc_source] = df['ACRES'] * df['max_far_'+boc_source] * SQUARE_FEET_PER_ACRE 
+    df['zoned_sqft_' +boc_source] = df['ACRES'] * df['max_far_'+boc_source] * SQUARE_FEET_PER_ACRE 
     
     # zero out sqft for 'nodev' parcels or parcels that don't allow non-residential
     zero_sqft_idx = (df['allow_nonres_'+boc_source] == 0) | (df['nodev_'+nodev_source] == 1)
-    df.loc[zero_sqft_idx,'sqft_raw_'       +boc_source] = 0
+    df.loc[zero_sqft_idx,'zoned_sqft_' +boc_source] = 0
     
-    df['Ksqft_raw_'+boc_source] = df['sqft_raw_'+boc_source]*0.001
+    df['zoned_Ksqft_'+boc_source] = df['zoned_sqft_'+boc_source]*0.001
 
     # of nonresidential uses, only office allowed
     office_idx   = (df['OF_'+boc_source] == 1) & (df['allow_nonres_'+boc_source]== 1)
@@ -197,16 +196,16 @@ def calculate_capacity(df_original,boc_source,nodev_source,pass_thru_cols=[]):
     allow_indust = df[['IL_'+boc_source,'IW_'+boc_source,'IH_'+boc_source]].sum(axis = 1)
     indust_idx   = (allow_indust > 0) & (df['allow_nonres_'+boc_source] == allow_indust)
     # calculate non-residential capacity in employment
-    df[               'emp_raw_'+boc_source] = df['sqft_raw_'+boc_source] / SQUARE_FEET_PER_EMPLOYEE
-    df.loc[office_idx,'emp_raw_'+boc_source] = df['sqft_raw_'+boc_source] / SQUARE_FEET_PER_EMPLOYEE_OFFICE
-    df.loc[indust_idx,'emp_raw_'+boc_source] = df['sqft_raw_'+boc_source] / SQUARE_FEET_PER_EMPLOYEE_INDUSTRIAL
+    df[               'job_spaces_'+boc_source] = df['zoned_sqft_'+boc_source] / SQUARE_FEET_PER_EMPLOYEE
+    df.loc[office_idx,'job_spaces_'+boc_source] = df['zoned_sqft_'+boc_source] / SQUARE_FEET_PER_EMPLOYEE_OFFICE
+    df.loc[indust_idx,'job_spaces_'+boc_source] = df['zoned_sqft_'+boc_source] / SQUARE_FEET_PER_EMPLOYEE_INDUSTRIAL
     
     keep_cols = ['PARCEL_ID'] + pass_thru_cols + \
     [
-        "units_raw_"        +boc_source,
-        "sqft_raw_"         +boc_source,
-        "Ksqft_raw_"        +boc_source,
-        "emp_raw_"          +boc_source
+        "zoned_du_"        +boc_source,
+        "zoned_sqft_"      +boc_source,
+        "zoned_Ksqft_"     +boc_source,
+        "job_spaces_"      +boc_source
     ]
 
     return df[keep_cols]
@@ -237,20 +236,20 @@ def calculate_net_capacity(logger, df_original,boc_source,nodev_source,
      * nonres_zoned_existing_ratio_[boc_source]
 
        net capacity based on various criteria:
-     * units_net_vacant_[boc_source]: capacity only of vacant parcels
-     * sqft_net_vacant_[boc_source]
-     * Ksqft_net_vacant_[boc_source]
-     * emp_net_vacant_[boc_source]
+     * zoned_du_vacant_[boc_source]: capacity only of vacant parcels
+     * zoned_sqft_vacant_[boc_source]
+     * zoned_Ksqft_vacant_[boc_source]
+     * job_spaces_vacant_[boc_source]
 
-     * units_net_ub_[boc_source]: capacity only of vacant or under-built parcels
-     * sqft_net_ub_[boc_source]
-     * Ksqft_net_ub_[boc_source]
-     * emp_net_ub_[boc_source]
+     * zoned_du_underbuild_[boc_source]: capacity only of under-built parcels
+     * zoned_sqft_underbuild_[boc_source]
+     * zoned_Ksqft_underbuild_[boc_source]
+     * job_spaces_underbuild_[boc_source]
 
-     * units_net_ub_noProt_[boc_source]: capacity of parcels that are vacant or under-built, but without protected (old) building
-     * sqft_net_ub_noProt_[boc_source]
-     * Ksqft_net_ub_noProt_[boc_source]
-     * emp_net_ub_noProt_[boc_source]
+     * zoned_du_underbuild_noProt_[boc_source]: capacity of parcels that are vacant or under-built, but without protected (old) building
+     * zoned_sqft_underbuild_noProt_[boc_source]
+     * zoned_Ksqft_underbuild_noProt_[boc_source]
+     * job_spaces_underbuild_noProt_[boc_source]
     
     """
     capacity_raw = calculate_capacity(df_original,boc_source,nodev_source,pass_thru_cols=net_pass_thru_cols)
@@ -266,6 +265,7 @@ def calculate_net_capacity(logger, df_original,boc_source,nodev_source,
     # parcel_building_df_original is building-level data, therefore need to 
     # aggregate buildings at the parcel level
     building_groupby_parcel = building_parcel_df.groupby(['PARCEL_ID']).agg({
+        'ACRES'               :'max',
         'LAND_VALUE'          :'max',
         'improvement_value'   :'sum',
         'residential_units'   :'sum',
@@ -285,7 +285,7 @@ def calculate_net_capacity(logger, df_original,boc_source,nodev_source,
                                 (building_groupby_parcel['residential_sqft'    ] == 0) &
                                 (building_groupby_parcel['non_residential_sqft'] == 0) &
                                 (building_groupby_parcel['building_sqft'       ] == 0), "parcel_vacant"] = True
-    logger.info("Vacant parcel statistics: \n {}".format(building_groupby_parcel["parcel_vacant"].value_counts()))
+    logger.info("Vacant parcel statistics: \n {}".format(building_groupby_parcel.parcel_vacant.value_counts()))
 
     # Identify parcels with old buildings which are protected (if multiple buildings on one parcel, take the oldest)
     # and not build on before-1940 parcels
@@ -297,7 +297,20 @@ def calculate_net_capacity(logger, df_original,boc_source,nodev_source,
 
     building_groupby_parcel['has_old_building'] = False
     building_groupby_parcel.loc[building_groupby_parcel.building_age == 'before 1940','has_old_building'] = True
-    logger.info('Parcel statistics by the age of the oldest building: \n {}'.format(building_groupby_parcel["building_age"].value_counts()))
+    logger.info('Parcel statistics by the age of the oldest building: \n {}'.format(building_groupby_parcel.building_age.value_counts()))
+
+
+    # Identify single-family parcels smaller than 0.5 acre
+    building_groupby_parcel['small_HS_parcel'] = False
+    small_HS_idx = (building_groupby_parcel.residential_units == 1.0) & (building_groupby_parcel.ACRES < 0.5)                   
+    building_groupby_parcel.loc[small_HS_idx, 'small_HS_parcel'] = True
+    logger.info("Small single-family parcel statistics: \n {}".format(building_groupby_parcel.small_HS_parcel.value_counts()))
+
+    # Identify parcels smaller than 2000 sqft
+    building_groupby_parcel['small_parcel'] = False
+    small_parcel_idx = (building_groupby_parcel.ACRES * SQUARE_FEET_PER_ACRE) < 2000
+    building_groupby_parcel.loc[small_parcel_idx, 'small_parcel'] = True
+    logger.info("Small parcel (<2000 sqft) statistics: \n {}".format(building_groupby_parcel.small_parcel.value_counts()))
 
     # Calculate parcel's investment-land ratio
     building_groupby_parcel['ILR'] = building_groupby_parcel['improvement_value'] / building_groupby_parcel['LAND_VALUE']
@@ -311,65 +324,66 @@ def calculate_net_capacity(logger, df_original,boc_source,nodev_source,
                                       on="PARCEL_ID")
 
     # Identify under-built parcels and calculate the net units capacity for under-built parcels
-    new_units = (capacity_with_building['units_raw_' + boc_source] - 
+    new_units = (capacity_with_building['zoned_du_' + boc_source] - 
                  capacity_with_building['residential_units']       - 
                  capacity_with_building['non_residential_sqft'] / SQUARE_FEET_PER_DU).clip(lower=0)
     ratio = (new_units / capacity_with_building['residential_units']).replace(np.inf, 1)
     capacity_with_building['is_under_built_' + boc_source] = ratio > 0.5
-    logger.info('under_built parcels counts ({}): \n {}'.format(boc_source, 
+    logger.info('Under_built parcel statistics  ({}): \n {}'.format(boc_source, 
             (capacity_with_building['is_under_built_' + boc_source].value_counts())))
 
 
     # Calculate existing capactiy to zoned capacity ratio
     # ratio of existing res units to zoned res units
     capacity_with_building['res_zoned_existing_ratio_' + boc_source] = \
-            (capacity_with_building['residential_units'] / capacity_with_building['units_raw_' + boc_source]).replace(np.inf, 1).clip(lower=0)
+            (capacity_with_building['residential_units'] / capacity_with_building['zoned_du_' + boc_source]).replace(np.inf, 1).clip(lower=0)
     # ratio of existing non-res sqft to zoned non-res sqft
     capacity_with_building['nonres_zoned_existing_ratio_' + boc_source] = \
-            (capacity_with_building['non_residential_sqft'] / capacity_with_building['sqft_raw_' + boc_source]).replace(np.inf, 1).clip(lower=0)
+            (capacity_with_building['non_residential_sqft'] / capacity_with_building['zoned_sqft_' + boc_source]).replace(np.inf, 1).clip(lower=0)
 
 
     # calculate net capacity by different criteria
     # 1. only of vacant parcels
-    for capacity_type in ["units", "sqft", "Ksqft", "emp"]:
-        capacity_with_building[capacity_type+'_net_vacant_'+boc_source] = capacity_with_building[capacity_type+'_raw_'+boc_source]
+    for capacity_type in ["zoned_du", "zoned_sqft", "zoned_Ksqft", "job_spaces"]:
+        capacity_with_building[capacity_type+'_vacant_'+boc_source] = capacity_with_building[capacity_type+'_'+boc_source]
         capacity_with_building.loc[capacity_with_building.parcel_vacant == False,
-                                   capacity_type+'_net_vacant_'+boc_source] = 0
+                                   capacity_type+'_vacant_'+boc_source] = 0
 
-    # 2. only of vacant or under-built parcels
-    for capacity_type in ["units", "sqft", "Ksqft", "emp"]:
-        capacity_with_building[capacity_type+'_net_ub_'+boc_source] = capacity_with_building[capacity_type+'_raw_'+boc_source]
-        capacity_with_building.loc[(capacity_with_building.parcel_vacant == False) &
-                                   (capacity_with_building['is_under_built_' + boc_source] == False),
-                                    capacity_type+'_net_ub_'+boc_source] = 0
+    # 2. only of under-built parcels
+    for capacity_type in ["zoned_du", "zoned_sqft", "zoned_Ksqft", "job_spaces"]:
+        capacity_with_building[capacity_type+'_underbuild_'+boc_source] = capacity_with_building[capacity_type+'_'+boc_source]
+        capacity_with_building.loc[capacity_with_building['is_under_built_' + boc_source] == False,
+                                   capacity_type+'_underbuild_'+boc_source] = 0
 
-    # 3. of vacant or under-built but no protected (old) building parcels
-    for capacity_type in ["units", "sqft", "Ksqft", "emp"]:
-        capacity_with_building[capacity_type+'_net_ub_noProt_'+boc_source] = capacity_with_building[capacity_type+'_raw_'+boc_source]
-        capacity_with_building.loc[((capacity_with_building.parcel_vacant == False) &
-                                    (capacity_with_building['is_under_built_' + boc_source] == False)) | 
-                                   (capacity_with_building.has_old_building == True),
-                                    capacity_type+'_net_ub_noProt_'+boc_source] = 0
+    # 3. of under-built but no protected parcels (with old building or single-family parcel < 0.5 acre)
+    for capacity_type in ["zoned_du", "zoned_sqft", "zoned_Ksqft", "job_spaces"]:
+        capacity_with_building[capacity_type+'_underbuild_noProt_'+boc_source] = capacity_with_building[capacity_type+'_'+boc_source]
+        capacity_with_building.loc[(capacity_with_building['is_under_built_' + boc_source] == False) |
+                                   (capacity_with_building.has_old_building == True) |
+                                   (capacity_with_building.small_HS_parcel == True) |
+                                   (capacity_with_building.small_parcel == True),
+                                   capacity_type+'_underbuild_noProt_'+boc_source] = 0
 
     keep_cols = ['PARCEL_ID'] + net_pass_thru_cols + \
     [
-        "units_net_vacant_"            +boc_source,
-        "sqft_net_vacant_"             +boc_source,
-        "Ksqft_net_vacant_"            +boc_source,
-        "emp_net_vacant_"              +boc_source,
+        "zoned_du_vacant_"             + boc_source,
+        "zoned_sqft_vacant_"           + boc_source,
+        "zoned_Ksqft_vacant_"          + boc_source,
+        "job_spaces_vacant_"           + boc_source,
 
-        "units_net_ub_"                +boc_source,
-        "sqft_net_ub_"                 +boc_source,
-        "Ksqft_net_ub_"                +boc_source,
-        "emp_net_ub_"                  +boc_source,
+        "zoned_du_underbuild_"         + boc_source,
+        "zoned_sqft_underbuild_"       + boc_source,
+        "zoned_Ksqft_underbuild_"      + boc_source,
+        "job_spaces_underbuild_"       + boc_source,
 
-        "units_net_ub_noProt_"         +boc_source,
-        "sqft_net_ub_noProt_"          +boc_source,
-        "Ksqft_net_ub_noProt_"         +boc_source,
-        "emp_net_ub_noProt_"           +boc_source,
+        "zoned_du_underbuild_noProt_"      + boc_source,
+        "zoned_sqft_underbuild_noProt_"    + boc_source,
+        "zoned_Ksqft_underbuild_noProt_"   + boc_source,
+        "job_spaces_underbuild_noProt_"    + boc_source,
 
         "parcel_vacant",
         "has_old_building",
+        'small_HS_parcel',
         "ILR",
 
         'is_under_built_'              + boc_source,
@@ -396,12 +410,12 @@ def zoning_to_capacity(parcel_zoning_file, hybrid_version, upzoning_scenario, ca
     Returns dataframe with columns:
      * PARCEL_ID
      * columns in pass_thru_cols
-     * units_[boc_source]: residential units, calculated from ACRES x max_dua_[boc_source]
+     * zoned_du_[boc_source]: residential units, calculated from ACRES x max_dua_[boc_source]
                            (set to zero if allow_res_[boc_source]==0 or nodev_[nodev_source]==1)
-     * sqft_[boc_source] : building sqft, calculated from ACRES x max_far_[boc_source]
+     * zoned_sqft_[boc_source] : building sqft, calculated from ACRES x max_far_[boc_source]
                            (set to zero if allow_nonres_[boc_source]==0 or nodev_[nodev_source]==1)
-     * Ksqft_[boc_source]: sqft_[boc_source]/1,000
-     * emp_[boc_source]  : estimate of employees from sqft_[boc_source]
+     * zoned_Ksqft_[boc_source]: sqft_[boc_source]/1,000
+     * job_spaces_[boc_source]  : estimate of employees from sqft_[boc_source]
     """
 
     if not os.path.exists(capacity_output_dir):

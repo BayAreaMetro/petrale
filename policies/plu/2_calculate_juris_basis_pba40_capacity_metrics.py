@@ -26,18 +26,23 @@ today = time.strftime('%Y_%m_%d')
 
 
 if os.getenv('USERNAME')    =='ywang':
-    BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
-    BOX_SMELT_DIR           = 'C:\\Users\\{}\\Box\\baydata\\smelt\\2020 03 12'.format(os.getenv('USERNAME'))
+    BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim\\PBA50'.format(os.getenv('USERNAME'))
+    M_URBANSIM_DIR          = 'M:\\Data\\Urban\\BAUS\\PBA50'
+    M_SMELT_DIR             = 'M:\\Data\\GIS layers\\UrbanSim smelt\\2020 03 12'
     GITHUB_PETRALE_DIR      = 'C:\\Users\\{}\\Documents\\GitHub\\petrale\\'.format(os.getenv('USERNAME'))
 elif os.getenv('USERNAME')  =='lzorn':
-    BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
-    BOX_SMELT_DIR           = 'C:\\Users\\{}\\Box\\baydata\\smelt\\2020 03 12'.format(os.getenv('USERNAME'))
+    BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim\\PBA50'.format(os.getenv('USERNAME'))
+    M_URBANSIM_DIR          = 'M:\\Data\\Urban\\BAUS\\PBA50'
+    M_SMELT_DIR             = 'M:\\Data\\GIS layers\\UrbanSim smelt\\2020 03 12'
     GITHUB_PETRALE_DIR      = 'X:\\petrale'
 
     
 # input file locations
-PLU_BOC_DIR                 = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs')
-PLU_BOC_FILE                = os.path.join(PLU_BOC_DIR, '2020_06_03_p10_plu_boc_allAttrs.csv')
+PLU_BOC_M_DIR               = os.path.join(M_URBANSIM_DIR, 'Draft_Blueprint', 'Base zoning', 'output')
+PLU_BOC_FILE                = os.path.join(PLU_BOC_M_DIR, '2020_06_03_p10_plu_boc_allAttrs.csv')
+
+# output file locations
+PLU_BOC_BOX_DIR             = os.path.join(BOX_DIR, 'Policies', 'Base zoning', 'outputs')
 
 # output file
 # In test mode (specified by --test), outputs to cwd and without date prefix; otherwise, outputs to PLU_BOC_DIR with date prefix
@@ -57,8 +62,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.test == False:
-        LOG_FILE            = os.path.join(PLU_BOC_DIR, "{}_{}".format(today, LOG_FILE))
-        JURIS_CAPACITY_FILE = os.path.join(PLU_BOC_DIR, "{}_{}".format(today, JURIS_CAPACITY_FILE))
+        LOG_FILE            = os.path.join(PLU_BOC_BOX_DIR, "{}_{}".format(today, LOG_FILE))
+        JURIS_CAPACITY_FILE = os.path.join(PLU_BOC_BOX_DIR, "{}_{}".format(today, JURIS_CAPACITY_FILE))
 
     pd.set_option('max_columns',   200)
     pd.set_option('display.width', 200)
@@ -87,7 +92,7 @@ if __name__ == '__main__':
     logger.info("\n{}".format(plu_boc.head()))
 
     ## B10 buildings with p10 parcels data
-    basemap_b10_file = os.path.join(BOX_SMELT_DIR, 'b10.csv')
+    basemap_b10_file = os.path.join(M_SMELT_DIR, 'b10.csv')
     basemap_b10 = pd.read_csv(basemap_b10_file)
     # conver PARCEL_ID to integer:
     basemap_b10['parcel_id'] = basemap_b10['parcel_id'].apply(lambda x: int(round(x)))
@@ -95,7 +100,7 @@ if __name__ == '__main__':
     logger.info("\n{}".format(basemap_b10.head()))
     logger.info('Number of unique PARCEL_ID: {}'.format(len(basemap_b10.parcel_id.unique())))
 
-    basemap_p10_file = os.path.join(BOX_SMELT_DIR, 'p10.csv')
+    basemap_p10_file = os.path.join(M_SMELT_DIR, 'p10.csv')
     basemap_p10 = pd.read_csv(basemap_p10_file,
                               usecols =['PARCEL_ID','geom_id_s','ACRES','LAND_VALUE'])
     # conver PARCEL_ID to integer:
@@ -169,12 +174,12 @@ if __name__ == '__main__':
         logger.debug("capacity_basisTest.head():\n{}".format(capacity_basisTest.head()))
 
         # should we keep capacity cols based on test_attr?
-        capacity_juris_pba40     = capacity_pba40.groupby(["juris_zmod"])[["units_raw_pba40",
-                                                                           "Ksqft_raw_pba40",
-                                                                           "emp_raw_pba40"]].sum().reset_index()
-        capacity_juris_basisTest = capacity_basisTest.groupby(["juris_zmod"])[["units_raw_basis",
-                                                                               "Ksqft_raw_basis",
-                                                                               "emp_raw_basis"]].sum().reset_index()
+        capacity_juris_pba40     = capacity_pba40.groupby(["juris_zmod"])[["zoned_du_pba40",
+                                                                           "zoned_Ksqft_pba40",
+                                                                           "job_spaces_pba40"]].sum().reset_index()
+        capacity_juris_basisTest = capacity_basisTest.groupby(["juris_zmod"])[["zoned_du_basis",
+                                                                               "zoned_Ksqft_basis",
+                                                                               "job_spaces_basis"]].sum().reset_index()
 
         logger.debug("capacity_juris_pba40.head():\n{}".format(capacity_juris_pba40.head()))
         logger.debug("capacity_juris_basisTest.head():\n{}".format(capacity_juris_basisTest.head()))
@@ -188,24 +193,24 @@ if __name__ == '__main__':
         logger.debug("net_capacity_pba40.head():\n{}".format(net_capacity_pba40.head()))
         logger.debug("net_capacity_basisTest.head():\n{}".format(net_capacity_basisTest.head()))
 
-        net_capacity_juris_pba40     = net_capacity_pba40.groupby(["juris_zmod"])[["units_net_vacant_pba40",
-                                                                                   "Ksqft_net_vacant_pba40",
-                                                                                   "emp_net_vacant_pba40",
-                                                                                   "units_net_ub_pba40",
-                                                                                   "Ksqft_net_ub_pba40",
-                                                                                   "emp_net_ub_pba40",
-                                                                                   "units_net_ub_noProt_pba40",
-                                                                                   "Ksqft_net_ub_noProt_pba40",
-                                                                                   "emp_net_ub_noProt_pba40"]].sum().reset_index()
-        net_capacity_juris_basisTest = net_capacity_basisTest.groupby(["juris_zmod"])[["units_net_vacant_basis",
-                                                                                       "Ksqft_net_vacant_basis",
-                                                                                       "emp_net_vacant_basis",
-                                                                                       "units_net_ub_basis",
-                                                                                       "Ksqft_net_ub_basis",
-                                                                                       "emp_net_ub_basis",
-                                                                                       "units_net_ub_noProt_basis",
-                                                                                       "Ksqft_net_ub_noProt_basis",
-                                                                                       "emp_net_ub_noProt_basis"]].sum().reset_index()
+        net_capacity_juris_pba40     = net_capacity_pba40.groupby(["juris_zmod"])[["zoned_du_vacant_pba40",
+                                                                                   "zoned_Ksqft_vacant_pba40",
+                                                                                   "job_spaces_vacant_pba40",
+                                                                                   "zoned_du_underbuild_pba40",
+                                                                                   "zoned_Ksqft_underbuild_pba40",
+                                                                                   "job_spaces_underbuild_pba40",
+                                                                                   "zoned_du_underbuild_noProt_pba40",
+                                                                                   "zoned_Ksqft_underbuild_noProt_pba40",
+                                                                                   "job_spaces_underbuild_noProt_pba40"]].sum().reset_index()
+        net_capacity_juris_basisTest = net_capacity_basisTest.groupby(["juris_zmod"])[["zoned_du_vacant_basis",
+                                                                                       "zoned_Ksqft_vacant_basis",
+                                                                                       "job_spaces_vacant_basis",
+                                                                                       "zoned_du_underbuild_basis",
+                                                                                       "zoned_Ksqft_underbuild_basis",
+                                                                                       "job_spaces_underbuild_basis",
+                                                                                       "zoned_du_underbuild_noProt_basis",
+                                                                                       "zoned_Ksqft_underbuild_noProt_basis",
+                                                                                       "job_spaces_underbuild_noProt_basis"]].sum().reset_index()
 
         logger.debug("net_capacity_juris_pba40.head():\n{}".format(net_capacity_juris_pba40.head()))
         logger.debug("net_capacity_juris_basisTest.head():\n{}".format(net_capacity_juris_basisTest.head()))
