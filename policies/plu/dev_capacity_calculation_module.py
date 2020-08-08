@@ -19,7 +19,6 @@ import os, argparse, time, logging
 
 if os.getenv('USERNAME')=='ywang':
     GITHUB_PETRALE_DIR  = 'C:\\Users\\{}\\Documents\\GitHub\\petrale\\'.format(os.getenv('USERNAME'))
-    GITHUB_URBANSIM_DIR = 'C:\\Users\\{}\\Documents\\GitHub\\bayarea_urbansim\\data'.format(os.getenv('USERNAME'))
 elif os.getenv('USERNAME')=='lzorn':
     GITHUB_PETRALE_DIR  = 'X:\\petrale'
 

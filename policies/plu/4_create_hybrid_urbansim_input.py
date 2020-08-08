@@ -17,17 +17,19 @@ import dev_capacity_calculation_module
 today = time.strftime('%Y_%m_%d')
 
 if os.getenv('USERNAME')    =='ywang':
-    BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
+    BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim\\PBA50'.format(os.getenv('USERNAME'))
+    M_DIR                   = 'M:\\Data\\Urban\\BAUS\\PBA50'
     GITHUB_PETRALE_DIR      = 'C:\\Users\\{}\\Documents\\GitHub\\petrale\\'.format(os.getenv('USERNAME'))
 elif os.getenv('USERNAME')  =='lzorn':
-    BOX_DIR                 = 'C:\\Users\\lzorn\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
+    BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim\\PBA50'.format(os.getenv('USERNAME'))
+    M_DIR                   = 'M:\\Data\\Urban\\BAUS\\PBA50\\Draft_Blueprint\\Base zoning'
     GITHUB_PETRALE_DIR      = 'X:\\petrale'
 
 
 # input file locations
-PREV_ZONING_PARCELS_FILE    = os.path.join(BOX_DIR, 'Current PBA50 Large General Input Data', '2020_04_15_zoning_parcels.csv') # what is this for?
-PLU_BOC_DIR                 = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs')
-PLU_BOC_FILE                = os.path.join(PLU_BOC_DIR, '2020_06_03_p10_plu_boc_allAttrs.csv')
+PREV_ZONING_PARCELS_FILE    = os.path.join(M_DIR, 'Horizon', 'Large General Input Data', '2015_12_21_zoning_parcels.csv')
+PLU_BOC_M_DIR               = os.path.join(M_DIR, 'Draft_Blueprint', 'Base zoning', 'outputs')
+PLU_BOC_FILE                = os.path.join(PLU_BOC_M_DIR, '2020_06_03_p10_plu_boc_allAttrs.csv')
 HYBRID_INDEX_DIR            = os.path.join(GITHUB_PETRALE_DIR, 'policies\\plu\\base_zoning\\hybrid_index')
 # TODO: change to idx_urbansim.csv when we have one
 HYBRID_INDEX_FILE           = os.path.join(HYBRID_INDEX_DIR, "idx_urbansim.csv")
