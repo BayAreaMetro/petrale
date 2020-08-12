@@ -37,14 +37,22 @@ USE_PBA40 = 0
 USE_BASIS = 1
 
 # used in calculate_capacity()
-SQUARE_FEET_PER_ACRE                = 43560.0
-SQUARE_FEET_PER_DU                  = 1200.0
-FEET_PER_STORY                      = 11.0
-PARCEL_USE_EFFICIENCY               = 0.5
-SQUARE_FEET_PER_EMPLOYEE            = 350.0
-SQUARE_FEET_PER_EMPLOYEE_OFFICE     = 175.0
-SQUARE_FEET_PER_EMPLOYEE_INDUSTRIAL = 500.0
+SQUARE_FEET_PER_ACRE        = 43560.0
+SQUARE_FEET_PER_DU          = 1000.0
+FEET_PER_STORY              = 12.0
+PARCEL_USE_EFFICIENCY       = 0.8
 
+SQUARE_FEET_PER_EMPLOYEE = {'OF': 355.0,
+                            'HO': 1161.0,
+                            'SC': 470.0,
+                            'IL': 661.0,
+                            'IW': 960.0,
+                            'IH': 825.0,
+                            'RS': 445.0,
+                            'RB': 445.0,
+                            'MR': 383.0,
+                            'MT': 383.0,
+                            'ME': 383.0}
 
 def get_jurisdiction_county_df():
     """
@@ -190,15 +198,11 @@ def calculate_capacity(df_original,boc_source,nodev_source,pass_thru_cols=[]):
     
     df['zoned_Ksqft_'+boc_source] = df['zoned_sqft_'+boc_source]*0.001
 
-    # of nonresidential uses, only office allowed
-    office_idx   = (df['OF_'+boc_source] == 1) & (df['allow_nonres_'+boc_source]== 1)
-    # of nonresidential uses, only industrial allowed
-    allow_indust = df[['IL_'+boc_source,'IW_'+boc_source,'IH_'+boc_source]].sum(axis = 1)
-    indust_idx   = (allow_indust > 0) & (df['allow_nonres_'+boc_source] == allow_indust)
-    # calculate non-residential capacity in employment
-    df[               'job_spaces_'+boc_source] = df['zoned_sqft_'+boc_source] / SQUARE_FEET_PER_EMPLOYEE
-    df.loc[office_idx,'job_spaces_'+boc_source] = df['zoned_sqft_'+boc_source] / SQUARE_FEET_PER_EMPLOYEE_OFFICE
-    df.loc[indust_idx,'job_spaces_'+boc_source] = df['zoned_sqft_'+boc_source] / SQUARE_FEET_PER_EMPLOYEE_INDUSTRIAL
+    # calculate job_spaces
+    df['job_spaces_'+boc_source] = 0
+    for dev_type in NONRES_BUILDING_TYPE_CODES:
+        allow_idx = (df[dev_type+'_'+boc_source] == 1) & (df['allow_nonres_'+boc_source]== 1)
+        df.loc[allow_idx, 'job_spaces_'+boc_source] = df['zoned_sqft_'+boc_source] / SQUARE_FEET_PER_EMPLOYEE[dev_type]
     
     keep_cols = ['PARCEL_ID'] + pass_thru_cols + \
     [
