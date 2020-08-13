@@ -77,6 +77,7 @@ if __name__ == '__main__':
 
         if (area not in juris_list) & (area not in county_list):
             print('Wrong jurisdiction or county name: {}'.format(area))
+            continue
 
         export_file_name = '{}_{}.csv'.format(AREA_BASEZONING_FILE, area)
         print('Export {} records of basezoning for {} to {}'.format(len(area_basezoning),
