@@ -236,11 +236,12 @@ if __name__ == '__main__':
     logger.addHandler(fh)
 
     logger.info("BOX_DIR         = {}".format(BOX_DIR))
+    logger.info("M_URBANSIM_DIR  = {}".format(M_URBANSIM_DIR))
+    logger.info("M_SMELT_DIR     = {}".format(M_SMELT_DIR)) 
     logger.info("DATA_OUTPUT_DIR = {}".format(DATA_OUTPUT_DIR))
 
-
     ## Basemap parcels
-    basemap_p10_file = os.path.join(BOX_SMELT_DIR, 'p10.csv')
+    basemap_p10_file = os.path.join(M_SMELT_DIR, 'p10.csv')
     basemap_p10 = pd.read_csv(basemap_p10_file,
                               usecols =['PARCEL_ID','geom_id_s','ACRES','LAND_VALUE'],
                               dtype   ={'PARCEL_ID':np.float64, 'geom_id_s':str, 'ACRES':np.float64, 'LAND_VALUE':np.float64})
@@ -475,16 +476,20 @@ if __name__ == '__main__':
         'plu_id_basis','plu_jurisdiction_basis','plu_description_basis'
     ]
     # allowed building types
-    for btype in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
-        output_columns.append(btype + "_basis")
-        output_columns.append(btype + "_pba40")
+    for devType in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
+        output_columns.append(devType + "_basis")
+        output_columns.append(devType + "_pba40")
         # basis btypes may be imputed, recorded here
-        output_columns.append("source_" + btype + "_basis")
+        output_columns.append("source_" + devType + "_basis")
 
     plu_boc_output = p10_basis_pba40_boc_zmod_withJuris[output_columns]
 
     for devType in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
-        logger.info('Missing BASIS {} parcel count: {}'.format(devType,len(plu_boc_output.loc[plu_boc_output[devType+'_basis'].isnull()])))
+        for boc_source in ['basis', 'pba40']:
+            miss_idx = plu_boc_output[devType + '_' + boc_source].isnull()
+            logger.info('Missing {} {} parcel count: {}'.format(boc_source,
+                                                                devType,
+                                                                len(miss_idx)))
 
     logger.info('Export pba40/BASIS combined base zoning data: {} records of the following fields: {}'.format(len(plu_boc_output), plu_boc_output.dtypes))
 
