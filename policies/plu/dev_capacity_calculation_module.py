@@ -201,8 +201,7 @@ def calculate_capacity(df_original,boc_source,nodev_source,pass_thru_cols=[]):
     # calculate job_spaces
     df['job_spaces_'+boc_source] = 0
     for dev_type in NONRES_BUILDING_TYPE_CODES:
-        allow_idx = (df[dev_type+'_'+boc_source] == 1) & (df['allow_nonres_'+boc_source]== 1)
-        df.loc[allow_idx, 'job_spaces_'+boc_source] = df['zoned_sqft_'+boc_source] / SQUARE_FEET_PER_EMPLOYEE[dev_type]
+        df.loc[df[dev_type+'_'+boc_source] == 1, 'job_spaces_'+boc_source] = df['zoned_sqft_'+boc_source] / SQUARE_FEET_PER_EMPLOYEE[dev_type]
     
     keep_cols = ['PARCEL_ID'] + pass_thru_cols + \
     [
@@ -397,83 +396,6 @@ def calculate_net_capacity(logger, df_original,boc_source,nodev_source,
 
     return capacity_with_building[keep_cols]
 
-
-def zoning_to_capacity(parcel_zoning_file, hybrid_version, upzoning_scenario, capacity_output_dir):
-
-    """
-    Calculate parcel-level raw development capacity under different zoning scenarios,
-    mainly used for zoning scenario comparison.
-
-    Inputs:
-    * parcel_zoning_file: parcel-level zoning attributes, including base zoning and upzoning dev types and intensities
-    * hybrid_version: version of hybrid base zoning
-    * upzoning_scenario: upzoning scenario, eg. 's20', 's21', 's22', 's23' for Draft/Final Blueprint
-
-    Output:
-    Parcel-level development capacity in res units, non-res sqft, and employee estimates. 
-    Returns dataframe with columns:
-     * PARCEL_ID
-     * columns in pass_thru_cols
-     * zoned_du_[boc_source]: residential units, calculated from ACRES x max_dua_[boc_source]
-                           (set to zero if allow_res_[boc_source]==0 or nodev_[nodev_source]==1)
-     * zoned_sqft_[boc_source] : building sqft, calculated from ACRES x max_far_[boc_source]
-                           (set to zero if allow_nonres_[boc_source]==0 or nodev_[nodev_source]==1)
-     * zoned_Ksqft_[boc_source]: sqft_[boc_source]/1,000
-     * job_spaces_[boc_source]  : estimate of employees from sqft_[boc_source]
-    """
-
-    if not os.path.exists(capacity_output_dir):
-        os.makedirs(capacity_output_dir)
-    output_file_name = os.path.join(capacity_output_dir, 'capacity_'+hybrid_version+'.csv')
-
-    # Read hybrid base zoning data with upzoning info
-    parcel_zoning_df = pd.read_csv(parcel_zoning_file)
-    logger.info('Read {:,} lines from {}. Head:\n{}Dtypes:\n{}'.format(len(parcel_zoning_df), 
-                                                                       parcel_zoning_file, 
-                                                                       parcel_zoning_df.head(), 
-                                                                       parcel_zoning_df.dtypes))
-
-    logger.info('Parcel count by county:\n{}'.format(parcel_zoning_df.county_name.value_counts()))
-
-    # Calculate capacity
-    capacity_pba40_allAtts    = calculate_capacity(parcel_zoning_df,'pba40','zmod')
-    capacity_urbansim_allAtts = calculate_capacity(parcel_zoning_df,'urbansim','zmod')
-    capacity_upzoning_allAtts = calculate_capacity(parcel_zoning_df,'_'+ upzoning_scenario,'zmod')
-
-    logger.info("capacity_pba40_allAtts has {:,} rows; head:\n{}".format(len(capacity_pba40_allAtts),capacity_pba40_allAtts.head()))
-    logger.info("capacity_urbansim_allAtts has {:,} rows; head:\n{}".format(len(capacity_urbansim_allAtts),capacity_urbansim_allAtts.head()))
-    logger.info("capacity_upzoning_allAtts has {:,} rows; head:\n{}".format(len(capacity_upzoning_allAtts),capacity_upzoning_allAtts.head()))   
-
-    # output all attributes
-    capacity_allAtts = capacity_pba40_allAtts.merge(capacity_urbansim_allAtts, 
-                                                    how="inner", 
-                                                    on=['PARCEL_ID']).merge(capacity_upzoning_allAtts,
-                                                                            how='inner',
-                                                                            on=['PARCEL_ID'])
-
-    parcel_zoning_simply = parcel_zoning_df[['PARCEL_ID','ACRES','county_id', 'county_name','juris_zmod', 'nodev_zmod'] + [
-                           dev_type+'_pba40'    for dev_type in ALLOWED_BUILDING_TYPE_CODES] + [
-                           dev_type+'_urbansim' for dev_type in ALLOWED_BUILDING_TYPE_CODES] + [ 
-                           dev_type+'_'+ upzoning_scenario for dev_type in ALLOWED_BUILDING_TYPE_CODES]]
-
-    capacity_allAtts = capacity_allAtts.merge(p10_plu_boc_simply,
-                                              on = 'PARCEL_ID', 
-                                              how = 'inner')
-    print("capacity has {:,} rows; head:".format(len(capacity_allAtts)))
-    print(capacity_allAtts.head())
-
-    for i in ['PARCEL_ID', 'nodev_zmod',
-              'allow_res_pba40', 'allow_res_urbansim','allow_nonres_pba40','allow_nonres_urbansim'] + [
-              dev_type+'_pba40'    for dev_type in ALLOWED_BUILDING_TYPE_CODES] + [
-              dev_type+'_urbansim' for dev_type in ALLOWED_BUILDING_TYPE_CODES] + [
-              dev_type+'_'+ upzoning_scenario for dev_type in ALLOWED_BUILDING_TYPE_CODES]:
-        capacity_allAtts[i] = capacity_allAtts[i].fillna(-1).astype(np.int64)
-
-    print('Export parcel-level capacity results for {:,} parcels. Head:\n{}Dtypes:\n{}'.format(len(capacity_allAtts),capacity_allAtts.head(),capacity_allAtts.dtypes))
-
-    capacity_allAtts.to_csv(output_file_name, index = False)
-
-    return capacity_allAtts
 
 if __name__ == '__main__':
 
