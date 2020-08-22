@@ -43,3 +43,4 @@
 # tableau recovery files
 *.twbr
 *.log
+*.csv
