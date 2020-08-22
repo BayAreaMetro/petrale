@@ -242,6 +242,7 @@ if __name__ == '__main__':
 		arcpy.AlterField_management(joinFN, "building_name", "m_building_name")
 		arcpy.AlterField_management(joinFN, "site_name", "m_site_name")
 		arcpy.AlterField_management(joinFN, "year_built", "m_year_built")
+		arcpy.AlterField_management(joinFN, "parcel_id", "m_parcel_id")
 		arcpy.AlterField_management(joinFN, "last_sale_price", "m_last_sale_price")
 		arcpy.AlterField_management(joinFN, "last_sale_year", "m_sale_date")
 		arcpy.AlterField_management(joinFN, "stories", "m_stories")
@@ -262,6 +263,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "raw_id", "LONG")
 		arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
 		arcpy.AddField_management(joinFN, "site_name", "TEXT","","",200)
+		arcpy.AddField_management(joinFN, "PARCEL_ID", "LONG")
 		arcpy.AddField_management(joinFN, "scen0", "SHORT")
 		arcpy.AddField_management(joinFN, "scen1", "SHORT")
 		arcpy.AddField_management(joinFN, "scen2", "SHORT")
@@ -294,7 +296,7 @@ if __name__ == '__main__':
 		###using date for now, as I tried to use datetime.datetime.strptime('cs_sale_date','%m/%d/%Y %I:%M:%S %p').strftime('%Y')) it didn't work
 		arcpy.AddField_management(joinFN, "last_sale_year", "DATE") 
 		arcpy.AddField_management(joinFN, "last_sale_price", "DOUBLE")
-		arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
+		arcpy.AddField_management(joinFN, "dr", "SHORT")
 		arcpy.AddField_management(joinFN, "source", "TEXT","","",10)
 		arcpy.AddField_management(joinFN, "edit_date", "LONG")
 		arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
@@ -305,6 +307,7 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "raw_id", '!manual_dp_id!')
 		arcpy.CalculateField_management(joinFN, "building_name", '!m_building_name!')
 		arcpy.CalculateField_management(joinFN, "site_name", '!m_site_name!')
+		arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!m_parcel_id!')
 		arcpy.CalculateField_management(joinFN, "scen0", 1)
 		arcpy.CalculateField_management(joinFN, "scen1", 1)
 		arcpy.CalculateField_management(joinFN, "scen2", 1)
@@ -338,7 +341,7 @@ if __name__ == '__main__':
 		#arcpy.CalculateField_management(joinFN, "rent_ave_unit", )
 		arcpy.CalculateField_management(joinFN, "last_sale_year", '!m_sale_date!') #need to make into year
 		arcpy.CalculateField_management(joinFN, "last_sale_price", '!m_last_sale_price!')
-		arcpy.CalculateField_management(joinFN, "deed_restricted_units", 0)
+		arcpy.CalculateField_management(joinFN, "dr", 0)
 		arcpy.CalculateField_management(joinFN, "source", "'manual'")
 		arcpy.CalculateField_management(joinFN, "edit_date", 20200429)
 		arcpy.CalculateField_management(joinFN, "editor", "'MKR'")
@@ -361,7 +364,7 @@ if __name__ == '__main__':
 		DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", 
 		"scen0", "scen1", "scen2", "scen3", "scen4", "scen5", "scen6", "scen7", "scen10", "scen11", "scen12", "scen15", "scen20", "scen21", "scen22", "scen23", "scen24", "scen25",
 		"address",  "city",  "zip",  "county", "x", "y", "geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
-		"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "deed_restricted_units","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
+		"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "dr","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 		fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 		arcpy.DeleteField_management(joinFN, fields2Delete)
 		arcpy.MakeTableView_management(joinFN,gidnull,"geom_id is NULL")
@@ -388,6 +391,7 @@ if __name__ == '__main__':
 		
 		# rename any conflicting field names
 		arcpy.AlterField_management(joinFN, "building_name", "cs_building_name")
+		arcpy.AlterField_management(joinFN, "parcel_id", "cs_parcel_id")
 		arcpy.AlterField_management(joinFN, "city", "cs_city")
 		arcpy.AlterField_management(joinFN, "Zip", "cs_zip")
 		arcpy.AlterField_management(joinFN, "rent_type", "cs_rent_type")
@@ -409,6 +413,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "raw_id", "LONG")
 		arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
 		arcpy.AddField_management(joinFN, "site_name", "TEXT","","",200)
+		arcpy.AddField_management(joinFN, "PARCEL_ID", "LONG")
 		arcpy.AddField_management(joinFN, "action", "TEXT","","",10)
 		arcpy.AddField_management(joinFN, "scen0", "SHORT")
 		arcpy.AddField_management(joinFN, "scen1", "SHORT")
@@ -453,7 +458,7 @@ if __name__ == '__main__':
 		###using date for now, as I tried to use datetime.datetime.strptime('cs_sale_date','%m/%d/%Y %I:%M:%S %p').strftime('%Y')) it didn't work
 		arcpy.AddField_management(joinFN, "last_sale_year", "DATE") 
 		arcpy.AddField_management(joinFN, "last_sale_price", "DOUBLE")
-		arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
+		arcpy.AddField_management(joinFN, "dr", "SHORT")
 		arcpy.AddField_management(joinFN, "source", "TEXT","","",10)
 		arcpy.AddField_management(joinFN, "edit_date", "LONG")
 		arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
@@ -464,6 +469,7 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "raw_id", '!PropertyID!')
 		arcpy.CalculateField_management(joinFN, "building_name", '!cs_building_name!')
 		arcpy.CalculateField_management(joinFN, "site_name", '!Building_Park!')
+		arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!cs_parcel_id!')
 		arcpy.CalculateField_management(joinFN, "action", "'build'")# need to quote marks here
 		arcpy.CalculateField_management(joinFN, "scen0", 1)
 		arcpy.CalculateField_management(joinFN, "scen1", 1)
@@ -514,14 +520,15 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "last_sale_year", '!cs_last_sale_date!') #need to make into year
 		arcpy.CalculateField_management(joinFN, "last_sale_price", '!cs_last_sale_price!')
 
-		with arcpy.da.UpdateCursor(joinFN, ["Rent_Type","residential_units","deed_restricted_units"]) as cursor:
+		with arcpy.da.UpdateCursor(joinFN, ["cs_rent_type","residential_units","dr"]) as cursor:
 			for row in cursor:
 				if row[0] == "Affordable":
 					row[2] = row[1]
 				elif row[0] == "Market/Affordable":
-					row[2] = row[1] // 5
+					row[2] = int(row[1] // 5)
 				else:
 					row[2] =0
+				cursor.updateRow(row)
 
 		arcpy.CalculateField_management(joinFN, "source", "'cs'")
 		arcpy.CalculateField_management(joinFN, "edit_date", 20200429)
@@ -548,7 +555,7 @@ if __name__ == '__main__':
 		DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", 
 		"scen0", "scen1", "scen2", "scen3", "scen4", "scen5", "scen6", "scen7", "scen10", "scen11", "scen12", "scen15", "scen20", "scen21", "scen22", "scen23", "scen24", "scen25",
 		"address",  "city",  "zip",  "county", "x", "y", "geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
-		"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "deed_restricted_units","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
+		"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "dr","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 		fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 		arcpy.DeleteField_management(joinFN, fields2Delete)
 
@@ -593,6 +600,7 @@ if __name__ == '__main__':
 	### 2 VARIABLE CLEANING 
 	# rename any conflicting field names
 	arcpy.AlterField_management(joinFN, "county", "b_county")
+	arcpy.AlterField_management(joinFN, "parcel_id", "b_parcel_id")
 	arcpy.AlterField_management(joinFN, "raw_id", "b_id")
 	arcpy.AlterField_management(joinFN, "year_built", "b_year_built")
 	arcpy.AlterField_management(joinFN, "zip", "b_zip")
@@ -612,6 +620,7 @@ if __name__ == '__main__':
 	arcpy.AddField_management(joinFN, "raw_id", "LONG")
 	arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
 	arcpy.AddField_management(joinFN, "site_name", "TEXT","","",200)
+	arcpy.AddField_management(joinFN, "PARCEL_ID", "LONG")
 	arcpy.AddField_management(joinFN, "action", "TEXT","","",10)
 	arcpy.AddField_management(joinFN, "scen0", "SHORT")
 	arcpy.AddField_management(joinFN, "scen1", "SHORT")
@@ -655,7 +664,7 @@ if __name__ == '__main__':
 	###using date for now, as I tried to use datetime.datetime.strptime('cs_sale_date','%m/%d/%Y %I:%M:%S %p').strftime('%Y')) it didn't work
 	arcpy.AddField_management(joinFN, "last_sale_year", "DATE") 
 	arcpy.AddField_management(joinFN, "last_sale_price", "DOUBLE")
-	arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
+	arcpy.AddField_management(joinFN, "dr", "SHORT")
 	arcpy.AddField_management(joinFN, "source", "TEXT","","",10)
 	arcpy.AddField_management(joinFN, "edit_date", "LONG")
 	if not arcpy.ListFields(joinFN, "incl"):
@@ -663,6 +672,7 @@ if __name__ == '__main__':
 	
 	arcpy.CalculateField_management(joinFN, "building_name", '!project_name!')
 	arcpy.CalculateField_management(joinFN, "action", "'build'")# need to quote marks here
+	arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!b_parcel_id!')
 	arcpy.CalculateField_management(joinFN, "scen0", 1)
 	arcpy.CalculateField_management(joinFN, "scen1", 1)
 	arcpy.CalculateField_management(joinFN, "scen2", 1)
@@ -694,7 +704,7 @@ if __name__ == '__main__':
 	arcpy.CalculateField_management(joinFN, "residential_units", '!p_residential_units!')
 	arcpy.CalculateField_management(joinFN, "tenure", "'Rent'") ##what is tenure
 	arcpy.CalculateField_management(joinFN, "stories", '!b_stories!')
-	arcpy.CalculateField_management(joinFN, "deed_restricted_units", 0)
+	arcpy.CalculateField_management(joinFN, "dr", 0)
 	arcpy.CalculateField_management(joinFN, "source", "'basis'")
 	arcpy.CalculateField_management(joinFN, "edit_date", 20200429)
 	#arcpy.CalculateField_management(joinFN, "version", )
@@ -719,7 +729,7 @@ if __name__ == '__main__':
 	DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", 
 	"scen0", "scen1", "scen2", "scen3", "scen4", "scen5", "scen6", "scen7", "scen10", "scen11", "scen12", "scen15", "scen20", "scen21", "scen22", "scen23", "scen24", "scen25",
 	"address",  "city",  "zip",  "county", "x", "y", "geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
-	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "deed_restricted_units","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
+	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "dr","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 	arcpy.DeleteField_management(joinFN, fields2Delete)
 
@@ -754,11 +764,13 @@ if __name__ == '__main__':
 	arcpy.AlterField_management(joinFN, "X", "n_x")
 	arcpy.AlterField_management(joinFN, "Y", "n_y")
 	arcpy.AlterField_management(joinFN, "GEOM_ID", "n_geom_id")
+	arcpy.AlterField_management(joinFN, "parcel_id", "n_parcel_id")
 
 	arcpy.AddField_management(joinFN, "development_projects_id", "LONG")
 	arcpy.AddField_management(joinFN, "raw_id", "LONG")
 	arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
 	arcpy.AddField_management(joinFN, "site_name", "TEXT","","",200)
+	arcpy.AddField_management(joinFN, "PARCEL_ID", "LONG")
 	arcpy.AddField_management(joinFN, "action", "TEXT","","",10)
 	arcpy.AddField_management(joinFN, "scen0", "SHORT")
 	arcpy.AddField_management(joinFN, "scen1", "SHORT")
@@ -800,12 +812,13 @@ if __name__ == '__main__':
 	arcpy.AddField_management(joinFN, "rent_ave_unit", "SHORT")
 	###using date for now, as I tried to use datetime.datetime.strptime('cs_sale_date','%m/%d/%Y %I:%M:%S %p').strftime('%Y')) it didn't work
 	arcpy.AddField_management(joinFN, "last_sale_year", "DATE") 
-	arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
+	arcpy.AddField_management(joinFN, "dr", "SHORT")
 	arcpy.AddField_management(joinFN, "source", "TEXT","","",10)
 	arcpy.AddField_management(joinFN, "edit_date", "LONG")
 	arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
 	arcpy.AddField_management(joinFN, "version", "SHORT")
 	
+	arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!n_parcel_id!')
 	arcpy.CalculateField_management(joinFN, "scen0", 1)
 	arcpy.CalculateField_management(joinFN, "scen1", 1)
 	arcpy.CalculateField_management(joinFN, "scen2", 1)
@@ -861,7 +874,7 @@ if __name__ == '__main__':
 				cursor.updateRow(row)
 
 	arcpy.CalculateField_management(joinFN, "last_sale_year", '!last_sale_date!') #need to make into year
-	arcpy.CalculateField_management(joinFN, "deed_restricted_units", 0)
+	arcpy.CalculateField_management(joinFN, "dr", 0)
 	arcpy.CalculateField_management(joinFN, "source", "'bas_bp_new'")
 	arcpy.CalculateField_management(joinFN, "edit_date", 20200429)
 	arcpy.CalculateField_management(joinFN, "editor", "'MKR'")
@@ -884,7 +897,7 @@ if __name__ == '__main__':
 	DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", 
 	"scen0", "scen1", "scen2", "scen3", "scen4", "scen5", "scen6", "scen7", "scen10", "scen11", "scen12", "scen15", "scen20", "scen21", "scen22", "scen23", "scen24", "scen25",
 	"address",  "city",  "zip",  "county", "x", "y", "geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
-	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "deed_restricted_units","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
+	"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "dr","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 	fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 	arcpy.DeleteField_management(joinFN, fields2Delete)
 
@@ -923,7 +936,8 @@ if __name__ == '__main__':
 		arcpy.AlterField_management(joinFN, "ADDRESS", "rf_address")
 		arcpy.AlterField_management(joinFN, "x", "p_x") # this is from the parcel centroid
 		arcpy.AlterField_management(joinFN, "y", "p_y") # this is from the parcel centroid
-		arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id") # this is from the parcel 
+		arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id") # this is from the parcel
+		arcpy.AlterField_management(joinFN, "parcel_id", "rf_parcel_id") 
 	
 		# add fields and calc values
 		# full list development_projects_id,raw_id,building_name,site_name,action,scen0,scen1,
@@ -935,6 +949,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "raw_id", "LONG")
 		arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
 		arcpy.AddField_management(joinFN, "site_name", "TEXT","","",200)
+		arcpy.AddField_management(joinFN, "PARCEL_ID", "LONG")
 		arcpy.AddField_management(joinFN, "action", "TEXT","","",10)
 		arcpy.AddField_management(joinFN, "scen0", "SHORT")
 		arcpy.AddField_management(joinFN, "scen1", "SHORT")
@@ -978,7 +993,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "rent_ave_unit", "SHORT")
 		arcpy.AddField_management(joinFN, "last_sale_year", "DATE")
 		arcpy.AddField_management(joinFN, "last_sale_price", "DOUBLE")
-		arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
+		arcpy.AddField_management(joinFN, "dr", "SHORT")
 		arcpy.AddField_management(joinFN, "source", "TEXT","","",10)
 		arcpy.AddField_management(joinFN, "edit_date", "LONG")
 		arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
@@ -988,6 +1003,7 @@ if __name__ == '__main__':
 	
 		arcpy.CalculateField_management(joinFN, "raw_id", '!redfinid!')
 		arcpy.CalculateField_management(joinFN, "action", "'build'")
+		arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!rf_parcel_id!')
 		arcpy.CalculateField_management(joinFN, "scen0", 1)
 		arcpy.CalculateField_management(joinFN, "scen1", 1)
 		arcpy.CalculateField_management(joinFN, "scen2", 1)
@@ -1028,7 +1044,7 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "tenure", "'Sale'") #is redfin data rental?
 		arcpy.CalculateField_management(joinFN, "last_sale_year", '!SOLD_DATE!') #need to make into year
 		arcpy.CalculateField_management(joinFN, "last_sale_price", '!PRICE!')
-		arcpy.CalculateField_management(joinFN, "deed_restricted_units", 0)
+		arcpy.CalculateField_management(joinFN, "dr", 0)
 		arcpy.CalculateField_management(joinFN, "source", "'rf'")
 		arcpy.CalculateField_management(joinFN, "edit_date", 20200429)
 		arcpy.CalculateField_management(joinFN, "editor", "'MKR'")
@@ -1052,7 +1068,7 @@ if __name__ == '__main__':
 		DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", 
 		"scen0", "scen1", "scen2", "scen3", "scen4", "scen5", "scen6", "scen7", "scen10", "scen11", "scen12", "scen15", "scen20", "scen21", "scen22", "scen23", "scen24", "scen25",
 		"address",  "city",  "zip",  "county", "x", "y", "geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
-		"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "deed_restricted_units","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
+		"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "dr","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 		fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 		arcpy.DeleteField_management(joinFN, fields2Delete)
 
@@ -1102,6 +1118,7 @@ if __name__ == '__main__':
 		arcpy.AlterField_management(joinFN, "stories", "o_stories")
 		arcpy.AlterField_management(joinFN, "building_name", "o_building_name")
 		arcpy.AlterField_management(joinFN, "site_name", "o_site_name")
+		arcpy.AlterField_management(joinFN, "PARCEL_ID", "o_parcel_id")
 		arcpy.AlterField_management(joinFN, "scen0", "o_scen0")
 		arcpy.AlterField_management(joinFN, "scen1", "o_scen1")
 		arcpy.AlterField_management(joinFN, "scen2", "o_scen2")
@@ -1136,6 +1153,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "development_projects_id", "LONG")
 		arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
 		arcpy.AddField_management(joinFN, "site_name", "TEXT","","",200)
+		arcpy.AddField_management(joinFN, "PARCEL_ID", "LONG")
 		arcpy.AddField_management(joinFN, "raw_id", "LONG")
 		arcpy.AddField_management(joinFN, "scen0", "SHORT")
 		arcpy.AddField_management(joinFN, "scen1", "SHORT")
@@ -1170,7 +1188,7 @@ if __name__ == '__main__':
 		###using date for now, as I tried to use datetime.datetime.strptime('cs_sale_date','%m/%d/%Y %I:%M:%S %p').strftime('%Y')) it didn't work
 		arcpy.AddField_management(joinFN, "last_sale_year", "DATE") 
 		arcpy.AddField_management(joinFN, "last_sale_price", "DOUBLE")
-		arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
+		arcpy.AddField_management(joinFN, "dr", "SHORT")
 		arcpy.AddField_management(joinFN, "edit_date", "LONG")
 		arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
 		arcpy.AddField_management(joinFN, "version", "SHORT")
@@ -1179,6 +1197,7 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "raw_id", "!opp_id!")
 		arcpy.CalculateField_management(joinFN, "building_name", "!o_building_name!")
 		arcpy.CalculateField_management(joinFN, "site_name", "!o_site_name!")
+		arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!o_parcel_id!')
 		arcpy.CalculateField_management(joinFN, "scen0", "!o_scen0!")
 		arcpy.CalculateField_management(joinFN, "scen0", "!o_scen0!")
 		arcpy.CalculateField_management(joinFN, "scen0", "!o_scen0!")
@@ -1213,7 +1232,7 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "rent_ave_unit", "!o_rent_ave_unit!")
 		arcpy.CalculateField_management(joinFN, "last_sale_year", '!o_sale_date!') #need to make into year
 		arcpy.CalculateField_management(joinFN, "last_sale_price", '!o_last_sale_price!')
-		arcpy.CalculateField_management(joinFN, "deed_restricted_units", 0)
+		arcpy.CalculateField_management(joinFN, "dr", 0)
 		arcpy.CalculateField_management(joinFN, "source", "'opp'")
 		arcpy.CalculateField_management(joinFN, "edit_date", 20200611)
 		arcpy.CalculateField_management(joinFN, "editor", "'MKR'")
@@ -1223,7 +1242,7 @@ if __name__ == '__main__':
 		DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", 
 		"scen0", "scen1", "scen2", "scen3", "scen4", "scen5", "scen6", "scen7", "scen10", "scen11", "scen12", "scen15", "scen20", "scen21", "scen22", "scen23", "scen24", "scen25",
 		"address",  "city",  "zip",  "county", "x", "y", "geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
-		"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "deed_restricted_units","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
+		"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "dr","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
 		fields2Delete = list(set(FCfields) - set(DontDeleteFields))
 		arcpy.DeleteField_management(joinFN, fields2Delete)
 
@@ -1683,7 +1702,7 @@ if __name__ == '__main__':
 	new_field_order = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", 
 		"scen0", "scen1", "scen2", "scen3", "scen4", "scen5", "scen6", "scen7", "scen10", "scen11", "scen12", "scen15", "scen20", "scen21", "scen22", "scen23", "scen24", "scen25",
 		"address",  "city",  "zip",  "county", "x", "y", "geom_id", "year_built","building_type_det","building_type", "building_type_id","development_type_id", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
-		"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "deed_restricted_units","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor"]
+		"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "dr","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor"]
 	pipeline_fc_reordered = 'pipeline_reordered'
 	devproj_fc_reordered = 'devproj_reordered'
 	reorder_fields(pipeline_fc, pipeline_fc_reordered, new_field_order)
