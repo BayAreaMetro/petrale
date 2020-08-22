@@ -15,7 +15,7 @@ PBA40_DIR                  = os.path.join(os.environ["USERPROFILE"],
 
 # The location of Urbansim outputs
 URBANSIM_OUTPUT_BOX_DIR    = os.path.join(os.environ["USERPROFILE"],
-                            "Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50")
+                            "Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim\\PBA50")
 
 
 # Final draft blueprint output
@@ -70,14 +70,16 @@ def county_calculator(DF1, DF2):
                       #'HHINCQ1 GROWTH',
                       #'HHINCQ2 GROWTH',
                       #'HHINCQ3 GROWTH',
-                      #'HHINCQ4 GROWTH']
+                      #'HHINCQ4 GROWTH'
+                      ]
         
         DF_TAZ_GROWTH = DF_merge[DF_COLUMNS].copy()
         DF_COUNTY_GROWTH = DF_TAZ_GROWTH.groupby(['COUNTY_x']).sum().reset_index()
-        #add county mapping
         return DF_COUNTY_GROWTH
     else:
         print ('Merge cannot be performed')
+
+
 
 #calculate the growth between 2015 and 2050 for taz summaries
 def taz_calculator(DF1, DF2):
