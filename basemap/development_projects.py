@@ -63,10 +63,9 @@ MTC_ONLINE_OPPSITE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Host
 						xH6rjwmywMszSBJSMASCruzvqYMs76FbHGF9hUJpNMVXcOphQtzuMxZz0fv9OnT6augc3aUBd4FJDGQ8k6JU.'
 
 manual_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MANUAL_URL,'manual_sites')
-arcpy.FeatureClassToFeatureClass_conversion(manual_sites, SMELT_GDB,'manual_sites')
 
 opportunity_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_OPPSITE_URL,'opportunity_sites')
-arcpy.FeatureClassToFeatureClass_conversion(opportunity_sites, SMELT_GDB,'opportunity_sites')
+
 
 ###BL: I am organizing the process by data sources, so that it is easy to replicate the process
 
@@ -91,11 +90,21 @@ rfother1115 = os.path.join(SMELT_GDB,"rf19_othertypes1115") # redfin other data 
 ### BASIS pipleline data
 basis_pipeline = os.path.join(SMELT_GDB, "basis_pipeline_20200228")
 
+### basis parcel/building new data
+basis_pb_new = os.path.join(SMELT_GDB, "basis_pb_new_20200312")
+
+
+arcpy.env.workspace = SMELT_GDB
+if arcpy.Exists('manual_dp'):
+	arcpy.Delete_management('manual_dp')
+if arcpy.Exists('opportunity_dp'):
+	arcpy.Delete_management('opportunity_dp')
+arcpy.FeatureClassToFeatureClass_conversion(manual_sites, SMELT_GDB,'manual_dp')
+arcpy.FeatureClassToFeatureClass_conversion(opportunity_sites, SMELT_GDB,'opportunity_dp')
+
 ### manually maintained pipeline data
 manual_dp   = os.path.join(SMELT_GDB, "manual_sites")
 
-### basis parcel/building new data
-basis_pb_new = os.path.join(SMELT_GDB, "basis_pb_new_20200312")
 
 # opportunity sites that keep their scen status from gis file
 opp_sites   = os.path.join(SMELT_GDB, "opportunity_sites")
@@ -504,7 +513,16 @@ if __name__ == '__main__':
 		#arcpy.CalculateField_management(joinFN, "rent_ave_unit", )
 		arcpy.CalculateField_management(joinFN, "last_sale_year", '!cs_last_sale_date!') #need to make into year
 		arcpy.CalculateField_management(joinFN, "last_sale_price", '!cs_last_sale_price!')
-		arcpy.CalculateField_management(joinFN, "deed_restricted_units", 0)
+
+		with arcpy.da.UpdateCursor(joinFN, ["Rent_Type","residential_units","deed_restricted_units"]) as cursor:
+			for row in cursor:
+				if row[0] == "Affordable":
+					row[2] = row[1]
+				elif row[0] == "Market/Affordable":
+					row[2] = row[1] // 5
+				else:
+					row[2] =0
+
 		arcpy.CalculateField_management(joinFN, "source", "'cs'")
 		arcpy.CalculateField_management(joinFN, "edit_date", 20200429)
 		arcpy.CalculateField_management(joinFN, "editor", "'MKR'")
@@ -726,10 +744,9 @@ if __name__ == '__main__':
 	joinFN = 'ttt_basis_pb_new_p10__pba50'
 	dev_projects_temp_layers.append(joinFN)
 
-
 	logger.info("Creating layer {} by spatial joining basis pba pipeline data ({}) and parcels ({})".format(joinFN, basis_pb_new, p10_pba50))
+	arcpy.DeleteField_management(basis_pb_new, "geom_id") #this column is causing trouble
 	arcpy.SpatialJoin_analysis(basis_pb_new, p10_pba50, joinFN)
-
 
 	arcpy.AlterField_management(joinFN, "year_built", "n_year_built")
 	arcpy.AlterField_management(joinFN, "building_sqft", "n_building_sqft")
@@ -737,7 +754,6 @@ if __name__ == '__main__':
 	arcpy.AlterField_management(joinFN, "X", "n_x")
 	arcpy.AlterField_management(joinFN, "Y", "n_y")
 	arcpy.AlterField_management(joinFN, "GEOM_ID", "n_geom_id")
-	arcpy.AlterField_management(joinFN, "GEOM_ID_1", "n_geom_id2") #there are two columns that arcgis won't be able to distinguish the field names
 
 	arcpy.AddField_management(joinFN, "development_projects_id", "LONG")
 	arcpy.AddField_management(joinFN, "raw_id", "LONG")
@@ -833,7 +849,7 @@ if __name__ == '__main__':
 			cursor.updateRow(row)
 	arcpy.CalculateField_management(joinFN, "x", '!n_x!') 
 	arcpy.CalculateField_management(joinFN, "y", '!n_y!')
-	arcpy.CalculateField_management(joinFN, "geom_id", '!n_geom_id2!')
+	arcpy.CalculateField_management(joinFN, "geom_id", '!n_geom_id!')
 	arcpy.CalculateField_management(joinFN, "year_built", '!n_year_built!')
 	arcpy.CalculateField_management(joinFN, "building_sqft", '!n_building_sqft!')
 	arcpy.CalculateField_management(joinFN, "residential_units", '!n_residential_units!')
