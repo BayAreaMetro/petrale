@@ -8,4 +8,4 @@ Integrates data from multiple sources:
 * Parcel processing data ( at m:\ )
 * BASIS pipeline data (at portal)
 * MTC manual pipeline (at portal)
-* Opportunity Sites (
+* Opportunity Sites (public, manualpba40, manualpba50, mallsoff, incubator, deed restricted manual)
