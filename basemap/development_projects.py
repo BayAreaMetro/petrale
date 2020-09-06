@@ -1159,7 +1159,7 @@ if __name__ == '__main__':
 		arcpy.AlterField_management(joinFN, "x", "p_x")
 		arcpy.AlterField_management(joinFN, "y", "p_y")
 		arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id")
-		arcpy.AlterField_management(joinFN, "GEOM_ID_1", "p_geom_id2")
+		arcpy.AlterField_management(joinFN, "geom_id_s", "p_geom_id2")
 
 		arcpy.AddField_management(joinFN, "development_projects_id", "LONG")
 		arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
@@ -1786,9 +1786,13 @@ if __name__ == '__main__':
 					"ZONE_ID": "int"}
 	for key, value in field_types.items():
 		pipeline_df[key] = pipeline_df[key].fillna(0)
-		pipeline_df[key] = pipeline_df[key].astype(value)
 		development_project_df[key] = development_project_df[key].fillna(0)
-		development_project_df[key] = development_project_df[key].astype(value)
+		if key == 'geom_id' or key == 'PARCEL_ID':
+			pipeline_df[key] = pipeline_df[key].round(0).astype(value)
+			development_project_df[key] = development_project_df[key].round(0).astype(value)
+		else:
+			pipeline_df[key] = pipeline_df[key].astype(value)
+			development_project_df[key] = development_project_df[key].astype(value)
 
 	pipeline_df.to_csv(os.path.join(WORKING_DIR, pipeline_output), index = False)
 	development_project_df.to_csv(os.path.join(WORKING_DIR, development_project_output), index = False)
