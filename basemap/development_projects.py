@@ -1305,10 +1305,10 @@ if __name__ == '__main__':
 					if row[0] == 'HS':
 						row[1] = 'HS'
 						row[2] = 1
-						row[3] = 1 
+						row[3] = 1
 					elif row[0] == 'HT':
 						row[1] = 'HT'
-						row[2] = 2 
+						row[2] = 2
 						row[3] = 2
 					elif row[0] == 'HM':
 						row[1] = 'HM'
@@ -1419,7 +1419,7 @@ if __name__ == '__main__':
 					elif row[0] == 'IN':
 						row[1] = 'OF'
 						row[2] = 4
-						row[3] = 10 
+						row[3] = 10
 					elif row[0] == 'RF':
 						row[1] = 'RS'
 						row[2] = 10
@@ -1466,7 +1466,7 @@ if __name__ == '__main__':
 					if row[0] == 'HS':
 						row[1] = 'HS'
 						row[2] = 1
-						row[3] = 1 
+						row[3] = 1
 					elif row[0] == 'HT':
 						row[1] = 'HT'
 						row[2] = 2 
@@ -1580,7 +1580,7 @@ if __name__ == '__main__':
 					elif row[0] == 'IN':
 						row[1] = 'OF'
 						row[2] = 4
-						row[3] = 10 
+						row[3] = 10
 					elif row[0] == 'RF':
 						row[1] = 'RS'
 						row[2] = 10
@@ -1793,6 +1793,18 @@ if __name__ == '__main__':
 		else:
 			pipeline_df[key] = pipeline_df[key].astype(value)
 			development_project_df[key] = development_project_df[key].astype(value)
+
+	sf_res_type = ['HS']
+	oth_res_type = ['HT','HM','GQ','MR','MT','ME']
+	nonres_type = ['VP','OF','HO','SC','IL','IW','IH','RS','RB','VA','PG','OT']
+
+	pipeline_df.loc[pipeline_df.building_type.isin(sf_res_type),'residential_units'] = 1
+	pipeline_df.loc[(pipeline_df['residential_units'] < 0) & (pipeline_df.building_type.isin(oth_res_type)),'residential_units'] = 0
+	pipeline_df.loc[(pipeline_df['residential_units'] != 0) & (pipeline_df.building_type.isin(nonres_type)),'residential_units'] = 0
+	
+	development_project_df.loc[development_project_df.building_type.isin(sf_res_type),'residential_units'] = 1
+	development_project_df.loc[(development_project_df['residential_units'] < 0) & (development_project_df.building_type.isin(oth_res_type)),'residential_units'] = 0
+	development_project_df.loc[(development_project_df['residential_units'] != 0) & (development_project_df.building_type.isin(nonres_type)),'residential_units'] = 0
 
 	pipeline_df.to_csv(os.path.join(WORKING_DIR, pipeline_output), index = False)
 	development_project_df.to_csv(os.path.join(WORKING_DIR, development_project_output), index = False)
