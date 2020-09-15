@@ -1227,8 +1227,8 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "scen21", "!o_scen21!")
 		arcpy.CalculateField_management(joinFN, "scen22", "!o_scen22!")
 		arcpy.CalculateField_management(joinFN, "scen23", "!o_scen23!")
-		arcpy.CalculateField_management(joinFN, "scen24", "!o_scen24!")
-		arcpy.CalculateField_management(joinFN, "scen25", "!o_scen25!")
+		arcpy.CalculateField_management(joinFN, "scen24", "!o_scen23!")
+		arcpy.CalculateField_management(joinFN, "scen25", 0)
 		#arcpy.CalculateField_management(joinFN, "zip", '!o_zip!')
 		#arcpy.CalculateField_management(joinFN, "zip", '!o_zip!')
 
@@ -1794,16 +1794,13 @@ if __name__ == '__main__':
 			pipeline_df[key] = pipeline_df[key].astype(value)
 			development_project_df[key] = development_project_df[key].astype(value)
 
-	sf_res_type = ['HS']
-	oth_res_type = ['HT','HM','GQ','MR','MT','ME']
-	nonres_type = ['VP','OF','HO','SC','IL','IW','IH','RS','RB','VA','PG','OT']
+	res_type = ['HS','HT','HM','GQ','MR']
+	nonres_type = ['MT','ME','VP','OF','HO','SC','IL','IW','IH','RS','RB','VA','PG','OT']
 
-	pipeline_df.loc[pipeline_df.building_type.isin(sf_res_type),'residential_units'] = 1
-	pipeline_df.loc[(pipeline_df['residential_units'] < 0) & (pipeline_df.building_type.isin(oth_res_type)),'residential_units'] = 0
+	pipeline_df.loc[(pipeline_df['residential_units'] < 0) & (pipeline_df.building_type.isin(res_type)),'residential_units'] = 0
 	pipeline_df.loc[(pipeline_df['residential_units'] != 0) & (pipeline_df.building_type.isin(nonres_type)),'residential_units'] = 0
 	
-	development_project_df.loc[development_project_df.building_type.isin(sf_res_type),'residential_units'] = 1
-	development_project_df.loc[(development_project_df['residential_units'] < 0) & (development_project_df.building_type.isin(oth_res_type)),'residential_units'] = 0
+	development_project_df.loc[(development_project_df['residential_units'] < 0) & (development_project_df.building_type.isin(res_type)),'residential_units'] = 0
 	development_project_df.loc[(development_project_df['residential_units'] != 0) & (development_project_df.building_type.isin(nonres_type)),'residential_units'] = 0
 
 	pipeline_df.to_csv(os.path.join(WORKING_DIR, pipeline_output), index = False)
