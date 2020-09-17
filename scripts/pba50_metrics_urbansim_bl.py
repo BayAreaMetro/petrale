@@ -343,6 +343,21 @@ def calculate_Healthy2_HHs_WFprotected(runid, parcel_sum_df, metrics_dict):
     # 
     '''
 
+def calculate_Healthy2_GreenfieldDev(runid, greenfield_sum_df, metrics_dict):
+
+    metric_id = "H2-3"
+    print('********************H2-3 Annual Greenfield Development********************')
+
+    metrics_dict[runid,metric_id,'Annual_greenfield_develop_acres',y2] = greenfield_sum_df.iloc[3]['urban_footprint_0_2050'] / (y2 - y1) #3 is the rownumber for "acres"
+    metrics_dict[runid,metric_id,'Annual_greenfield_develop_acres',y1] = 6642/2 #3 is the rownumber for "acres"
+
+    print('Annual Greenfield Development Acres in 2050 %s' % metrics_dict[runid,metric_id,'Annual_greenfield_develop_acres',y2])
+    print('Annual Greenfield Development Acres in 2015 %s' % metrics_dict[runid,metric_id,'Annual_greenfield_develop_acres',y1])
+
+    '''
+    # 
+    '''
+
 def calculate_Vibrant2_Jobs(runid, parcel_sum_df, metrics_dict):
 
 
@@ -472,7 +487,6 @@ def calc_urbansim_metrics():
         parcel_sum_df = pd.merge(left=parcel_sum_df, right=coc_flag_df[['tract_id_coc','coc_flag_pba2050']], left_on="tract_id", right_on="tract_id_coc", how="left")
         parcel_sum_df.drop(['tract_id_coc'], axis=1, inplace=True)
 
-
         ################### Create PDA summary
         #parcel_sum_df = pd.merge(left=parcel_sum_df, right=parcel_GG_xwalk_df[['PARCEL_ID','PDA_ID','Designation']], left_on="parcel_id", right_on="PARCEL_ID", how="left")
         #parcel_sum_df.drop(['PARCEL_ID',], axis=1, inplace=True)
@@ -486,13 +500,23 @@ def calc_urbansim_metrics():
         parcel_sum_df = parcel_sum_df.rename(columns={'Plus': 'SLR'})
         parcel_sum_df.drop(['ParcelID'], axis=1, inplace=True)
 
-
         normalize_factor_Q1Q2  = calculate_normalize_factor_Q1Q2(parcel_sum_df)
         normalize_factor_Q1    = calculate_normalize_factor_Q1(parcel_sum_df)
+
+        #################### Create greenfield summary: currently defined as urban_footprint == 0
+        greenfield_2050_df = pd.read_csv((urbansim_runid+'_urban_footprint_summary_2050.csv'))
+        greenfield_2015_df = pd.read_csv((urbansim_runid+'_urban_footprint_summary_2015.csv'))
+        greenfield_2050_df = greenfield_2050_df.rename(columns={'Unnamed: 0': 'category'})
+        greenfield_2015_df = greenfield_2015_df.rename(columns={'Unnamed: 0': 'category'})
+        greenfield_2050_df = greenfield_2050_df.add_suffix('_2050')
+        greenfield_2015_df = greenfield_2015_df.add_suffix('_2015')
+        greenfield_sum_df = pd.merge(left=greenfield_2050_df, right=greenfield_2015_df, left_on="category_2050", right_on="category_2015", how="left")
+        greenfield_sum_df = greenfield_sum_df.rename(columns={'category_2050': 'category'})
 
         calculate_Affordable2_deed_restricted_housing(us_runid, parcel_sum_df, metrics_dict)
         calculate_Diverse1_LIHHinHRAs(us_runid, parcel_sum_df, tract_sum_df, normalize_factor_Q1Q2, normalize_factor_Q1, metrics_dict)
         calculate_Diverse2_LIHH_Displacement(us_runid, parcel_sum_df, tract_sum_df, normalize_factor_Q1, metrics_dict)
+        calculate_Healthy2_GreenfieldDev(us_runid, greenfield_sum_df, metrics_dict)
         #calculate_Healthy1_HHs_SLRprotected(us_runid, parcel_sum_df, metrics_dict)
         #calculate_Healthy1_HHs_EQprotected(us_runid, parcel_sum_df, metrics_dict)
         #calculate_Healthy1_HHs_WFprotected(us_runid, parcel_sum_df, metrics_dict)
