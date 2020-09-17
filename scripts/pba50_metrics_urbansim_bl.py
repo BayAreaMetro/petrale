@@ -153,14 +153,14 @@ def calculate_Diverse2_LIHH_Displacement(runid, parcel_sum_df, tract_sum_df, nor
     metrics_dict[runid,metric_id,'LIHH_inDR',y2] = parcel_sum_df.loc[parcel_sum_df['pba50chcat'].str.contains('DR', na=False), 'hhq1_2050'].sum()
     metrics_dict[runid,metric_id,'LIHH_inDR',y1] = parcel_sum_df.loc[parcel_sum_df['pba50chcat'].str.contains('DR', na=False), 'hhq1_2015'].sum()
     metrics_dict[runid,metric_id,'LIHH_inDR_normalized',y1] = metrics_dict[runid,metric_id,'LIHH_inDR',y1] * normalize_factor_Q1
-    metrics_dict[runid,metric_id,'LIHH_inDR_normalized',y2] = metrics_dict[runid,metric_id,'LIHH_inDR_normalized',y2]
+    metrics_dict[runid,metric_id,'LIHH_inDR_normalized',y2] = metrics_dict[runid,metric_id,'LIHH_inDR',y2]
 
     print('********************D2 Diverse********************')
     print('Total Number of LIHH in DR tracts in 2050',metrics_dict[runid,metric_id,'LIHH_inDR',y2] )
     print('Number of LIHH in DR tracts in 2015',metrics_dict[runid,metric_id,'LIHH_inDR',y1] )
     print('Number of LIHH in DR tracts in normalized',metrics_dict[runid,metric_id,'LIHH_inDR_normalized',y1] )
 
-    '''
+'''
     ###### Displacement at Tract Level (for Displacement Risk Tracts and CoC Tracts)
 
     # Total number of DR and CoC Tracts
@@ -201,7 +201,7 @@ def calculate_Diverse2_LIHH_Displacement(runid, parcel_sum_df, tract_sum_df, nor
         print('Number of CoC Tracts that lost LIHH from 2015 to 2050: ',metrics_dict[runid,metric_id,'Num_CoCtracts_lostLIHH_%dpct' % i,y_diff] )
         print('Pct of CoC Tracts that lost LIHH from 2015 to 2050: ',metrics_dict[runid,metric_id,'Pct_CoCtracts_lostLIHH_%dpct' % i,y_diff] )
 
-    '''
+'''
     ######## Displacement from Growth Geographies -- growth geography is more than just PDAs, not is only a portion of TRAs
     '''
     # Calculating PDAs that lost inc1 Households
@@ -448,7 +448,8 @@ def calc_urbansim_metrics():
             parcel_sum_df = pd.merge(left=parcel_geo_df, right=parcel_sum_df, left_on="PARCEL_ID", right_on="parcel_id", how="left")
             parcel_sum_df.drop(['PARCEL_ID'], axis=1, inplace=True)
         else: 
-            pass #others should have geo tagging already
+            parcel_sum_df.drop(['pba50chcat_2015'], axis=1, inplace=True)
+            parcel_sum_df = parcel_sum_df.rename(columns={'pba50chcat_2050': 'pba50chcat'}) #others should have geo tagging already
 
 
         ################### Create tract summary
@@ -505,7 +506,7 @@ if __name__ == '__main__':
     # Set UrbanSim inputs
     urbansim_run_location = 'C:/Users/{}/Box/Modeling and Surveys/Urban Modeling/Bay Area UrbanSim/PBA50/Draft Blueprint runs/'.format(os.getenv('USERNAME'))
     us_2050_DBP_Plus_runid         = 'Blueprint Plus Crossing (s23)/v1.7.1- FINAL DRAFT BLUEPRINT/run98'
-    us_2050_DBP_Plus_runid_cleaner         = 'EIR/Project Description/run9' #this is for testing
+    us_2050_DBP_Plus_runid_cleaner         = 'test runs/run9' #this is for testing
     list_us_runid = [us_2050_DBP_Plus_runid, us_2050_DBP_Plus_runid]
 
 
@@ -529,13 +530,13 @@ if __name__ == '__main__':
     print("*****************#####################Completed urbansim_metrics#####################*******************")
 
     # Write output
-    idx = pd.MultiIndex.from_tuples(metrics_dict.keys(), names=['modelrunID','metric','name','year'])
+    idx = pd.MultiIndex.from_tuples(metrics_dict.keys(), names=['modelrunID','metric','variable','year'])
     metrics = pd.Series(metrics_dict, index=idx, name ='values').to_frame().reset_index()
     metrics.set_index(['modelrunID','metric','variable','year'],inplace=True)
     metrics = metrics.stack().unstack('year').reset_index()
     metrics = metrics[['modelrunID','metric','variable','2015','2050','2015-50']]
 
-    out_filename = 'C:/Users/{}/Box/Horizon and Plan Bay Area 2050/Equity and Performance/7_Analysis/Metrics/metrics_testing.csv'.format(os.getenv('USERNAME'))
+    out_filename = 'C:/Users/{}/Box/Horizon and Plan Bay Area 2050/Equity and Performance/7_Analysis/Metrics/metrics_testing.csv'.format(os.getenv('USERNAME'), index=False)
     metrics.to_csv(out_filename, header=True, sep=',', float_format='%.9f')
     
     print("Wrote {}".format(out_filename))
