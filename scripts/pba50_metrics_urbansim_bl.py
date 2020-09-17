@@ -348,7 +348,8 @@ def calculate_Healthy2_GreenfieldDev(runid, greenfield_sum_df, metrics_dict):
     metric_id = "H2-3"
     print('********************H2-3 Annual Greenfield Development********************')
 
-    metrics_dict[runid,metric_id,'Annual_greenfield_develop_acres',y2] = greenfield_sum_df.iloc[3]['urban_footprint_0_2050'] / (int(y2) - int(y1) #3 is the rownumber for "acres"
+    metrics_dict[runid,metric_id,'Annual_greenfield_develop_acres',y2] = (greenfield_sum_df.iloc[3]['urban_footprint_0_2050'] - greenfield_sum_df.iloc[3]['urban_footprint_0_2015'])/ \
+                                                                        (int(y2) - int(y1)) #3 is the rownumber for "acres"
     metrics_dict[runid,metric_id,'Annual_greenfield_develop_acres',y1] = 6642/2 #3 is the rownumber for "acres"
 
     print('Annual Greenfield Development Acres in 2050 %s' % metrics_dict[runid,metric_id,'Annual_greenfield_develop_acres',y2])
