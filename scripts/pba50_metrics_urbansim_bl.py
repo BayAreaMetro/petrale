@@ -160,88 +160,6 @@ def calculate_Diverse2_LIHH_Displacement(runid, parcel_sum_df, tract_sum_df, nor
     print('Number of LIHH in DR tracts in 2015',metrics_dict[runid,metric_id,'LIHH_inDR',y1] )
     print('Number of LIHH in DR tracts in normalized',metrics_dict[runid,metric_id,'LIHH_inDR_normalized',y1] )
 
-'''
-    ###### Displacement at Tract Level (for Displacement Risk Tracts and CoC Tracts)
-
-    # Total number of DR and CoC Tracts
-    metrics_dict[runid,metric_id,'Num_DRtracts_total',y1] = tract_sum_df.loc[(tract_sum_df['DispRisk'] == 1), 'tract_id'].nunique()
-    metrics_dict[runid,metric_id,'Num_CoCtracts_total',y1] = tract_sum_df.loc[(tract_sum_df['coc_flag_pba2050'] == 1), 'tract_id'].nunique()
-
-    # Calculating tracts that lost Households
-    tract_sum_df['hhq1_pct_2015_normalized'] = tract_sum_df['hhq1_2015'] / tract_sum_df['tothh_2015'] * normalize_factor_Q1
-    tract_sum_df['hhq1_pct_2050'] = tract_sum_df['hhq1_2050'] / tract_sum_df['tothh_2050']
-
-
-    # Calculating number of Tracts that Lost LIHH as a proportion of total HH, with "lost" defined as any loss, or 10% loss
-
-    for i in [0, 10]:
-
-        if i == 0:
-            j = 1
-        else:
-            j = 0.9
-            
-        tract_sum_df['lost_hhq1_%dpct' % i] = tract_sum_df.apply \
-                    (lambda row: 1 if ((row['hhq1_pct_2050']/row['hhq1_pct_2015_normalized'])<j) else 0, axis=1)
-
-        ######## Displacement from Displacement Risk Tracts
-
-        # Number or percent of DR tracts that lost Q1 households as a proportion of total HH
-        metrics_dict[runid,metric_id,'Num_DRtracts_lostLIHH_%dpct' % i,y_diff] = tract_sum_df.loc[((tract_sum_df['DispRisk'] == 1) & (tract_sum_df['lost_hhq1_%dpct' % i] == 1)), 'tract_id'].nunique()
-        metrics_dict[runid,metric_id,'Pct_DRtracts_lostLIHH_%dpct' % i,y_diff] = float(metrics_dict[runid,metric_id,'Num_DRtracts_lostLIHH_%dpct' % i,y_diff]) / float(metrics_dict[runid,metric_id,'Num_DRtracts_total',y1] )
-        print('Number of DR Tracts that lost LIHH from 2015 to 2050: ',metrics_dict[runid,metric_id,'Num_DRtracts_lostLIHH_%dpct' % i,y_diff] )
-        print('Pct of DR Tracts that lost LIHH from 2015 to 2050: ',metrics_dict[runid,metric_id,'Pct_DRtracts_lostLIHH_%dpct' % i,y_diff] )
-
-
-        ######## Displacement from Communities of Concern
-
-        # Number or percent of CoC tracts that lost Q1 households as a proportion of total HH
-        metrics_dict[runid,metric_id,'Num_CoCtracts_lostLIHH_%dpct' % i,y_diff] = tract_sum_df.loc[((tract_sum_df['coc_flag_pba2050'] == 1) & (tract_sum_df['lost_hhq1_%dpct' % i] == 1)), 'tract_id'].nunique()
-        metrics_dict[runid,metric_id,'Pct_CoCtracts_lostLIHH_%dpct' % i,y_diff] = float(metrics_dict[runid,metric_id,'Num_CoCtracts_lostLIHH_%dpct' % i,y_diff]) / float(metrics_dict[runid,metric_id,'Num_CoCtracts_total',y1] )
-        print('Number of CoC Tracts that lost LIHH from 2015 to 2050: ',metrics_dict[runid,metric_id,'Num_CoCtracts_lostLIHH_%dpct' % i,y_diff] )
-        print('Pct of CoC Tracts that lost LIHH from 2015 to 2050: ',metrics_dict[runid,metric_id,'Pct_CoCtracts_lostLIHH_%dpct' % i,y_diff] )
-
-'''
-    ######## Displacement from Growth Geographies -- growth geography is more than just PDAs, not is only a portion of TRAs
-    '''
-    # Calculating PDAs that lost inc1 Households
-    GG_sum_df = parcel_sum_df.loc[parcel_sum_df['pba50chcat'].str.contains('GG', na=False)]
-    GG_sum_df['hhq1_pct_2015'] = GG_sum_df['hhq1_2015'] / GG_sum_df['tothh_2015'] 
-    GG_sum_df['hhq1_pct_2015_normalized'] = GG_sum_df['hhq1_pct_2015'] * normalize_factor_Q1Q2
-    GG_sum_df['hhq1_pct_2050'] = GG_sum_df['hhq1_2050'] / GG_sum_df['tothh_2050']
-
-    # Total number of GGs
-    metrics_dict[runid,metric_id,'Num_GGs_total',y1] = GG_sum_df['PDA_ID'].nunique()
-    # Total number of Transit Rich GGs
-    GG_TRich_sum_df = GG_sum_df[GG_sum_df['Designation']=="Transit-Rich"]
-    metrics_dict[runid,metric_id,'Num_GGs_TRich_total',y1] = GG_TRich_sum_df['PDA_ID'].nunique()
-
-    # Calculating number of GGs that Lost LIHH as a proportion of total HH, with "lost" defined as any loss, or 10% loss
-    def check_GG_losthhq1(row,j):
-        if (row['hhq1_pct_2015_normalized'] == 0): return 0
-        elif ((row['hhq1_pct_2050']/row['hhq1_pct_2015_normalized'])<j): return 1
-        else: return 0
-
-    for i in [0, 10]:
-        if i == 0:
-            j = 1
-        else:
-            j = 0.9
-        GG_sum_df['lost_hhq1_%dpct' % i] = GG_sum_df.apply (lambda row: check_GG_losthhq1(row,j), axis=1)
-        GG_TRich_sum_df['lost_hhq1_%dpct' % i] = GG_TRich_sum_df.apply (lambda row: check_GG_losthhq1(row,j), axis=1)
-
-        # Number or percent of GGs that lost Q1 households as a proportion of total HH
-        metrics_dict[runid,metric_id,'Num_GG_lostLIHH_%dpct' % i,y_diff] = GG_sum_df.loc[(GG_sum_df['lost_hhq1_%dpct' % i] == 1), 'PDA_ID'].nunique()
-        metrics_dict[runid,metric_id,'Pct_GG_lostLIHH_%dpct' % i,y_diff] = float(metrics_dict[runid,metric_id,'Num_GG_lostLIHH_%dpct' % i,y_diff]) / float(metrics_dict[runid,metric_id,'Num_GGs_total',y1])
-        print('Number of GGs that lost LIHH from 2015 to 2050: ',metrics_dict[runid,metric_id,'Num_GG_lostLIHH_%dpct' % i,y_diff] )
-        print('Pct of GGs that lost LIHH from 2015 to 2050: ',metrics_dict[runid,metric_id,'Pct_GG_lostLIHH_%dpct' % i,y_diff] )
-
-        # Number or percent of Transit Rich GGs that lost Q1 households as a proportion of total HH
-        metrics_dict[runid,metric_id,'Num_GG_TRich_lostLIHH_%dpct' % i,y_diff] = GG_TRich_sum_df.loc[(GG_TRich_sum_df['lost_hhq1_%dpct' % i] == 1), 'PDA_ID'].nunique()
-        metrics_dict[runid,metric_id,'Pct_GG_TRich_lostLIHH_%dpct' % i,y_diff] = float(metrics_dict[runid,metric_id,'Num_GG_TRich_lostLIHH_%dpct' % i,y_diff]) / float(metrics_dict[runid,metric_id,'Num_GGs_TRich_total',y1])
-        print('Number of Transit Rich GGs that lost LIHH from 2015 to 2050: ',metrics_dict[runid,metric_id,'Num_GG_TRich_lostLIHH_%dpct' % i,y_diff] )
-        print('Pct of Transit Rich GGs that lost LIHH from 2015 to 2050: ',metrics_dict[runid,metric_id,'Pct_GG_TRich_lostLIHH_%dpct' % i,y_diff] )
-    '''    
 
 def calculate_Healthy1_HHs_SLRprotected(runid, parcel_sum_df, metrics_dict):
 
@@ -484,14 +402,6 @@ def calc_urbansim_metrics():
         parcel_sum_df = pd.merge(left=parcel_sum_df, right=coc_flag_df[['tract_id_coc','coc_flag_pba2050']], left_on="tract_id", right_on="tract_id_coc", how="left")
         parcel_sum_df.drop(['tract_id_coc'], axis=1, inplace=True)
 
-        ################### Create PDA summary
-        #parcel_sum_df = pd.merge(left=parcel_sum_df, right=parcel_GG_xwalk_df[['PARCEL_ID','PDA_ID','Designation']], left_on="parcel_id", right_on="PARCEL_ID", how="left")
-        #parcel_sum_df.drop(['PARCEL_ID',], axis=1, inplace=True)
-        #GG_sum_df = parcel_sum_df.groupby(['Designation','PDA_ID'])["tothh_2050","tothh_2015","hhq1_2050", "hhq1_2015"].sum().reset_index()
-        #GG_sum_df = GG_sum_df[(GG_sum_df['PDA_ID']!="na") & (GG_sum_df['Designation']!="Removed")]
-        #GG_type_sum_df = GG_sum_df.groupby(['Designation'])["tothh_2050","tothh_2015","hhq1_2050", "hhq1_2015"].sum().reset_index()
-
-
         # Merging SLR data with parcel summary file
         parcel_sum_df = pd.merge(left=parcel_sum_df, right=slr_plus, left_on="parcel_id", right_on="ParcelID", how="left")
         parcel_sum_df = parcel_sum_df.rename(columns={'Plus': 'SLR'})
@@ -514,7 +424,7 @@ def calc_urbansim_metrics():
         calculate_Diverse1_LIHHinHRAs(us_runid, parcel_sum_df, tract_sum_df, normalize_factor_Q1Q2, normalize_factor_Q1, metrics_dict)
         calculate_Diverse2_LIHH_Displacement(us_runid, parcel_sum_df, tract_sum_df, normalize_factor_Q1, metrics_dict)
         calculate_Healthy2_GreenfieldDev(us_runid, greenfield_sum_df, metrics_dict)
-        #calculate_Healthy1_HHs_SLRprotected(us_runid, parcel_sum_df, metrics_dict)
+        calculate_Healthy1_HHs_SLRprotected(us_runid, parcel_sum_df, metrics_dict)
         #calculate_Healthy1_HHs_EQprotected(us_runid, parcel_sum_df, metrics_dict)
         #calculate_Healthy1_HHs_WFprotected(us_runid, parcel_sum_df, metrics_dict)
         calculate_Vibrant2_Jobs(us_runid, parcel_sum_df, metrics_dict)
@@ -538,7 +448,6 @@ if __name__ == '__main__':
     udp_file                      = metrics_source_folder + 'udp_2017results.csv'
     coc_flag_file                 = metrics_source_folder + 'COCs_ACS2018_tbl_TEMP.csv'
     slr_plus_file                 = metrics_source_folder + 'slr_parcel_inundation_plus.csv'
-    #parcel_geography_file         = metrics_source_folder + '2020_04_17_parcels_geography.csv'
 
     metrics_dict = OrderedDict()
     y1        = "2015"
