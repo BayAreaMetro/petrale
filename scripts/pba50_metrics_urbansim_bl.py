@@ -145,10 +145,9 @@ def calculate_Diverse1_LIHHinHRAs(runid, parcel_sum_df, tract_sum_df, normalize_
     print('LIHH Share in HRA 2015 %s' % metrics_dict[runid,metric_id,'LIHH_shareinHRA_normalized',y1] )
 
 
-def calculate_Diverse2_LIHH_Displacement(runid, parcel_sum_df, tract_sum_df, GG_sum_df, normalize_factor_Q1, metrics_dict):
+def calculate_Diverse2_LIHH_Displacement(runid, parcel_sum_df, tract_sum_df, normalize_factor_Q1, metrics_dict):
 
     metric_id = "D2"
-
 
     # For reference: total number of LIHH in tracts
     metrics_dict[runid,metric_id,'LIHH_inDR',y2] = parcel_sum_df.loc[parcel_sum_df['pba50chcat'].str.contains('DR', na=False), 'hhq1_2050'].sum()
@@ -161,7 +160,7 @@ def calculate_Diverse2_LIHH_Displacement(runid, parcel_sum_df, tract_sum_df, GG_
     print('Number of LIHH in DR tracts in 2015',metrics_dict[runid,metric_id,'LIHH_inDR',y1] )
     print('Number of LIHH in DR tracts in normalized',metrics_dict[runid,metric_id,'LIHH_inDR_normalized',y1] )
 
-
+    '''
     ###### Displacement at Tract Level (for Displacement Risk Tracts and CoC Tracts)
 
     # Total number of DR and CoC Tracts
@@ -202,10 +201,11 @@ def calculate_Diverse2_LIHH_Displacement(runid, parcel_sum_df, tract_sum_df, GG_
         print('Number of CoC Tracts that lost LIHH from 2015 to 2050: ',metrics_dict[runid,metric_id,'Num_CoCtracts_lostLIHH_%dpct' % i,y_diff] )
         print('Pct of CoC Tracts that lost LIHH from 2015 to 2050: ',metrics_dict[runid,metric_id,'Pct_CoCtracts_lostLIHH_%dpct' % i,y_diff] )
 
-
+    '''
     ######## Displacement from Growth Geographies -- growth geography is more than just PDAs, not is only a portion of TRAs
     '''
     # Calculating PDAs that lost inc1 Households
+    GG_sum_df = parcel_sum_df.loc[parcel_sum_df['pba50chcat'].str.contains('GG', na=False)]
     GG_sum_df['hhq1_pct_2015'] = GG_sum_df['hhq1_2015'] / GG_sum_df['tothh_2015'] 
     GG_sum_df['hhq1_pct_2015_normalized'] = GG_sum_df['hhq1_pct_2015'] * normalize_factor_Q1Q2
     GG_sum_df['hhq1_pct_2050'] = GG_sum_df['hhq1_2050'] / GG_sum_df['tothh_2050']
@@ -353,46 +353,36 @@ def calculate_Vibrant2_Jobs(runid, parcel_sum_df, metrics_dict):
 
     metrics_dict[runid,metric_id,'Total_jobs',y2] = parcel_sum_df['totemp_2050'].sum()
     metrics_dict[runid,metric_id,'Total_jobs',y1] = parcel_sum_df['totemp_2015'].sum()
-    metrics_dict[runid,metric_id,'Total_jobs_growth',y_diff] = metrics_dict[runid,metric_id,'Total_jobs',y2]/metrics_dict[runid,metric_id,'Total_jobs',y1] - 1
+    metrics_dict[runid,metric_id,'Total_jobs',y_diff] = metrics_dict[runid,metric_id,'Total_jobs',y2]/ metrics_dict[runid,metric_id,'Total_jobs',y1]-1
     print('Number of Jobs in 2050 %s' % metrics_dict[runid,metric_id,'Total_jobs',y2])
     print('Number of Jobs in 2015 %s' % metrics_dict[runid,metric_id,'Total_jobs',y1])
-    print('Job Growth from 2015 to 2050 %s' % metrics_dict[runid,metric_id,'Total_jobs_growth',y_diff])
+    print('Job Growth from 2015 to 2050 %s' % metrics_dict[runid,metric_id,'Total_jobs',y_diff])
 
     # MWTEMPN jobs
     metrics_dict[runid,metric_id,'Total_MWTEMPN_jobs',y2] = parcel_sum_df['MWTEMPN_2050'].sum()
     metrics_dict[runid,metric_id,'Total_MWTEMPN_jobs',y1] = parcel_sum_df['MWTEMPN_2015'].sum()
-    metrics_dict[runid,metric_id,'Total_jobs_growth_MWTEMPN',y_diff] = metrics_dict[runid,metric_id,'Total_MWTEMPN_jobs',y2]/metrics_dict[runid,metric_id,'Total_MWTEMPN_jobs',y1] - 1
+    metrics_dict[runid,metric_id,'Total_MWTEMPN_jobs',y_diff] = metrics_dict[runid,metric_id,'Total_MWTEMPN_jobs',y2]/metrics_dict[runid,metric_id,'Total_MWTEMPN_jobs',y1]-1
     print('Number of Total MWTEMPN Jobs 2050 %s' % metrics_dict[runid,metric_id,'Total_MWTEMPN_jobs',y2])
     print('Number of Total MWTEMPN Jobs 2015 %s' % metrics_dict[runid,metric_id,'Total_MWTEMPN_jobs',y1])
-    print('Job Growth Total MWTEMPN from 2015 to 2050 %s' % metrics_dict[runid,metric_id,'Total_jobs_growth_MWTEMPN',y_diff])
-
+    print('Job Growth Total MWTEMPN from 2015 to 2050 %s' % metrics_dict[runid,metric_id,'Total_MWTEMPN_jobs',y_diff])
 
     # Jobs Growth in PPAs
 
     metrics_dict[runid,metric_id,'PPA_jobs',y2] = parcel_sum_df.loc[parcel_sum_df['pba50chcat'].str.contains('ppa', na=False), 'totemp_2050'].sum()
     metrics_dict[runid,metric_id,'PPA_jobs',y1] = parcel_sum_df.loc[parcel_sum_df['pba50chcat'].str.contains('ppa', na=False), 'totemp_2015'].sum()
-    metrics_dict[runid,metric_id,'jobs_growth_PPA',y_diff] = metrics_dict[runid,metric_id,'PPA_jobs',y2]/metrics_dict[runid,metric_id,'PPA_jobs',y1] - 1
+    metrics_dict[runid,metric_id,'PPA_jobs',y_diff] = metrics_dict[runid,metric_id,'PPA_jobs',y2]/metrics_dict[runid,metric_id,'PPA_jobs',y1]-1
     print('Number of Jobs in PPAs 2050 %s' % metrics_dict[runid,metric_id,'PPA_jobs',y2])
     print('Number of Jobs in PPAs 2015 %s' % metrics_dict[runid,metric_id,'PPA_jobs',y1])
-    print('Job Growth in PPAs from 2015 to 2050 %s' % metrics_dict[runid,metric_id,'jobs_growth_PPA',y_diff])
+    print('Job Growth in PPAs from 2015 to 2050 %s' % metrics_dict[runid,metric_id,'Total_MWTEMPN_jobs',y_diff])
 
-    '''
-    AGREMPN = Agriculture & Natural Resources 
-    MWTEMPN = Manufacturing & Wholesale, Transportation & Utilities 
-    RETEMPN = Retail 
-    FPSEMPN = Financial & Leasing, Professional & Managerial Services 
-    HEREMPN = Health & Educational Services 
-    OTHEMPN = Construction, Government, Information 
-    totemp = total employment
-    '''
     # Jobs Growth MWTEMPN in PPAs (Manufacturing & Wholesale, Transportation & Utilities)
 
     metrics_dict[runid,metric_id,'PPA_MWTEMPN_jobs',y2] = parcel_sum_df.loc[parcel_sum_df['pba50chcat'].str.contains('ppa', na=False), 'MWTEMPN_2050'].sum()
     metrics_dict[runid,metric_id,'PPA_MWTEMPN_jobs',y1] = parcel_sum_df.loc[parcel_sum_df['pba50chcat'].str.contains('ppa', na=False), 'MWTEMPN_2015'].sum()
-    metrics_dict[runid,metric_id,'jobs_growth_MWTEMPN_PPA',y_diff] = metrics_dict[runid,metric_id,'PPA_MWTEMPN_jobs',y2]/metrics_dict[runid,metric_id,'PPA_MWTEMPN_jobs',y1] - 1
+    metrics_dict[runid,metric_id,'PPA_MWTEMPN_jobs',y_diff] = metrics_dict[runid,metric_id,'PPA_MWTEMPN_jobs',y2]/metrics_dict[runid,metric_id,'PPA_MWTEMPN_jobs',y1]-1
     print('Number of MWTEMPN Jobs in PPAs 2050 %s' % metrics_dict[runid,metric_id,'PPA_MWTEMPN_jobs',y2])
     print('Number of MWTEMPN Jobs in PPAs 2015 %s' % metrics_dict[runid,metric_id,'PPA_MWTEMPN_jobs',y1])
-    print('Job Growth MWTEMPN in PPAs from 2015 to 2050 %s' % metrics_dict[runid,metric_id,'jobs_growth_MWTEMPN_PPA',y_diff])
+    print('Job Growth MWTEMPN in PPAs from 2015 to 2050 %s' % metrics_dict[runid,metric_id,'PPA_MWTEMPN_jobs',y_diff])
 
 
 def parcel_building_output_sum(urbansim_runid):
@@ -501,7 +491,7 @@ def calc_urbansim_metrics():
 
         calculate_Affordable2_deed_restricted_housing(us_runid, parcel_sum_df, metrics_dict)
         calculate_Diverse1_LIHHinHRAs(us_runid, parcel_sum_df, tract_sum_df, normalize_factor_Q1Q2, normalize_factor_Q1, metrics_dict)
-        calculate_Diverse2_LIHH_Displacement(us_runid, parcel_sum_df, tract_sum_df, GG_sum_df, normalize_factor_Q1, metrics_dict)
+        calculate_Diverse2_LIHH_Displacement(us_runid, parcel_sum_df, tract_sum_df, normalize_factor_Q1, metrics_dict)
         #calculate_Healthy1_HHs_SLRprotected(us_runid, parcel_sum_df, metrics_dict)
         #calculate_Healthy1_HHs_EQprotected(us_runid, parcel_sum_df, metrics_dict)
         #calculate_Healthy1_HHs_WFprotected(us_runid, parcel_sum_df, metrics_dict)
@@ -544,7 +534,8 @@ if __name__ == '__main__':
     metrics.set_index(['modelrunID','metric','variable','year'],inplace=True)
     metrics = metrics.stack().unstack('year').reset_index()
     metrics = metrics[['modelrunID','metric','variable','2015','2050','2015-50']]
-    out_filename = 'C:/Users/{}/Box/Horizon and Plan Bay Area 2050/Equity and Performance/7_Analysis/Metrics/metrics_urbansim.csv'.format(os.getenv('USERNAME'))
+
+    out_filename = 'C:/Users/{}/Box/Horizon and Plan Bay Area 2050/Equity and Performance/7_Analysis/Metrics/metrics_testing.csv'.format(os.getenv('USERNAME'))
     metrics.to_csv(out_filename, header=True, sep=',', float_format='%.9f')
     
     print("Wrote {}".format(out_filename))
