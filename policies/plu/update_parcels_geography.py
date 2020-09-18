@@ -14,19 +14,22 @@ today = time.strftime('%Y_%m_%d')
 
 
 if os.getenv('USERNAME')=='ywang':
+    M_WORKING_DIR       = 'M:\\Data\\Urban\\BAUS\\PBA50'
     BOX_DIR             = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim'.format(os.getenv('USERNAME'))
     BOX_SMELT_DIR       = 'C:\\Users\\{}\\Box\\baydata\\smelt\\2020 03 12'.format(os.getenv('USERNAME'))
     GITHUB_PETRALE_DIR  = 'C:\\Users\\{}\\Documents\\GitHub\\petrale'.format(os.getenv('USERNAME'))
-    M_DIR               = 'M:\\Data\\GIS layers\\Blueprint Land Use Strategies\\ID_idx'
+    M_ID_DIR            = 'M:\\Data\\GIS layers\\Blueprint Land Use Strategies\\ID_idx'
 
 # input file locations
-PBA40_ZONING_BOX_DIR    = os.path.join(BOX_DIR, 'Horizon', 'Current Horizon Large General Input Data')
-PBA50_ZONINGMOD_DIR     = os.path.join(BOX_DIR, 'PBA50', 'Policies', 'Zoning Modifications')
+HORIZON_ZONING_BOX_DIR  = os.path.join(M_WORKING_DIR, 'Horizon', 'Large General Input Data')
+PBA50_ZONINGMOD_DIR     = os.path.join(M_WORKING_DIR, 'Final_Blueprint', 'Zoning Modifications')
 JURIS_CODE_DIR          = os.path.join(GITHUB_PETRALE_DIR, 'zones', 'jurisdictions')
+M_ID_BF_DIR             = os.path.join(M_ID_DIR, 'Final Blueprint')
 
 # outputs locations
 PBA50_LARGE_INPUT_DIR   = os.path.join(BOX_DIR, 'PBA50', 'Current PBA50 Large General Input Data')
-LOG_FILE                = os.path.join(PBA50_LARGE_INPUT_DIR,'{}_update_parcels_geography.log'.format(today))
+M_LARGE_INPUT_DIR       = os.path.join(M_WORKING_DIR, 'Final_Blueprint', 'Large General Input Data')
+LOG_FILE                = os.path.join(M_LARGE_INPUT_DIR,'{}_update_parcels_geography.log'.format(today))
 
 
 if __name__ == '__main__':
@@ -56,7 +59,7 @@ if __name__ == '__main__':
 
     # Make sure PARCEL_ID and geom_id_s are integer:
     basemap_p10['PARCEL_ID'] = basemap_p10['PARCEL_ID'].apply(lambda x: int(round(x)))
-    basemap_p10['geom_id_s'] = basemap_p10['geom_id_s'].apply(lambda x: int(x))
+    basemap_p10['geom_id_s'] = basemap_p10['geom_id_s'].apply(lambda x: int(round(x)))
 
     logger.info('Read {} records from {}, with {} unique Parcel IDs, and header: \n {}'.format(
             len(basemap_p10), 
@@ -66,7 +69,7 @@ if __name__ == '__main__':
     logger.info(basemap_p10.dtypes)
 
     ## Read PBA40 parcels_geography file
-    pg_pba40_file = os.path.join(PBA40_ZONING_BOX_DIR, '07_11_2019_parcels_geography.csv')
+    pg_pba40_file = os.path.join(HORIZON_ZONING_BOX_DIR, '07_11_2019_parcels_geography.csv')
     pg_pba40_cols = ['geom_id', 'pda_id', 'tpp_id', 'exp_id', 'opp_id', 'zoningmodcat', 'perffoot', 'perfarea', 'urbanized',
                      'hra_id', 'trich_id', 'cat_id', 'zoninghzcat']
     pg_pba40 = pd.read_csv(pg_pba40_file,
@@ -80,11 +83,20 @@ if __name__ == '__main__':
     logger.info(pg_pba40.dtypes)
 
     ## Read PBA50 attributes
-    pba50_attrs_file = os.path.join(PBA50_ZONINGMOD_DIR, 'p10_pba50_attr_20200416.csv')
+    pba50_attrs_file = os.path.join(PBA50_ZONINGMOD_DIR, 'p10_pba50_attr_20200915.csv')
     pba50_attrs_cols = ['geom_id_s', 'juris_id', 'juris', 'gg_id', 'tra_id', 'sesit_id', 'ppa_id', 
-                        'exp2020_id', 'pba50chcat', 'exsfd_id', 'chcatwsfd', 'pba50zoningmodcat', 'nodev']
+                        'exp2020_id', 'pba50chcat', 'exsfd_id', 'chcatwsfd', 'pba50zonin', 'nodev',
+                        'fbp_gg_id', 'fbp_tra_id', 'fbp_sesit_', 'fbp_ppa_id', 'fbp_exp202', 
+                        'fbpchcat', 'fbp_exsfd_', 'fbpchcatws', 'fbpzoningm']
     pba50_attrs = pd.read_csv(pba50_attrs_file,
                               usecols = pba50_attrs_cols)
+    pba50_attrs.geom_id_s = pba50_attrs.geom_id_s.apply(lambda x: int(round(x)))
+    pba50_attrs.rename(columns = {'pba50zonin': 'pba50zoningmodcat',
+                                  'fbp_sesit_': 'fbp_sesit_id',
+                                  'fbp_exp202': 'fbp_exp2020_id',
+                                  'fbp_exsfd_': 'fbp_exsfd_id',
+                                  'fbpchcatws': 'fbpchcatwsfd',
+                                  'fbpzoningm': 'fbpzoningmodcat'}, inplace=True)
 
     logger.info('Read {} records from {}, with header: \n {}'.format(
             len(pba50_attrs),
@@ -93,7 +105,7 @@ if __name__ == '__main__':
     logger.info(pba50_attrs.dtypes)
 
     ## Read new PBA50 PDA IDs
-    pda_pba50_file = os.path.join(M_DIR, 'pda_id_2020.csv')
+    pda_pba50_file = os.path.join(M_ID_BF_DIR, 'pda_id_2020.csv')
     pda_pba50 = pd.read_csv(pda_pba50_file)
     pda_pba50.rename(columns = {'pda_id': 'pda_id_pba50'}, inplace = True)
 
@@ -135,12 +147,17 @@ if __name__ == '__main__':
     # Horizon fields:
     hor_att = ['hra_id', 'trich_id', 'cat_id', 'zoninghzcat']
 
-    # PBA50 fields:
-    pba50_att = ['gg_id', 'pda_id_pba50', 'tra_id', 'sesit_id', 'ppa_id', 
-                 'exp2020_id', 'exsfd_id', 'pba50zoningmodcat', 'nodev','pba50chcat']
+    # PBA50 Draft Blueprint fields:
+    pba50_db_att = ['gg_id', 'pda_id_pba50', 'tra_id', 'sesit_id', 'ppa_id', 
+                    'exp2020_id', 'exsfd_id', 'pba50zoningmodcat', 'pba50chcat']
+
+    # PBA50 Final Blueprint fields:
+    pba50_fb_att = ['fbp_gg_id', 'pda_id_pba50', 'fbp_tra_id', 'fbp_sesit_id', 'fbp_ppa_id', 
+                    'fbp_exp2020_id', 'fbp_exsfd_id', 'fbpzoningmodcat', 'nodev','fbpchcat']
 
     # export:
-    pg_pba50_all = pg_pba50_merge[p_att + pba40_att + hor_att + pba50_att]
+    # pg_pba50_all = pg_pba50_merge[p_att + pba40_att + hor_att + pba50_att]
+    pg_pba50_all = pg_pba50_merge[p_att + pba40_att + hor_att + pba50_db_att + pba50_fb_att]
 
     logger.info('Export {} records with {} unique PARCEL IDs to {} with the following fields: \n {}'.format(len(pg_pba50_all),
                                                                                                             len(pg_pba50_all.PARCEL_ID.unique()),
