@@ -196,6 +196,13 @@ if __name__ == '__main__':
     COMPARE_TAZ_CAPACITY_FILE           = 'compare_taz_capacity_{}.csv'.format(args.zoningmods_scenario)
     LOG_FILE                            = "compare_juris_capacity_{}.log".format(args.zoningmods_scenario)
 
+    # QA/QC files exported in test mode
+    P10_UPZONING_PBA50_FILE             = 'p10_upzoning_pba50_{}.csv'.format(args.zoningmods_scenario)
+    PARCEL_CAPACITY_BASEZONING_FILE     = 'parcel_capacity_basezoning.csv'
+    PARCEL_CAPACITY_UPZONING_FILE       = 'parcel_capacity_upzoning_{}.csv'.format(args.zoningmods_scenario)
+    PARCEL_CAPACITY_BAUS_FILE           = 'parcel_capacity_baus_{}.csv'.format(args.zoningmods_scenario)
+   
+
     if args.test == False:
         LOG_FILE                        = os.path.join(BOX_UPZONING_DIR, "{}_{}".format(today, LOG_FILE))
         COMPARE_JURIS_CAPACITY_FILE     = os.path.join(BOX_UPZONING_DIR, "{}_{}".format(today, COMPARE_JURIS_CAPACITY_FILE))
@@ -267,6 +274,7 @@ if __name__ == '__main__':
     logger.info("Generating p10_upzoning_pba50 with {} records;\n Headers:\n{}".format(len(p10_upzoning_pba50),
                                                                                        p10_upzoning_pba50.head()))
 
+
     ## B10 buildings with p10 parcels data
     basemap_b10_file = os.path.join(M_SMELT_DIR, 'b10.csv')
     basemap_b10 = pd.read_csv(basemap_b10_file)
@@ -307,6 +315,11 @@ if __name__ == '__main__':
     	                                          how = 'left')
 
     logger.debug("p10_upzoning_pba50 with columns:\n{}".format(p10_upzoning_pba50.dtypes))
+
+    # in test mode, export the data for QA/QC
+    if args.test == True:
+        logger.info("Export p10_upzoning_pba50")
+        p10_upzoning_pba50.to_csv(P10_UPZONING_PBA50_FILE, index = False)
 
 
     ## calculate raw and net capacity for basezoning and upzoning
@@ -382,7 +395,15 @@ if __name__ == '__main__':
                                                                            on = 'PARCEL_ID',
                                                                            how = 'outer')
 
-    
+    # in test mode, export the data for QA/QC
+    if args.test == True:
+        raw_parcel_capacity_basezoning.to_csv('raw_parcel_capacity_basezoning.csv', index = False)
+        net_parcel_capacity_basezoning.to_csv('net_parcel_capacity_basezoning.csv', index = False)
+        raw_parcel_capacity_upzoning.to_csv('raw_parcel_capacity_upzoning.csv', index = False)
+        net_parcel_capacity_upzoning.to_csv('net_parcel_capacity_upzoning.csv', index = False)
+        parcel_capacity_baus.to_csv('parcel_capacity_baus.csv', index = False)
+
+
     ## calculate jurisdiction-level capacity
 
     juris_raw_capacity_basezoning = summary_capacity(raw_parcel_capacity_basezoning, 

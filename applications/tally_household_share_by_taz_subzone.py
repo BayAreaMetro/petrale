@@ -8,22 +8,22 @@ USAGE="""
 import numpy,pandas
 import argparse, os, sys, time
 
-BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim 1.5\\PBA50'.format(os.getenv('USERNAME'))
-LARGE_DATASET_BOX_DIR   = os.path.join(BOX_DIR, 'Current PBA50 Large General Input Data')
-PARCEL_TO_SUBZONE_FILE  = os.path.join(LARGE_DATASET_BOX_DIR, '2018_10_17_parcel_to_taz1454sub.csv')
+BLUEPRINT_DIR           = "M:\Data\Urban\BAUS\PBA50\Draft_Blueprint"
+LARGE_DATASET_INPUT_DIR = os.path.join(BLUEPRINT_DIR, "Large General Input Data")
+PARCEL_TO_SUBZONE_FILE  = os.path.join(LARGE_DATASET_INPUT_DIR, '2018_10_17_parcel_to_taz1454sub.csv')
 
-DRAFT_RUN_DIR           = os.path.join(BOX_DIR, 'Draft Blueprint runs')
+URBANSIM_RUN_DIR        = os.path.join(BLUEPRINT_DIR, 'runs')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=USAGE, formatter_class=argparse.RawDescriptionHelpFormatter,)
-    parser.add_argument("parcel_data_file", help='Parcel data file relative to "{}". e.g. "Blueprint Plus Crossing (s23)\\v1.5.5\\run998_parcel_data_2050.csv"'.format(DRAFT_RUN_DIR))
+    parser.add_argument("parcel_data_file", help='Parcel data file relative to "{}". e.g. "Blueprint Plus Crossing (s23)\\v1.5.5\\run998_parcel_data_2050.csv"'.format(URBANSIM_RUN_DIR))
     parser.add_argument("output_file",      help='Output file')
     args = parser.parse_args()
 
     pandas.set_option('max_columns',   200)
     pandas.set_option('display.width', 200)
 
-    parcel_data_file     = os.path.join(DRAFT_RUN_DIR, args.parcel_data_file)
+    parcel_data_file     = os.path.join(URBANSIM_RUN_DIR, args.parcel_data_file)
     print(" {:20}: {}".format("parcel_data_file", parcel_data_file))
     print(" {:20}: {}".format("output_file",      args.output_file))
 
