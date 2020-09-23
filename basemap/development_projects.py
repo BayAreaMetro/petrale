@@ -53,21 +53,6 @@ else:
 	SMELT_GDB		   = os.path.join(WORKING_DIR,"smelt.gdb")
 	WORKSPACE_GDB       = "workspace_{}.GDB".format(NOW) # scratch
 
-MTC_ONLINE_MANUAL_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/manual_dp_20200716/\
-						FeatureServer/0?token=bseSylBlXWmTjbWMA6eAVlsZ17EdIFUdQkXCXCvuUvdLcoLC36NyqM5d\
-						-tDXWvUKtadTz0X5aTURLpByMjmtw91_YYHLdi6Es64vefx9s5pvyPx3u8-6z3p2sUujT27S4HFv3Rp\
-						YQpaxWCZDCwSIWFpEJ-H_rbrcS9KORze_YPNvw6-pozOJLffZjuwSj1dKtfa7A4Ckvrji-odrDtQVj8lywOfMWXDlGlySK8IjTsw.'
-
-MTC_ONLINE_OPPSITE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/urbansim_opportunity_sites/\
-						FeatureServer/0?token=Fxw70HabXS--cLT9mjGmHKuKZRUiGqxgWY1TRoZs1irybMtrWMP7jctHRNdwI8lV\
-						2zLX0w1fa2G7zkMPir7wNq39Du_bJnpoE5RhqaRqOnLp9Dm13BhqChkQtIiiU_OI8_OCxRNJZXhyx2xP7w9gPUg\
-						xH6rjwmywMszSBJSMASCruzvqYMs76FbHGF9hUJpNMVXcOphQtzuMxZz0fv9OnT6augc3aUBd4FJDGQ8k6JU.'
-
-manual_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MANUAL_URL,'manual_sites')
-
-opportunity_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_OPPSITE_URL,'opportunity_sites')
-
-
 ###BL: I am organizing the process by data sources, so that it is easy to replicate the process
 
 ### First need to know what's in the geodatabase, for now I couldn't find a way to list all datasets, feature, and tables using a code.
@@ -95,7 +80,17 @@ basis_pipeline = os.path.join(SMELT_GDB, "basis_pipeline_20200228")
 basis_pb_new = os.path.join(SMELT_GDB, "basis_pb_new_20200312")
 
 
+MTC_ONLINE_MANUAL_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/manual_dp_20200716/FeatureServer/0?token=5qV1qgKLXC7Uoum0N1sSTZSV2-eF9SG0PhR682PbAHyrmoc69codzAagWRYOM9Xypcu6KW61Fh6o_gxarcGObsAf07pS0cbvlK-VgakqgY8-DCShwsQ0v1G_O9JQdMPxYfkR7kr6SfjX-00qoRqCF5KOdLiPsgpzbw6gcm6AWWeGZ_d1Hh2smCJV6ShoeyVo1pKLEki3s0r8gZbhXAn6yPAIsWyoTblgsTYRIZsp2Pk.'
+
+MTC_ONLINE_OPPSITE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/urbansim_opportunity_sites/FeatureServer/0?token=P5e_GqfO6QGxXSDi4e9vIAk_VY2UWt14ef8nhAGRejMjclSDSYOteqHtWvSStV4LVpZkSN1dzu1ZEjx5gt2wbdMF6gbTvqnvb4o-gy3yr2Eas5MC_lIQFKfR8PsrWfGyTlXui2NK9ZVWYQFvx6ABqu6jXGdbBPNRtYONX2uutmDpgpJgaDOpwbECXVzqJTEvI4Ysu-17ELH9w7r3NRzeSo8L2OpDSglvaSEl7uynwX4.'
+
+manual_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MANUAL_URL,'manual_sites')
+
+opportunity_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_OPPSITE_URL,'opportunity_sites',)
+
 arcpy.env.workspace = SMELT_GDB
+arcpy.env.overwriteOutput = True
+
 if arcpy.Exists('manual_dp'):
 	arcpy.Delete_management('manual_dp')
 if arcpy.Exists('opportunity_dp'):
@@ -104,11 +99,11 @@ arcpy.FeatureClassToFeatureClass_conversion(manual_sites, SMELT_GDB,'manual_dp')
 arcpy.FeatureClassToFeatureClass_conversion(opportunity_sites, SMELT_GDB,'opportunity_dp')
 
 ### manually maintained pipeline data
-manual_dp   = os.path.join(SMELT_GDB, "manual_sites")
+manual_dp   = os.path.join(SMELT_GDB, "manual_dp")
 
 
 # opportunity sites that keep their scen status from gis file
-opp_sites   = os.path.join(SMELT_GDB, "opportunity_sites")
+opp_sites   = os.path.join(SMELT_GDB, "opportunity_dp")
 
 
 #set up a process to make sure all incl = 1 records are in the results (also need to make sure that the feature class has column "incl")
