@@ -8,6 +8,7 @@ import numpy as np
 
 NOW = time.strftime("%Y_%m%d_%H%M")
 
+###ArcGIS portion setup
 if os.getenv("USERNAME")=="MTCPB":
 	WORKING_DIR		 = "C:\\Users\\MTCPB\\Documents\\ArcGIS\\Projects\\Proximity"
 	LOG_FILE		    = os.path.join(WORKING_DIR,"proximity2transit_{}.log".format(NOW))
@@ -42,6 +43,12 @@ arcpy.FeatureClassToFeatureClass_conversion(bacounty_portal, P2T_GDB,'bacounty')
 transit_current   = os.path.join(P2T_GDB, "transit_current")
 transit_potential   = os.path.join(P2T_GDB, "transit_potential")
 bacounty   = os.path.join(P2T_GDB, "bacounty")
+
+###Urbansim Setup
+urbansim_run_location = 'C:/Users/{}/Box/Modeling and Surveys/Urban Modeling/Bay Area UrbanSim/PBA50/Draft Blueprint runs/'.format(os.getenv('USERNAME'))
+us_2050_DBP_Plus_runid_cleaner         = 'Blueprint Plus Crossing (s23)/v1.8 - final cleaner/run1020'
+us_2050_DBP_Plus_runid_test         = 'test runs/run9' #this is for testing
+list_us_runid = [us_2050_DBP_Plus_runid_cleaner, us_2050_DBP_Plus_runid_test]
 
 if __name__ == '__main__':
 	
@@ -120,7 +127,8 @@ if __name__ == '__main__':
 
 	arcpy.management.Delete(["Bus15_30_PartialErased","Bus30Plus_PartialErased1",\
 							"Bus30Plus_PartialErased2","RestofBA_PartialErased1",\
-							"RestofBA_PartialErased2","RestofBA_PartialErased3"])
+							"RestofBA_PartialErased2","RestofBA_PartialErased3",\
+							"RestofBA_Erased","Bus30Plus_Erased","Bus15_30_Erased","TRA2020_Erased"])
 
 	####repeat the same process for No Plan, projects that are in No Plan are automatically high quality transit as a major transit stop
 	logger.info('Select and Buffer No Plan stops')
@@ -134,9 +142,9 @@ if __name__ == '__main__':
 
 	arcpy.analysis.Erase("TRA2020", "TPA2050_NP_Dislve", "TRA2050_NP", None)
 
- 	logger.info('Create Bus 15-30min shape for NP')
- 	arcpy.analysis.Erase("Bus15_30", "TRA2050_NP", "Bus15_30_2050NP_PartialErase", None)
-	arcpy.analysis.Erase("Bus15_30_2050NP_PartialErase", "TPA2050_NP_Dislve", "Bus15_30_2050NP", None)
+	logger.info('Create Bus 15-30min shape for NP')
+	arcpy.analysis.Erase("Bus15_30", "TRA2050_NP", "Bus15_30_2050NP_PartialErased", None)
+	arcpy.analysis.Erase("Bus15_30_2050NP_PartialErased", "TPA2050_NP_Dislve", "Bus15_30_2050NP", None)
 
 	logger.info('Create Bus 31+ min shape for NP')
 	arcpy.analysis.Erase("Bus30Plus", "Bus15_30_2050NP", "Bus30Plus_2050NP_PartialErased1", None)
@@ -154,7 +162,8 @@ if __name__ == '__main__':
 
 	arcpy.management.Delete(["Bus15_30_2050NP_PartialErased","Bus30Plus_2050NP_PartialErased1",\
 							"Bus30Plus_2050NP_PartialErased2","RestofBA_2050NP_PartialErased1",\
-							"RestofBA_2050NP_PartialErased2","RestofBA_2050NP_PartialErased3"])
+							"RestofBA_2050NP_PartialErased2","RestofBA_2050NP_PartialErased3",\
+							"RestofBA_2050NP","Bus30Plus_2050NP","Bus15_30_2050NP","TRA2050_NP","TPA2050_NP_Merge","TPA2050_NP_Dislve"])
 
 	####repeat the same process for DBP Plan, projects that are in No Plan are automatically high quality transit as a major transit stop -- this to revise to Final Blue Print
 	logger.info('Select and Buffer No Plan stops')
@@ -168,9 +177,9 @@ if __name__ == '__main__':
 
 	arcpy.analysis.Erase("TRA2020", "TPA2050_BP_Dislve", "TRA2050_BP", None)
 
- 	logger.info('Create Bus 15-30min shape for BP')
- 	arcpy.analysis.Erase("Bus15_30", "TRA2050_BP", "Bus15_30_2050BP_PartialErase", None)
-	arcpy.analysis.Erase("Bus15_30_2050BP_PartialErase", "TPA2050_BP_Dislve", "Bus15_30_2050BP", None)
+	logger.info('Create Bus 15-30min shape for BP')
+	arcpy.analysis.Erase("Bus15_30", "TRA2050_BP", "Bus15_30_2050BP_PartialErased", None)
+	arcpy.analysis.Erase("Bus15_30_2050BP_PartialErased", "TPA2050_BP_Dislve", "Bus15_30_2050BP", None)
 
 	logger.info('Create Bus 31+ min shape for BP')
 	arcpy.analysis.Erase("Bus30Plus", "Bus15_30_2050BP", "Bus30Plus_2050BP_PartialErased1", None)
@@ -186,6 +195,17 @@ if __name__ == '__main__':
 	logger.info('Merge into 1 feature class with 5 polygons')
 	arcpy.management.Merge("RestofBA_2050BP;Bus30Plus_2050BP; Bus15_30_2050BP;TRA2050_BP;TPA2050_BP_Dislve", "Transit2050_BP")
 
-		arcpy.management.Delete(["Bus15_30_2050BP_PartialErased","Bus30Plus_2050BP_PartialErased1",\
+	arcpy.management.Delete(["Bus15_30_2050BP_PartialErased","Bus30Plus_2050BP_PartialErased1",\
 							"Bus30Plus_2050BP_PartialErased2","RestofBA_2050BP_PartialErased1",\
-							"RestofBA_2050BP_PartialErased2","RestofBA_2050BP_PartialErased3"])
+							"RestofBA_2050BP_PartialErased2","RestofBA_2050BP_PartialErased3",\
+							"RestofBA_2050BP","Bus30Plus_2050BP","Bus15_30_2050BP","TRA2050_BP","TPA2050_BP_Merge","TPA2050_BP_Dislve"])
+
+	###Bring in urbansim results
+	urbansim_runid = urbansim_run_location + us_2050_DBP_Plus_runid_cleaner
+	parcel_output_2015_df = urbansim_runid+'_parcel_data_2015.csv'
+	parcel_output_2050_df = urbansim_runid+'_parcel_data_2050.csv'
+
+	arcpy.MakeXYEventLayer_management(parcel_output_2015_df, "x", "y", "parcel_2015")
+	arcpy.MakeXYEventLayer_management(parcel_output_2050_df, "x", "y", "parcel_2050")
+
+
