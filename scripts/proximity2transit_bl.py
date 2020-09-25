@@ -231,7 +231,7 @@ if __name__ == '__main__':
 
 		arcpy.management.XYTableToPoint(parcel_summary_2015,'parcel_2015','x','y')
 
-		sumFields = [['tothh', 'SUM'], ['hhq1', 'SUM'],['hhq2', 'SUM']['totemp', 'SUM'],['RETEMPN', 'SUM'],['MWTEMPN', 'SUM']]
+		sumFields = [['tothh', 'SUM'], ['hhq1', 'SUM'],['totemp', 'SUM'],['RETEMPN', 'SUM'],['MWTEMPN', 'SUM']]
 
 		parcel_2015   = 'parcel_2015'
 		transit_2020   = 'Transit2020'
@@ -245,9 +245,6 @@ if __name__ == '__main__':
 		prox2015_sdf['Service_Level']=['No Fixed Route Transit','Bus 31+min','Bus 15-30min','Bus <15min','Major Transit Stop']
 		prox2015_sdf['tothh_share']=round(prox2015_sdf.SUM_tothh/parcel_output_2015.tothh.sum(),2)
 		prox2015_sdf['hhq1_share']=round(prox2015_sdf.SUM_hhq1/parcel_output_2015.hhq1.sum(),2)
-		prox2015_sdf['hhq2_share']=round(prox2015_sdf.SUM_hhq2/parcel_output_2015.hhq2.sum(),2)
-		prox2015_sdf['hhq3_share']=round(prox2015_sdf.SUM_hhq3/parcel_output_2015.hhq3.sum(),2)
-		prox2015_sdf['hhq4_share']=round(prox2015_sdf.SUM_hhq4/parcel_output_2015.hhq4.sum(),2)
 		prox2015_sdf['totemp_share']=round(prox2015_sdf.SUM_totemp/parcel_output_2015.totemp.sum(),2)
 		prox2015_sdf['RETEMPN_share']=round(prox2015_sdf.SUM_RETEMPN/parcel_output_2015.RETEMPN.sum(),2)
 		prox2015_sdf['MWTEMPN_share']=round(prox2015_sdf.SUM_MWTEMPN/parcel_output_2015.MWTEMPN.sum(),2)
@@ -295,9 +292,6 @@ if __name__ == '__main__':
 			prox2050_sdf['Service_Level']=['No Fixed Route Transit','Bus 31+min','Bus 15-30min','Bus <15min','Major Transit Stop']
 			prox2050_sdf['tothh_share']=round(prox2050_sdf.SUM_tothh/parcel_output_2050.tothh.sum(),2)
 			prox2050_sdf['hhq1_share']=round(prox2050_sdf.SUM_hhq1/parcel_output_2050.hhq1.sum(),2)
-			prox2050_sdf['hhq2_share']=round(prox2050_sdf.SUM_hhq2/parcel_output_2050.hhq2.sum(),2)
-			prox2050_sdf['hhq3_share']=round(prox2050_sdf.SUM_hhq3/parcel_output_2050.hhq3.sum(),2)
-			prox2050_sdf['hhq4_share']=round(prox2050_sdf.SUM_hhq4/parcel_output_2050.hhq4.sum(),2)
 			prox2050_sdf['totemp_share']=round(prox2050_sdf.SUM_totemp/parcel_output_2050.totemp.sum(),2)
 			prox2050_sdf['RETEMPN_share']=round(prox2050_sdf.SUM_RETEMPN/parcel_output_2050.RETEMPN.sum(),2)
 			prox2050_sdf['MWTEMPN_share']=round(prox2050_sdf.SUM_MWTEMPN/parcel_output_2050.MWTEMPN.sum(),2)
@@ -317,4 +311,4 @@ if __name__ == '__main__':
 		acrossruns_proximity.append(proximity_export)
 
 	acrossruns_proximity_export = pd.concat(acrossruns_proximity, ignore_index=True, sort=False)
-	acrossruns_proximity_export.to_csv('metrics_proximity.csv'.format(str()),index = False)
+	acrossruns_proximity_export.to_csv('metrics_proximity_{}.csv'.format(NOW),index = False)
