@@ -33,6 +33,7 @@
 
 # R history files
 *.Rhistory
+*.RData
 
 # python notebook checkpoint files
 *-checkpoint.ipynb
