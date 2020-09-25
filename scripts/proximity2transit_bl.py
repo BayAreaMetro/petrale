@@ -102,7 +102,7 @@ if __name__ == '__main__':
 	arcpy.analysis.Buffer("transit_current", "Bus30Plus", "0.25 Miles", "FULL", "ROUND", "ALL", None, "PLANAR")
 
 	#Using county boundaries alone did not capture all parcels (1,952,484/1,956,212). With buffering 0.5 mi 1,956,044/1,956,212 99.99% of all parcels
-	arcpy.analysis.Buffer("bacounty", "bacounty_expand", "0.5 Miles", "FULL", "ROUND", "ALL", None, "PLANAR")
+	arcpy.analysis.Buffer('bacounty', "bacounty_expand", "0.5 Miles", "FULL", "ROUND", "ALL", None, "PLANAR")
 
 	logger.info('only include high-freq bus area not already part of Major Transit Stop buffer')
 	arcpy.analysis.Erase("TRA2020", "TPA2020", "TRA2020_Erased", None)
@@ -201,11 +201,106 @@ if __name__ == '__main__':
 							"RestofBA_2050BP","Bus30Plus_2050BP","Bus15_30_2050BP","TRA2050_BP","TPA2050_BP_Merge","TPA2050_BP_Dislve"])
 
 	###Bring in urbansim results
-	urbansim_runid = urbansim_run_location + us_2050_DBP_Plus_runid_cleaner
-	parcel_output_2015_df = urbansim_runid+'_parcel_data_2015.csv'
-	parcel_output_2050_df = urbansim_runid+'_parcel_data_2050.csv'
+	acrossruns_proximity = []
 
-	arcpy.MakeXYEventLayer_management(parcel_output_2015_df, "x", "y", "parcel_2015")
-	arcpy.MakeXYEventLayer_management(parcel_output_2050_df, "x", "y", "parcel_2050")
+	for us_runid in list_us_runid:
+		urbansim_runid = urbansim_run_location + us_runid
+
+		proximity = []
+		# 2015 results first
+		parcel_output_2015 = pd.read_csv((urbansim_runid+'_parcel_data_2015.csv'))
+		# keeping essential columns
+		parcel_output_2015.drop(['geom_id','total_residential_units','total_job_spaces','zoned_du',\
+								'zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
+		logger.info('Reading 2015 parcel data')
+		parcel_summary_2015 = os.path.join(WORKING_DIR,'parcel_2015.csv')
+	
+		if arcpy.Exists(parcel_summary_2015):
+			arcpy.management.Delete(parcel_summary_2015)
+			parcel_output_2015.to_csv('parcel_2015.csv')
+		else:
+			parcel_output_2015.to_csv('parcel_2015.csv')
+
+		arcpy.management.XYTableToPoint(parcel_summary_2015,'parcel_2015','x','y')
+
+		sumFields = [['tothh', 'SUM'], ['hhq1', 'SUM'],['hhq2', 'SUM'],['hhq3', 'SUM'],\
+					['hhq4', 'SUM'],['totemp', 'SUM'],['RETEMPN', 'SUM'],['MWTEMPN', 'SUM']]
+
+		parcel_2015   = 'parcel_2015'
+		transit_2020   = 'Transit2020'
+		prox2015 = os.path.join(P2T_GDB, 'prox2015')
+
+		logger.info('Summarizing 2015 parcel data')
+		arcpy.analysis.SummarizeWithin(transit_2020, parcel_2015, prox2015, "KEEP_ALL", sumFields)
+		
+		prox2015_sdf = pd.DataFrame.spatial.from_featureclass(prox2015)
+
+		prox2015_sdf['Service_Level']=['No Fixed Route Transit','Bus 31+min','Bus 15-30min','Bus <15min','Major Transit Stop']
+		prox2015_sdf['tothh_share']=round(prox2015_sdf.SUM_tothh/parcel_output_2015.tothh.sum(),2)
+		prox2015_sdf['hhq1_share']=round(prox2015_sdf.SUM_hhq1/parcel_output_2015.hhq1.sum(),2)
+		prox2015_sdf['hhq2_share']=round(prox2015_sdf.SUM_hhq2/parcel_output_2015.hhq2.sum(),2)
+		prox2015_sdf['hhq3_share']=round(prox2015_sdf.SUM_hhq3/parcel_output_2015.hhq3.sum(),2)
+		prox2015_sdf['hhq4_share']=round(prox2015_sdf.SUM_hhq4/parcel_output_2015.hhq4.sum(),2)
+		prox2015_sdf['totemp_share']=round(prox2015_sdf.SUM_totemp/parcel_output_2015.totemp.sum(),2)
+		prox2015_sdf['RETEMPN_share']=round(prox2015_sdf.SUM_RETEMPN/parcel_output_2015.RETEMPN.sum(),2)
+		prox2015_sdf['MWTEMPN_share']=round(prox2015_sdf.SUM_MWTEMPN/parcel_output_2015.MWTEMPN.sum(),2)
+		prox2015_sdf['year']='2015'
+		prox2015_sdf['modelrunID'] = us_runid
+
+		proximity.append(prox2015_sdf)
+
+		arcpy.management.Delete(prox2015)
+		arcpy.management.Delete(parcel_summary_2015)
+			
+
+		#2050 NP and BP
+
+		parcel_output_2050 = pd.read_csv((urbansim_runid+'_parcel_data_2050.csv'))
+		parcel_output_2050.drop(['geom_id','total_residential_units','total_job_spaces','zoned_du',\
+								'zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
+		logger.info('Reading 2050 parcel data')
+		parcel_summary_2050 = os.path.join(WORKING_DIR,'parcel_2050.csv')
+
+		if arcpy.Exists(parcel_summary_2050):
+			arcpy.management.Delete(parcel_summary_2050)
+			parcel_output_2050.to_csv('parcel_2050.csv')
+		else:
+			parcel_output_2050.to_csv('parcel_2050.csv')
+	
+		arcpy.management.XYTableToPoint(parcel_summary_2050,'parcel_2050','x','y')
+
+		parcel_2050 = 'parcel_2050'
+		transit_2050 = ['Transit2050_NP','Transit2050_BP']
+	
+		for transit in transit_2050:
+			prox2050 = os.path.join(P2T_GDB, 'prox2050')
+			logger.info('Summarizing {} parcel data'.format(transit))
+			arcpy.analysis.SummarizeWithin(transit, parcel_2050, prox2050, "KEEP_ALL", sumFields)
+			prox2050_sdf = pd.DataFrame.spatial.from_featureclass(prox2050)
+
+			prox2050_sdf['Service_Level']=['No Fixed Route Transit','Bus 31+min','Bus 15-30min','Bus <15min','Major Transit Stop']
+			prox2050_sdf['tothh_share']=round(prox2050_sdf.SUM_tothh/parcel_output_2050.tothh.sum(),2)
+			prox2050_sdf['hhq1_share']=round(prox2050_sdf.SUM_hhq1/parcel_output_2050.hhq1.sum(),2)
+			prox2050_sdf['hhq2_share']=round(prox2050_sdf.SUM_hhq2/parcel_output_2050.hhq2.sum(),2)
+			prox2050_sdf['hhq3_share']=round(prox2050_sdf.SUM_hhq3/parcel_output_2050.hhq3.sum(),2)
+			prox2050_sdf['hhq4_share']=round(prox2050_sdf.SUM_hhq4/parcel_output_2050.hhq4.sum(),2)
+			prox2050_sdf['totemp_share']=round(prox2050_sdf.SUM_totemp/parcel_output_2050.totemp.sum(),2)
+			prox2050_sdf['RETEMPN_share']=round(prox2050_sdf.SUM_RETEMPN/parcel_output_2050.RETEMPN.sum(),2)
+			prox2050_sdf['MWTEMPN_share']=round(prox2050_sdf.SUM_MWTEMPN/parcel_output_2050.MWTEMPN.sum(),2)
+			prox2050_sdf['year']='2050'
+			prox2015_sdf['modelrunID'] = us_runid + transit[-2:]
+
+			proximity.append(prox2050_sdf)
+
+			arcpy.management.Delete(prox2050)
+		arcpy.management.Delete(parcel_summary_2050)
 
 
+		proximity_parcel = pd.concat(proximity, ignore_index=True, sort=False)
+		proximity_export = proximity_parcel[['modelrunID','year','Service_Level','SUM_tothh','tothh_share','SUM_hhq1','hhq1_share',\
+										'SUM_totemp','totemp_share','SUM_RETEMPN','RETEMPN_share','SUM_MWTEMPN','MWTEMPN_share']]
+		
+		acrossruns_proximity.append(proximity_export)
+
+	acrossruns_proximity_export = pd.concat(acrossruns_proximity, ignore_index=True, sort=False)
+	acrossruns_proximity_export.to_csv('metrics_proximity.csv'.format(str()),index = False)
