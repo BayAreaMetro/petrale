@@ -47,7 +47,7 @@ bacounty   = os.path.join(P2T_GDB, "bacounty")
 ###Urbansim Setup
 urbansim_run_location = 'C:/Users/{}/Box/Modeling and Surveys/Urban Modeling/Bay Area UrbanSim/PBA50/Draft Blueprint runs/'.format(os.getenv('USERNAME'))
 us_2050_DBP_Plus_runid_cleaner         = 'Blueprint Plus Crossing (s23)/v1.8 - final cleaner/run1020'
-us_2050_DBP_Plus_runid_test         = 'test runs/run9' #this is for testing
+us_2050_DBP_Plus_runid_test         = 'test runs/run26' #this is for testing
 list_us_runid = [us_2050_DBP_Plus_runid_cleaner, us_2050_DBP_Plus_runid_test]
 
 if __name__ == '__main__':
@@ -208,11 +208,19 @@ if __name__ == '__main__':
 
 		proximity = []
 		# 2015 results first
+		logger.info('Reading 2015 parcel data')
 		parcel_output_2015 = pd.read_csv((urbansim_runid+'_parcel_data_2015.csv'))
 		# keeping essential columns
 		parcel_output_2015.drop(['geom_id','total_residential_units','total_job_spaces','zoned_du',\
 								'zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
-		logger.info('Reading 2015 parcel data')
+		
+		parcel_output_2015['totemp'] = parcel_output_2015['totemp'].fillna(0)
+		parcel_output_2015['totemp'] = parcel_output_2015['totemp'].round(0).astype('int')
+		parcel_output_2015['RETEMPN'] = parcel_output_2015['RETEMPN'].fillna(0)
+		parcel_output_2015['RETEMPN'] = parcel_output_2015['RETEMPN'].round(0).astype('int')
+		parcel_output_2015['MWTEMPN'] = parcel_output_2015['MWTEMPN'].fillna(0)
+		parcel_output_2015['MWTEMPN'] = parcel_output_2015['MWTEMPN'].round(0).astype('int')
+		
 		parcel_summary_2015 = os.path.join(WORKING_DIR,'parcel_2015.csv')
 	
 		if arcpy.Exists(parcel_summary_2015):
@@ -223,8 +231,7 @@ if __name__ == '__main__':
 
 		arcpy.management.XYTableToPoint(parcel_summary_2015,'parcel_2015','x','y')
 
-		sumFields = [['tothh', 'SUM'], ['hhq1', 'SUM'],['hhq2', 'SUM'],['hhq3', 'SUM'],\
-					['hhq4', 'SUM'],['totemp', 'SUM'],['RETEMPN', 'SUM'],['MWTEMPN', 'SUM']]
+		sumFields = [['tothh', 'SUM'], ['hhq1', 'SUM'],['hhq2', 'SUM']['totemp', 'SUM'],['RETEMPN', 'SUM'],['MWTEMPN', 'SUM']]
 
 		parcel_2015   = 'parcel_2015'
 		transit_2020   = 'Transit2020'
@@ -254,11 +261,18 @@ if __name__ == '__main__':
 			
 
 		#2050 NP and BP
-
+		logger.info('Reading 2050 parcel data')
 		parcel_output_2050 = pd.read_csv((urbansim_runid+'_parcel_data_2050.csv'))
 		parcel_output_2050.drop(['geom_id','total_residential_units','total_job_spaces','zoned_du',\
 								'zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
-		logger.info('Reading 2050 parcel data')
+
+		parcel_output_2050['totemp'] = parcel_output_2050['totemp'].fillna(0)
+		parcel_output_2050['totemp'] = parcel_output_2050['totemp'].round(0).astype('int')
+		parcel_output_2050['RETEMPN'] = parcel_output_2050['RETEMPN'].fillna(0)
+		parcel_output_2050['RETEMPN'] = parcel_output_2050['RETEMPN'].round(0).astype('int')
+		parcel_output_2050['MWTEMPN'] = parcel_output_2050['MWTEMPN'].fillna(0)
+		parcel_output_2050['MWTEMPN'] = parcel_output_2050['MWTEMPN'].round(0).astype('int')
+		
 		parcel_summary_2050 = os.path.join(WORKING_DIR,'parcel_2050.csv')
 
 		if arcpy.Exists(parcel_summary_2050):
