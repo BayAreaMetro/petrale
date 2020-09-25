@@ -296,7 +296,7 @@ if __name__ == '__main__':
 			prox2050_sdf['RETEMPN_share']=round(prox2050_sdf.SUM_RETEMPN/parcel_output_2050.RETEMPN.sum(),2)
 			prox2050_sdf['MWTEMPN_share']=round(prox2050_sdf.SUM_MWTEMPN/parcel_output_2050.MWTEMPN.sum(),2)
 			prox2050_sdf['year']='2050'
-			prox2015_sdf['modelrunID'] = us_runid + transit[-2:]
+			prox2050_sdf['modelrunID'] = us_runid + transit[-2:]
 
 			proximity.append(prox2050_sdf)
 
