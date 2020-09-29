@@ -84,9 +84,13 @@ MTC_ONLINE_MANUAL_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hoste
 
 MTC_ONLINE_OPPSITE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/urbansim_opportunity_sites/FeatureServer/0?token=P5e_GqfO6QGxXSDi4e9vIAk_VY2UWt14ef8nhAGRejMjclSDSYOteqHtWvSStV4LVpZkSN1dzu1ZEjx5gt2wbdMF6gbTvqnvb4o-gy3yr2Eas5MC_lIQFKfR8PsrWfGyTlXui2NK9ZVWYQFvx6ABqu6jXGdbBPNRtYONX2uutmDpgpJgaDOpwbECXVzqJTEvI4Ysu-17ELH9w7r3NRzeSo8L2OpDSglvaSEl7uynwX4.'
 
+MTC_ONLINE_PUBLAND_URL ='https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/H8_AH_Public_Sites_DRAFT1_BL_Review/FeatureServer/0?token=wxxbLZK4xfBxsd5R4PPxaD8vcRP4FSk5FvazMeOR5UZVb7ZIkaizjQIHOcgjZr3x73FNfw-dBjQ4cBwS8COB97IDHuYrPpNsgHsVK5Wn1rZNPN-7xX30QaDeuxQIfN-T5_NjgWIaWNxyriJNew1NvHgijteZAC3RIBeEpeNdyLCB2Z0RifxaYoKihgWt59cRr3Vr5W5UlLmJ7meGuEH_FXez2g1q4jluU4BwLamWIbs.'
+
 manual_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MANUAL_URL,'manual_sites')
 
 opportunity_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_OPPSITE_URL,'opportunity_sites',)
+
+publicland_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_PUBLAND_URL,'publicland_sites',)
 
 arcpy.env.workspace = SMELT_GDB
 arcpy.env.overwriteOutput = True
@@ -95,8 +99,11 @@ if arcpy.Exists('manual_dp'):
 	arcpy.Delete_management('manual_dp')
 if arcpy.Exists('opportunity_dp'):
 	arcpy.Delete_management('opportunity_dp')
+if arcpy.Exists('pubsites_dp'):
+	arcpy.Delete_management('pubsites_dp')
 arcpy.FeatureClassToFeatureClass_conversion(manual_sites, SMELT_GDB,'manual_dp')
 arcpy.FeatureClassToFeatureClass_conversion(opportunity_sites, SMELT_GDB,'opportunity_dp')
+arcpy.FeatureClassToFeatureClass_conversion(publicland_sites, SMELT_GDB,'pubsites_dp')
 
 ### manually maintained pipeline data
 manual_dp   = os.path.join(SMELT_GDB, "manual_dp")
@@ -104,6 +111,9 @@ manual_dp   = os.path.join(SMELT_GDB, "manual_dp")
 
 # opportunity sites that keep their scen status from gis file
 opp_sites   = os.path.join(SMELT_GDB, "opportunity_dp")
+
+# public land sites that keep their scen status from gis file
+pub_sites   = os.path.join(SMELT_GDB, "pubsites_dp")
 
 
 #set up a process to make sure all incl = 1 records are in the results (also need to make sure that the feature class has column "incl")
@@ -1105,6 +1115,136 @@ if __name__ == '__main__':
 
 
 	### 6 MERGE OPPSITES SHP WITH PIPELINE TO GET DEVELOPMENT PROJECTS 
+	#public sites
+	joinFN = 'ttt_pubsites_p10_pba50'
+	dev_projects_temp_layers.append(joinFN)
+	
+	try:
+		count = arcpy.GetCount_management(joinFN)
+		if int(count[0]) > 100:
+			logger.info("Found layer {} with {} rows -- skipping creation".format(joinFN, int(count[0])))
+	except:
+		# go ahead and create it
+		logger.info("Creating layer {} by spatial joining opp sites data ({}) and parcels ({})".format(joinFN, pub_sites, p10_pba50))
+		arcpy.SpatialJoin_analysis(pub_sites, p10_pba50, joinFN)
+		
+		arcpy.AlterField_management(joinFN, "year_build", "p_year_built")
+		arcpy.AlterField_management(joinFN, "new_units", "p_new_units")
+		arcpy.AlterField_management(joinFN, "deed_res_1", "p_dr_units")
+		arcpy.AlterField_management(joinFN, "PARCEL_ID", "p_parcel_id")
+		arcpy.AlterField_management(joinFN, "X", "p_x")
+		arcpy.AlterField_management(joinFN, "Y", "p_y")
+		arcpy.AlterField_management(joinFN, "GEOM_ID", "p_geom_id")
+
+		arcpy.AddField_management(joinFN, "development_projects_id", "LONG")
+		arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
+		arcpy.AddField_management(joinFN, "site_name", "TEXT","","",200)
+		arcpy.AddField_management(joinFN, "PARCEL_ID", "LONG")
+		arcpy.AddField_management(joinFN, "action", "TEXT","","",10)
+		arcpy.AddField_management(joinFN, "raw_id", "LONG")
+		arcpy.AddField_management(joinFN, "scen0", "SHORT")
+		arcpy.AddField_management(joinFN, "scen1", "SHORT")
+		arcpy.AddField_management(joinFN, "scen2", "SHORT")
+		arcpy.AddField_management(joinFN, "scen3", "SHORT")
+		arcpy.AddField_management(joinFN, "scen4", "SHORT")
+		arcpy.AddField_management(joinFN, "scen5", "SHORT")
+		arcpy.AddField_management(joinFN, "scen6", "SHORT")
+		arcpy.AddField_management(joinFN, "scen7", "SHORT")
+		arcpy.AddField_management(joinFN, "scen10", "SHORT")
+		arcpy.AddField_management(joinFN, "scen11", "SHORT")
+		arcpy.AddField_management(joinFN, "scen12", "SHORT")
+		arcpy.AddField_management(joinFN, "scen15", "SHORT")
+		arcpy.AddField_management(joinFN, "scen20", "SHORT")
+		arcpy.AddField_management(joinFN, "scen21", "SHORT")
+		arcpy.AddField_management(joinFN, "scen22", "SHORT")
+		arcpy.AddField_management(joinFN, "scen23", "SHORT")
+		arcpy.AddField_management(joinFN, "scen24", "SHORT")
+		arcpy.AddField_management(joinFN, "scen25", "SHORT") 
+		arcpy.AddField_management(joinFN, "address", "TEXT","","",200)
+		arcpy.AddField_management(joinFN, "city", "TEXT","","",50)
+		arcpy.AddField_management(joinFN, "zip", "TEXT","","",50)
+		arcpy.AddField_management(joinFN, "county", "TEXT","","",50)
+		arcpy.AddField_management(joinFN, "x", "FLOAT")
+		arcpy.AddField_management(joinFN, "y", "FLOAT")
+		arcpy.AddField_management(joinFN, "geom_id", "DOUBLE")
+		arcpy.AddField_management(joinFN, "year_built", "SHORT")
+		arcpy.AddField_management(joinFN, "duration", "SHORT")
+		arcpy.AddField_management(joinFN, "building_type", "TEXT","","",4)
+		arcpy.AddField_management(joinFN, "building_sqft", "LONG")
+		arcpy.AddField_management(joinFN, "non_residential_sqft", "LONG")
+		arcpy.AddField_management(joinFN, "residential_units", "SHORT")
+		arcpy.AddField_management(joinFN, "unit_ave_sqft", "FLOAT")
+		arcpy.AddField_management(joinFN, "tenure", "TEXT","","",5)
+		arcpy.AddField_management(joinFN, "rent_type", "TEXT","","",25)
+		arcpy.AddField_management(joinFN, "stories", "SHORT")
+		arcpy.AddField_management(joinFN, "parking_spaces", "SHORT")
+		arcpy.AddField_management(joinFN, "average_weighted_rent", "TEXT")
+		arcpy.AddField_management(joinFN, "last_sale_year", "DATE") 
+		arcpy.AddField_management(joinFN, "last_sale_price", "DOUBLE")
+		arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
+		arcpy.AddField_management(joinFN, "edit_date", "LONG")
+		arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
+		arcpy.AddField_management(joinFN, "version", "SHORT")
+		
+		# NOTE THAT OPPSITES HAS SCEN SET IN GIS FILE
+		arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!p_parcel_id!')
+		arcpy.CalculateField_management(joinFN, "scen0", 0)
+		arcpy.CalculateField_management(joinFN, "scen0", 0)
+		arcpy.CalculateField_management(joinFN, "scen0", 0)
+		arcpy.CalculateField_management(joinFN, "scen1", 0)
+		arcpy.CalculateField_management(joinFN, "scen2", 0)
+		arcpy.CalculateField_management(joinFN, "scen3", 0)
+		arcpy.CalculateField_management(joinFN, "scen4", 0)
+		arcpy.CalculateField_management(joinFN, "scen5", 0)
+		arcpy.CalculateField_management(joinFN, "scen6", 0)
+		arcpy.CalculateField_management(joinFN, "scen7", 0)
+		arcpy.CalculateField_management(joinFN, "scen10", 0)
+		arcpy.CalculateField_management(joinFN, "scen11", 0)
+		arcpy.CalculateField_management(joinFN, "scen12", 0)
+		arcpy.CalculateField_management(joinFN, "scen15", 0)
+		arcpy.CalculateField_management(joinFN, "scen20", 0)
+		arcpy.CalculateField_management(joinFN, "scen21", 0)
+		arcpy.CalculateField_management(joinFN, "scen22", 0)
+		arcpy.CalculateField_management(joinFN, "scen23", 0)
+		arcpy.CalculateField_management(joinFN, "scen24", 1)
+		arcpy.CalculateField_management(joinFN, "scen25", 0)
+		arcpy.CalculateField_management(joinFN, "x", '!p_x!') 
+		arcpy.CalculateField_management(joinFN, "y", '!p_y!') 
+		arcpy.CalculateField_management(joinFN, "geom_id", '!p_geom_id!')
+		arcpy.CalculateField_management(joinFN, "city", '!juris!')
+		arcpy.CalculateField_management(joinFN, "year_built", '!p_year_built!')
+		arcpy.CalculateField_management(joinFN, "building_type", "'HM'")
+		arcpy.CalculateField_management(joinFN, "residential_units", '!p_new_units!')
+		arcpy.CalculateField_management(joinFN, "deed_restricted_units", '!p_dr_units!')
+		arcpy.CalculateField_management(joinFN, "source", "'pub'")
+		arcpy.CalculateField_management(joinFN, "edit_date", 20200928)
+		arcpy.CalculateField_management(joinFN, "editor", "'MS'")
+		
+		FCfields = [f.name for f in arcpy.ListFields(joinFN)]
+		#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
+		DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", 
+		"scen0", "scen1", "scen2", "scen3", "scen4", "scen5", "scen6", "scen7", "scen10", "scen11", "scen12", "scen15", "scen20", "scen21", "scen22", "scen23", "scen24", "scen25",
+		"address",  "city",  "zip",  "county", "x", "y", "geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
+		"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "deed_restricted_units","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
+		fields2Delete = list(set(FCfields) - set(DontDeleteFields))
+		arcpy.DeleteField_management(joinFN, fields2Delete)
+
+		gidnull = 'gidnull'
+		arcpy.MakeTableView_management(joinFN,gidnull,"geom_id is NULL")
+		nullcount = arcpy.GetCount_management(gidnull)
+		logger.info("{} list has {} records with geom_id info missing".format(joinFN, nullcount))
+		arcpy.Delete_management(gidnull)
+		###4 REMOVE DUPLICATES
+		#check again existing geomList and remove duplicates
+		with arcpy.da.UpdateCursor(joinFN, "PARCEL_ID") as cursor:
+			for row in cursor:
+				if row[0] in geoList:
+					cursor.deleteRow()
+		#then add the geoms in the geomList
+		gList = [row[0] for row in arcpy.da.SearchCursor(joinFN, 'PARCEL_ID')]
+		for geo in gList:
+			geoList.append(geo)
+	
 	#opportunity sites
 	joinFN = 'ttt_opp_p10_pba50'
 	dev_projects_temp_layers.append(joinFN)
@@ -1145,16 +1285,18 @@ if __name__ == '__main__':
 		arcpy.AlterField_management(joinFN, "scen25", "o_scen25")
 		arcpy.AlterField_management(joinFN, "duration", "o_duration")
 		arcpy.AlterField_management(joinFN, "parking_spaces", "o_parking_spaces")
+		arcpy.AlterField_management(joinFN, "non_residential_sqft", "o_non_residential_sqft")
+		arcpy.AlterField_management(joinFN, "building_sqft", "o_building_sqft")
 		arcpy.AlterField_management(joinFN, "residential_units", "o_residential_units")
 		arcpy.AlterField_management(joinFN, "unit_ave_sqft", "o_unit_ave_sqft")
 		arcpy.AlterField_management(joinFN, "rent_ave_sqft", "o_rent_ave_sqft")
 		arcpy.AlterField_management(joinFN, "rent_ave_unit", "o_rent_ave_unit")
 		arcpy.AlterField_management(joinFN, "zip", "o_zips")
 		arcpy.AlterField_management(joinFN, "Average_Weighted_Rent", "average_weighted_rent")
-		arcpy.AlterField_management(joinFN, "x", "p_x")
-		arcpy.AlterField_management(joinFN, "y", "p_y")
-		arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id")
-		arcpy.AlterField_management(joinFN, "geom_id_s", "p_geom_id2")
+		arcpy.AlterField_management(joinFN, "x", "o_x")
+		arcpy.AlterField_management(joinFN, "y", "o_y")
+		arcpy.AlterField_management(joinFN, "geom_id", "o_geom_id")
+		arcpy.AlterField_management(joinFN, "geom_id_s", "o_geom_id2")
 
 		arcpy.AddField_management(joinFN, "development_projects_id", "LONG")
 		arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
@@ -1185,6 +1327,8 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "geom_id", "DOUBLE")
 		arcpy.AddField_management(joinFN, "year_built", "SHORT")
 		arcpy.AddField_management(joinFN, "duration", "SHORT")
+		arcpy.AddField_management(joinFN, "building_sqft", "LONG")
+		arcpy.AddField_management(joinFN, "non_residential_sqft", "LONG")
 		arcpy.AddField_management(joinFN, "residential_units", "SHORT")
 		arcpy.AddField_management(joinFN, "unit_ave_sqft", "FLOAT")
 		arcpy.AddField_management(joinFN, "stories", "SHORT")
@@ -1224,13 +1368,12 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "scen23", "!o_scen23!")
 		arcpy.CalculateField_management(joinFN, "scen24", "!o_scen23!")
 		arcpy.CalculateField_management(joinFN, "scen25", 0)
-		#arcpy.CalculateField_management(joinFN, "zip", '!o_zip!')
-		#arcpy.CalculateField_management(joinFN, "zip", '!o_zip!')
-
 		arcpy.CalculateField_management(joinFN, "x", '!X_1!') 
 		arcpy.CalculateField_management(joinFN, "y", '!Y_1!') 
-		arcpy.CalculateField_management(joinFN, "geom_id", '!p_geom_id2!')
+		arcpy.CalculateField_management(joinFN, "geom_id", '!o_geom_id2!')
 		arcpy.CalculateField_management(joinFN, "year_built", '!o_year_built!')
+		arcpy.CalculateField_management(joinFN, "building_sqft", '!o_building_sqft!')
+		arcpy.CalculateField_management(joinFN, "non_residential_sqft", '!o_non_residential_sqft!')
 		arcpy.CalculateField_management(joinFN, "residential_units", '!o_residential_units!')
 		arcpy.CalculateField_management(joinFN, "unit_ave_sqft", '!o_unit_ave_sqft!')
 		arcpy.CalculateField_management(joinFN, "stories", '!o_stories!')
