@@ -50,7 +50,7 @@ def calculate_Affordable2_deed_restricted_housing(runid, parcel_sum_df, metrics_
     metrics_dict[runid,metric_id,'deed_restricted',y_diff] = metrics_dict[runid,metric_id,'deed_restricted',y2]  - metrics_dict[runid,metric_id,'deed_restricted',y1] 
     metrics_dict[runid,metric_id,'residential_units',y_diff] = metrics_dict[runid,metric_id,'residential_units',y2] - metrics_dict[runid,metric_id,'residential_units',y1] 
     metrics_dict[runid,metric_id,'deed_restricted_HRA',y_diff] = metrics_dict[runid,metric_id,'deed_restricted',y2] - metrics_dict[runid,metric_id,'deed_restricted_HRA',y1]
-    metrics_dict[runid,metric_id,'residential_units_HRA',y_diff] = metrics_dict[runid,metric_id,'residential_units',y2]  - metrics_dict[runid,metric_id,'residential_units_HRA',y1]
+    metrics_dict[runid,metric_id,'residential_units_HRA',y_diff] = metrics_dict[runid,metric_id,'residential_units_HRA',y2]  - metrics_dict[runid,metric_id,'residential_units_HRA',y1]
     metrics_dict[runid,metric_id,'deed_restricted_nonHRA',y_diff] = metrics_dict[runid,metric_id,'deed_restricted',y_diff] - metrics_dict[runid,metric_id,'deed_restricted_HRA',y_diff]
     metrics_dict[runid,metric_id,'residential_units_nonHRA',y_diff] = metrics_dict[runid,metric_id,'residential_units',y_diff]  - metrics_dict[runid,metric_id,'residential_units_HRA',y_diff]
 
@@ -437,8 +437,10 @@ if __name__ == '__main__':
     # Set UrbanSim inputs
     urbansim_run_location = 'C:/Users/{}/Box/Modeling and Surveys/Urban Modeling/Bay Area UrbanSim/PBA50/Draft Blueprint runs/'.format(os.getenv('USERNAME'))
     us_2050_DBP_Plus_runid         = 'Blueprint Plus Crossing (s23)/v1.7.1- FINAL DRAFT BLUEPRINT/run98'
-    us_2050_DBP_Plus_runid_cleaner         = 'test runs/run9' #this is for testing
-    list_us_runid = [us_2050_DBP_Plus_runid, us_2050_DBP_Plus_runid]
+    us_2050_test9       = 'test runs/run9/run9' #this is for testing
+    us_2050_test28       = 'test runs/run28/run28' #this is for testing
+
+    list_us_runid = [us_2050_DBP_Plus_runid, us_2050_test9,us_2050_test28]
 
 
       # Set external inputs
@@ -466,7 +468,7 @@ if __name__ == '__main__':
     metrics = metrics.stack().unstack('year').reset_index()
     metrics = metrics[['modelrunID','metric','variable','2015','2050','2015-50']]
 
-    out_filename = 'C:/Users/{}/Box/Horizon and Plan Bay Area 2050/Equity and Performance/7_Analysis/Metrics/metrics_testing.csv'.format(os.getenv('USERNAME'), index=False)
+    out_filename = 'C:/Users/{}/Box/Modeling and Surveys/Urban Modeling/Bay Area UrbanSim/PBA50/Visualizations/urbansim_metrics.csv'.format(os.getenv('USERNAME'), index=False)
     metrics.to_csv(out_filename, header=True, sep=',', float_format='%.9f')
     
     print("Wrote {}".format(out_filename))
