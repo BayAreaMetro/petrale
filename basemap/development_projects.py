@@ -1128,7 +1128,7 @@ if __name__ == '__main__':
 		logger.info("Creating layer {} by spatial joining opp sites data ({}) and parcels ({})".format(joinFN, pub_sites, p10_pba50))
 		arcpy.SpatialJoin_analysis(pub_sites, p10_pba50, joinFN)
 		
-		arcpy.AlterField_management(joinFN, "year_build", "p_year_built")
+		arcpy.AlterField_management(joinFN, "yearbuild2", "p_year_built")
 		arcpy.AlterField_management(joinFN, "new_units", "p_new_units")
 		arcpy.AlterField_management(joinFN, "deed_res_1", "p_dr_units")
 		arcpy.AlterField_management(joinFN, "PARCEL_ID", "p_parcel_id")
