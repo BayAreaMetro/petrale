@@ -49,7 +49,7 @@ def calculate_Affordable2_deed_restricted_housing(runid, parcel_sum_df, metrics_
     # diff between 2050 and 2015
     metrics_dict[runid,metric_id,'deed_restricted',y_diff] = metrics_dict[runid,metric_id,'deed_restricted',y2]  - metrics_dict[runid,metric_id,'deed_restricted',y1] 
     metrics_dict[runid,metric_id,'residential_units',y_diff] = metrics_dict[runid,metric_id,'residential_units',y2] - metrics_dict[runid,metric_id,'residential_units',y1] 
-    metrics_dict[runid,metric_id,'deed_restricted_HRA',y_diff] = metrics_dict[runid,metric_id,'deed_restricted',y2] - metrics_dict[runid,metric_id,'deed_restricted_HRA',y1]
+    metrics_dict[runid,metric_id,'deed_restricted_HRA',y_diff] =  metrics_dict[runid,metric_id,'deed_restricted_HRA',y2] - metrics_dict[runid,metric_id,'deed_restricted_HRA',y1]
     metrics_dict[runid,metric_id,'residential_units_HRA',y_diff] = metrics_dict[runid,metric_id,'residential_units_HRA',y2]  - metrics_dict[runid,metric_id,'residential_units_HRA',y1]
     metrics_dict[runid,metric_id,'deed_restricted_nonHRA',y_diff] = metrics_dict[runid,metric_id,'deed_restricted',y_diff] - metrics_dict[runid,metric_id,'deed_restricted_HRA',y_diff]
     metrics_dict[runid,metric_id,'residential_units_nonHRA',y_diff] = metrics_dict[runid,metric_id,'residential_units',y_diff]  - metrics_dict[runid,metric_id,'residential_units_HRA',y_diff]
