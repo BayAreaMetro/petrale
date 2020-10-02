@@ -84,7 +84,7 @@ MTC_ONLINE_MANUAL_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hoste
 
 MTC_ONLINE_OPPSITE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/urbansim_opportunity_sites/FeatureServer/0?token=P5e_GqfO6QGxXSDi4e9vIAk_VY2UWt14ef8nhAGRejMjclSDSYOteqHtWvSStV4LVpZkSN1dzu1ZEjx5gt2wbdMF6gbTvqnvb4o-gy3yr2Eas5MC_lIQFKfR8PsrWfGyTlXui2NK9ZVWYQFvx6ABqu6jXGdbBPNRtYONX2uutmDpgpJgaDOpwbECXVzqJTEvI4Ysu-17ELH9w7r3NRzeSo8L2OpDSglvaSEl7uynwX4.'
 
-MTC_ONLINE_PUBLAND_URL ='https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/H8_AH_Public_Sites_DRAFT1_BL_Review/FeatureServer/0?token=wxxbLZK4xfBxsd5R4PPxaD8vcRP4FSk5FvazMeOR5UZVb7ZIkaizjQIHOcgjZr3x73FNfw-dBjQ4cBwS8COB97IDHuYrPpNsgHsVK5Wn1rZNPN-7xX30QaDeuxQIfN-T5_NjgWIaWNxyriJNew1NvHgijteZAC3RIBeEpeNdyLCB2Z0RifxaYoKihgWt59cRr3Vr5W5UlLmJ7meGuEH_FXez2g1q4jluU4BwLamWIbs.'
+MTC_ONLINE_PUBLAND_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/H8_AH_Public_Sites_FBP_DRAFT_for_Run1/FeatureServer/0?token=Qn8t_XwkULvDb0DIPyG4MUlcxy1JqoVo6ptb2LsP_c3_83pa3dsEfHRz5kTI1HPSv50uy6OHmsUlyU_-9KsNnnJePw3MX9ZLfFgsLU8kqnODZzXBJv3Fht3giFyDAraAATsBCfofvObtdMrh8m246JAb8LFM2eON7i__1PTB9Cb5Io9UH2kBIlzrMeRtW8KmId5bxlme_fwxJSTr9s1dkJXkdYZYZWs6k1YqD0-Q6fo.'
 
 manual_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MANUAL_URL,'manual_sites')
 
@@ -1128,7 +1128,7 @@ if __name__ == '__main__':
 		logger.info("Creating layer {} by spatial joining opp sites data ({}) and parcels ({})".format(joinFN, pub_sites, p10_pba50))
 		arcpy.SpatialJoin_analysis(pub_sites, p10_pba50, joinFN)
 		
-		arcpy.AlterField_management(joinFN, "year_build", "p_year_built")
+		arcpy.AlterField_management(joinFN, "yearbuilt2", "p_year_built")
 		arcpy.AlterField_management(joinFN, "new_units", "p_new_units")
 		arcpy.AlterField_management(joinFN, "deed_res_1", "p_dr_units")
 		arcpy.AlterField_management(joinFN, "PARCEL_ID", "p_parcel_id")
@@ -1188,6 +1188,7 @@ if __name__ == '__main__':
 		
 		# NOTE THAT OPPSITES HAS SCEN SET IN GIS FILE
 		arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!p_parcel_id!')
+		arcpy.CalculateField_management(joinFN, "action", "'build'")
 		arcpy.CalculateField_management(joinFN, "scen0", 0)
 		arcpy.CalculateField_management(joinFN, "scen0", 0)
 		arcpy.CalculateField_management(joinFN, "scen0", 0)
