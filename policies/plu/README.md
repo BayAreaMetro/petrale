@@ -87,34 +87,43 @@ Output:
 * ``zoning_lookup_pba50.csv``, maps zoning id to characteristics (intensity and allowed development type)
 
 
-## Scripts/files to calculate and compare zoned development capacity under different zoningmods scenarios
+## Scripts/files to visualize zoningmod and compare development capacity between different zoningmod scenarios/versions
 
-#### calculate_upzoning_capacity.py](calculate_upzoning_capacity.py)
+#### [calculate_upzoning_capacity.py](calculate_upzoning_capacity.py)
 
 Calculate the raw and net zoned development capacity under certain zoningmod scenario, and compare the calculated capacity with BAUS run output for the same zoningmod scenario at TAZ and jurisdiction levels.
 
 Input:
-* ``p10``, parcels with PARCEL_ID, ACRES attributes
-  ``zoning_parcels_hybrid_pba50.csv``, p10 combined with zoning_id data output by 4_create_hybrid_urbansim_input.py
-  ``zoning_lookup_hybrid_pba50.csv``, lookup table of zoning_id to allowable development types and intensities
-  ``p10_pba50_attr.csv``, p10 combined with zoningmods categories data
-  ``parcels_geography.csv``, p10 data with new jurisdiction designation
-  ``parcel_to_taz1454sub.csv``, p10 mapped to 1454 TAZ
-  ``run{}_parcel_data_2050.csv``, BAUS run output 2050 parcel data
-  ``run{}_building_data_2050.csv``, BAUS run output 2050 building data
+* ``p10.csv``, parcels with PARCEL_ID, ACRES attributes
+* ``zoning_parcels_hybrid_pba50.csv``, p10 combined with zoning_id data output by 4_create_hybrid_urbansim_input.py
+* ``zoning_lookup_hybrid_pba50.csv``, lookup table of zoning_id to allowable development types and intensities
+* ``p10_pba50_attr.csv``, p10 combined with zoningmods categories data
+* ``parcel_to_taz1454sub.csv``, p10 mapped to 1454 TAZ
 
 Output: 
 * ``compare_juris_capacity.csv``, jurisdiction-level development capacity metrics
 * ``compare_taz_capacity.csv``, TAZ-level development capacity metrics
 
 Output development capacity metrics:
-* Calculated_RAW_CAPACITY: 'zoned_du', 'zoned_Ksqft', 'job_spaces'
-* Calculated_NET_CAPACITY: 'zoned_du_vacant', 'zoned_Ksqft_vacant', 'job_spaces_vacant',
-                     'zoned_du_underbuild', 'zoned_Ksqft_underbuild', 'job_spaces_underbuild',
-                     'zoned_du_underbuild_noProt', 'zoned_Ksqft_underbuild_noProt', 'job_spaces_underbuild_noProt'
-* BAUS_OUTPUT_CAPACITY: 'residential_units', 'job_spaces', 'non_residential_sqft', 'zoned_du_underbuild', 'zoned_du', 'zoned_du_underbuild_nodev', 'totemp'
+* Calculated_RAW_CAPACITY for basezoning: 'zoned_du_basezoning', 'zoned_Ksqft_basezoning', 'job_spaces_basezoning'
+* Calculated_RAW_CAPACITY for zoningmods: 'zoned_du_[zmods_scenario]', 'zoned_Ksqft_[zmods_scenario]', 'job_spaces_basezoning_[zmods_scenario]'
+* Calculated_NET_CAPACITY for basezoning: 'zoned_du_vacant_basezoning', 'zoned_Ksqft_vacant_basezoning', 'job_spaces_vacant_basezoning', 'zoned_du_underbuild_basezoning', 'zoned_Ksqft_underbuild_basezoning', 'job_spaces_underbuild_basezoning', 'zoned_du_underbuild_noProt_basezoning', 'zoned_Ksqft_underbuild_noProt_basezoning', 'job_spaces_underbuild_noProt_basezoning'
+* Calculated_NET_CAPACITY for zoningmods: 'zoned_du_vacant_[zmods_scenario]', 'zoned_Ksqft_vacant_[zmods_scenario]', 'job_spaces_vacant_[zmods_scenario]', 'zoned_du_underbuild_[zmods_scenario]', 'zoned_Ksqft_underbuild_[zmods_scenario]', 'job_spaces_underbuild_[zmods_scenario]', 'zoned_du_underbuild_noProt_[zmods_scenario]', 'zoned_Ksqft_underbuild_noProt_[zmods_scenario]', 'job_spaces_underbuild_noProt_[zmods_scenario]'
 
-Output these metrics for visualization with [development_capacity_metrics.twb](development_capacity_metrics.twb).
+Output these metrics for visualization with:
+* [development_capacity_comparison_DB.twb](development_capacity_comparison_DB.twb) for Draft Blueprint
+* [development_capacity_comparison_FB.twb](development_capacity_comparison_FB.twb) for Final Blueprint
+
+#### [zoningmods_map.py](zoningmods_map.py)
+Dissolve parcels by zoningmodcat (``pba50zoningmodcat`` for Draft Blueprint and ``fbpzoningm`` for Final Blueprint), visualize the dissolved geographies with zoningmod parameters.
+
+Input:
+* ``p10.shp``, p10 parcels shapefile
+* ``parcels_geography.csv``, p10 PARCEL_ID mapped to zoningmodcat
+* ``zoning_mods_[zmods_scenario].csv``, zoningmodcat mapped to zoningmod parameters
+
+Output:
+* ``p10_zoningmods_[zmods_scenario].shp``, shapefile of parcels dissolved by zoningmodcat with zoningmods attribute.
 
 
 ## Scripts to update other plu-related UrbanSim input files
