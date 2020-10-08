@@ -22,10 +22,11 @@ DBP_DIR                    = "Draft Blueprint runs\\Blueprint Plus Crossing (s23
 
 # Add new runs here: for comparison -- using v1.8 as a placeholder for now
 DBP_CLEANER_DIR            = "Draft Blueprint runs\\Blueprint Plus Crossing (s23)\\v1.8 - final cleaner"
-Test26                 = "Draft Blueprint runs\\test runs\\run28"
-# A list of paths of runs, which would be read and produce summaries altogether
-PATH_LIST                  = [PBA40_DIR, DBP_DIR, DBP_CLEANER_DIR, Test26] # ---Add new run paths to this list---
+FBP_SEPT_DIR                = "Final Blueprint runs\\Final Blueprint (s24)\\BAUS v2.0"
 
+# A list of paths of runs, which would be read and produce summaries altogether
+PATH_LIST                  = [PBA40_DIR, DBP_DIR, DBP_CLEANER_DIR, FBP_SEPT_DIR] # ---Add new run paths to this list---
+PATH_LIST_PARCEL           = [DBP_DIR, DBP_CLEANER_DIR, FBP_SEPT_DIR]
 
 #Visualization folder
 VIZ                        = "Visualizations"
@@ -33,16 +34,10 @@ VIZ                        = "Visualizations"
 #Output will into this workbook
 OUTPUT_FILE                = os.path.join(URBANSIM_OUTPUT_BOX_DIR, VIZ, 
                                          "PBA50_growth_{}_allruns.csv")
-#Output
-Test9                  = "Draft Blueprint runs\\test runs\\run9"
-Test16                 = "Draft Blueprint runs\\test runs\\run16"
-Test26                 = "Draft Blueprint runs\\test runs\\run26"
-Test28                 = "Draft Blueprint runs\\test runs\\run28"
-PATH_LIST_PARCEL = [DBP_DIR, Test9, Test16,Test26,Test28]
+
 #Parcel_geography
-PARCEL_GEO_DIR          = "Draft Blueprint Large Input Data\\2020_04_17_parcels_geography.csv"
-
-
+PARCEL_GEO_DIR          = "Current PBA50 Large General Input Data\\2020_09_21_parcels_geography.csv"
+\
 juris_to_county = {'alameda' : 'Alameda',
 'albany' : 'Alameda',
 'american_canyon' : 'Napa',
@@ -163,7 +158,6 @@ cn_to_county = {1 : 'San Francisco',
                 7 : 'Napa',
                 8 : 'Sonoma',
                 9 : 'Marin'}
-
 
 #calculate growth at the regional level for main variables using taz summaries
 def county_calculator(DF1, DF2):
@@ -309,6 +303,7 @@ def nontaz_calculator(DF1, DF2):
                   'deed_restricted_units growth',
                   'inclusionary_units growth',
                   'subsidized_units growth']
+                    #'preserved_units growth']
     
     if ('juris' in DF1.columns) & ('juris' in DF2.columns):
         DF_merge = DF1.merge(DF2, on = 'juris').fillna(0)
@@ -347,6 +342,7 @@ def nontaz_calculator(DF1, DF2):
     DF_merge['deed_restricted_units growth'] = DF_merge['deed_restricted_units_y']-DF_merge['deed_restricted_units_x']
     DF_merge['inclusionary_units growth'] = DF_merge['inclusionary_units_y']-DF_merge['inclusionary_units_x']
     DF_merge['subsidized_units growth'] = DF_merge['subsidized_units_y']-DF_merge['subsidized_units_x']
+   # DF_merge['preserved_units growth'] = DF_merge['preserved_units_y']-DF_merge['preserved_units_x']
         
     DF_GROWTH = DF_merge[DF_COLUMNS].copy()
     return DF_GROWTH
@@ -370,20 +366,10 @@ def FILELOADER(path, geo, baseyear, endyear):
             pattern_endyear  = "(run[0-9]{1,4}_%s_summaries_%s.csv)"%(geo, endyear)
             
     #DBP has a different pattern from all new BP runs        
-    elif path == DBP_DIR:
+    else:
         localpath = os.path.join(URBANSIM_OUTPUT_BOX_DIR, path) #the path is the run folder, must be specificed. 
         pattern_baseyear = "(run[0-9]{1,4}_%s_summaries_%s.csv)"%(geo, baseyear)
-        pattern_endyear  = "(run[0-9]{1,4}_%s_summaries_%s.csv)"%(geo, endyear)
-        
-    else:
-        if geo == 'pda':    
-            localpath = os.path.join(URBANSIM_OUTPUT_BOX_DIR, path) #the path is the run folder, must be specificed. 
-            pattern_baseyear = "(run[0-9]{1,4}_%s_pba50_summaries_%s.csv)"%(geo, baseyear)
-            pattern_endyear  = "(run[0-9]{1,4}_%s_pba50_summaries_%s.csv)"%(geo, endyear)
-        else:
-            localpath = os.path.join(URBANSIM_OUTPUT_BOX_DIR, path) #the path is the run folder, must be specificed. 
-            pattern_baseyear = "(run[0-9]{1,4}_%s_summaries_%s.csv)"%(geo, baseyear)
-            pattern_endyear  = "(run[0-9]{1,4}_%s_summaries_%s.csv)"%(geo, endyear)            
+        pattern_endyear  = "(run[0-9]{1,4}_%s_summaries_%s.csv)"%(geo, endyear)     
     
     files_baseyear = [f for f in os.listdir(localpath) if re.match(pattern_baseyear, f)]
     filename_baseyear = files_baseyear[0]
@@ -403,8 +389,8 @@ def FILELOADER(path, geo, baseyear, endyear):
 #summarize growth by different geography types that is more nuanced.
 def GEO_SUMMARY_LOADER(path, geo, baseyear, endyear):
     localpath = os.path.join(URBANSIM_OUTPUT_BOX_DIR, path)
-    parcel_baseyear_pattern = "(run[0-9]{1,4}_parcel_data_%s.csv)"%(baseyear)
-    parcel_endyear_pattern = "(run[0-9]{1,4}_parcel_data_%s.csv)"%(endyear)
+    parcel_baseyear_pattern = "(run[0-9]{1,4}_parcel_data_%s\.csv)"%(baseyear)
+    parcel_endyear_pattern = "(run[0-9]{1,4}_parcel_data_%s\.csv)"%(endyear)
     
     parcel_baseyear_search = [f for f in os.listdir(localpath) if re.match(parcel_baseyear_pattern, f)]
     filename_parcel_baseyear =  parcel_baseyear_search[0]
@@ -418,17 +404,17 @@ def GEO_SUMMARY_LOADER(path, geo, baseyear, endyear):
     
     runid = filename_parcel_baseyear.split('_')[0]
     
-    if path == DBP_DIR:
-        parcel_geobase_file = pd.read_csv(os.path.join(URBANSIM_OUTPUT_BOX_DIR, PARCEL_GEO_DIR))
-        parcel_geobase_file_r = parcel_geobase_file[['PARCEL_ID','juris','pba50chcat']]
-        parcel_baseyear = parcel_baseyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4']]
-        parcel_endyear = parcel_endyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4']]
-        parcel_merge = parcel_baseyear.merge(parcel_endyear, on = 'parcel_id').fillna(0)
-        parcel_data = parcel_geobase_file_r.merge(parcel_merge, left_on = 'PARCEL_ID',                                                     right_on = 'parcel_id', how = 'left')
-    else:
-        parcel_baseyear = parcel_baseyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4']]
-        parcel_endyear = parcel_endyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4','juris','pba50chcat']]
-        parcel_data = parcel_baseyear.merge(parcel_endyear, on = 'parcel_id', how = 'left').fillna(0)
+
+    parcel_geobase_file = pd.read_csv(os.path.join(URBANSIM_OUTPUT_BOX_DIR, PARCEL_GEO_DIR))
+    parcel_geobase_file_r = parcel_geobase_file[['PARCEL_ID','juris','fbpchcat']]
+    parcel_baseyear = parcel_baseyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4']]
+    parcel_endyear = parcel_endyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4']]
+    parcel_merge = parcel_baseyear.merge(parcel_endyear, on = 'parcel_id').fillna(0)
+    parcel_data = parcel_geobase_file_r.merge(parcel_merge, left_on = 'PARCEL_ID', right_on = 'parcel_id', how = 'left')
+    #else:
+        #parcel_baseyear = parcel_baseyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4']]
+        #parcel_endyear = parcel_endyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4','juris','pba50chcat']]
+        #parcel_data = parcel_baseyear.merge(parcel_endyear, on = 'parcel_id', how = 'left').fillna(0)
     
     parcel_data['totemp diff'] = parcel_data['totemp_y']-parcel_data['totemp_x']
     parcel_data['tothh diff'] = parcel_data['tothh_y']-parcel_data['tothh_x']
@@ -437,14 +423,14 @@ def GEO_SUMMARY_LOADER(path, geo, baseyear, endyear):
     parcel_data['hhq3 diff'] = parcel_data['hhq3_y']-parcel_data['hhq3_x']
     parcel_data['hhq4 diff'] = parcel_data['hhq4_y']-parcel_data['hhq4_x']
 
-    parcel_data = parcel_data[['parcel_id','tothh diff','totemp diff','hhq1 diff',                               'hhq2 diff','hhq3 diff','hhq4 diff','juris','pba50chcat']].copy()
+    parcel_data = parcel_data[['parcel_id','tothh diff','totemp diff','hhq1 diff','hhq2 diff','hhq3 diff','hhq4 diff','juris','fbpchcat']].copy()
         
     #geography summaries
-    parcel_geo = parcel_data.loc[parcel_data['pba50chcat'].str.contains(geo, na=False)]
-    parcel_geo = parcel_geo.groupby(['juris']).agg({'tothh diff':'sum','totemp diff':'sum',                                                        'hhq1 diff':'sum', 'hhq2 diff':'sum',                                                         'hhq3 diff':'sum', 'hhq4 diff':'sum', }).reset_index()
+    parcel_geo = parcel_data.loc[parcel_data['fbpchcat'].str.contains(geo, na=False)]
+    parcel_geo = parcel_geo.groupby(['juris']).agg({'tothh diff':'sum','totemp diff':'sum', 'hhq1 diff':'sum', 'hhq2 diff':'sum','hhq3 diff':'sum', 'hhq4 diff':'sum', }).reset_index()
     parcel_geo['geo_category'] = 'yes_%s'%(geo)
-    parcel_geo_no = parcel_data.loc[~parcel_data['pba50chcat'].str.contains(geo, na=False)]
-    parcel_geo_no = parcel_geo_no.groupby(['juris']).agg({'tothh diff':'sum','totemp diff':'sum',                                                        'hhq1 diff':'sum', 'hhq2 diff':'sum',                                                         'hhq3 diff':'sum', 'hhq4 diff':'sum', }).reset_index()
+    parcel_geo_no = parcel_data.loc[~parcel_data['fbpchcat'].str.contains(geo, na=False)]
+    parcel_geo_no = parcel_geo_no.groupby(['juris']).agg({'tothh diff':'sum','totemp diff':'sum', 'hhq1 diff':'sum', 'hhq2 diff':'sum', 'hhq3 diff':'sum', 'hhq4 diff':'sum', }).reset_index()
     parcel_geo_no['geo_category'] = 'no_%s'%(geo)
     
     parcel_geo_summary = pd.concat([parcel_geo, parcel_geo_no], ignore_index = True)
@@ -453,12 +439,11 @@ def GEO_SUMMARY_LOADER(path, geo, baseyear, endyear):
     
     return parcel_geo_summary
 
-
 ##Similar to above, this is to define a separate fileloader to produce summaries for overlapping geographies. W
 def TWO_GEO_SUMMARY_LOADER(path, geo1, geo2, baseyear, endyear):
     localpath = os.path.join(URBANSIM_OUTPUT_BOX_DIR, path)
-    parcel_baseyear_pattern = "(run[0-9]{1,4}_parcel_data_%s.csv)"%(baseyear)
-    parcel_endyear_pattern = "(run[0-9]{1,4}_parcel_data_%s.csv)"%(endyear)
+    parcel_baseyear_pattern = "(run[0-9]{1,4}_parcel_data_%s\.csv)"%(baseyear)
+    parcel_endyear_pattern = "(run[0-9]{1,4}_parcel_data_%s\.csv)"%(endyear)
     
     parcel_baseyear_search = [f for f in os.listdir(localpath) if re.match(parcel_baseyear_pattern, f)]
     filename_parcel_baseyear =  parcel_baseyear_search[0]
@@ -472,17 +457,17 @@ def TWO_GEO_SUMMARY_LOADER(path, geo1, geo2, baseyear, endyear):
     
     runid = filename_parcel_baseyear.split('_')[0]
     
-    if path == DBP_DIR:
-        parcel_geobase_file = pd.read_csv(os.path.join(URBANSIM_OUTPUT_BOX_DIR, PARCEL_GEO_DIR))
-        parcel_geobase_file_r = parcel_geobase_file[['PARCEL_ID','juris','pba50chcat']]
-        parcel_baseyear = parcel_baseyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4']]
-        parcel_endyear = parcel_endyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4']]
-        parcel_merge = parcel_baseyear.merge(parcel_endyear, on = 'parcel_id').fillna(0)
-        parcel_data = parcel_geobase_file_r.merge(parcel_merge, left_on = 'PARCEL_ID',                                                     right_on = 'parcel_id', how = 'left')
-    else:
-        parcel_baseyear = parcel_baseyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4']]
-        parcel_endyear = parcel_endyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4','juris','pba50chcat']]
-        parcel_data = parcel_baseyear.merge(parcel_endyear, on = 'parcel_id', how = 'left').fillna(0)
+    #if path == DBP_DIR:
+    parcel_geobase_file = pd.read_csv(os.path.join(URBANSIM_OUTPUT_BOX_DIR, PARCEL_GEO_DIR))
+    parcel_geobase_file_r = parcel_geobase_file[['PARCEL_ID','juris','fbpchcat']]
+    parcel_baseyear = parcel_baseyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4']]
+    parcel_endyear = parcel_endyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4']]
+    parcel_merge = parcel_baseyear.merge(parcel_endyear, on = 'parcel_id').fillna(0)
+    parcel_data = parcel_geobase_file_r.merge(parcel_merge, left_on = 'PARCEL_ID', right_on = 'parcel_id', how = 'left')
+    #else:
+        #parcel_baseyear = parcel_baseyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4']]
+        #parcel_endyear = parcel_endyear[['parcel_id','tothh','totemp', 'hhq1','hhq2','hhq3','hhq4','juris','fbpchcat']]
+        #parcel_data = parcel_baseyear.merge(parcel_endyear, on = 'parcel_id', how = 'left').fillna(0)
     
     parcel_data['totemp diff'] = parcel_data['totemp_y']-parcel_data['totemp_x']
     parcel_data['tothh diff'] = parcel_data['tothh_y']-parcel_data['tothh_x']
@@ -491,29 +476,28 @@ def TWO_GEO_SUMMARY_LOADER(path, geo1, geo2, baseyear, endyear):
     parcel_data['hhq3 diff'] = parcel_data['hhq3_y']-parcel_data['hhq3_x']
     parcel_data['hhq4 diff'] = parcel_data['hhq4_y']-parcel_data['hhq4_x']
 
-    parcel_data = parcel_data[['parcel_id','tothh diff','totemp diff','hhq1 diff',                               'hhq2 diff','hhq3 diff','hhq4 diff','juris','pba50chcat']].copy()
+    parcel_data = parcel_data[['parcel_id','tothh diff','totemp diff','hhq1 diff', 'hhq2 diff','hhq3 diff','hhq4 diff','juris','fbpchcat']].copy()
     
     #two geographies
-    parcel_geo2 = parcel_data.loc[parcel_data['pba50chcat'].str.contains(geo1, na=False)]
-    parcel_geo2 = parcel_geo2.loc[parcel_geo2['pba50chcat'].str.contains(geo2, na=False)]
-    parcel_geo2_group = parcel_geo2.groupby(['juris']).agg({'tothh diff':'sum','totemp diff':'sum',                                                        'hhq1 diff':'sum', 'hhq2 diff':'sum',                                                         'hhq3 diff':'sum', 'hhq4 diff':'sum', }).reset_index()
+    parcel_geo2 = parcel_data.loc[parcel_data['fbpchcat'].str.contains(geo1, na=False)]
+    parcel_geo2 = parcel_geo2.loc[parcel_geo2['fbpchcat'].str.contains(geo2, na=False)]
+    parcel_geo2_group = parcel_geo2.groupby(['juris']).agg({'tothh diff':'sum','totemp diff':'sum', 'hhq1 diff':'sum', 'hhq2 diff':'sum', 'hhq3 diff':'sum', 'hhq4 diff':'sum', }).reset_index()
     parcel_geo2_group['geo_category'] = 'yes_%s'%(geo1+geo2)
     
-    parcel_geo2_no_1 = parcel_data.loc[parcel_data['pba50chcat'].str.contains(geo1, na=False)]
-    parcel_geo2_no_1 = parcel_geo2_no_1.loc[~parcel_geo2_no_1['pba50chcat'].str.contains(geo2, na=False)]
-    parcel_geo2_no_2 = parcel_data.loc[parcel_data['pba50chcat'].str.contains(geo2, na=False)]
-    parcel_geo2_no_2 = parcel_geo2_no_2.loc[~parcel_geo2_no_2['pba50chcat'].str.contains(geo1, na=False)]
-    parcel_geo2_no_3 = parcel_data.loc[~parcel_data['pba50chcat'].str.contains(geo1 + "|" + geo2, na=False)]
+    parcel_geo2_no_1 = parcel_data.loc[parcel_data['fbpchcat'].str.contains(geo1, na=False)]
+    parcel_geo2_no_1 = parcel_geo2_no_1.loc[~parcel_geo2_no_1['fbpchcat'].str.contains(geo2, na=False)]
+    parcel_geo2_no_2 = parcel_data.loc[parcel_data['fbpchcat'].str.contains(geo2, na=False)]
+    parcel_geo2_no_2 = parcel_geo2_no_2.loc[~parcel_geo2_no_2['fbpchcat'].str.contains(geo1, na=False)]
+    parcel_geo2_no_3 = parcel_data.loc[~parcel_data['fbpchcat'].str.contains(geo1 + "|" + geo2, na=False)]
     
     parcel_geo2_no = pd.concat([parcel_geo2_no_1, parcel_geo2_no_2, parcel_geo2_no_3], ignore_index = True)
-    parcel_geo2_no_group = parcel_geo2_no.groupby(['juris']).agg({'tothh diff':'sum','totemp diff':'sum',                                                        'hhq1 diff':'sum', 'hhq2 diff':'sum',                                                         'hhq3 diff':'sum', 'hhq4 diff':'sum', }).reset_index()
+    parcel_geo2_no_group = parcel_geo2_no.groupby(['juris']).agg({'tothh diff':'sum','totemp diff':'sum', 'hhq1 diff':'sum', 'hhq2 diff':'sum', 'hhq3 diff':'sum', 'hhq4 diff':'sum', }).reset_index()
     parcel_geo2_no_group['geo_category'] = 'no_%s'%(geo1+geo2)
     
     parcel_geo2_summary = pd.concat([parcel_geo2_group, parcel_geo2_no_group], ignore_index = True)
     parcel_geo2_summary['RUNID'] = runid
     
     return parcel_geo2_summary
-
 
 if __name__ == "__main__":
     
@@ -559,74 +543,49 @@ if __name__ == "__main__":
     DF_MERGE.to_csv(OUTPUT_FILE.format(GEO), index = False)
     
     DF_COUNTY_UNION = pd.concat(DF_COUNTY_LIST)
-    DF_COUNTY_UNION.set_index(['RUNID','county'])
-    DF_COUNTY_UNION.to_csv(OUTPUT_FILE.format('county'), index = False)
+    DF_COUNTY_UNION.set_index(['RUNID','county'], inplace=True)
+    DF_COUNTY_UNION.to_csv(OUTPUT_FILE.format('county'))
     
     #then process other geography summaries     
-    GEO = ['pda','juris','superdistrict']
+    GEO = ['juris','superdistrict']
     DF_LIST = []
                     
     for geo in GEO:
         #PDA summary comparisons should exclude PBA40 and DBP, because they used PBA40 PDAs,
         #for PBA50 PDAs, only include new runs
-        if geo =='pda':
-            
-            PATH_LIST_v2 = filter(lambda x: (x != PBA40_DIR)&(x != DBP_DIR),PATH_LIST)
-            baseyear = 2015
-            endyear  = 2050
-                        
-            for path in PATH_LIST_v2:
-                data_summary =  FILELOADER(path, geo, baseyear, endyear)
-                summary_baseyear = data_summary[0]
-                summary_endyear  = data_summary[1]
-                summary_runid    = data_summary[2]
-    
-                #calculate growth and combine files
-                DF  = nontaz_calculator(summary_baseyear, summary_endyear)
-                DF['RUNID'] = summary_runid
-                DF['pda_pba50'] = DF['pda_pba50'].str.lower()
-        
-                DF_LIST.append(DF)
-        
-            DF_UNION = pd.concat(DF_LIST)
-            DF_UNION.reset_index(drop=True, inplace=True)
-            DF_UNION.to_csv(OUTPUT_FILE.format(geo), index = False)                
-            DF_LIST = []
-        else:
-            for path in PATH_LIST:
+        for path in PATH_LIST:
             #Read PBA40 file
-                if path == PBA40_DIR:
-                    baseyear = 2010
-                    endyear  = 2040
-                else:
-                    baseyear = 2015
-                    endyear  = 2050
+            if path == PBA40_DIR:
+                baseyear = 2010
+                endyear  = 2040
+            else:
+                baseyear = 2015
+                endyear  = 2050
             
-                data_summary =  FILELOADER(path, geo, baseyear, endyear)
-                summary_baseyear = data_summary[0]
-                summary_endyear  = data_summary[1]
-                summary_runid    = data_summary[2]
+            data_summary =  FILELOADER(path, geo, baseyear, endyear)
+            summary_baseyear = data_summary[0]
+            summary_endyear  = data_summary[1]
+            summary_runid    = data_summary[2]
     
                 #calculate growth and combine files
-                DF  = nontaz_calculator(summary_baseyear, summary_endyear)
-                if summary_runid == 'run7224':
-                    DF['RUNID'] = 'PBA40'
-                elif summary_runid == 'run98':
-                    DF['RUNID'] = 'DBP'
-                else:
-                    DF['RUNID'] = summary_runid
-                DF_LIST.append(DF)
+            DF  = nontaz_calculator(summary_baseyear, summary_endyear)
+            if summary_runid == 'run7224':
+                DF['RUNID'] = 'PBA40'
+            elif summary_runid == 'run98':
+                DF['RUNID'] = 'DBP'
+            else:
+                DF['RUNID'] = summary_runid
+            DF_LIST.append(DF)
             
-            DF_UNION = pd.concat(DF_LIST)
-            DF_UNION.sort_values('RUNID', inplace=True)
-            DF_UNION.reset_index(drop=True, inplace=True)
-            DF_UNION.to_csv(OUTPUT_FILE.format(geo), index = False)
-            DF_LIST = []
+        DF_UNION = pd.concat(DF_LIST)
+        DF_UNION.set_index('RUNID', inplace=True)
+        DF_UNION.to_csv(OUTPUT_FILE.format(geo))
+        DF_LIST = []
     
     #summary from parcel data
     baseyear = 2015
     endyear = 2050
-    GEO = ['GG','tra','HRA', 'DR']
+    GEO = ['GG','tra','HRA', 'DIS']
     DF_LIST = []
     #PATH_LIST_PARCEL = filter(lambda x: (x != PBA40_DIR)&(x != DBP__CLEANER_DIR),PATH_LIST)
     for geo in GEO:
@@ -642,7 +601,7 @@ if __name__ == "__main__":
         DF_LIST = []
     
     #summaries for overlapping geos
-    geo_1, geo_2, geo_3 = 'tra','DR','HRA'
+    geo_1, geo_2, geo_3 = 'tra','DIS','HRA'
     DF_LIST =[]
     DF_LIST_2 = []
     for path in PATH_LIST_PARCEL:
