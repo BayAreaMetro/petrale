@@ -1,4 +1,4 @@
-import os, sys, time
+import os, sys, time, traceback
 import arcpy
 import logging
 from arcgis.gis import GIS
@@ -8,18 +8,17 @@ import numpy as np
 
 NOW = time.strftime("%Y_%m%d_%H%M")
 
+# set PATH=C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3
 ###ArcGIS portion setup
 if os.getenv("USERNAME")=="MTCPB":
-    WORKING_DIR         = "C:\\Users\\MTCPB\\Documents\\ArcGIS\\Projects\\P2T"
-    LOG_FILE            = os.path.join(WORKING_DIR,"proximity2transit_{}.log".format(NOW))
-    P2T                 = os.path.join(WORKING_DIR,"P2T.GDB")
-    WORKSPACE_GDB       = "workspace_{}.GDB".format(NOW)
+    WORKING_DIR   = "C:\\Users\\MTCPB\\Documents\\ArcGIS\\Projects\\P2T"
+else:
+    WORKING_DIR   = os.path.abspath(".")
 
-    arcpy.CreateFileGDB_management(WORKING_DIR, WORKSPACE_GDB)
-    arcpy.env.workspace = os.path.join(WORKING_DIR,WORKSPACE_GDB)
-    arcpy.env.overwriteOutput = True
+LOG_FILE          = os.path.join(WORKING_DIR,"proximity2transit_{}.log".format(NOW))
+WORKSPACE_GDB     = "workspace_{}.GDB".format(NOW)
 
-
+# To make these accessible, login to the server via the ArcGIS Pro GUI
 MTC_ONLINE_TRANSIT15_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/Existing_Transit_Stops_2020/FeatureServer/0'
 MTC_ONLINE_TRANSIT50_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/transitstops_01_2020_potential/FeatureServer/0'
 MTC_ONLINE_BACOUNTY_URL  = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/county_region/FeatureServer/\
@@ -27,29 +26,175 @@ MTC_ONLINE_BACOUNTY_URL  = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Ho
 8VlapfgMcPFqFNzAkh7gjRLJnjO_a72KZtHGm3OSl-GLC3v4hqxpS478NRaSkQJB5fCLtvn_9nDiagBLbpldEwgL\
 ruCJpsNDb9TPyyyrJ13Vl9LtZ-xZDqyZ5762Kju_a-nydWOqk0tB6ri9fPHh67sElVVA.'
 
-transit_current_portal = arcpy.MakeFeatureLayer_management(MTC_ONLINE_TRANSIT15_URL,'transit_current_portal')
-transit_potential_portal = arcpy.MakeFeatureLayer_management(MTC_ONLINE_TRANSIT50_URL,'transit_potential_portal')
-bacounty_portal = arcpy.MakeFeatureLayer_management(MTC_ONLINE_BACOUNTY_URL,'bacounty_portal')
-
-transit_current   = os.path.join(arcpy.env.workspace, "transit_current")
-transit_potential   = os.path.join(arcpy.env.workspace, "transit_potential")
-bacounty   = os.path.join(arcpy.env.workspace, "bacounty")
-
-if arcpy.Exists(transit_current):
-    arcpy.Delete_management(transit_current)
-if arcpy.Exists(transit_potential):
-    arcpy.Delete_management(transit_potential)
-if arcpy.Exists(bacounty):
-    arcpy.Delete_management(bacounty)
-arcpy.FeatureClassToFeatureClass_conversion(transit_current_portal, arcpy.env.workspace,'transit_current')
-arcpy.FeatureClassToFeatureClass_conversion(transit_potential_portal, arcpy.env.workspace,'transit_potential')
-arcpy.FeatureClassToFeatureClass_conversion(bacounty_portal, arcpy.env.workspace,'bacounty')
-
 ###Urbansim Setup
-urbansim_run_location = 'C:/Users/{}/Box/Modeling and Surveys/Urban Modeling/Bay Area UrbanSim/PBA50/'.format(os.getenv('USERNAME'))
-us_2050_DBP_Plus_runid_cleaner         = 'Draft Blueprint runs/Blueprint Plus Crossing (s23)/v1.8 - final cleaner/run1020'
-us_2050_FBP_Sept_runid       = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.0/run140'
+urbansim_run_location           = 'C:/Users/{}/Box/Modeling and Surveys/Urban Modeling/Bay Area UrbanSim/PBA50/'.format(os.getenv('USERNAME'))
+us_2050_DBP_Plus_runid_cleaner  = 'Draft Blueprint runs/Blueprint Plus Crossing (s23)/v1.8 - final cleaner/run1020'
+us_2050_FBP_Sept_runid          = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.0/run140'
 list_us_runid = [us_2050_DBP_Plus_runid_cleaner, us_2050_FBP_Sept_runid]
+
+def log_workspace_contents(logger):
+
+    workspaces = arcpy.ListWorkspaces()
+    for workspace in workspaces:
+        logger.info("Workspace: {}".format(workspace))
+
+    logger.info("arcpy.env.workspace: {}".format(arcpy.env.workspace))
+  
+    for dataset in arcpy.ListDatasets():
+        logger.info("  dataset: {}".format(dataset))
+        logger.info("    feature classes: {} ".format(arcpy.ListFeatureClasses(feature_dataset=dataset)))
+    
+    logger.info("  feature classes: {} ".format(arcpy.ListFeatureClasses()))
+    logger.info("  tables: {} ".format(arcpy.ListTables()))
+
+def run_as_external_process(python_str):
+    """
+    Run this as an external python process
+    This isn't used currently; it was added to test if it would resolve the SummarizeWithin_analysis() error
+    """
+    import subprocess
+    try:
+        completed = subprocess.run(['python', '-c', python_str], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except subprocess.CalledProcessError as err:
+        print('ERROR:', err)
+    else:
+        print('returncode:', completed.returncode)
+        print('Have {} bytes in stdout: {!r}'.format(len(completed.stdout), completed.stdout.decode('utf-8')))
+        print('Have {} bytes in stderr: {!r}'.format(len(completed.stderr), completed.stderr.decode('utf-8')))
+
+def create_transit_features(logger, transit_type):
+    """
+    transit_type is one of [current, noplan, blueprint]
+    """
+    logger.info("==== create_transit_features({}) ====".format(transit_type))
+    if transit_type == "current":
+        input_layer = "transit_current"
+        prefix      = "trn_cur"
+    elif transit_type == "noplan":
+        input_layer = "transit_potential"
+        prefix      = "trn_np"
+        curprefix   = "trn_cur"
+    elif transit_type == "blueprint":
+        input_layer = "transit_potential"
+        prefix      = "trn_bp"
+        curprefix   = "trn_cur"
+    else:
+        logger.fatal("Unsupported transit_type {}".format(transit_type))
+
+    orig_result = arcpy.GetCount_management(input_layer)
+    logger.info("{} has {} rows".format(input_layer, orig_result[0]))
+
+    ### buffered transit_current major stops
+    if transit_type == "current":
+        logger.info('Select buffer for major transit stops => {}_majorbuf'.format(prefix))
+        major = arcpy.SelectLayerByAttribute_management(input_layer, "NEW_SELECTION", '"major_stop" = 1')
+        arcpy.CopyFeatures_management(major, prefix+"_major")  # save selection to new feature class
+        major_result = arcpy.GetCount_management(prefix+"_major")
+        logger.info("  {}_major has {} rows".format(prefix, major_result[0]))
+        arcpy.Buffer_analysis(prefix+"_major", prefix+"_majorbuf", "0.5 Miles", "FULL", "ROUND", "ALL", None, "PLANAR")
+   
+    else:
+        if transit_type=="noplan":
+            logger.info('Selecting "Under Construction" stops for no plan')
+            new_major = arcpy.management.SelectLayerByAttribute(input_layer, "NEW_SELECTION", 
+                                                                '"status" = \'Under Construction\'')
+        elif transit_type=="blueprint":
+            logger.info('Selecting "Under Construction" or "Draft Blueprint" stops for no plan')
+            new_major = arcpy.management.SelectLayerByAttribute(input_layer, "NEW_SELECTION", 
+                                                                '"status" = \'Under Construction\' Or status=\'Draft Blueprint\'')
+
+        arcpy.CopyFeatures_management(new_major, prefix+"_new_major")  # save selection to new feature class
+        new_major_result = arcpy.GetCount_management(prefix+"_new_major")
+        logger.info("  {}_new_major has {} rows".format(prefix, new_major_result[0]))
+        arcpy.Buffer_analysis(prefix+"_new_major", prefix+"_newmajorbuf", "0.5 Miles", "FULL", "ROUND", "ALL", None, "PLANAR")
+
+        # merge new major buffered with original major buffered
+        arcpy.Merge_management([curprefix+"_majorbuf",prefix+"_newmajorbuf"], prefix+"_majorbuf_predissolve")
+        # dissolve
+        arcpy.management.Dissolve(prefix+"_majorbuf_predissolve", prefix+"_majorbuf", 
+                                  dissolve_field=None, statistics_fields=None, multi_part="MULTI_PART", unsplit_lines="DISSOLVE_LINES")
+    
+    ### buffered hdway_15min stops
+    logger.info('Creating buffer for stops with headway < 15min => {}_hdwy15buf'.format(prefix))
+
+    if transit_type=="current":
+        hdwy15 = arcpy.SelectLayerByAttribute_management(input_layer, "NEW_SELECTION", '"hdwy_15min" = 1') 
+        arcpy.CopyFeatures_management(hdwy15, prefix+"_hdwy15")  # save selection to new feature class
+        hdwy15_result = arcpy.GetCount_management(prefix+"_hdwy15")
+        logger.info("  {}_hdwy15 has {} rows".format(prefix, hdwy15_result[0]))
+        arcpy.Buffer_analysis(prefix+"_hdwy15", prefix+"_hdwy15buf", "0.25 Miles", "FULL", "ROUND", "ALL", None, "PLANAR")
+
+    else:
+        # copy current
+        arcpy.CopyFeatures_management(curprefix+"_hdwy15buf", prefix+"_hdwy15buf")
+
+    ### buffered hdway_30min stops
+    logger.info('Creating buffer for stops with headway 15-30 min => {}_hdwy30buf'.format(prefix))
+
+    if transit_type=="current":
+        hdwy30 = arcpy.SelectLayerByAttribute_management(input_layer, "NEW_SELECTION", '"hdwy_30min" = 1')
+        arcpy.CopyFeatures_management(hdwy30, prefix+"_hdwy30")  # save selection to new feature class
+        hdwy30_result = arcpy.GetCount_management(prefix+"_hdwy30")
+        logger.info("  {}_hdwy30 has {} rows".format(prefix, hdwy30_result[0]))
+        arcpy.Buffer_analysis(prefix+"_hdwy30", prefix+"_hdwy30buf", "0.25 Miles", "FULL", "ROUND", "ALL", None, "PLANAR")
+
+    else:
+        # copy current
+        arcpy.CopyFeatures_management(curprefix+"_hdwy30buf", prefix+"_hdwy30buf") 
+
+    ### buffered hdway_30plus stops
+    logger.info('Creating buffer for stops with headway 30+ min => {}_hdwy30plusbuf'.format(prefix))
+
+    if transit_type=="current":
+        hdwy30plus = arcpy.SelectLayerByAttribute_management(input_layer, "NEW_SELECTION", '"hdwy_class" = \'31 mins or more\'')
+        arcpy.CopyFeatures_management(hdwy30plus, prefix+"_hdwy30plus")  # save selection to new feature class
+        hdwy30plus_result = arcpy.GetCount_management(prefix+"_hdwy30plus")
+        logger.info("  {}_hdwy30plus has {} rows".format(prefix, hdwy30plus_result[0]))
+        arcpy.Buffer_analysis(prefix+"_hdwy30plus", prefix+"_hdwy30plusbuf", "0.25 Miles", "FULL", "ROUND", "ALL", None, "PLANAR")
+
+    else:
+        # copy current
+        arcpy.CopyFeatures_management(curprefix+"_hdwy30plusbuf", prefix+"_hdwy30plusbuf") 
+
+    ### Make them disjoint -- first one wins
+    logger.info('Isolate {}_hdwy15buf => {}_hdwy15buf_only'.format(prefix,prefix))
+    arcpy.Erase_analysis(in_features=prefix+"_hdwy15buf", erase_features=prefix+"_majorbuf",
+                         out_feature_class=prefix+"_hdwy15buf_only")
+
+    logger.info('Isolate {}_hdwy30buf => {}_hdwy30buf_only'.format(prefix,prefix))
+    arcpy.Erase_analysis(prefix+"_hdwy30buf",   prefix+"_majorbuf",  prefix+"_hdwy30buf_1")
+    arcpy.Erase_analysis(prefix+"_hdwy30buf_1", prefix+"_hdwy15buf", prefix+"_hdwy30buf_only")
+    arcpy.Delete_management([prefix+"_hdwy30buf_1"])
+
+    logger.info('Isolate {}_hdwy30plusbuf  => {}_hdwy30plusbuf_only'.format(prefix,prefix))
+    arcpy.Erase_analysis(prefix+"_hdwy30plusbuf",   prefix+"_majorbuf",  prefix+"_hdwy30plusbuf_1")
+    arcpy.Erase_analysis(prefix+"_hdwy30plusbuf_1", prefix+"_hdwy15buf", prefix+"_hdwy30plusbuf_2")
+    arcpy.Erase_analysis(prefix+"_hdwy30plusbuf_2", prefix+"_hdwy30buf", prefix+"_hdwy30plusbuf_only")
+    arcpy.Delete_management([prefix+"_hdwy30plusbuf_1", 
+                             prefix+"_hdwy30plusbuf_2"])
+
+    logger.info('Rest of Bay Area => {}_none'.format(prefix))
+    arcpy.Erase_analysis("BAcounty_expand",   prefix+"_majorbuf",      "BAcounty_expand_1")
+    arcpy.Erase_analysis("BAcounty_expand_1", prefix+"_hdwy15buf",     "BAcounty_expand_2")
+    arcpy.Erase_analysis("BAcounty_expand_2", prefix+"_hdwy30buf",     "BAcounty_expand_3")
+    arcpy.Erase_analysis("BAcounty_expand_3", prefix+"_hdwy30plusbuf", prefix+"_none")
+    arcpy.Delete_management(["BAcounty_expand_1",
+                             "BAcounty_expand_2",
+                             "BAcounty_expand_3"])
+
+
+    logger.info('Merge into one feature class => {}_cat5'.format(prefix))
+    arcpy.Merge_management([prefix+"_none",
+                            prefix+"_hdwy30plusbuf_only",
+                            prefix+"_hdwy30buf_only",
+                            prefix+"_hdwy15buf_only",
+                            prefix+"_majorbuf"],
+                            prefix+"_cat5", add_source="ADD_SOURCE_INFO")
+    # create Service_Level from MERGE_SRC
+    arcpy.CalculateField_management(in_table=prefix+"_cat5", 
+                                    field="Service_Level",
+                                    expression="!MERGE_SRC![{}:]".format(len(arcpy.env.workspace)+len(prefix)+2),
+                                    expression_type="PYTHON3")
 
 if __name__ == '__main__':
     
@@ -71,246 +216,161 @@ if __name__ == '__main__':
     logger.info("WORKING_DIR   = {}".format(WORKING_DIR))
     logger.info("WORKSPACE_GDB = {}".format(WORKSPACE_GDB))
 
-    # list info about SMELT_GDB
-    arcpy.env.workspace =  os.path.join(WORKING_DIR, WORKSPACE_GDB)
-    logger.info("workspace: {}".format(arcpy.env.workspace))
-    for dataset in arcpy.ListDatasets():
-        logger.info("  dataset: {}".format(dataset))
-        logger.info("    feature classes: {} ".format(arcpy.ListFeatureClasses(feature_dataset=dataset)))
-    
-    logger.info("  feature classes: {} ".format(arcpy.ListFeatureClasses()))
-    logger.info("  tables: {} ".format(arcpy.ListTables()))
+    arcpy.CreateFileGDB_management(WORKING_DIR, WORKSPACE_GDB)
+    arcpy.env.workspace = os.path.join(WORKING_DIR,WORKSPACE_GDB)
+    arcpy.env.overwriteOutput = True
 
-    ###doing for current transit stops
-    logger.info('Select buffer for major transit stops')
-    arcpy.management.SelectLayerByAttribute("transit_current", "NEW_SELECTION", "major_stop = 1", None)
-    #arcpy.FeatureClassToFeatureClass_conversion(transit_current, arcpy.env.workspace,'transit_current_1')
-    arcpy.analysis.Buffer("transit_current", "TPA2020", "0.5 Miles", "FULL", "ROUND", "ALL", None, "PLANAR")
+    transit_current_portal   = arcpy.MakeFeatureLayer_management(MTC_ONLINE_TRANSIT15_URL,'transit_current_portal')
+    transit_potential_portal = arcpy.MakeFeatureLayer_management(MTC_ONLINE_TRANSIT50_URL,'transit_potential_portal')
+    bacounty_portal          = arcpy.MakeFeatureLayer_management(MTC_ONLINE_BACOUNTY_URL,'bacounty_portal')
 
-    logger.info('Select buffer for headway < 15min (TRA)')
-    arcpy.management.SelectLayerByAttribute("transit_current", "NEW_SELECTION", "hdwy_15min = 1", None)
-    arcpy.analysis.Buffer("transit_current", "TRA2020", "0.25 Miles", "FULL", "ROUND", "ALL", None, "PLANAR")
+    transit_current          = os.path.join(arcpy.env.workspace, "transit_current")
+    transit_potential        = os.path.join(arcpy.env.workspace, "transit_potential")
+    bacounty                 = os.path.join(arcpy.env.workspace, "bacounty")
 
-    logger.info('Select buffer for headway 15-30 min')
-    arcpy.management.SelectLayerByAttribute("transit_current", "NEW_SELECTION", "hdwy_30min = 1", None)
-    arcpy.analysis.Buffer("transit_current", "Bus15_30", "0.25 Miles", "FULL", "ROUND", "ALL", None, "PLANAR")
+    if arcpy.Exists(transit_current):   arcpy.Delete_management(transit_current)
+    if arcpy.Exists(transit_potential): arcpy.Delete_management(transit_potential)
+    if arcpy.Exists(bacounty):          arcpy.Delete_management(bacounty)
 
-    logger.info('Select buffer for headway 30+ min')
-    arcpy.management.SelectLayerByAttribute("transit_current", "NEW_SELECTION", "hdwy_class = '31 mins or more'", None)
-    arcpy.analysis.Buffer("transit_current", "Bus30Plus", "0.25 Miles", "FULL", "ROUND", "ALL", None, "PLANAR")
+    arcpy.FeatureClassToFeatureClass_conversion(transit_current_portal,   arcpy.env.workspace,'transit_current')
+    arcpy.FeatureClassToFeatureClass_conversion(transit_potential_portal, arcpy.env.workspace,'transit_potential')
+    arcpy.FeatureClassToFeatureClass_conversion(bacounty_portal,          arcpy.env.workspace,'bacounty')
+
+    # log info about the workspace
+    log_workspace_contents(logger)
 
     #Using county boundaries alone did not capture all parcels (1,952,484/1,956,212). With buffering 0.5 mi 1,956,044/1,956,212 99.99% of all parcels
+    logger.info('Create buffered bacounty => bacounty_expand')
     arcpy.analysis.Buffer("bacounty", "bacounty_expand", "0.5 Miles", "FULL", "ROUND", "ALL", None, "PLANAR")
 
-    logger.info('only include high-freq bus area not already part of Major Transit Stop buffer')
-    arcpy.analysis.Erase("TRA2020", "TPA2020", "TRA2020_Erased", None)
 
-    logger.info('Create Bus 15-30min shape')
-    arcpy.analysis.Erase("Bus15_30", "TRA2020_Erased", "Bus15_30_PartialErased", None)
-    arcpy.analysis.Erase("Bus15_30_PartialErased", "TPA2020", "Bus15_30_Erased", None)
+    # create trncur_cat layer, which has 5 disjoint features which together make bacounty_exapdn: 
+    # majorbuf, hdwy15buf_only hdwy30buf_only, hdwy30plusbuf_only, none
+    create_transit_features(logger, "current")
 
-    logger.info('Create Bus 31+ min shape')
-    arcpy.analysis.Erase("Bus30Plus", "Bus15_30_Erased", "Bus30Plus_PartialErased1", None)
-    arcpy.analysis.Erase("Bus30Plus_PartialErased1", "TRA2020_Erased", "Bus30Plus_PartialErased2", None)
-    arcpy.analysis.Erase("Bus30Plus_PartialErased2", "TPA2020", "Bus30Plus_Erased", None)
+    # create same 5 layers for no plan, which is the same as above but includes transit_potential status='Under Construction' as major stops as well
+    create_transit_features(logger, "noplan")
 
-    logger.info('Create Rest of Bay Area Shape')
-    arcpy.analysis.Erase("BAcounty_expand", "Bus30Plus_Erased", "RestofBA_PartialErased1", None)
-    arcpy.analysis.Erase("RestofBA_PartialErased1", "Bus15_30_Erased", "RestofBA_PartialErased2", None)
-    arcpy.analysis.Erase("RestofBA_PartialErased2", "TRA2020_Erased", "RestofBA_PartialErased3", None)
-    arcpy.analysis.Erase("RestofBA_PartialErased3", "TPA2020", "RestofBA_Erased", None)
+    # create same 5 layers for blueprint, which is the same as above but includes transit_potential status='Draft Blueprint' as major stops as well
+    create_transit_features(logger, "blueprint")
 
-    logger.info('Merge into 1 feature class with 5 polygons: Major Transit stop, high freq corridor, 15-30min bus, 31+min bus and remainder of region')
-    arcpy.management.Merge("RestofBA_Erased;Bus30Plus_Erased;Bus15_30_Erased;TRA2020_Erased;TPA2020", "Transit2020")
-    arcpy.FeatureClassToFeatureClass_conversion("Transit2020", P2T,"Transit2020")
-
-    arcpy.management.Delete(["Bus15_30_PartialErased","Bus30Plus_PartialErased1",\
-                            "Bus30Plus_PartialErased2","RestofBA_PartialErased1",\
-                            "RestofBA_PartialErased2","RestofBA_PartialErased3",\
-                            "RestofBA_Erased","Bus30Plus_Erased","Bus15_30_Erased","TRA2020_Erased"])
-
-    ####repeat the same process for No Plan, projects that are in No Plan are automatically high quality transit as a major transit stop
-    logger.info('Select and Buffer No Plan stops')
-    arcpy.management.SelectLayerByAttribute("transit_potential", "NEW_SELECTION", "status = 'Under Construction'", None)
-    arcpy.analysis.Buffer("transit_potential", "TPA2050_NP", "0.5 Miles", "FULL", "ROUND", "ALL", None, "PLANAR")
-
-    logger.info('Merge and create a new TPA under NP')
-    arcpy.management.Merge("TPA2050_NP; TPA2020", "TPA2050_NP_Merge")
-    #dissolve so easier when merged
-    arcpy.management.Dissolve("TPA2050_NP_Merge", "TPA2050_NP_Dislve", None, None, "MULTI_PART", "DISSOLVE_LINES")
-
-    arcpy.analysis.Erase("TRA2020", "TPA2050_NP_Dislve", "TRA2050_NP", None)
-
-    logger.info('Create Bus 15-30min shape for NP')
-    arcpy.analysis.Erase("Bus15_30", "TRA2050_NP", "Bus15_30_2050NP_PartialErased", None)
-    arcpy.analysis.Erase("Bus15_30_2050NP_PartialErased", "TPA2050_NP_Dislve", "Bus15_30_2050NP", None)
-
-    logger.info('Create Bus 31+ min shape for NP')
-    arcpy.analysis.Erase("Bus30Plus", "Bus15_30_2050NP", "Bus30Plus_2050NP_PartialErased1", None)
-    arcpy.analysis.Erase("Bus30Plus_2050NP_PartialErased1", "TRA2050_NP", "Bus30Plus_2050NP_PartialErased2", None)
-    arcpy.analysis.Erase("Bus30Plus_2050NP_PartialErased2", "TPA2050_NP_Dislve", "Bus30Plus_2050NP", None)
-
-    logger.info('Create Rest of Bay Area Shape for NP')
-    arcpy.analysis.Erase("BAcounty_expand", "Bus30Plus_2050NP", "RestofBA_2050NP_PartialErased1", None)
-    arcpy.analysis.Erase("RestofBA_2050NP_PartialErased1", "Bus15_30_2050NP", "RestofBA_2050NP_PartialErased2", None)
-    arcpy.analysis.Erase("RestofBA_2050NP_PartialErased2", "TRA2050_NP", "RestofBA_2050NP_PartialErased3", None)
-    arcpy.analysis.Erase("RestofBA_2050NP_PartialErased3", "TPA2050_NP_Dislve", "RestofBA_2050NP", None)
-
-    logger.info('Merge into 1 feature class with 5 polygons')
-    arcpy.management.Merge("RestofBA_2050NP;Bus30Plus_2050NP; Bus15_30_2050NP;TRA2050_NP;TPA2050_NP_Dislve", "Transit2050_NP")
-    arcpy.FeatureClassToFeatureClass_conversion("Transit2050_NP", P2T,"Transit2050_NP")
-
-    arcpy.management.Delete(["Bus15_30_2050NP_PartialErased","Bus30Plus_2050NP_PartialErased1",\
-                            "Bus30Plus_2050NP_PartialErased2","RestofBA_2050NP_PartialErased1",\
-                            "RestofBA_2050NP_PartialErased2","RestofBA_2050NP_PartialErased3",\
-                            "RestofBA_2050NP","Bus30Plus_2050NP","Bus15_30_2050NP","TRA2050_NP","TPA2050_NP_Merge","TPA2050_NP_Dislve"])
-
-    ####repeat the same process for DBP Plan, projects that are in No Plan are automatically high quality transit as a major transit stop -- this to revise to Final Blue Print
-    logger.info('Select and Buffer No Plan stops')
-    arcpy.management.SelectLayerByAttribute("transit_potential", "NEW_SELECTION", "status = 'Under Construction' Or status = 'Draft Blueprint'", None)
-    arcpy.analysis.Buffer("transit_potential", "TPA2050_BP", "0.5 Miles", "FULL", "ROUND", "ALL", None, "PLANAR")
-
-    logger.info('Merge and create a new TPA under BP')
-    arcpy.management.Merge("TPA2050_BP; TPA2020", "TPA2050_BP_Merge")
-    #dissolve so easier when merged
-    arcpy.management.Dissolve("TPA2050_BP_Merge", "TPA2050_BP_Dislve", None, None, "MULTI_PART", "DISSOLVE_LINES")
-
-    arcpy.analysis.Erase("TRA2020", "TPA2050_BP_Dislve", "TRA2050_BP", None)
-
-    logger.info('Create Bus 15-30min shape for BP')
-    arcpy.analysis.Erase("Bus15_30", "TRA2050_BP", "Bus15_30_2050BP_PartialErased", None)
-    arcpy.analysis.Erase("Bus15_30_2050BP_PartialErased", "TPA2050_BP_Dislve", "Bus15_30_2050BP", None)
-
-    logger.info('Create Bus 31+ min shape for BP')
-    arcpy.analysis.Erase("Bus30Plus", "Bus15_30_2050BP", "Bus30Plus_2050BP_PartialErased1", None)
-    arcpy.analysis.Erase("Bus30Plus_2050BP_PartialErased1", "TRA2050_BP", "Bus30Plus_2050BP_PartialErased2", None)
-    arcpy.analysis.Erase("Bus30Plus_2050BP_PartialErased2", "TPA2050_BP_Dislve", "Bus30Plus_2050BP", None)
-
-    logger.info('Create Rest of Bay Area Shape for BP')
-    arcpy.analysis.Erase("BAcounty_expand", "Bus30Plus_2050BP", "RestofBA_2050BP_PartialErased1", None)
-    arcpy.analysis.Erase("RestofBA_2050BP_PartialErased1", "Bus15_30_2050BP", "RestofBA_2050BP_PartialErased2", None)
-    arcpy.analysis.Erase("RestofBA_2050BP_PartialErased2", "TRA2050_BP", "RestofBA_2050BP_PartialErased3", None)
-    arcpy.analysis.Erase("RestofBA_2050BP_PartialErased3", "TPA2050_BP_Dislve", "RestofBA_2050BP", None)
-
-    logger.info('Merge into 1 feature class with 5 polygons')
-    arcpy.management.Merge("RestofBA_2050BP;Bus30Plus_2050BP; Bus15_30_2050BP;TRA2050_BP;TPA2050_BP_Dislve", "Transit2050_BP")
-    arcpy.FeatureClassToFeatureClass_conversion("Transit2050_BP", P2T,"Transit2050_BP")
-
-    arcpy.management.Delete(["Bus15_30_2050BP_PartialErased","Bus30Plus_2050BP_PartialErased1",\
-                            "Bus30Plus_2050BP_PartialErased2","RestofBA_2050BP_PartialErased1",\
-                            "RestofBA_2050BP_PartialErased2","RestofBA_2050BP_PartialErased3",\
-                            "RestofBA_2050BP","Bus30Plus_2050BP","Bus15_30_2050BP","TRA2050_BP","TPA2050_BP_Merge","TPA2050_BP_Dislve"])
-
-    #arcpy.env.workspace = P2T
-    arcpy.env.overwriteOutput = True
-    ###Bring in urbansim results
-    acrossruns_proximity = []
+    ### Bring in urbansim results
+    all_prox = pd.DataFrame()
 
     for us_runid in list_us_runid:
-        urbansim_runid = urbansim_run_location + us_runid
+        logger.info("")
+        logger.info("==== Processing UrbanSim run {} ====".format(us_runid))
+        urbansim_runid = os.path.join(urbansim_run_location,us_runid)
 
-        proximity = []
-        # 2015 results first
-        logger.info('Reading 2015 parcel data')
-        parcel_output_2015 = pd.read_csv((urbansim_runid+'_parcel_data_2015.csv'))
-        # keeping essential columns
-        parcel_output_2015.drop(['geom_id','total_job_spaces','zoned_du',\
+        for model_year in (2015, 2050):
+            parcel_file = urbansim_runid+'_parcel_data_{}.csv'.format(model_year)
+            logger.info('Reading {} parcel data from {}'.format(model_year, parcel_file))
+            parcel_output = pd.read_csv(parcel_file)
+
+            logger.info('  Read {} rows'.format(len(parcel_output)))
+
+            # keep essential columns
+            parcel_output.drop(['geom_id','total_job_spaces','zoned_du',
                                 'zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
+            logger.info("Head:\n{}".format(parcel_output.head()))
+
+            parcel_output['totemp' ] = parcel_output['totemp' ].fillna(0)
+            parcel_output['totemp' ] = parcel_output['totemp' ].round(0).astype('int')
+            parcel_output['RETEMPN'] = parcel_output['RETEMPN'].fillna(0)
+            parcel_output['RETEMPN'] = parcel_output['RETEMPN'].round(0).astype('int')
+            parcel_output['MWTEMPN'] = parcel_output['MWTEMPN'].fillna(0)
+            parcel_output['MWTEMPN'] = parcel_output['MWTEMPN'].round(0).astype('int')
         
-        parcel_output_2015['totemp'] = parcel_output_2015['totemp'].fillna(0)
-        parcel_output_2015['totemp'] = parcel_output_2015['totemp'].round(0).astype('int')
-        parcel_output_2015['RETEMPN'] = parcel_output_2015['RETEMPN'].fillna(0)
-        parcel_output_2015['RETEMPN'] = parcel_output_2015['RETEMPN'].round(0).astype('int')
-        parcel_output_2015['MWTEMPN'] = parcel_output_2015['MWTEMPN'].fillna(0)
-        parcel_output_2015['MWTEMPN'] = parcel_output_2015['MWTEMPN'].round(0).astype('int')
-        
-        parcel_summary_2015 = os.path.join(arcpy.env.workspace,'parcel_2015.csv')
-    
-        if arcpy.Exists(parcel_summary_2015):
-            arcpy.management.Delete(parcel_summary_2015)
-            parcel_output_2015.to_csv(parcel_summary_2015)
-        else:
-            parcel_output_2015.to_csv(parcel_summary_2015)
+            # save as table in gdb
+            parcel_table = os.path.join(arcpy.env.workspace, "parcel_table")
+            if arcpy.Exists(parcel_table): arcpy.management.Delete(parcel_table)
 
+            parcel_array = np.array(np.rec.fromrecords(parcel_output.values))
+            parcel_array.dtype.names = tuple(parcel_output.dtypes.index.tolist())
+            arcpy.da.NumPyArrayToTable(parcel_array, parcel_table)
+            logger.info("Saved to {} in {}".format(parcel_table, arcpy.env.workspace))
 
-        arcpy.management.XYTableToPoint(parcel_summary_2015, 'parcel_2015','x','y')
+            # convert to point feature class in GDB
+            if arcpy.Exists('parcel_fc'): arcpy.management.Delete('parcel_fc')
+            arcpy.management.XYTableToPoint(in_table=parcel_table, out_feature_class='parcel_fc',x_field='x',y_field='y')
+            logger.info("Saved to {} in {}".format('parcel_fc', arcpy.env.workspace))
 
-        sumFields = [['tothh', 'SUM'], ['hhq1', 'SUM'],['totemp', 'SUM'],['RETEMPN', 'SUM'],['MWTEMPN', 'SUM']]
-        logger.info('Summarizing 2015 parcel data')
-        arcpy.analysis.SummarizeWithin('Transit2020', 'parcel_2015', 'prox2015', "KEEP_ALL", sumFields)
-        
-        prox2015_sdf = pd.DataFrame.spatial.from_featureclass('prox2015')
+            if model_year == 2015:
+                # current
+                transit_features = ['trn_cur_cat5']
+            elif model_year == 2050:
+                # no plan and blueprint
+                transit_features = ['trn_np_cat5', 'trn_bp_cat5']
 
-        prox2015_sdf['Service_Level']=['No Fixed Route Transit','Bus 31+min','Bus 15-30min','Bus <15min','Major Transit Stop']
-        prox2015_sdf['tothh_share']=round(prox2015_sdf.SUM_tothh/parcel_output_2015.tothh.sum(),2)
-        prox2015_sdf['hhq1_share']=round(prox2015_sdf.SUM_hhq1/parcel_output_2015.hhq1.sum(),2)
-        prox2015_sdf['totemp_share']=round(prox2015_sdf.SUM_totemp/parcel_output_2015.totemp.sum(),2)
-        prox2015_sdf['RETEMPN_share']=round(prox2015_sdf.SUM_RETEMPN/parcel_output_2015.RETEMPN.sum(),2)
-        prox2015_sdf['MWTEMPN_share']=round(prox2015_sdf.SUM_MWTEMPN/parcel_output_2015.MWTEMPN.sum(),2)
-        prox2015_sdf['year']='2015'
-        prox2015_sdf['modelrunID'] = us_runid
+            for transit_feature in transit_features:
 
-        proximity.append(prox2015_sdf)
+                logger.info('Summarizing {} parcel data proximity to {}'.format(model_year, transit_feature))
+                log_workspace_contents(logger)
 
-        arcpy.management.Delete(prox2015)
-        arcpy.management.Delete(parcel_summary_2015)
-            
+                try:
+                    logger.info("feature classes no paths")
+                    arcpy.SummarizeWithin_analysis(transit_feature, 'parcel_fc', 'prox', keep_all_polygons="KEEP_ALL", 
+                                                    sum_fields=[['tothh','SUM'], ['hhq1','SUM'],['totemp','SUM'],['RETEMPN','SUM'],['MWTEMPN','SUM']])
+                    # hasn't worked, see comments below
+                    logger.info("SUCCESS")
+                except:
+                    # Get the tool error messages 
+                    msgs = arcpy.GetMessages(2)
+                    logger.error("Exception occured; msgs: {}".format(msgs))
 
-        #2050 NP and BP
-        arcpy.env.workspace =  os.path.join(WORKING_DIR, WORKSPACE_GDB)
-        logger.info('Reading 2050 parcel data')
-        parcel_output_2050 = pd.read_csv((urbansim_runid+'_parcel_data_2050.csv'))
-        parcel_output_2050.drop(['geom_id','total_job_spaces','zoned_du',\
-                                'zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
+                    # Get the traceback object
+                    tb = sys.exc_info()[2]
+                    tbinfo = traceback.format_tb(tb)[0]
 
-        parcel_output_2050['totemp'] = parcel_output_2050['totemp'].fillna(0)
-        parcel_output_2050['totemp'] = parcel_output_2050['totemp'].round(0).astype('int')
-        parcel_output_2050['RETEMPN'] = parcel_output_2050['RETEMPN'].fillna(0)
-        parcel_output_2050['RETEMPN'] = parcel_output_2050['RETEMPN'].round(0).astype('int')
-        parcel_output_2050['MWTEMPN'] = parcel_output_2050['MWTEMPN'].fillna(0)
-        parcel_output_2050['MWTEMPN'] = parcel_output_2050['MWTEMPN'].round(0).astype('int')
-        
-        parcel_summary_2050 = os.path.join(WORKING_DIR,'parcel_2050.csv')
+                    # Concatenate information together concerning the error into a message string
+                    logger.error("Traceback info:\n{}\nError Info:\n{}".format(tbinfo, str(sys.exc_info()[1])))
+                    logger.error("It's ok though -- we'll do this another way, but still trying the easy way")
 
-        if arcpy.Exists(parcel_summary_2050):
-            arcpy.management.Delete(parcel_summary_2050)
-            parcel_output_2050.to_csv(parcel_summary_2050)
-        else:
-            parcel_output_2050.to_csv(parcel_summary_2050)
+                # Something related to arcpy.SummarizeWithin_analysis() is buggy
+                # The following attempts have failed with 
+                # ERROR 000187: Only supports Geodatabase tables and feature classes
+                # * use the method with feature layers as inputs, with full paths and without
+                # * use the method with feature classes as inputs, with full paths and without
+                # * call the short script below via subprocess
+                # * copy feature classes to arcpy.env.scratchGDB and summarizeWithin there
+                #
+                # HOWEVER, after this script fails, running the following on the command line succeeds:
+                # 
+                # >>> import arcpy
+                # >>> arcpy.env.workspace='M:\Data\GIS layers\JobsHousingTransitProximity\workspace_2020_1007_1737.gdb'
+                # >>> arcpy.SummarizeWithin_analysis('trn_cur_cat5', 'parcel_fc', 'prox', keep_all_polygons='KEEP_ALL', sum_fields=[['tothh','SUM'], ['hhq1','SUM'],['totemp','SUM'],['RETEMPN','SUM'],['MWTEMPN','SUM']])
+                # <Result 'M:\\Data\\GIS layers\\JobsHousingTransitProximity\\workspace_2020_1007_1737.gdb\\prox'>
+                # >>> prox_sdf = pd.DataFrame.spatial.from_featureclass('prox')
+                #
+                # so we'll summarize within ourselves and use spatial join instead
+                if arcpy.Exists('parcel_fc_join_trn'): arcpy.management.Delete('parcel_fc_join_trn')
+                logger.info("spatial joining parcel_fc with {}".format(transit_feature))
+                arcpy.SpatialJoin_analysis(target_features='parcel_fc', join_features=transit_feature, 
+                                           out_feature_class='parcel_fc_join_trn')
+                logger.info("    ...complete")
 
-        arcpy.management.XYTableToPoint(parcel_summary_2050, 'parcel_2050','x','y')
-        arcpy.FeatureClassToFeatureClass_conversion('parcel_2050', P2T,'parcel_2050')
+                prox_sdf = pd.DataFrame.spatial.from_featureclass('parcel_fc_join_trn')
+                prox_sdf = prox_sdf.groupby('Service_Level').agg({'tothh':'sum', 'hhq1':'sum', 
+                                                                 'totemp':'sum', 'RETEMPN':'sum',
+                                                                 'MWTEMPN':'sum'}).reset_index()
 
-        arcpy.env.workspace = P2T
-        transit_2050 = ['Transit2050_NP','Transit2050_BP']
-    
-        for transit in transit_2050:
-            prox2050 = os.path.join(arcpy.env.workspace, 'prox2050')
-            logger.info('Summarizing {} parcel data'.format(transit))
-            arcpy.analysis.SummarizeWithin(transit, 'parcel_2050', 'prox2050', "KEEP_ALL", sumFields)
-            prox2050_sdf = pd.DataFrame.spatial.from_featureclass(prox2050)
+                prox_sdf['tothh_share'  ] = round(prox_sdf.tothh  /prox_sdf.tothh.sum(),  2)
+                prox_sdf['hhq1_share'   ] = round(prox_sdf.hhq1   /prox_sdf.hhq1.sum()  , 2)
+                prox_sdf['totemp_share' ] = round(prox_sdf.totemp /prox_sdf.totemp.sum(), 2)
+                prox_sdf['RETEMPN_share'] = round(prox_sdf.RETEMPN/prox_sdf.RETEMPN.sum(),2)
+                prox_sdf['MWTEMPN_share'] = round(prox_sdf.MWTEMPN/prox_sdf.MWTEMPN.sum(),2)
+                prox_sdf['year'         ] = str(model_year)
+                prox_sdf['modelrunID'   ] = us_runid
+                prox_sdf['transit'      ] = transit_feature
 
-            prox2050_sdf['Service_Level']=['No Fixed Route Transit','Bus 31+min','Bus 15-30min','Bus <15min','Major Transit Stop']
-            prox2050_sdf['tothh_share']=round(prox2050_sdf.SUM_tothh/parcel_output_2050.tothh.sum(),2)
-            prox2050_sdf['hhq1_share']=round(prox2050_sdf.SUM_hhq1/parcel_output_2050.hhq1.sum(),2)
-            prox2050_sdf['totemp_share']=round(prox2050_sdf.SUM_totemp/parcel_output_2050.totemp.sum(),2)
-            prox2050_sdf['RETEMPN_share']=round(prox2050_sdf.SUM_RETEMPN/parcel_output_2050.RETEMPN.sum(),2)
-            prox2050_sdf['MWTEMPN_share']=round(prox2050_sdf.SUM_MWTEMPN/parcel_output_2050.MWTEMPN.sum(),2)
-            prox2050_sdf['year']='2050'
-            prox2050_sdf['modelrunID'] = us_runid + transit[-2:]
+                logger.info("prox_sdf:\n{}".format(prox_sdf))
+                all_prox = all_prox.append(prox_sdf)
 
-            proximity.append(prox2050_sdf)
+                logger.info("all_prox:\n{}".format(all_prox))
 
-            arcpy.management.Delete(prox2050)
-        arcpy.management.Delete(parcel_summary_2050)
+    # write it
+    outfile = 'metrics_proximity_{}.csv'.format(NOW)
+    logger.info("")
+    all_prox.to_csv('metrics_proximity_{}.csv'.format(NOW), index=False)
+    logger.info("Wrote {}".format(outfile))
 
-
-        proximity_parcel = pd.concat(proximity, ignore_index=True, sort=False)
-        proximity_export = proximity_parcel[['modelrunID','year','Service_Level','SUM_tothh','tothh_share','SUM_hhq1','hhq1_share',\
-                                        'SUM_totemp','totemp_share','SUM_RETEMPN','RETEMPN_share','SUM_MWTEMPN','MWTEMPN_share']]
-        
-        acrossruns_proximity.append(proximity_export)
-
-    acrossruns_proximity_export = pd.concat(acrossruns_proximity, ignore_index=True, sort=False)
-    outname = 'C:/Users/{}/Box/Modeling and Surveys/Urban Modeling/Bay Area UrbanSim/PBA50/Visualizations/metrics_proximity_{}.csv'.format(os.getenv('USERNAME'), NOW)
-    acrossruns_proximity_export.to_csv(outname,index = False)
