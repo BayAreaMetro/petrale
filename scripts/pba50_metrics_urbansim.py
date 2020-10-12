@@ -364,7 +364,7 @@ def calc_urbansim_metrics():
         if us_runid == us_2050_DBP_Plus_runid:
             parcel_output_2050_df.drop(['x','y','geom_id','total_residential_units','total_job_spaces','zoned_du','zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
             parcel_output_2015_df.drop(['x','y','geom_id','total_residential_units','total_job_spaces','zoned_du','zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
-        if us_runid == us_2050_FBP_Sept_v1:
+        else:
             parcel_output_2050_df.drop(['x','y','geom_id','pba50chcat','residential_units','deed_restricted_units','total_job_spaces','zoned_du','zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
             parcel_output_2015_df.drop(['x','y','geom_id','pba50chcat','residential_units','deed_restricted_units','total_job_spaces','zoned_du','zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
         parcel_output_2050_df = parcel_output_2050_df.add_suffix('_2050')
@@ -442,9 +442,10 @@ if __name__ == '__main__':
     # Set UrbanSim inputs
     urbansim_run_location = 'C:/Users/{}/Box/Modeling and Surveys/Urban Modeling/Bay Area UrbanSim/PBA50/'.format(os.getenv('USERNAME'))
     us_2050_DBP_Plus_runid         = 'Draft Blueprint runs/Blueprint Plus Crossing (s23)/v1.7.1- FINAL DRAFT BLUEPRINT/run98'
-    us_2050_FBP_Sept_v1       = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.0/run140' #this is for testing
+    us_2050_FBP_Sept_v1       = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.0/run140' 
+    us_2050_FBP_Oct_v2       = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.1/run144'
 
-    list_us_runid = [us_2050_DBP_Plus_runid, us_2050_FBP_Sept_v1]
+    list_us_runid = [us_2050_DBP_Plus_runid, us_2050_FBP_Sept_v1,us_2050_FBP_Oct_v2]
 
 
       # Set external inputs
