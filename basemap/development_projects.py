@@ -84,7 +84,7 @@ MTC_ONLINE_MANUAL_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hoste
 
 MTC_ONLINE_OPPSITE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/urbansim_opportunity_sites/FeatureServer/0?token=P5e_GqfO6QGxXSDi4e9vIAk_VY2UWt14ef8nhAGRejMjclSDSYOteqHtWvSStV4LVpZkSN1dzu1ZEjx5gt2wbdMF6gbTvqnvb4o-gy3yr2Eas5MC_lIQFKfR8PsrWfGyTlXui2NK9ZVWYQFvx6ABqu6jXGdbBPNRtYONX2uutmDpgpJgaDOpwbECXVzqJTEvI4Ysu-17ELH9w7r3NRzeSo8L2OpDSglvaSEl7uynwX4.'
 
-MTC_ONLINE_PUBLAND_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/H8_AH_Public_Sites_FBP_DRAFT_for_Run1/FeatureServer/0?token=Qn8t_XwkULvDb0DIPyG4MUlcxy1JqoVo6ptb2LsP_c3_83pa3dsEfHRz5kTI1HPSv50uy6OHmsUlyU_-9KsNnnJePw3MX9ZLfFgsLU8kqnODZzXBJv3Fht3giFyDAraAATsBCfofvObtdMrh8m246JAb8LFM2eON7i__1PTB9Cb5Io9UH2kBIlzrMeRtW8KmId5bxlme_fwxJSTr9s1dkJXkdYZYZWs6k1YqD0-Q6fo.'
+MTC_ONLINE_PUBLAND_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/H8_AH_Public_Sites_v2/FeatureServer/0?token=AxWg8aEb2uG9D7XHzSvwHAOVjRETrzSA_dNBSPVnWfISnnVxOetRF5pddBHPBMQIrj8_MI_yM0AAoRbLMtZA0Wf65_pCpFFDB5lYKAF_yQkp2be9HeaC999yOyPZhmUagRVP2v-K0KCfGpsolerrxvpoN-gYvd_7SIXPsWtFYX-fD45mlMJ9nvzB9LkO1Lt_Ua3yqDXwoNy3KnBaSb5C2orUy2ZEcx5wZprdiYnNAa8.'
 
 manual_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MANUAL_URL,'manual_sites')
 
@@ -1383,7 +1383,15 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "last_sale_year", '!o_sale_date!') #need to make into year
 		arcpy.CalculateField_management(joinFN, "last_sale_price", '!o_last_sale_price!')
 		arcpy.CalculateField_management(joinFN, "deed_restricted_units", 0)
-		arcpy.CalculateField_management(joinFN, "source", "'opp'")
+		with arcpy.da.UpdateCursor(joinFN, ["source","type","building_name"]) as cursor:
+			for row in cursor:
+				if row[2] == 'incubator':
+					row[0] = row[2]
+				elif row[1] == 'pb50_opp':
+					row[0] = 'mall_office'
+				else:
+					row[0] = 'opp'
+				cursor.updateRow(row)
 		arcpy.CalculateField_management(joinFN, "edit_date", 20200611)
 		arcpy.CalculateField_management(joinFN, "editor", "'MKR'")
 		
