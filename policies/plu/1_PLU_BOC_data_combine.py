@@ -181,7 +181,7 @@ def impute_basis_devtypes_from_pba40(df):
         impute_idx = ((df[btype+'_basis'].isnull()) & \
                       (df[btype+'_pba40'].notnull()))
         # impute and note source
-        df.loc[impute_idx,           btype+'_basis' ] = df[btype + '_pba40']
+        df.loc[impute_idx,           btype+'_basis' ] = df.loc[impute_idx, btype + '_pba40']
         df.loc[impute_idx, 'source_'+btype+'_basis' ] = 'imputed from pba40'
 
         logger.info("After imputation of {}_basis:\n{}".format(btype, df['source_'+btype+'_basis'].value_counts()))
