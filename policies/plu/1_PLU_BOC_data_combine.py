@@ -161,8 +161,8 @@ def impute_max_far(df_original,boc_source):
 
 def impute_basis_devtypes_from_pba40(df):
     """
-    Where basis allowed development type is missing AND nodev_zmod == 0,
-    impute value from pba40.  Note this in source_[btype]_basis, which will be set to one of 
+    Where basis allowed development type is missing, impute value from pba40.
+    Note this in source_[btype]_basis, which will be set to one of 
         ['basis', 'missing', 'imputed from pba40']
 
     Returns df with [btype]_basis and source_[btype]_basis columns updated
@@ -179,11 +179,10 @@ def impute_basis_devtypes_from_pba40(df):
         #    and the pba40 value is present
         # => impute
         impute_idx = ((df[btype+'_basis'].isnull()) & \
-                      (df['nodev_zmod'] == 0) & \
                       (df[btype+'_pba40'].notnull()))
         # impute and note source
-        df.loc[ impute_idx,           btype+'_basis' ] = df[btype + '_pba40']
-        df.loc[ impute_idx, 'source_'+btype+'_basis' ] = 'imputed from pba40'
+        df.loc[impute_idx,           btype+'_basis' ] = df[btype + '_pba40']
+        df.loc[impute_idx, 'source_'+btype+'_basis' ] = 'imputed from pba40'
 
         logger.info("After imputation of {}_basis:\n{}".format(btype, df['source_'+btype+'_basis'].value_counts()))
 
@@ -362,6 +361,7 @@ if __name__ == '__main__':
     # rename some columns to be consistent with the data's previous versions
     basis_boc_lookup.rename(columns = {'jurisdiction':    'plu_jurisdiction',
                                        'zn_description':  'plu_description',
+                                       'zn_code':         'plu_code',
                                        'building_height': 'max_height',
                                        'of_':             'of'}, inplace=True)
 
@@ -395,6 +395,7 @@ if __name__ == '__main__':
     p10_basis_pba40_boc.drop(columns = ['id_pba40','plandate_pba40','jz_o'],inplace = True)
     logger.info('Create p10_basis_pba40_boc:')
     logger.info(p10_basis_pba40_boc.dtypes)
+    p10_basis_pba40_boc.to_csv('p10_basis_pba40_boc.csv',index=False)
 
 
     ## Bring in zoning scenarios data
@@ -499,7 +500,7 @@ if __name__ == '__main__':
         'allow_nonres_basis',   'allow_nonres_pba40',
 
         # BASIS metadata
-        'plu_id_basis','plu_jurisdiction_basis','plu_description_basis'
+        'plu_id_basis','plu_code_basis','plu_jurisdiction_basis','plu_description_basis'
         ]
 
     # allowed building types
