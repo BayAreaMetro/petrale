@@ -26,8 +26,8 @@ elif os.getenv('USERNAME')  =='lzorn':
 
 # input file locations
 PBA40_ZONING_BOX_DIR        = os.path.join(M_URBANSIM_DIR, 'Horizon', 'Large General Input Data')
-PBA50_ZONINGMOD_DIR         = os.path.join(M_URBANSIM_DIR, 'Draft_Blueprint', 'Zoning Modifications')
-OTHER_INPUTS_DIR            = os.path.join(M_URBANSIM_DIR, 'Draft_Blueprint', 'Base zoning', 'input')
+PBA50_ZONINGMOD_DIR         = os.path.join(M_URBANSIM_DIR, 'Final_Blueprint', 'Zoning Modifications')
+OTHER_INPUTS_DIR            = os.path.join(M_URBANSIM_DIR, 'Final_Blueprint', 'Base zoning', 'input')
     
 # output file location
 DATA_OUTPUT_DIR             = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs')
@@ -309,32 +309,69 @@ if __name__ == '__main__':
 
     ## P10 with BASIS BOC
 
-    ## Read BASIS BOC
-    basis_boc_file = os.path.join(OTHER_INPUTS_DIR,'p10_urbansim_boc_opt_b_v2.csv')
-    basis_boc_columns = [
-        'parcel_id','max_height','max_dua','max_far',
-        'plu_code','plu_id','plu_jurisdiction','plu_description',
-        'building_types_source','source'] + [btype.lower() for btype in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES]
-    # most are float
-    basis_boc_dtypes = dict((x, float) for x in basis_boc_columns)
-    # except these
-    basis_boc_dtypes['plu_code'             ] = str
-    basis_boc_dtypes['plu_id'               ] = str
-    basis_boc_dtypes['plu_jurisdiction'     ] = str
-    basis_boc_dtypes['plu_description'      ] = str
-    basis_boc_dtypes['building_types_source'] = str
-    basis_boc_dtypes['source'               ] = str
+    ## Read BASIS Parcel-plu_id data
+    basis_parcel_plu_id_file = os.path.join(OTHER_INPUTS_DIR,'p10_urbansim_boc_opt_b_v2.csv')
 
-    basis_boc = pd.read_csv(basis_boc_file, usecols = basis_boc_columns, dtype = basis_boc_dtypes)
-    logger.info("Read {:,} rows from {}".format(len(basis_boc), basis_boc_file))
+    basis_parcel_plu_id = pd.read_csv(basis_parcel_plu_id_file, 
+                                      usecols = ['parcel_id', 'plu_id'],
+                                      dtype = {'parcel_id': float})
+    logger.info("Read {:,} rows from {}, with header: \n{}".format(len(basis_parcel_plu_id), 
+                                                                   basis_parcel_plu_id_file,
+                                                                   basis_parcel_plu_id.head()))
 
     # drop records with no parcel_id
-    basis_boc = basis_boc.loc[basis_boc.parcel_id.notnull()]
-
+    basis_parcel_plu_id = basis_parcel_plu_id.loc[basis_parcel_plu_id.parcel_id.notnull()]
     # convert parcel_id to integer
-    basis_boc['parcel_id'] = basis_boc['parcel_id'].apply(lambda x: int(round(x)))
+    basis_parcel_plu_id['parcel_id'] = basis_parcel_plu_id['parcel_id'].apply(lambda x: int(round(x)))
 
-    logger.info('After dropping nan parcel_id, BASIS BOC has {} parcels, {} unique parcel_id'.format(len(basis_boc),len(basis_boc.parcel_id.unique())))
+    logger.info('After dropping nan parcel_id, BASIS parcel-plu_id has {} parcels, {} unique parcel_id'.format(
+        len(basis_parcel_plu_id),len(basis_parcel_plu_id.parcel_id.unique())))
+
+    # drop duplicates of parcel_id; this should be unique
+    basis_parcel_plu_id_rows = len(basis_parcel_plu_id)
+    basis_parcel_plu_id.drop_duplicates(subset='parcel_id', inplace=True)
+    if len(basis_parcel_plu_id) == basis_parcel_plu_id_rows:
+        logger.info("No duplicate parcel_ids found in {}".format(basis_parcel_plu_id_file))
+    else:
+        logger.warning("Dropped duplicate parcel_id rows from {}".format(basis_parcel_plu_id_file))
+        logger.warning("Went from {:,} to {:,} rows; dropped {:,} duplicates".format(
+            basis_parcel_plu_id_rows, 
+            len(basis_parcel_plu_id), 
+            basis_parcel_plu_id_rows-len(basis_parcel_plu_id)))
+
+    # Read BASIS BOC Lookup data
+    basis_boc_lookup_file = os.path.join(OTHER_INPUTS_DIR,'boc_lookup_2020_rev_10_13_20_final.csv')
+    basis_boc_lookup_columns = [
+        'zoning_id', 'jurisdiction', 'zn_code', 'zn_description', 'zn_area_overlay',
+        'max_far', 'max_dua', 'building_height',
+        'hs', 'ht', 'hm', 'of_', 'ho', 'sc', 'il', 'iw', 'ih', 'rs', 'rb', 'mr', 'mt', 'me']
+    basis_boc_lookup = pd.read_csv(basis_boc_lookup_file,
+                                   usecols = basis_boc_lookup_columns)
+    logger.info("Read {:,} rows from {} with {} unique zoning_id, with header: \n{}".format(
+        len(basis_boc_lookup), 
+        basis_boc_lookup_file,
+        len(basis_boc_lookup.zoning_id.unique()),
+        basis_boc_lookup.head()))
+
+    # drop duplicates
+    basis_boc_lookup.drop_duplicates(inplace=True)
+    logger.info("After dropping duplicates, {:,} rows left, with {} unique zoning_id".format(
+        len(basis_boc_lookup),
+        len(basis_boc_lookup.zoning_id.unique())))   
+
+    # rename some columns to be consistent with the data's previous versions
+    basis_boc_lookup.rename(columns = {'jurisdiction':    'plu_jurisdiction',
+                                       'zn_description':  'plu_description',
+                                       'building_height': 'max_height',
+                                       'of_':             'of'}, inplace=True)
+
+    # merge lookup to parcel-plu_id to get parcel-level BOC data
+    basis_boc = basis_parcel_plu_id.merge(basis_boc_lookup,
+                                          left_on='plu_id',
+                                          right_on='zoning_id',
+                                          how='left')
+    # drop columns w/ duplicated info
+    basis_boc.drop(columns=['zoning_id'], inplace=True)
 
     # append _basis to column names to differentiate between basis PLU and pba40 PLU between 
     rename_cols = {}
@@ -345,16 +382,6 @@ if __name__ == '__main__':
         else:
             rename_cols[col] = col + "_basis"
     basis_boc.rename(columns=rename_cols, inplace=True)
-
-    # drop duplicates of parcel_id; this should be unique
-    logger.info("\n{}".format(basis_boc.head()))
-    basis_boc_rows = len(basis_boc)
-    basis_boc.drop_duplicates(subset='parcel_id_basis', inplace=True)
-    if len(basis_boc) == basis_boc_rows:
-        logger.info("No duplicate parcel_ids found in {}".format(basis_boc_file))
-    else:
-        logger.warning("Dropped duplicate parcel_id rows from {}".format(basis_boc_file))
-        logger.warning("Went from {:,} to {:,} rows; dropped {:,} duplicates".format(basis_boc_rows, len(basis_boc), basis_boc_rows-len(basis_boc)))
 
     # report on missing allowed building types
     for btype in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
@@ -372,9 +399,9 @@ if __name__ == '__main__':
 
     ## Bring in zoning scenarios data
 
-    zmod_file = os.path.join(PBA50_ZONINGMOD_DIR,'p10_pba50_attr_20200416.csv')
+    zmod_file = os.path.join(PBA50_ZONINGMOD_DIR,'p10_pba50_attr_20200915.csv')
     zmod = pd.read_csv(zmod_file,
-                       usecols = ['PARCEL_ID','juris','pba50zoningmodcat','nodev'])
+                       usecols = ['PARCEL_ID','juris','fbpzoningm','nodev'])
     zmod['PARCEL_ID'] = zmod['PARCEL_ID'].apply(lambda x: int(round(x)))
     logger.info("Read {:,} rows from {}".format(len(zmod), zmod_file))
     logger.info("\n{}".format(zmod.head()))
@@ -455,7 +482,7 @@ if __name__ == '__main__':
     output_columns = [
         'PARCEL_ID', 'geom_id','county_id', 'county_name', 'juris_zmod', 'jurisdiction_id',
 
-        'ACRES', 'zoning_id_pba40', 'name_pba40','plu_code_basis','pba50zoningmodcat_zmod',
+        'ACRES', 'zoning_id_pba40', 'name_pba40', 'fbpzoningm_zmod',
         
         # intensity
         'max_far_basis',        'max_far_pba40',
@@ -472,9 +499,9 @@ if __name__ == '__main__':
         'allow_nonres_basis',   'allow_nonres_pba40',
 
         # BASIS metadata
-        'building_types_source_basis','source_basis',
         'plu_id_basis','plu_jurisdiction_basis','plu_description_basis'
-    ]
+        ]
+
     # allowed building types
     for devType in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
         output_columns.append(devType + "_basis")
