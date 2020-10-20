@@ -395,7 +395,6 @@ if __name__ == '__main__':
     p10_basis_pba40_boc.drop(columns = ['id_pba40','plandate_pba40','jz_o'],inplace = True)
     logger.info('Create p10_basis_pba40_boc:')
     logger.info(p10_basis_pba40_boc.dtypes)
-    p10_basis_pba40_boc.to_csv('p10_basis_pba40_boc.csv',index=False)
 
 
     ## Bring in zoning scenarios data
