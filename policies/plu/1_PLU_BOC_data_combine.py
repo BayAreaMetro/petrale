@@ -54,7 +54,7 @@ def impute_max_dua(df_original,boc_source):
     # don't modify passed df
     df = df_original.copy()
 
-    print("impute_max_dua{}: Before imputation, number of parcels with missing max_dua_{}: {:,}".format(
+    logger.info("impute_max_dua_{}: Before imputation, number of parcels with missing max_dua_{}: {:,}".format(
         boc_source, boc_source, sum(df['max_dua_'+boc_source].isnull())))
 
     # we can only fill in missing if either max_far or max_height is not null   
@@ -111,7 +111,7 @@ def impute_max_dua(df_original,boc_source):
     df.loc[df['source_dua_'+boc_source]=='imputed from max_far (as min)',    'max_dua_'+boc_source] = max_dua_from_far
     df.loc[df['source_dua_'+boc_source]=='imputed from max_far',             'max_dua_'+boc_source] = max_dua_from_far
 
-    logger.info("impute_max_dua(): After imputation: ")
+    logger.info("impute_max_dua_(): After imputation: ")
     logger.info(df['source_dua_'+boc_source].value_counts())
 
     return df[['PARCEL_ID','max_dua_'+boc_source,'source_dua_'+boc_source]]
@@ -191,8 +191,8 @@ def impute_basis_devtypes_from_pba40(df):
 
 def impute_basis_max_height_from_pba40(df):
     """
-    Where max_height_basis is missing AND nodev_zmod == 0,
-    impute value from pba40.  Note this in source_height_basis, which will be set to one of 
+    Where max_height_basis is missing, impute value from pba40.
+    Note this in source_height_basis, which will be set to one of 
         ['basis', 'missing', 'imputed from pba40']
 
     Returns df with max_height_basis and source_height_basis columns updated
@@ -204,15 +204,13 @@ def impute_basis_max_height_from_pba40(df):
 
     logger.info("Before imputation of max_height_basis:\n{}".format(df['source_height_basis'].value_counts()))
     # if basis value is missing
-    #    and we care about it (nodev_zod == 0)
     #    and the pba40 value is present
     # => impute
     impute_idx = ((df['max_height_basis'].isnull()) & \
-                  (df['nodev_zmod'] == 0) & \
                   (df['max_height_pba40'].notnull()))
     # impute and note source
-    df.loc[ impute_idx,    'max_height_basis' ] = df['max_height_pba40']
-    df.loc[ impute_idx, 'source_height_basis' ] = 'imputed from pba40'
+    df.loc[impute_idx,    'max_height_basis' ] = df.loc[impute_idx, 'max_height_pba40']
+    df.loc[impute_idx, 'source_height_basis' ] = 'imputed from pba40'
 
     logger.info("After imputation of max_height_basis:\n{}".format(df['source_height_basis'].value_counts()))
     return df
