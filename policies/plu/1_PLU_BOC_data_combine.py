@@ -58,9 +58,12 @@ def impute_max_dua(df_original,boc_source):
         boc_source, boc_source, sum(df['max_dua_'+boc_source].isnull())))
 
     # we can only fill in missing if either max_far or max_height is not null   
-    max_dua_from_far    = df['max_far_'    +boc_source] * dev_capacity_calculation_module.SQUARE_FEET_PER_ACRE / dev_capacity_calculation_module.SQUARE_FEET_PER_DU
-    max_far_from_height = df['max_height_' +boc_source] / dev_capacity_calculation_module.FEET_PER_STORY * dev_capacity_calculation_module.PARCEL_USE_EFFICIENCY
-    max_dua_from_height = max_far_from_height * dev_capacity_calculation_module.SQUARE_FEET_PER_ACRE / dev_capacity_calculation_module.SQUARE_FEET_PER_DU
+    df['max_dua_from_far']    = \
+        df['max_far_'    +boc_source] * dev_capacity_calculation_module.SQUARE_FEET_PER_ACRE / dev_capacity_calculation_module.SQUARE_FEET_PER_DU
+    df['max_far_from_height'] = \
+        df['max_height_' +boc_source] / dev_capacity_calculation_module.FEET_PER_STORY * dev_capacity_calculation_module.PARCEL_USE_EFFICIENCY
+    df['max_dua_from_height'] = \
+        max_far_from_height * dev_capacity_calculation_module.SQUARE_FEET_PER_ACRE / dev_capacity_calculation_module.SQUARE_FEET_PER_DU
     
     # default to missing
     df['source_dua_'+boc_source] = 'missing'
@@ -95,24 +98,33 @@ def impute_max_dua(df_original,boc_source):
            (max_dua_from_height < max_dua_from_far) & 
            (max_dua_from_height == 0), 'source_dua_'+boc_source] = 'imputed from max_far'
 
+    df.loc[(df['source_dua_'+boc_source]=='missing') & 
+           (max_dua_from_height == 0) & 
+           (max_dua_from_far == 0), 'source_dua_'+boc_source] = 'imputed from max_far'
 
     # if only one available use that
     df.loc[(df['source_dua_'+boc_source]=="missing") & 
-           (max_dua_from_height.isnull() | (max_dua_from_height == 0)) & 
+            max_dua_from_height.isnull() & 
             max_dua_from_far.notnull(), 'source_dua_'+boc_source] = 'imputed from max_far'
 
     df.loc[(df['source_dua_'+boc_source]=='missing') & 
             max_dua_from_height.notnull() & 
-            (max_dua_from_far.isnull() | (max_dua_from_far == 0)), 'source_dua_'+boc_source] = 'imputed from max_height'
+            max_dua_from_far.isnull(), 'source_dua_'+boc_source] = 'imputed from max_height'
 
     # imputation is decided -- set it
-    df.loc[df['source_dua_'+boc_source]=='imputed from max_height (as min)', 'max_dua_'+boc_source] = max_dua_from_height
-    df.loc[df['source_dua_'+boc_source]=='imputed from max_height',          'max_dua_'+boc_source] = max_dua_from_height
-    df.loc[df['source_dua_'+boc_source]=='imputed from max_far (as min)',    'max_dua_'+boc_source] = max_dua_from_far
-    df.loc[df['source_dua_'+boc_source]=='imputed from max_far',             'max_dua_'+boc_source] = max_dua_from_far
+    df.loc[    df['source_dua_'+boc_source]=='imputed from max_height (as min)', 'max_dua_'+boc_source] = \
+        df.loc[df['source_dua_'+boc_source]=='imputed from max_height (as min)', 'max_dua_from_height']
 
-    logger.info("impute_max_dua_(): After imputation: ")
-    logger.info(df['source_dua_'+boc_source].value_counts())
+    df.loc[    df['source_dua_'+boc_source]=='imputed from max_height',          'max_dua_'+boc_source] = \
+        df.loc[df['source_dua_'+boc_source]=='imputed from max_height',          'max_dua_from_height']
+
+    df.loc[    df['source_dua_'+boc_source]=='imputed from max_far (as min)',    'max_dua_'+boc_source] = \
+        df.loc[df['source_dua_'+boc_source]=='imputed from max_far (as min)',    'max_dua_from_far']
+
+    df.loc[    df['source_dua_'+boc_source]=='imputed from max_far',             'max_dua_'+boc_source] = \
+        df.loc[df['source_dua_'+boc_source]=='imputed from max_far',             'max_dua_from_far']
+
+    logger.info("After imputation: \n{}".format(df['source_dua_'+boc_source].value_counts()))
 
     return df[['PARCEL_ID','max_dua_'+boc_source,'source_dua_'+boc_source]]
     
@@ -132,11 +144,12 @@ def impute_max_far(df_original,boc_source):
     # don't modify passed df
     df = df_original.copy()
 
-    logger.info("impute_max_far{}: Before imputation, number of parcels with missing max_far_{}: {:,}".format(
+    logger.info("impute_max_far_{}: Before imputation, number of parcels with missing max_far_{}: {:,}".format(
         boc_source, boc_source, sum(df['max_far_'+boc_source].isnull())))
     
     # we can only fill in missing if max_height is not null
-    max_far_from_height = df['max_height_' +boc_source] / dev_capacity_calculation_module.FEET_PER_STORY * dev_capacity_calculation_module.PARCEL_USE_EFFICIENCY
+    df['max_far_from_height'] = \
+        df['max_height_' +boc_source] / dev_capacity_calculation_module.FEET_PER_STORY * dev_capacity_calculation_module.PARCEL_USE_EFFICIENCY
     
     # default to missing
     df['source_far_'+boc_source] = 'missing'
@@ -151,10 +164,10 @@ def impute_max_far(df_original,boc_source):
            'source_far_'+boc_source] = 'imputed from max_height'
 
     # imputation is decided -- set it
-    df.loc[df['source_far_'+boc_source]=='imputed from max_height', 'max_far_'+boc_source] = max_far_from_height
+    df.loc[    df['source_far_'+boc_source]=='imputed from max_height', 'max_far_'+boc_source] = 
+        df.loc[df['source_far_'+boc_source]=='imputed from max_height', 'max_far_from_height']
 
-    logger.info("impute_max_far_{}: After imputation: ".format(boc_source))
-    logger.info(df['source_far_'+boc_source].value_counts())
+    logger.info("After imputation: \n{}".format(df['source_far_'+boc_source].value_counts()))
 
     return df[['PARCEL_ID','max_far_'+boc_source,'source_far_'+boc_source]]
 
