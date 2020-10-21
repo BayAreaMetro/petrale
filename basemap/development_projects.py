@@ -84,7 +84,7 @@ MTC_ONLINE_MANUAL_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hoste
 
 MTC_ONLINE_OPPSITE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/urbansim_opportunity_sites/FeatureServer/0?token=P5e_GqfO6QGxXSDi4e9vIAk_VY2UWt14ef8nhAGRejMjclSDSYOteqHtWvSStV4LVpZkSN1dzu1ZEjx5gt2wbdMF6gbTvqnvb4o-gy3yr2Eas5MC_lIQFKfR8PsrWfGyTlXui2NK9ZVWYQFvx6ABqu6jXGdbBPNRtYONX2uutmDpgpJgaDOpwbECXVzqJTEvI4Ysu-17ELH9w7r3NRzeSo8L2OpDSglvaSEl7uynwX4.'
 
-MTC_ONLINE_PUBLAND_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/H8_AH_Public_Sites_v2/FeatureServer/0?token=AxWg8aEb2uG9D7XHzSvwHAOVjRETrzSA_dNBSPVnWfISnnVxOetRF5pddBHPBMQIrj8_MI_yM0AAoRbLMtZA0Wf65_pCpFFDB5lYKAF_yQkp2be9HeaC999yOyPZhmUagRVP2v-K0KCfGpsolerrxvpoN-gYvd_7SIXPsWtFYX-fD45mlMJ9nvzB9LkO1Lt_Ua3yqDXwoNy3KnBaSb5C2orUy2ZEcx5wZprdiYnNAa8.'
+MTC_ONLINE_PUBLAND_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/H8_AH_Public_Sites_v2/FeatureServer/0?token=USpo1DVvw-jieStDPFc95Dzt0wfdpNlhwU_4gS186CfiMQagage3n9M-r4XZX6fvQX_aTyZfyVtE7aROB4K_WecwKmIaqXNdQ9l59wJ5NLpuCJKfHP-rC9BX2596sZAyNBB6Ku2RKCCtwMdqUlONRfMGIItPlw9u55HYbPt-Xv5qb86fH6zVE1wvesjAlhTdb2e3lefPdXhmHDA5W4F35nrtyZlbwEn9EIRzU5I95r4.'
 
 manual_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MANUAL_URL,'manual_sites')
 
@@ -303,7 +303,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "last_sale_year", "DATE") 
 		arcpy.AddField_management(joinFN, "last_sale_price", "DOUBLE")
 		arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
-		arcpy.AddField_management(joinFN, "source", "TEXT","","",10)
+		arcpy.AddField_management(joinFN, "source", "TEXT","","",15)
 		arcpy.AddField_management(joinFN, "edit_date", "LONG")
 		arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
 		arcpy.AddField_management(joinFN, "version", "SHORT")
@@ -466,7 +466,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "last_sale_year", "DATE") 
 		arcpy.AddField_management(joinFN, "last_sale_price", "DOUBLE")
 		arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
-		arcpy.AddField_management(joinFN, "source", "TEXT","","",10)
+		arcpy.AddField_management(joinFN, "source", "TEXT","","",15)
 		arcpy.AddField_management(joinFN, "edit_date", "LONG")
 		arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
 		arcpy.AddField_management(joinFN, "version", "SHORT")
@@ -674,7 +674,7 @@ if __name__ == '__main__':
 	arcpy.AddField_management(joinFN, "last_sale_year", "DATE") 
 	arcpy.AddField_management(joinFN, "last_sale_price", "DOUBLE")
 	arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
-	arcpy.AddField_management(joinFN, "source", "TEXT","","",10)
+	arcpy.AddField_management(joinFN, "source", "TEXT","","",15)
 	arcpy.AddField_management(joinFN, "edit_date", "LONG")
 	if not arcpy.ListFields(joinFN, "incl"):
 		arcpy.AddField_management(joinFN, "incl", "SHORT")
@@ -825,7 +825,7 @@ if __name__ == '__main__':
 	###using date for now, as I tried to use datetime.datetime.strptime('cs_sale_date','%m/%d/%Y %I:%M:%S %p').strftime('%Y')) it didn't work
 	arcpy.AddField_management(joinFN, "last_sale_year", "DATE") 
 	arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
-	arcpy.AddField_management(joinFN, "source", "TEXT","","",10)
+	arcpy.AddField_management(joinFN, "source", "TEXT","","",15)
 	arcpy.AddField_management(joinFN, "edit_date", "LONG")
 	arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
 	arcpy.AddField_management(joinFN, "version", "SHORT")
@@ -1008,7 +1008,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "last_sale_year", "DATE")
 		arcpy.AddField_management(joinFN, "last_sale_price", "DOUBLE")
 		arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
-		arcpy.AddField_management(joinFN, "source", "TEXT","","",10)
+		arcpy.AddField_management(joinFN, "source", "TEXT","","",15)
 		arcpy.AddField_management(joinFN, "edit_date", "LONG")
 		arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
 		arcpy.AddField_management(joinFN, "version", "SHORT")
@@ -1185,6 +1185,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "edit_date", "LONG")
 		arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
 		arcpy.AddField_management(joinFN, "version", "SHORT")
+		arcpy.AddField_management(joinFN, "source", "TEXT","","",15)
 		
 		# NOTE THAT OPPSITES HAS SCEN SET IN GIS FILE
 		arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!p_parcel_id!')
@@ -1298,6 +1299,7 @@ if __name__ == '__main__':
 		arcpy.AlterField_management(joinFN, "y", "o_y")
 		arcpy.AlterField_management(joinFN, "geom_id", "o_geom_id")
 		arcpy.AlterField_management(joinFN, "geom_id_s", "o_geom_id2")
+		arcpy.AlterField_management(joinFN, "source", "o_source")
 
 		arcpy.AddField_management(joinFN, "development_projects_id", "LONG")
 		arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
@@ -1343,7 +1345,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "edit_date", "LONG")
 		arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
 		arcpy.AddField_management(joinFN, "version", "SHORT")
-		
+		arcpy.AddField_management(joinFN, "source", "TEXT","","",15)
 		# NOTE THAT OPPSITES HAS SCEN SET IN GIS FILE
 		arcpy.CalculateField_management(joinFN, "raw_id", "!opp_id!")
 		arcpy.CalculateField_management(joinFN, "building_name", "!o_building_name!")
