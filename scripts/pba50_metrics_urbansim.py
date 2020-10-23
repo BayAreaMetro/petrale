@@ -360,13 +360,22 @@ def calc_urbansim_metrics():
 
         parcel_output_2050_df = pd.read_csv((urbansim_runid+'_parcel_data_2050.csv'))
         parcel_output_2015_df = pd.read_csv((urbansim_runid+'_parcel_data_2015.csv'))
+
+        if 'fbpchcat' in parcel_output_2050_df.columns:
+            zoningtag = 'fbpchcat'
+        elif 'pba50chcat' in parcel_output_2050_df.columns:
+            zoningtag = 'pba50chcat'
+        elif 'zoningmodcat' in parcel_output_2050_df.columns:
+            zoningtag = 'zoningmodcat'
+        else: 
+            zoningtag = 'zoninghzcat'
         # keeping essential columns / renaming columns
         if us_runid == us_2050_DBP_Plus_runid:
             parcel_output_2050_df.drop(['x','y','geom_id','total_residential_units','total_job_spaces','zoned_du','zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
             parcel_output_2015_df.drop(['x','y','geom_id','total_residential_units','total_job_spaces','zoned_du','zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
         else:
-            parcel_output_2050_df.drop(['x','y','geom_id','pba50chcat','residential_units','deed_restricted_units','total_job_spaces','zoned_du','zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
-            parcel_output_2015_df.drop(['x','y','geom_id','pba50chcat','residential_units','deed_restricted_units','total_job_spaces','zoned_du','zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
+            parcel_output_2050_df.drop(['x','y','geom_id',zoningtag,'residential_units','deed_restricted_units','total_job_spaces','zoned_du','zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
+            parcel_output_2015_df.drop(['x','y','geom_id',zoningtag,'residential_units','deed_restricted_units','total_job_spaces','zoned_du','zoned_du_underbuild', 'zoned_du_underbuild_nodev', 'first_building_type'], axis=1, inplace=True)
         parcel_output_2050_df = parcel_output_2050_df.add_suffix('_2050')
         parcel_output_2015_df = parcel_output_2015_df.add_suffix('_2015')
 
@@ -442,10 +451,18 @@ if __name__ == '__main__':
     # Set UrbanSim inputs
     urbansim_run_location = 'C:/Users/{}/Box/Modeling and Surveys/Urban Modeling/Bay Area UrbanSim/PBA50/'.format(os.getenv('USERNAME'))
     us_2050_DBP_Plus_runid         = 'Draft Blueprint runs/Blueprint Plus Crossing (s23)/v1.7.1- FINAL DRAFT BLUEPRINT/run98'
-    us_2050_FBP_Sept_v1       = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.0/run140' 
-    us_2050_FBP_Oct_v2       = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.1/run144'
+    us_2050_FBP_Oct_v3      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.2.1 (growth summary updates)/run325'
+    us_2050_FBP_Oct_v4      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.3.1 (devproj updates)/run242'
+    us_2050_FBP_Oct_v5      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.4/run152'
+    us_2050_FBP_Oct_v6      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.5/run327'
+    us_2050_FBP_Oct_v7      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.6.1 (growth summary updates)/run153'
 
-    list_us_runid = [us_2050_DBP_Plus_runid, us_2050_FBP_Sept_v1,us_2050_FBP_Oct_v2]
+    list_us_runid = [us_2050_DBP_Plus_runid, 
+                     us_2050_FBP_Oct_v3,
+                     us_2050_FBP_Oct_v4,
+                     us_2050_FBP_Oct_v5,
+                     us_2050_FBP_Oct_v6,
+                     us_2050_FBP_Oct_v7]
 
 
       # Set external inputs
