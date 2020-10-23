@@ -22,17 +22,17 @@ if os.getenv('USERNAME')    =='ywang':
     GITHUB_PETRALE_DIR      = 'C:\\Users\\{}\\Documents\\GitHub\\petrale\\'.format(os.getenv('USERNAME'))
 elif os.getenv('USERNAME')  =='lzorn':
     BOX_DIR                 = 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim\\PBA50'.format(os.getenv('USERNAME'))
-    M_DIR                   = 'M:\\Data\\Urban\\BAUS\\PBA50\\Draft_Blueprint\\Base zoning'
+    M_DIR                   = 'M:\\Data\\Urban\\BAUS\\PBA50'
     GITHUB_PETRALE_DIR      = 'X:\\petrale'
 
 
 # input file locations
 PREV_ZONING_PARCELS_FILE    = os.path.join(M_DIR, 'Horizon', 'Large General Input Data', '2015_12_21_zoning_parcels.csv')
-PLU_BOC_M_DIR               = os.path.join(M_DIR, 'Draft_Blueprint', 'Base zoning', 'outputs')
-PLU_BOC_FILE                = os.path.join(PLU_BOC_M_DIR, '2020_06_03_p10_plu_boc_allAttrs.csv')
-HYBRID_INDEX_DIR            = os.path.join(GITHUB_PETRALE_DIR, 'policies\\plu\\base_zoning\\hybrid_index')
+PLU_BOC_M_DIR               = os.path.join(M_DIR, 'Final_Blueprint', 'Base zoning', 'output')
+PLU_BOC_FILE                = os.path.join(PLU_BOC_M_DIR, '2020_10_20_p10_plu_boc_allAttrs.csv')
+HYBRID_INDEX_DIR            = os.path.join(GITHUB_PETRALE_DIR, 'policies\\plu\\hybrid_index')
 # TODO: change to idx_urbansim.csv when we have one
-HYBRID_INDEX_FILE           = os.path.join(HYBRID_INDEX_DIR, "idx_urbansim.csv")
+HYBRID_INDEX_FILE           = os.path.join(HYBRID_INDEX_DIR, "idx_urbansim_fb_10192020.csv")
 
 # output file locations
 HYBRID_ZONING_OUTPUT_DIR    = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs\\hybrid_base_zoning')
@@ -102,7 +102,7 @@ if __name__ == '__main__':
 
     # select hybrid fields
     plu_boc_urbansim_cols = ['PARCEL_ID','geom_id','county_id','county_name', 'juris_zmod', 'jurisdiction_id', 'ACRES',
-                             'pba50zoningmodcat_zmod','nodev_zmod','name_pba40','plu_code_basis'] + \
+                             'fbpzoningm_zmod','nodev_zmod','name_pba40','plu_code_basis'] + \
                             ['{}_urbansim'.format(devType)       for devType   in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES] + \
                             ['max_{}_urbansim'.format(intensity) for intensity in dev_capacity_calculation_module.INTENSITY_CODES]
 

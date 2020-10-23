@@ -26,8 +26,8 @@ elif os.getenv('USERNAME')  =='lzorn':
 
 # input file locations
 PBA40_ZONING_BOX_DIR        = os.path.join(M_URBANSIM_DIR, 'Horizon', 'Large General Input Data')
-PBA50_ZONINGMOD_DIR         = os.path.join(M_URBANSIM_DIR, 'Draft_Blueprint', 'Zoning Modifications')
-OTHER_INPUTS_DIR            = os.path.join(M_URBANSIM_DIR, 'Draft_Blueprint', 'Base zoning', 'input')
+PBA50_ZONINGMOD_DIR         = os.path.join(M_URBANSIM_DIR, 'Final_Blueprint', 'Zoning Modifications')
+OTHER_INPUTS_DIR            = os.path.join(M_URBANSIM_DIR, 'Final_Blueprint', 'Base zoning', 'input')
     
 # output file location
 DATA_OUTPUT_DIR             = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs')
@@ -54,13 +54,16 @@ def impute_max_dua(df_original,boc_source):
     # don't modify passed df
     df = df_original.copy()
 
-    print("impute_max_dua{}: Before imputation, number of parcels with missing max_dua_{}: {:,}".format(
+    logger.info("impute_max_dua_{}: Before imputation, number of parcels with missing max_dua_{}: {:,}".format(
         boc_source, boc_source, sum(df['max_dua_'+boc_source].isnull())))
 
     # we can only fill in missing if either max_far or max_height is not null   
-    max_dua_from_far    = df['max_far_'    +boc_source] * dev_capacity_calculation_module.SQUARE_FEET_PER_ACRE / dev_capacity_calculation_module.SQUARE_FEET_PER_DU
-    max_far_from_height = df['max_height_' +boc_source] / dev_capacity_calculation_module.FEET_PER_STORY * dev_capacity_calculation_module.PARCEL_USE_EFFICIENCY
-    max_dua_from_height = max_far_from_height * dev_capacity_calculation_module.SQUARE_FEET_PER_ACRE / dev_capacity_calculation_module.SQUARE_FEET_PER_DU
+    df['max_dua_from_far']    = \
+        df['max_far_'    +boc_source] * dev_capacity_calculation_module.SQUARE_FEET_PER_ACRE / dev_capacity_calculation_module.SQUARE_FEET_PER_DU
+    df['max_far_from_height'] = \
+        df['max_height_' +boc_source] / dev_capacity_calculation_module.FEET_PER_STORY * dev_capacity_calculation_module.PARCEL_USE_EFFICIENCY
+    df['max_dua_from_height'] = \
+        df['max_far_from_height'] * dev_capacity_calculation_module.SQUARE_FEET_PER_ACRE / dev_capacity_calculation_module.SQUARE_FEET_PER_DU
     
     # default to missing
     df['source_dua_'+boc_source] = 'missing'
@@ -72,47 +75,56 @@ def impute_max_dua(df_original,boc_source):
     # decide on imputation source
     # for missing values, fill from max_far or max_height -- if both are available, use the min unless the min is 0
     df.loc[(df['source_dua_'+boc_source]=='missing') & 
-            max_dua_from_height.notnull() & 
-            max_dua_from_far.notnull() &
-           (max_dua_from_height > max_dua_from_far) &
-           (max_dua_from_far > 0), "source_dua_"+boc_source] = 'imputed from max_far (as min)'
+            df.max_dua_from_height.notnull() & 
+            df.max_dua_from_far.notnull() &
+           (df.max_dua_from_height > df.max_dua_from_far) &
+           (df.max_dua_from_far > 0), "source_dua_"+boc_source] = 'imputed from max_far (as min)'
 
     df.loc[(df['source_dua_'+boc_source]=='missing') & 
-            max_dua_from_height.notnull() & 
-            max_dua_from_far.notnull() &
-           (max_dua_from_height > max_dua_from_far) &
-           (max_dua_from_far == 0), "source_dua_"+boc_source] = 'imputed from max_height'
+            df.max_dua_from_height.notnull() & 
+            df.max_dua_from_far.notnull() &
+           (df.max_dua_from_height > df.max_dua_from_far) &
+           (df.max_dua_from_far == 0), "source_dua_"+boc_source] = 'imputed from max_height'
 
     df.loc[(df['source_dua_'+boc_source]=='missing') & 
-            max_dua_from_height.notnull() & 
-            max_dua_from_far.notnull() &
-           (max_dua_from_height < max_dua_from_far) & 
-           (max_dua_from_height > 0), 'source_dua_'+boc_source] = 'imputed from max_height (as min)'
+            df.max_dua_from_height.notnull() & 
+            df.max_dua_from_far.notnull() &
+           (df.max_dua_from_height < df.max_dua_from_far) & 
+           (df.max_dua_from_height > 0), 'source_dua_'+boc_source] = 'imputed from max_height (as min)'
 
     df.loc[(df['source_dua_'+boc_source]=='missing') & 
-            max_dua_from_height.notnull() & 
-            max_dua_from_far.notnull() &
-           (max_dua_from_height < max_dua_from_far) & 
-           (max_dua_from_height == 0), 'source_dua_'+boc_source] = 'imputed from max_far'
+            df.max_dua_from_height.notnull() & 
+            df.max_dua_from_far.notnull() &
+           (df.max_dua_from_height < df.max_dua_from_far) & 
+           (df.max_dua_from_height == 0), 'source_dua_'+boc_source] = 'imputed from max_far'
 
+    df.loc[(df['source_dua_'+boc_source]=='missing') & 
+           (df.max_dua_from_height == 0) & 
+           (df.max_dua_from_far == 0), 'source_dua_'+boc_source] = 'imputed from max_far'
 
     # if only one available use that
     df.loc[(df['source_dua_'+boc_source]=="missing") & 
-           (max_dua_from_height.isnull() | (max_dua_from_height == 0)) & 
-            max_dua_from_far.notnull(), 'source_dua_'+boc_source] = 'imputed from max_far'
+            df.max_dua_from_height.isnull() & 
+            df.max_dua_from_far.notnull(), 'source_dua_'+boc_source] = 'imputed from max_far'
 
     df.loc[(df['source_dua_'+boc_source]=='missing') & 
-            max_dua_from_height.notnull() & 
-            (max_dua_from_far.isnull() | (max_dua_from_far == 0)), 'source_dua_'+boc_source] = 'imputed from max_height'
+            df.max_dua_from_height.notnull() & 
+            df.max_dua_from_far.isnull(), 'source_dua_'+boc_source] = 'imputed from max_height'
 
     # imputation is decided -- set it
-    df.loc[df['source_dua_'+boc_source]=='imputed from max_height (as min)', 'max_dua_'+boc_source] = max_dua_from_height
-    df.loc[df['source_dua_'+boc_source]=='imputed from max_height',          'max_dua_'+boc_source] = max_dua_from_height
-    df.loc[df['source_dua_'+boc_source]=='imputed from max_far (as min)',    'max_dua_'+boc_source] = max_dua_from_far
-    df.loc[df['source_dua_'+boc_source]=='imputed from max_far',             'max_dua_'+boc_source] = max_dua_from_far
+    df.loc[    df['source_dua_'+boc_source]=='imputed from max_height (as min)', 'max_dua_'+boc_source] = \
+        df.loc[df['source_dua_'+boc_source]=='imputed from max_height (as min)', 'max_dua_from_height']
 
-    logger.info("impute_max_dua(): After imputation: ")
-    logger.info(df['source_dua_'+boc_source].value_counts())
+    df.loc[    df['source_dua_'+boc_source]=='imputed from max_height',          'max_dua_'+boc_source] = \
+        df.loc[df['source_dua_'+boc_source]=='imputed from max_height',          'max_dua_from_height']
+
+    df.loc[    df['source_dua_'+boc_source]=='imputed from max_far (as min)',    'max_dua_'+boc_source] = \
+        df.loc[df['source_dua_'+boc_source]=='imputed from max_far (as min)',    'max_dua_from_far']
+
+    df.loc[    df['source_dua_'+boc_source]=='imputed from max_far',             'max_dua_'+boc_source] = \
+        df.loc[df['source_dua_'+boc_source]=='imputed from max_far',             'max_dua_from_far']
+
+    logger.info("After imputation: \n{}".format(df['source_dua_'+boc_source].value_counts()))
 
     return df[['PARCEL_ID','max_dua_'+boc_source,'source_dua_'+boc_source]]
     
@@ -132,11 +144,12 @@ def impute_max_far(df_original,boc_source):
     # don't modify passed df
     df = df_original.copy()
 
-    logger.info("impute_max_far{}: Before imputation, number of parcels with missing max_far_{}: {:,}".format(
+    logger.info("impute_max_far_{}: Before imputation, number of parcels with missing max_far_{}: {:,}".format(
         boc_source, boc_source, sum(df['max_far_'+boc_source].isnull())))
     
     # we can only fill in missing if max_height is not null
-    max_far_from_height = df['max_height_' +boc_source] / dev_capacity_calculation_module.FEET_PER_STORY * dev_capacity_calculation_module.PARCEL_USE_EFFICIENCY
+    df['max_far_from_height'] = \
+        df['max_height_' +boc_source] / dev_capacity_calculation_module.FEET_PER_STORY * dev_capacity_calculation_module.PARCEL_USE_EFFICIENCY
     
     # default to missing
     df['source_far_'+boc_source] = 'missing'
@@ -147,22 +160,22 @@ def impute_max_far(df_original,boc_source):
 
     # decide on imputation source
     # for missing values, fill from max_height
-    df.loc[(df['source_far_'+boc_source]=='missing') & max_far_from_height.notnull(),
+    df.loc[(df['source_far_'+boc_source]=='missing') & df.max_far_from_height.notnull(),
            'source_far_'+boc_source] = 'imputed from max_height'
 
     # imputation is decided -- set it
-    df.loc[df['source_far_'+boc_source]=='imputed from max_height', 'max_far_'+boc_source] = max_far_from_height
+    df.loc[    df['source_far_'+boc_source]=='imputed from max_height', 'max_far_'+boc_source] = \
+        df.loc[df['source_far_'+boc_source]=='imputed from max_height', 'max_far_from_height']
 
-    logger.info("impute_max_far_{}: After imputation: ".format(boc_source))
-    logger.info(df['source_far_'+boc_source].value_counts())
+    logger.info("After imputation: \n{}".format(df['source_far_'+boc_source].value_counts()))
 
     return df[['PARCEL_ID','max_far_'+boc_source,'source_far_'+boc_source]]
 
 
 def impute_basis_devtypes_from_pba40(df):
     """
-    Where basis allowed development type is missing AND nodev_zmod == 0,
-    impute value from pba40.  Note this in source_[btype]_basis, which will be set to one of 
+    Where basis allowed development type is missing, impute value from pba40.
+    Note this in source_[btype]_basis, which will be set to one of 
         ['basis', 'missing', 'imputed from pba40']
 
     Returns df with [btype]_basis and source_[btype]_basis columns updated
@@ -179,11 +192,10 @@ def impute_basis_devtypes_from_pba40(df):
         #    and the pba40 value is present
         # => impute
         impute_idx = ((df[btype+'_basis'].isnull()) & \
-                      (df['nodev_zmod'] == 0) & \
                       (df[btype+'_pba40'].notnull()))
         # impute and note source
-        df.loc[ impute_idx,           btype+'_basis' ] = df[btype + '_pba40']
-        df.loc[ impute_idx, 'source_'+btype+'_basis' ] = 'imputed from pba40'
+        df.loc[impute_idx,           btype+'_basis' ] = df.loc[impute_idx, btype + '_pba40']
+        df.loc[impute_idx, 'source_'+btype+'_basis' ] = 'imputed from pba40'
 
         logger.info("After imputation of {}_basis:\n{}".format(btype, df['source_'+btype+'_basis'].value_counts()))
 
@@ -192,8 +204,8 @@ def impute_basis_devtypes_from_pba40(df):
 
 def impute_basis_max_height_from_pba40(df):
     """
-    Where max_height_basis is missing AND nodev_zmod == 0,
-    impute value from pba40.  Note this in source_height_basis, which will be set to one of 
+    Where max_height_basis is missing, impute value from pba40.
+    Note this in source_height_basis, which will be set to one of 
         ['basis', 'missing', 'imputed from pba40']
 
     Returns df with max_height_basis and source_height_basis columns updated
@@ -203,19 +215,17 @@ def impute_basis_max_height_from_pba40(df):
     df['source_height_basis'] = 'basis' # default
     df.loc[ df['max_height_basis'].isnull(), 'source_height_basis'] = 'missing' # or missing if null
 
-    logger.info("Before imputation of max_height_basis:\n{}".format(df['source_height_basis'].value_counts()))
+    logger.info("Before imputation:\n{}".format(df['source_height_basis'].value_counts()))
     # if basis value is missing
-    #    and we care about it (nodev_zod == 0)
     #    and the pba40 value is present
     # => impute
     impute_idx = ((df['max_height_basis'].isnull()) & \
-                  (df['nodev_zmod'] == 0) & \
                   (df['max_height_pba40'].notnull()))
     # impute and note source
-    df.loc[ impute_idx,    'max_height_basis' ] = df['max_height_pba40']
-    df.loc[ impute_idx, 'source_height_basis' ] = 'imputed from pba40'
+    df.loc[impute_idx,    'max_height_basis' ] = df.loc[impute_idx, 'max_height_pba40']
+    df.loc[impute_idx, 'source_height_basis' ] = 'imputed from pba40'
 
-    logger.info("After imputation of max_height_basis:\n{}".format(df['source_height_basis'].value_counts()))
+    logger.info("After imputation:\n{}".format(df['source_height_basis'].value_counts()))
     return df
 
 if __name__ == '__main__':
@@ -309,32 +319,70 @@ if __name__ == '__main__':
 
     ## P10 with BASIS BOC
 
-    ## Read BASIS BOC
-    basis_boc_file = os.path.join(OTHER_INPUTS_DIR,'p10_urbansim_boc_opt_b_v2.csv')
-    basis_boc_columns = [
-        'parcel_id','max_height','max_dua','max_far',
-        'plu_code','plu_id','plu_jurisdiction','plu_description',
-        'building_types_source','source'] + [btype.lower() for btype in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES]
-    # most are float
-    basis_boc_dtypes = dict((x, float) for x in basis_boc_columns)
-    # except these
-    basis_boc_dtypes['plu_code'             ] = str
-    basis_boc_dtypes['plu_id'               ] = str
-    basis_boc_dtypes['plu_jurisdiction'     ] = str
-    basis_boc_dtypes['plu_description'      ] = str
-    basis_boc_dtypes['building_types_source'] = str
-    basis_boc_dtypes['source'               ] = str
+    ## Read BASIS Parcel-plu_id data
+    basis_parcel_plu_id_file = os.path.join(OTHER_INPUTS_DIR,'p10_urbansim_boc_opt_b_v2.csv')
 
-    basis_boc = pd.read_csv(basis_boc_file, usecols = basis_boc_columns, dtype = basis_boc_dtypes)
-    logger.info("Read {:,} rows from {}".format(len(basis_boc), basis_boc_file))
+    basis_parcel_plu_id = pd.read_csv(basis_parcel_plu_id_file, 
+                                      usecols = ['parcel_id', 'plu_id'],
+                                      dtype = {'parcel_id': float})
+    logger.info("Read {:,} rows from {}, with header: \n{}".format(len(basis_parcel_plu_id), 
+                                                                   basis_parcel_plu_id_file,
+                                                                   basis_parcel_plu_id.head()))
 
     # drop records with no parcel_id
-    basis_boc = basis_boc.loc[basis_boc.parcel_id.notnull()]
-
+    basis_parcel_plu_id = basis_parcel_plu_id.loc[basis_parcel_plu_id.parcel_id.notnull()]
     # convert parcel_id to integer
-    basis_boc['parcel_id'] = basis_boc['parcel_id'].apply(lambda x: int(round(x)))
+    basis_parcel_plu_id['parcel_id'] = basis_parcel_plu_id['parcel_id'].apply(lambda x: int(round(x)))
 
-    logger.info('After dropping nan parcel_id, BASIS BOC has {} parcels, {} unique parcel_id'.format(len(basis_boc),len(basis_boc.parcel_id.unique())))
+    logger.info('After dropping nan parcel_id, BASIS parcel-plu_id has {} parcels, {} unique parcel_id'.format(
+        len(basis_parcel_plu_id),len(basis_parcel_plu_id.parcel_id.unique())))
+
+    # drop duplicates of parcel_id; this should be unique
+    basis_parcel_plu_id_rows = len(basis_parcel_plu_id)
+    basis_parcel_plu_id.drop_duplicates(subset='parcel_id', inplace=True)
+    if len(basis_parcel_plu_id) == basis_parcel_plu_id_rows:
+        logger.info("No duplicate parcel_ids found in {}".format(basis_parcel_plu_id_file))
+    else:
+        logger.warning("Dropped duplicate parcel_id rows from {}".format(basis_parcel_plu_id_file))
+        logger.warning("Went from {:,} to {:,} rows; dropped {:,} duplicates".format(
+            basis_parcel_plu_id_rows, 
+            len(basis_parcel_plu_id), 
+            basis_parcel_plu_id_rows-len(basis_parcel_plu_id)))
+
+    # Read BASIS BOC Lookup data
+    basis_boc_lookup_file = os.path.join(OTHER_INPUTS_DIR,'boc_lookup_2020_rev_10_13_20_final.csv')
+    basis_boc_lookup_columns = [
+        'zoning_id', 'jurisdiction', 'zn_code', 'zn_description', 'zn_area_overlay',
+        'max_far', 'max_dua', 'building_height',
+        'hs', 'ht', 'hm', 'of_', 'ho', 'sc', 'il', 'iw', 'ih', 'rs', 'rb', 'mr', 'mt', 'me']
+    basis_boc_lookup = pd.read_csv(basis_boc_lookup_file,
+                                   usecols = basis_boc_lookup_columns)
+    logger.info("Read {:,} rows from {} with {} unique zoning_id, with header: \n{}".format(
+        len(basis_boc_lookup), 
+        basis_boc_lookup_file,
+        len(basis_boc_lookup.zoning_id.unique()),
+        basis_boc_lookup.head()))
+
+    # drop duplicates
+    basis_boc_lookup.drop_duplicates(inplace=True)
+    logger.info("After dropping duplicates, {:,} rows left, with {} unique zoning_id".format(
+        len(basis_boc_lookup),
+        len(basis_boc_lookup.zoning_id.unique())))   
+
+    # rename some columns to be consistent with the data's previous versions
+    basis_boc_lookup.rename(columns = {'jurisdiction':    'plu_jurisdiction',
+                                       'zn_description':  'plu_description',
+                                       'zn_code':         'plu_code',
+                                       'building_height': 'max_height',
+                                       'of_':             'of'}, inplace=True)
+
+    # merge lookup to parcel-plu_id to get parcel-level BOC data
+    basis_boc = basis_parcel_plu_id.merge(basis_boc_lookup,
+                                          left_on='plu_id',
+                                          right_on='zoning_id',
+                                          how='left')
+    # drop columns w/ duplicated info
+    basis_boc.drop(columns=['zoning_id'], inplace=True)
 
     # append _basis to column names to differentiate between basis PLU and pba40 PLU between 
     rename_cols = {}
@@ -345,16 +393,6 @@ if __name__ == '__main__':
         else:
             rename_cols[col] = col + "_basis"
     basis_boc.rename(columns=rename_cols, inplace=True)
-
-    # drop duplicates of parcel_id; this should be unique
-    logger.info("\n{}".format(basis_boc.head()))
-    basis_boc_rows = len(basis_boc)
-    basis_boc.drop_duplicates(subset='parcel_id_basis', inplace=True)
-    if len(basis_boc) == basis_boc_rows:
-        logger.info("No duplicate parcel_ids found in {}".format(basis_boc_file))
-    else:
-        logger.warning("Dropped duplicate parcel_id rows from {}".format(basis_boc_file))
-        logger.warning("Went from {:,} to {:,} rows; dropped {:,} duplicates".format(basis_boc_rows, len(basis_boc), basis_boc_rows-len(basis_boc)))
 
     # report on missing allowed building types
     for btype in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
@@ -372,9 +410,9 @@ if __name__ == '__main__':
 
     ## Bring in zoning scenarios data
 
-    zmod_file = os.path.join(PBA50_ZONINGMOD_DIR,'p10_pba50_attr_20200416.csv')
+    zmod_file = os.path.join(PBA50_ZONINGMOD_DIR,'p10_pba50_attr_20200915.csv')
     zmod = pd.read_csv(zmod_file,
-                       usecols = ['PARCEL_ID','juris','pba50zoningmodcat','nodev'])
+                       usecols = ['PARCEL_ID','juris','fbpzoningm','nodev'])
     zmod['PARCEL_ID'] = zmod['PARCEL_ID'].apply(lambda x: int(round(x)))
     logger.info("Read {:,} rows from {}".format(len(zmod), zmod_file))
     logger.info("\n{}".format(zmod.head()))
@@ -434,7 +472,7 @@ if __name__ == '__main__':
     far_pba40 = impute_max_far(p10_basis_pba40_boc_zmod_withJuris, "pba40")
 
     ## replace the columns with those with imputations
-    logger.info('Parcels count: {:,}'.format(len(p10_basis_pba40_boc_zmod_withJuris)))
+    logger.info('Parcels count after all imputations: {:,}'.format(len(p10_basis_pba40_boc_zmod_withJuris)))
     p10_basis_pba40_boc_zmod_withJuris.drop(columns=['max_dua_basis','max_dua_pba40','max_far_basis','max_far_pba40'], inplace=True)
 
     p10_basis_pba40_boc_zmod_withJuris = pd.merge(left=p10_basis_pba40_boc_zmod_withJuris,
@@ -455,7 +493,7 @@ if __name__ == '__main__':
     output_columns = [
         'PARCEL_ID', 'geom_id','county_id', 'county_name', 'juris_zmod', 'jurisdiction_id',
 
-        'ACRES', 'zoning_id_pba40', 'name_pba40','plu_code_basis','pba50zoningmodcat_zmod',
+        'ACRES', 'zoning_id_pba40', 'name_pba40', 'fbpzoningm_zmod',
         
         # intensity
         'max_far_basis',        'max_far_pba40',
@@ -472,9 +510,9 @@ if __name__ == '__main__':
         'allow_nonres_basis',   'allow_nonres_pba40',
 
         # BASIS metadata
-        'building_types_source_basis','source_basis',
-        'plu_id_basis','plu_jurisdiction_basis','plu_description_basis'
-    ]
+        'plu_id_basis','plu_code_basis','plu_jurisdiction_basis','plu_description_basis'
+        ]
+
     # allowed building types
     for devType in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
         output_columns.append(devType + "_basis")
@@ -486,10 +524,10 @@ if __name__ == '__main__':
 
     for devType in dev_capacity_calculation_module.ALLOWED_BUILDING_TYPE_CODES:
         for boc_source in ['basis', 'pba40']:
-            miss_idx = plu_boc_output[devType + '_' + boc_source].isnull()
+            miss_idx = plu_boc_output[devType + '_' + boc_source].isnull().sum()
             logger.info('Missing {} {} parcel count: {}'.format(boc_source,
                                                                 devType,
-                                                                len(miss_idx)))
+                                                                miss_idx))
 
     logger.info('Export pba40/BASIS combined base zoning data: {} records of the following fields: {}'.format(len(plu_boc_output), plu_boc_output.dtypes))
 
