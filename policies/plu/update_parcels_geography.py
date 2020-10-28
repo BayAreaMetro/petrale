@@ -24,7 +24,8 @@ if os.getenv('USERNAME')=='ywang':
 HORIZON_ZONING_BOX_DIR  = os.path.join(M_WORKING_DIR, 'Horizon', 'Large General Input Data')
 PBA50_ZONINGMOD_DIR     = os.path.join(M_WORKING_DIR, 'Final_Blueprint', 'Zoning Modifications')
 JURIS_CODE_DIR          = os.path.join(GITHUB_PETRALE_DIR, 'zones', 'jurisdictions')
-M_ID_BF_DIR             = os.path.join(M_ID_DIR, 'Final Blueprint')
+M_ID_DB_DIR             = os.path.join(M_ID_DIR, 'Draft Blueprint')
+M_ID_FB_DIR             = os.path.join(M_ID_DIR, 'Final Blueprint')
 
 # outputs locations
 PBA50_LARGE_INPUT_DIR   = os.path.join(BOX_DIR, 'PBA50', 'Current PBA50 Large General Input Data')
@@ -83,7 +84,7 @@ if __name__ == '__main__':
     logger.info(pg_pba40.dtypes)
 
     ## Read PBA50 attributes
-    pba50_attrs_file = os.path.join(PBA50_ZONINGMOD_DIR, 'p10_pba50_attr_20200915.csv')
+    pba50_attrs_file = os.path.join(PBA50_ZONINGMOD_DIR, 'p10_pba50_FBP_attr_20201023.csv')
     pba50_attrs_cols = ['geom_id_s', 'juris_id', 'juris', 'gg_id', 'tra_id', 'sesit_id', 'ppa_id', 
                         'exp2020_id', 'pba50chcat', 'exsfd_id', 'chcatwsfd', 'pba50zonin', 'nodev',
                         'fbp_gg_id', 'fbp_tra_id', 'fbp_sesit_', 'fbp_ppa_id', 'fbp_exp202', 
@@ -92,11 +93,12 @@ if __name__ == '__main__':
                               usecols = pba50_attrs_cols)
     pba50_attrs.geom_id_s = pba50_attrs.geom_id_s.apply(lambda x: int(round(x)))
     pba50_attrs.rename(columns = {'pba50zonin': 'pba50zoningmodcat',
+
+                                  'fbpzoningm': 'fbpzoningmodcat',
                                   'fbp_sesit_': 'fbp_sesit_id',
                                   'fbp_exp202': 'fbp_exp2020_id',
                                   'fbp_exsfd_': 'fbp_exsfd_id',
-                                  'fbpchcatws': 'fbpchcatwsfd',
-                                  'fbpzoningm': 'fbpzoningmodcat'}, inplace=True)
+                                  'fbpchcatws': 'fbpchcatwsfd'}, inplace=True)
 
     logger.info('Read {} records from {}, with header: \n {}'.format(
             len(pba50_attrs),
@@ -105,17 +107,27 @@ if __name__ == '__main__':
     logger.info(pba50_attrs.dtypes)
 
     ## Read new PBA50 PDA IDs
-    pda_pba50_file = os.path.join(M_ID_BF_DIR, 'pda_id_2020.csv')
-    pda_pba50 = pd.read_csv(pda_pba50_file)
-    pda_pba50.rename(columns = {'pda_id': 'pda_id_pba50'}, inplace = True)
+    pda_pba50_db_file = os.path.join(M_ID_DB_DIR, 'pda_id_2020.csv')
+    pda_pba50_db = pd.read_csv(pda_pba50_db_file)
+    pda_pba50_db.rename(columns = {'pda_id': 'pda_id_pba50_db'}, inplace = True)
 
     logger.info('Read {} records from {}, with {} unique Parcel IDs, header: \n {}'.format(
-            len(pda_pba50),
-            pda_pba50_file,
-            len(pda_pba50.parcel_id.unique()),
-            pda_pba50.head()))
-    logger.info(pda_pba50.dtypes)
+            len(pda_pba50_db),
+            pda_pba50_db_file,
+            len(pda_pba50_db.parcel_id.unique()),
+            pda_pba50_db.head()))
+    logger.info(pda_pba50_db.dtypes)
 
+    pda_pba50_fb_file = os.path.join(M_ID_FB_DIR, 'pda_id_2020.csv')
+    pda_pba50_fb = pd.read_csv(pda_pba50_fb_file)
+    pda_pba50_fb.rename(columns = {'pda_id': 'pda_id_pba50_fb'}, inplace = True)
+
+    logger.info('Read {} records from {}, with {} unique Parcel IDs, header: \n {}'.format(
+            len(pda_pba50_fb),
+            pda_pba50_fb_file,
+            len(pda_pba50_fb.parcel_id.unique()),
+            pda_pba50_fb.head()))
+    logger.info(pda_pba50_fb.dtypes)
 
     ## Read jurisdiction code file
     juris_code_file = os.path.join(JURIS_CODE_DIR, 'juris_county_id.csv')
@@ -130,10 +142,47 @@ if __name__ == '__main__':
                                                         on = 'juris_id', 
                                                         how = 'left').merge(basemap_p10, 
                                                                             on = 'geom_id_s',
-                                                                            how = 'left').merge(pda_pba50,
+                                                                            how = 'left').merge(pda_pba50_db,
                                                                                                 left_on = 'PARCEL_ID',
                                                                                                 right_on = 'parcel_id',
-                                                                                                how = 'left')                      
+                                                                                                how = 'left').merge(pda_pba50_fb,
+                                                                                                                    left_on = 'PARCEL_ID',
+                                                                                                                    right_on = 'parcel_id',
+                                                                                                                    how = 'left')                    
+    ## additional updates on 'nodev'
+    nodev_folder = os.path.join(PBA50_ZONINGMOD_DIR,'*.csv')
+
+    for filename in list(glob.glob(nodev_folder)):
+        if 'noDev_parcels_' in filename:
+            logger.info('Update nodev based on {}'.format(filename))
+
+            nodev_parcel = pd.read_csv(filename)
+            nodev_parcel.drop_duplicates(inplace=True)
+            nodev_parcel.rename(columns = {'nodev': 'nodev_update'}, inplace=True)          
+
+            if 'PARCEL_ID' in nodev_parcel:
+                logger.info('update {} parcels using PARCEL_ID'.format(len(nodev_parcel)))
+                nodev_parcel.PARCEL_ID = nodev_parcel.PARCEL_ID.apply(lambda x: int(round(x)))
+                pg_pba50_merge = pg_pba50_merge.merge(nodev_parcel[['PARCEL_ID','nodev_update']],
+                                                      on='PARCEL_ID',
+                                                      how='left')
+                pg_pba50_merge.loc[pg_pba50_merge.nodev_update.notnull(), 'nodev'] = \
+                    pg_pba50_merge.loc[pg_pba50_merge.nodev_update.notnull(), 'nodev_update']
+                pg_pba50_merge.drop(columns=['nodev_update'], inplace=True)
+
+            elif 'geom_id' in nodev_parcel:
+                logger.info('update {} parcels using geom_id'.format(len(nodev_parcel)))
+                nodev_parcel.geom_id = nodev_parcel.geom_id.apply(lambda x: int(round(x)))
+                pg_pba50_merge = pg_pba50_merge.merge(nodev_parcel[['geom_id','nodev_update']],
+                                                      on='geom_id',
+                                                      how='left')
+                pg_pba50_merge.loc[pg_pba50_merge.nodev_update.notnull(), 'nodev'] = \
+                    pg_pba50_merge.loc[pg_pba50_merge.nodev_update.notnull(), 'nodev_update']
+                pg_pba50_merge.drop(columns=['nodev_update'], inplace=True)
+
+            else:
+                logger.info('Missing PARCEL_ID and geom_id, cannot update.')
+
 
     ## export needed fields
 
@@ -148,19 +197,24 @@ if __name__ == '__main__':
     hor_att = ['hra_id', 'trich_id', 'cat_id', 'zoninghzcat']
 
     # PBA50 Draft Blueprint fields:
-    pba50_db_att = ['gg_id', 'pda_id_pba50', 'tra_id', 'sesit_id', 'ppa_id', 
+    pba50_db_att = ['gg_id', 'pda_id_pba50_db', 'tra_id', 'sesit_id', 'ppa_id', 
                     'exp2020_id', 'exsfd_id', 'pba50zoningmodcat', 'pba50chcat']
 
     # PBA50 Final Blueprint fields:
-    pba50_fb_att = ['fbp_gg_id', 'pda_id_pba50', 'fbp_tra_id', 'fbp_sesit_id', 'fbp_ppa_id', 
-                    'fbp_exp2020_id', 'fbp_exsfd_id', 'fbpzoningmodcat', 'nodev','fbpchcat']
+    pba50_fb_att = ['fbp_gg_id', 'pda_id_pba50_fb', 'fbp_tra_id', 'fbp_sesit_id', 'fbp_ppa_id', 
+                    'fbp_exp2020_id', 'fbp_exsfd_id', 'fbpzoningmodcat', 'fbpchcat']
+
+    # PBA50 shared fields:
+    pba50_att_both = ['nodev']
 
     # export:
-    # pg_pba50_all = pg_pba50_merge[p_att + pba40_att + hor_att + pba50_att]
-    pg_pba50_all = pg_pba50_merge[p_att + pba40_att + hor_att + pba50_db_att + pba50_fb_att]
+    pg_all = pg_pba50_merge[p_att + pba40_att + hor_att + pba50_db_att + pba50_fb_att + pba50_att_both]
+    pg_pba50_fb_only = pg_pba50_merge[p_att + pba50_fb_att + pba50_att_both]
 
-    logger.info('Export {} records with {} unique PARCEL IDs to {} with the following fields: \n {}'.format(len(pg_pba50_all),
-                                                                                                            len(pg_pba50_all.PARCEL_ID.unique()),
+    logger.info('Export {} records with {} unique PARCEL IDs to {} with the following fields: \n {}'.format(len(pg_all),
+                                                                                                            len(pg_all.PARCEL_ID.unique()),
                                                                                                             PBA50_LARGE_INPUT_DIR,
-                                                                                                            pg_pba50_all.dtypes))
-    pg_pba50_all.to_csv(os.path.join(PBA50_LARGE_INPUT_DIR, today+'_parcels_geography.csv'), index = False)
+                                                                                                            pg_all.dtypes))
+    pg_all.to_csv(os.path.join(PBA50_LARGE_INPUT_DIR, today+'_parcels_geography.csv'), index = False)
+    #pg_pba50_fb_only.to_csv(os.path.join(M_LARGE_INPUT_DIR, today+'_parcels_geography_fb_only.csv'), index = False)
+    
