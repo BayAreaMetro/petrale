@@ -456,18 +456,26 @@ if __name__ == '__main__':
     us_2050_FBP_Oct_v5      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.4/run152'
     us_2050_FBP_Oct_v6      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.5/run327'
     us_2050_FBP_Oct_v7      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.6.1 (growth summary updates)/run153'
+    us_2050_FBP_Oct_v8      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.7/run158'
+    us_2050_FBP_Oct_v9      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.8/run335'
+    us_2050_FBP_Oct_v10      = 'Final Blueprint runs/inal Blueprint (s24)/BAUS v2.8.1 (parcels geography update)/run159'
+    us_2050_FBP_Oct_v11      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.9/run160'
 
     list_us_runid = [us_2050_DBP_Plus_runid, 
                      us_2050_FBP_Oct_v3,
                      us_2050_FBP_Oct_v4,
                      us_2050_FBP_Oct_v5,
                      us_2050_FBP_Oct_v6,
-                     us_2050_FBP_Oct_v7]
+                     us_2050_FBP_Oct_v7,
+                     us_2050_FBP_Oct_v8,
+                     us_2050_FBP_Oct_v9,
+                     us_2050_FBP_Oct_v10,
+                     us_2050_FBP_Oct_v11]
 
 
       # Set external inputs
     metrics_source_folder         = 'C:/Users/{}/Box/Horizon and Plan Bay Area 2050/Equity and Performance/7_Analysis/Metrics/metrics_files/'.format(os.getenv('USERNAME'))
-    parcel_geography_file         = urbansim_run_location + 'Current PBA50 Large General Input Data/2020_09_21_parcels_geography.csv'
+    parcel_geography_file         = urbansim_run_location + 'Current PBA50 Large General Input Data/2020_10_27_parcels_geography.csv'
     parcel_tract_crosswalk_file   = metrics_source_folder + 'parcel_tract_crosswalk.csv'
     udp_file                      = metrics_source_folder + 'udp_2017results.csv'
     coc_flag_file                 = metrics_source_folder + 'COCs_ACS2018_tbl_TEMP.csv'
