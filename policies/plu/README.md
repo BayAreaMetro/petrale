@@ -86,6 +86,15 @@ Output:
 * ``zoning_parcels_pba50.csv``, maps parcels to a zoning id
 * ``zoning_lookup_pba50.csv``, maps zoning id to characteristics (intensity and allowed development type)
 
+#### [hybrid_index_fb_revision.ipynb](hybrid_index_fb_revision.ipynb)
+Updates the hybrid index used in Draft Blueperint and tracks if the following zoning attributes have been updated for each jurisdiction.
+
+Inputs:
+* [``hybrid_index/idx_urbansim.csv``](hybrid_index/idx_urbansim.csv), hybrid index used to build Draft Blueprint hybrid base zoning input
+* [``hybrid_index/hybrid_idx_update_10192020.csv``](hybrid_index/hybrid_idx_update_10192020.csv): BASIS recommendations on updating the hybrid index
+
+Outputs:
+* [``hybrid_index/idx_urbansim_fb_10192020.csv``](hybrid_index/idx_urbansim_fb_10192020.csv), updated hybrid index based on BASIS team's recommendation. To be used to construct Final Blueprint hybrid base zoning input. In addition to indexes, this file also has the following fields: 'updated_max_dua_idx', 'updated_max_far_idx', 'updated_res_blgType_idx', 'updated_nonres_blgType_idx'. They indicate if the relevant zoning attributes were updated. 'updated_res_blgType_idx' being True suggests one or more updates in 'HS_idx', 'HT_idx', 'HM_idx', or 'MR_idx'; 'updated_nonres_blgType_idx' being True indicates one or more updates in 'OF_idx', 'HO_idx', 'SC_idx', 'IL_idx', 'IW_idx', 'IH_idx', 'RS_idx', 'RB_idx', 'MR_idx', 'MT_idx', or 'ME_idx'.
 
 ## Scripts/files to visualize zoningmod and compare development capacity between different zoningmod scenarios/versions
 
