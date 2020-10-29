@@ -458,7 +458,7 @@ if __name__ == '__main__':
     us_2050_FBP_Oct_v7      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.6.1 (growth summary updates)/run153'
     us_2050_FBP_Oct_v8      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.7/run158'
     us_2050_FBP_Oct_v9      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.8/run335'
-    us_2050_FBP_Oct_v10      = 'Final Blueprint runs/inal Blueprint (s24)/BAUS v2.8.1 (parcels geography update)/run159'
+    us_2050_FBP_Oct_v10      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.8.1 (parcels geography update)/run159'
     us_2050_FBP_Oct_v11      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.9/run160'
 
     list_us_runid = [us_2050_DBP_Plus_runid, 
