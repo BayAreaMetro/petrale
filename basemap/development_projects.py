@@ -82,9 +82,9 @@ basis_pb_new = os.path.join(SMELT_GDB, "basis_pb_new_20200312")
 
 MTC_ONLINE_MANUAL_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/manual_dp_20200716/FeatureServer/0?token=5qV1qgKLXC7Uoum0N1sSTZSV2-eF9SG0PhR682PbAHyrmoc69codzAagWRYOM9Xypcu6KW61Fh6o_gxarcGObsAf07pS0cbvlK-VgakqgY8-DCShwsQ0v1G_O9JQdMPxYfkR7kr6SfjX-00qoRqCF5KOdLiPsgpzbw6gcm6AWWeGZ_d1Hh2smCJV6ShoeyVo1pKLEki3s0r8gZbhXAn6yPAIsWyoTblgsTYRIZsp2Pk.'
 
-MTC_ONLINE_OPPSITE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/opportunity_sites_20201026/FeatureServer/0?token=3nHCCbc-lvCQn6zAxidSjx8ltB0ftCqugX3esDQBsJ59dvX9KLZkikSxx_NIZN6bQeRKD2rkKvDcHhSmtps-0dOQDOppURhsnvjLutAGhfwHBCjZy79qaYap9JfVtqElxwku9DDYiWoIutnLTLWUwJ56pBwrOFCMJj7GS99z4PcQ6NGBZIJNqZZWvgSU_qUHEWlTZnLTJyB8NmPgj2F1JXptVikFTk9z45dfGkW77dU.'
+MTC_ONLINE_OPPSITE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/opportunity_sites_20201026/FeatureServer/0?token=Pl_DJ4-veoG357sbtVCk4Ui-0dM681BNSTxnQp6k-Dxg_2LjX7NHbDocTGJfXal8DKu35WkzKXr69ker1T5jtgRp4YF0rhNepcTDvuhMNaaDR6iBlJmWJAy86Io2qVJHorl71ZnkT5GfJf2EXblhTMiCNz4AOyA5PtBJKDjJPvXmuqffhgo7R3eaC4G_NRJDDdE7rg2MugcenXCEUw8YtBWYx1G36DreyKq1qXF5mx8.'
 
-MTC_ONLINE_PUBLAND_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/H8_AH_Public_Sites_v2/FeatureServer/0?token=USpo1DVvw-jieStDPFc95Dzt0wfdpNlhwU_4gS186CfiMQagage3n9M-r4XZX6fvQX_aTyZfyVtE7aROB4K_WecwKmIaqXNdQ9l59wJ5NLpuCJKfHP-rC9BX2596sZAyNBB6Ku2RKCCtwMdqUlONRfMGIItPlw9u55HYbPt-Xv5qb86fH6zVE1wvesjAlhTdb2e3lefPdXhmHDA5W4F35nrtyZlbwEn9EIRzU5I95r4.'
+MTC_ONLINE_PUBLAND_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/H8_AH_Public_Sites_v2/FeatureServer/1?token=AqWg4P13gnHhs3eow-l_DRj3B87GX-mNF0V4vxEw4GCIhPjB6GzEx0SDEod_Z-YQFEdsZod1OVHaiar89Gz5VQClSE67R-OOXjCxIlT4KdXRHWD4jugiMLQA5feu1w3GXrzT4Jy4NQjkxe8x_JAIUpav2KP-ARduE8Pbm0IlA2vLHiInuzGV6gj6quBL6gBdW7ODQ29dznZOaQrxfcb7livpfcUemSnGB7qNknUuxuc.'
 
 manual_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MANUAL_URL,'manual_sites')
 
@@ -1131,6 +1131,7 @@ if __name__ == '__main__':
 		arcpy.AlterField_management(joinFN, "yearbuilt2", "p_year_built")
 		arcpy.AlterField_management(joinFN, "new_units", "p_new_units")
 		arcpy.AlterField_management(joinFN, "deed_res_1", "p_dr_units")
+		arcpy.AlterField_management(joinFN, "non_resid_", "p_non_resid_")
 		arcpy.AlterField_management(joinFN, "PARCEL_ID", "p_parcel_id")
 		arcpy.AlterField_management(joinFN, "X", "p_x")
 		arcpy.AlterField_management(joinFN, "Y", "p_y")
@@ -1218,8 +1219,9 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "building_type", "'HM'")
 		arcpy.CalculateField_management(joinFN, "residential_units", '!p_new_units!')
 		arcpy.CalculateField_management(joinFN, "deed_restricted_units", '!p_dr_units!')
+		arcpy.CalculateField_management(joinFN, "non_residential_sqft", '!p_non_resid_!')
 		arcpy.CalculateField_management(joinFN, "source", "'pub'")
-		arcpy.CalculateField_management(joinFN, "edit_date", 20200928)
+		arcpy.CalculateField_management(joinFN, "edit_date", 20201028)
 		arcpy.CalculateField_management(joinFN, "editor", "'MS'")
 		
 		FCfields = [f.name for f in arcpy.ListFields(joinFN)]
@@ -1292,7 +1294,6 @@ if __name__ == '__main__':
 		arcpy.AlterField_management(joinFN, "residential_units", "o_residential_units")
 		arcpy.AlterField_management(joinFN, "unit_ave_sqft", "o_unit_ave_sqft")
 		arcpy.AlterField_management(joinFN, "rent_ave_sqft", "o_rent_ave_sqft")
-		arcpy.AlterField_management(joinFN, "rent_ave_unit", "o_rent_ave_unit")
 		arcpy.AlterField_management(joinFN, "zip", "o_zips")
 		arcpy.AlterField_management(joinFN, "Average_Weighted_Rent", "average_weighted_rent")
 		arcpy.AlterField_management(joinFN, "x", "o_x")
@@ -1337,11 +1338,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "stories", "SHORT")
 		arcpy.AddField_management(joinFN, "parking_spaces", "SHORT")
 		arcpy.AddField_management(joinFN, "rent_ave_sqft", "FLOAT")
-		arcpy.AddField_management(joinFN, "rent_ave_unit", "SHORT")
 		###using date for now, as I tried to use datetime.datetime.strptime('cs_sale_date','%m/%d/%Y %I:%M:%S %p').strftime('%Y')) it didn't work
-		arcpy.AddField_management(joinFN, "last_sale_year", "DATE") 
-		arcpy.AddField_management(joinFN, "last_sale_price", "DOUBLE")
-		arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
 		arcpy.AddField_management(joinFN, "edit_date", "LONG")
 		arcpy.AddField_management(joinFN, "editor", "TEXT","","",50)
 		arcpy.AddField_management(joinFN, "version", "SHORT")
@@ -1379,18 +1376,14 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "non_residential_sqft", '!o_non_residential_sqft!')
 		arcpy.CalculateField_management(joinFN, "residential_units", '!o_residential_units!')
 		arcpy.CalculateField_management(joinFN, "unit_ave_sqft", '!o_unit_ave_sqft!')
-		arcpy.CalculateField_management(joinFN, "stories", '!o_stories!')
-		arcpy.CalculateField_management(joinFN, "rent_ave_sqft", "!o_rent_ave_sqft!" )
-		arcpy.CalculateField_management(joinFN, "rent_ave_unit", "!o_rent_ave_unit!")
-		arcpy.CalculateField_management(joinFN, "last_sale_year", '!o_sale_date!') #need to make into year
-		arcpy.CalculateField_management(joinFN, "last_sale_price", '!o_last_sale_price!')
-		arcpy.CalculateField_management(joinFN, "deed_restricted_units", 0)
-		with arcpy.da.UpdateCursor(joinFN, ["source","type","building_name"]) as cursor:
+		with arcpy.da.UpdateCursor(joinFN, ["source","type","building_name","o_source"]) as cursor:
 			for row in cursor:
 				if row[2] == 'incubator':
 					row[0] = row[2]
 				elif row[1] == 'pb50_opp':
 					row[0] = 'mall_office'
+				elif row[3] == 'ppa':
+					row[0] = row[3]
 				else:
 					row[0] = 'opp'
 				cursor.updateRow(row)
