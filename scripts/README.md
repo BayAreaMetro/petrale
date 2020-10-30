@@ -29,3 +29,9 @@ Output:
 An Excel file with two sets of tabs:
 * tabs named `breakdown_[runid]_version`: breaks down DR units by county, source, and year-built; each UrbanSim run result has a separate tab.
 * tabs named `dr_[geography]_all`: total DR units broken down by various types of geography; each tab contains multiple UrbanSim run results.
+
+#### h8_santa_clara_analysis
+Analyzes the performance of the Final Blueprint H8 subsidy affordable housing strategy cross UrbanSim runs.
+
+* [h8_santa_clara_analysis_part1.ipynb](h8_santa_clara_analysis_part1.ipynb): processes the building_data output of various runs, assigning Santa Clara County parcels into four categories: parcels with no building, parcels only with non-residential buildings, parcels with residential buildings but not subsidized residential buildings, and parcels with subsidized residential buildings.
+* [h8_santa_clara_analysis_part2.py](h8_santa_clara_analysis_part2.py): arcpy script to join the parcel_summary output from [part1](h8_santa_clara_analysis_part1.ipynb) to p10 parcel shapefile to create layers for maps. 
