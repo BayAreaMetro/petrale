@@ -32,7 +32,7 @@ PLU_BOC_M_DIR               = os.path.join(M_DIR, 'Final_Blueprint', 'Base zonin
 PLU_BOC_FILE                = os.path.join(PLU_BOC_M_DIR, '2020_10_20_p10_plu_boc_allAttrs.csv')
 HYBRID_INDEX_DIR            = os.path.join(GITHUB_PETRALE_DIR, 'policies\\plu\\hybrid_index')
 # TODO: change to idx_urbansim.csv when we have one
-HYBRID_INDEX_FILE           = os.path.join(HYBRID_INDEX_DIR, "idx_urbansim_fb_10192020.csv")
+HYBRID_INDEX_FILE           = os.path.join(HYBRID_INDEX_DIR, "idx_urbansim.csv")
 
 # output file locations
 HYBRID_ZONING_OUTPUT_DIR    = os.path.join(BOX_DIR, 'Policies\\Base zoning\\outputs\\hybrid_base_zoning')
