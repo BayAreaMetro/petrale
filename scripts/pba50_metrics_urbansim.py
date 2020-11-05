@@ -320,8 +320,8 @@ def parcel_building_output_sum(urbansim_runid):
     #################### creating parcel level df from buildings output
     ###this is to analyze changes of residential units and total deed_restricted units
 
-    building_output_2050 = pd.read_csv((urbansim_runid+'_building_data_2050.csv'))
-    building_output_2015 = pd.read_csv((urbansim_runid+'_building_data_2015.csv'))
+    building_output_2050 = pd.read_csv(urbansim_runid+'_building_data_2050.csv', engine='python')
+    building_output_2015 = pd.read_csv(urbansim_runid+'_building_data_2015.csv', engine='python')
 
     parcel_building_output_2050 = building_output_2050[['parcel_id','residential_units','deed_restricted_units']].groupby(['parcel_id']).sum().reset_index()
     parcel_building_output_2015 = building_output_2015[['parcel_id','residential_units','deed_restricted_units']].groupby(['parcel_id']).sum().reset_index()
@@ -358,8 +358,8 @@ def calc_urbansim_metrics():
 
         #################### Creating parcel summary
 
-        parcel_output_2050_df = pd.read_csv((urbansim_runid+'_parcel_data_2050.csv'))
-        parcel_output_2015_df = pd.read_csv((urbansim_runid+'_parcel_data_2015.csv'))
+        parcel_output_2050_df = pd.read_csv(urbansim_runid+'_parcel_data_2050.csv', engine='python')
+        parcel_output_2015_df = pd.read_csv(urbansim_runid+'_parcel_data_2015.csv', engine='python')
 
         if 'fbpchcat' in parcel_output_2050_df.columns:
             zoningtag = 'fbpchcat'
@@ -463,12 +463,12 @@ if __name__ == '__main__':
     #FBP_v8                      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.7'
     #FBP_v9                      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.8'
     #FBP_v10                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.8.1 (parcels geography update)"
-    FBP_v11                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.9/run160"
+    #FBP_v11                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.9/run160"
     FBP_v12                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.10/run253"
     FBP_v13                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.11/run161"
     FBP_v14                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.12/run340"
 
-    list_us_runid = [us_2050_DBP_Plus_runid, FBP_v11, FBP_v12, FBP_v13, FBP_v14]
+    list_us_runid = [us_2050_DBP_Plus_runid, FBP_v12, FBP_v13, FBP_v14]
 
 
       # Set external inputs
