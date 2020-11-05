@@ -770,6 +770,42 @@ if __name__ == '__main__':
 	arcpy.DeleteField_management(basis_pb_new, "geom_id") #this column is causing trouble
 	arcpy.SpatialJoin_analysis(basis_pb_new, p10_pba50, joinFN)
 
+	#remove records on parcels where there are no increase in residential units -- in comparsion to b10 table
+	#first count existing rows
+	cnt1 = arcpy.GetCount_management(joinFN)
+	#examine building
+	b10_smelt = os.path.join(SMELT_GDB, "b10")
+	arcpy.TableToTable_conversion(b10_smelt, arcpy.env.workspace,'b10')
+	b10 = 'b10'
+	arcpy.analysis.Statistics(b10, 'b10_unitSUM',"residential_units SUM", "parcel_id")
+	nonZero = arcpy.SelectLayerByAttribute_management('b10_unitSUM', "NEW_SELECTION", '"SUM_residential_units" > 0')#choose only parcels with residential units already
+	arcpy.CopyRows_management(nonZero, 'nonZeroParcel')
+	arcpy.AddJoin_management(joinFN, "parcel_id", "nonZeroParcel", "parcel_id","KEEP_COMMON")
+	arcpy.SelectLayerByAttribute_management(joinFN, "NEW_SELECTION", "ttt_basis_pb_new_p10__pba50.urbansim_parcels_v3_geo_county_id = 85", None)
+	#find parcels to remove 
+	parcelRemoveList = []
+	with arcpy.da.SearchCursor(joinFN,['parcel_id',
+										"residential_units",
+										"SUM_residential_units"]) as cursor:
+		for row in cursor:
+			if row[1] is not None:
+				if row[1] - row[2] == 0: 
+					parcelRemoveList.append(row[0])
+	logger.info("There are {} records in basis_pb_new that do not see increase in residential unit counts on the parcel".format(len(parcelRemoveList)))			
+	#remove join
+	arcpy.RemoveJoin_management(joinFN, "nonZeroParcel")
+	#remove records
+	with arcpy.da.UpdateCursor(joinFN, "parcel_id") as cursor:
+		for row in cursor:
+			if row[0] in parcelRemoveList:
+				cursor.deleteRow()
+	arcpy.SelectLayerByAttribute_management(joinFN, "CLEAR_SELECTION")
+	#count after rows
+	cnt2 = arcpy.GetCount_management(joinFN)
+	#check remove is successful
+	cnt =  int(cnt1[0]) - int(cnt2[0])
+	logger.info("Removed {} records".format(cnt))
+
 	arcpy.AlterField_management(joinFN, "year_built", "n_year_built")
 	arcpy.AlterField_management(joinFN, "building_sqft", "n_building_sqft")
 	arcpy.AlterField_management(joinFN, "residential_units", "n_residential_units")
@@ -897,12 +933,12 @@ if __name__ == '__main__':
 				cursor.deleteRow()	
 
 	#check to make sure that the number of remaining records in the temp file (which should still have var incl) is the same as the raw file
-	countTwo = countRow(joinFN)
-	if countTwo == countOne:
-		logger.info("All records with incl = 1 in feature class {} are included in the temp file".format(basis_pb_new))
-	else:
-		logger.fatal("Something is wrong in the code, please check")
-		raise
+	#countTwo = countRow(joinFN)
+	#if countTwo == countOne:
+	#	logger.info("All records with incl = 1 in feature class {} are included in the temp file".format(basis_pb_new))
+	#else:
+	#	logger.fatal("Something is wrong in the code, please check")
+	#	raise
 	### 3 DELETE OTHER FIELDS
 	FCfields = [f.name for f in arcpy.ListFields(joinFN)]
 	#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
