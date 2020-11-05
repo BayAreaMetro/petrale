@@ -320,8 +320,8 @@ def parcel_building_output_sum(urbansim_runid):
     #################### creating parcel level df from buildings output
     ###this is to analyze changes of residential units and total deed_restricted units
 
-    building_output_2050 = pd.read_csv((urbansim_runid+'_building_data_2050.csv'))
-    building_output_2015 = pd.read_csv((urbansim_runid+'_building_data_2015.csv'))
+    building_output_2050 = pd.read_csv(urbansim_runid+'_building_data_2050.csv', engine='python')
+    building_output_2015 = pd.read_csv(urbansim_runid+'_building_data_2015.csv', engine='python')
 
     parcel_building_output_2050 = building_output_2050[['parcel_id','residential_units','deed_restricted_units']].groupby(['parcel_id']).sum().reset_index()
     parcel_building_output_2015 = building_output_2015[['parcel_id','residential_units','deed_restricted_units']].groupby(['parcel_id']).sum().reset_index()
@@ -346,7 +346,7 @@ def calc_urbansim_metrics():
     for us_runid in list_us_runid:
 
         urbansim_runid = urbansim_run_location + us_runid
-        run_num = us_runid.split('/')[-1]
+        run_num = us_runid.split('/')[-2]
 
         # Temporary forcing until we have a Plus run
         #urbansim_runid     = urbansim_run_location + 'Blueprint Basic (s21)/v1.5/run939'
@@ -358,8 +358,8 @@ def calc_urbansim_metrics():
 
         #################### Creating parcel summary
 
-        parcel_output_2050_df = pd.read_csv((urbansim_runid+'_parcel_data_2050.csv'))
-        parcel_output_2015_df = pd.read_csv((urbansim_runid+'_parcel_data_2015.csv'))
+        parcel_output_2050_df = pd.read_csv(urbansim_runid+'_parcel_data_2050.csv', engine='python')
+        parcel_output_2015_df = pd.read_csv(urbansim_runid+'_parcel_data_2015.csv', engine='python')
 
         if 'fbpchcat' in parcel_output_2050_df.columns:
             zoningtag = 'fbpchcat'
@@ -451,26 +451,24 @@ if __name__ == '__main__':
     # Set UrbanSim inputs
     urbansim_run_location = 'C:/Users/{}/Box/Modeling and Surveys/Urban Modeling/Bay Area UrbanSim/PBA50/'.format(os.getenv('USERNAME'))
     us_2050_DBP_Plus_runid         = 'Draft Blueprint runs/Blueprint Plus Crossing (s23)/v1.7.1- FINAL DRAFT BLUEPRINT/run98'
-    us_2050_FBP_Oct_v3      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.2.1 (growth summary updates)/run325'
-    us_2050_FBP_Oct_v4      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.3.1 (devproj updates)/run242'
-    us_2050_FBP_Oct_v5      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.4/run152'
-    us_2050_FBP_Oct_v6      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.5/run327'
-    us_2050_FBP_Oct_v7      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.6.1 (growth summary updates)/run153'
-    us_2050_FBP_Oct_v8      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.7/run158'
-    us_2050_FBP_Oct_v9      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.8/run335'
-    us_2050_FBP_Oct_v10      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.8.1 (parcels geography update)/run159'
-    us_2050_FBP_Oct_v11      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.9/run160'
+    #us_2050_FBP_Oct_v3      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.2.1 (growth summary updates)/run325'
+    #us_2050_FBP_Oct_v4      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.3.1 (devproj updates)/run242'
+    #us_2050_FBP_Oct_v5      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.4/run152'
+    #us_2050_FBP_Oct_v6      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.5/run327'
+    #us_2050_FBP_Oct_v7      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.6.1 (growth summary updates)/run153'
+    #us_2050_FBP_Oct_v8      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.7/run158'
+    #us_2050_FBP_Oct_v9      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.8/run335'
+    #us_2050_FBP_Oct_v10      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.8.1 (parcels geography update)/run159'
+    #us_2050_FBP_Oct_v11      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.9/run160'
+    #FBP_v8                      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.7'
+    #FBP_v9                      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.8'
+    #FBP_v10                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.8.1 (parcels geography update)"
+    #FBP_v11                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.9/run160"
+    FBP_v12                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.10/run253"
+    FBP_v13                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.11/run161"
+    FBP_v14                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.12/run340"
 
-    list_us_runid = [us_2050_DBP_Plus_runid, 
-                     us_2050_FBP_Oct_v3,
-                     us_2050_FBP_Oct_v4,
-                     us_2050_FBP_Oct_v5,
-                     us_2050_FBP_Oct_v6,
-                     us_2050_FBP_Oct_v7,
-                     us_2050_FBP_Oct_v8,
-                     us_2050_FBP_Oct_v9,
-                     us_2050_FBP_Oct_v10,
-                     us_2050_FBP_Oct_v11]
+    list_us_runid = [us_2050_DBP_Plus_runid, FBP_v12, FBP_v13, FBP_v14]
 
 
       # Set external inputs
