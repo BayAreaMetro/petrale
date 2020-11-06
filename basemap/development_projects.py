@@ -781,12 +781,12 @@ if __name__ == '__main__':
 	nonZero = arcpy.SelectLayerByAttribute_management('b10_unitSUM', "NEW_SELECTION", '"SUM_residential_units" > 0')#choose only parcels with residential units already
 	arcpy.CopyRows_management(nonZero, 'nonZeroParcel')
 	arcpy.AddJoin_management(joinFN, "parcel_id", "nonZeroParcel", "parcel_id","KEEP_COMMON")
-	arcpy.SelectLayerByAttribute_management(joinFN, "NEW_SELECTION", "ttt_basis_pb_new_p10__pba50.urbansim_parcels_v3_geo_county_id = 85", None)
+	#arcpy.SelectLayerByAttribute_management(joinFN, "NEW_SELECTION", "ttt_basis_pb_new_p10__pba50.urbansim_parcels_v3_geo_county_id = 85", None)
 	#find parcels to remove 
 	parcelRemoveList = []
-	with arcpy.da.SearchCursor(joinFN,['parcel_id',
-										"residential_units",
-										"SUM_residential_units"]) as cursor:
+	with arcpy.da.SearchCursor(joinFN,['ttt_basis_pb_new_p10__pba50.parcel_id',
+										"ttt_basis_pb_new_p10__pba50.residential_units",
+										"nonZeroParcel.SUM_residential_units"]) as cursor:
 		for row in cursor:
 			if row[1] is not None:
 				if row[1] - row[2] == 0: 
@@ -799,7 +799,7 @@ if __name__ == '__main__':
 		for row in cursor:
 			if row[0] in parcelRemoveList:
 				cursor.deleteRow()
-	arcpy.SelectLayerByAttribute_management(joinFN, "CLEAR_SELECTION")
+	#arcpy.SelectLayerByAttribute_management(joinFN, "CLEAR_SELECTION")
 	#count after rows
 	cnt2 = arcpy.GetCount_management(joinFN)
 	#check remove is successful
