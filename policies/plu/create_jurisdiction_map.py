@@ -20,14 +20,14 @@ if os.getenv("USERNAME")=="lzorn":
     #
     # e.g. using the command
     #
-    # python import_filegdb_layers.py "M:\Data\GIS layers\UrbanSim smelt\2020 03 12\smelt.gdb" p10
-    #    "C:\Users\lzorn\Box\Modeling and Surveys\Urban Modeling\Bay Area UrbanSim 1.5\PBA50\Policies\Base zoning\outputs\2020_04_30_p10_plu_boc_allAttrs.csv"
-    #    PARCEL_ID UrbanSim_BASIS_zoning.gdb
+    # python import_filegdb_layers.py "M:\Data\GIS layers\UrbanSim smelt\2020 03 12\smelt.gdb" p10 PARCEL_ID 
+    #   "C:\Users\ywang\Box\Modeling and Surveys\Urban Modeling\Bay Area UrbanSim\PBA50\Policies\Base zoning\outputs\2020_10_20_p10_plu_boc_allAttrs.csv"
+    #   PARCEL_ID "KEEP_ALL" "M:\Data\GIS layers\UrbanSim_BASIS_zoning\UrbanSim_BASIS_zoning_fb.gdb"
     #
     WORKSPACE_DIR   = "M:\\Data\\GIS layers\\UrbanSim_BASIS_zoning"
-    WORKSPACE_GDB   = os.path.join(WORKSPACE_DIR,"UrbanSim_BASIS_zoning.gdb")
-    ARCGIS_PROJECTS = [os.path.join(WORKSPACE_DIR,"UrbanSim_BASIS_zoning_intensity.aprx"),
-                       os.path.join(WORKSPACE_DIR,"UrbanSim_BASIS_zoning_devType.aprx")]
+    WORKSPACE_GDB   = os.path.join(WORKSPACE_DIR,"UrbanSim_BASIS_zoning_fb.gdb")
+    ARCGIS_PROJECTS = [os.path.join(WORKSPACE_DIR,"UrbanSim_BASIS_zoning_intensity_fb.aprx"),
+                       os.path.join(WORKSPACE_DIR,"UrbanSim_BASIS_zoning_devType_fb.aprx")]
 
     # location of BASIS_Local_Jurisdiction_Review_Summary.xlsx (https://mtcdrive.box.com/s/s2w68pnboa3gzq5z228mqbxtdehgdcxd)
     JURIS_REVIEW    = "C:\\Users\\lzorn\\Box\\BASIS Land Use Data Store\\Jurisdiction Review\\BASIS_Local_Jurisdiction_Review_Summary.xlsx"
@@ -37,10 +37,19 @@ if os.getenv("USERNAME")=="lzorn":
     HYBRID_CONFIG_DIR   = os.path.join(PETRALE_GITHUB_DIR, "policies", "plu", "base_zoning", "hybrid_index")
 
 elif os.getenv("USERNAME")=="ywang":
-    WORKSPACE_DIR   = "C:\\Users\\ywang\\Documents\\Python Scripts\\UrbanSim_BASIS_zoning"
-    WORKSPACE_GDB   = os.path.join(WORKSPACE_DIR,"UrbanSim_BASIS_zoning.gdb")
-    ARCGIS_PROJECTS = [os.path.join(WORKSPACE_DIR,"UrbanSim_BASIS_zoning_intensity.aprx"),
-                       os.path.join(WORKSPACE_DIR,"UrbanSim_BASIS_zoning_devType.aprx")]
+
+    # This was created by joining output of 1_PLU_BOC_data_combine.ipynb with p10
+    #
+    # e.g. using the command
+    #
+    # python import_filegdb_layers.py "M:\Data\GIS layers\UrbanSim smelt\2020 03 12\smelt.gdb" p10 PARCEL_ID 
+    #   "C:\Users\ywang\Box\Modeling and Surveys\Urban Modeling\Bay Area UrbanSim\PBA50\Policies\Base zoning\outputs\2020_10_20_p10_plu_boc_allAttrs.csv"
+    #   PARCEL_ID "KEEP_ALL" "M:\Data\GIS layers\UrbanSim_BASIS_zoning\UrbanSim_BASIS_zoning_fb.gdb"
+
+    WORKSPACE_DIR   = "M:\\Data\\GIS layers\\UrbanSim_BASIS_zoning"
+    WORKSPACE_GDB   = os.path.join(WORKSPACE_DIR,"UrbanSim_BASIS_zoning_fb.gdb")
+    ARCGIS_PROJECTS = [os.path.join(WORKSPACE_DIR,"UrbanSim_BASIS_zoning_intensity_fb.aprx"),
+                       os.path.join(WORKSPACE_DIR,"UrbanSim_BASIS_zoning_devType_fb.aprx")]
 
     # location of BASIS_Local_Jurisdiction_Review_Summary.xlsx (https://mtcdrive.box.com/s/s2w68pnboa3gzq5z228mqbxtdehgdcxd)
     JURIS_REVIEW    = "C:\\Users\\ywang\\Documents\\Python Scripts\\UrbanSim_BASIS_zoning\\BASIS_Local_Jurisdiction_Review_Summary.xlsx"
