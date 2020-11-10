@@ -781,7 +781,7 @@ if __name__ == '__main__':
 	nonZero = arcpy.SelectLayerByAttribute_management('b10_unitSUM', "NEW_SELECTION", '"SUM_residential_units" > 0')#choose only parcels with residential units already
 	arcpy.CopyRows_management(nonZero, 'nonZeroParcel')
 	arcpy.AddJoin_management(joinFN, "parcel_id", "nonZeroParcel", "parcel_id","KEEP_COMMON")
-	#arcpy.SelectLayerByAttribute_management(joinFN, "NEW_SELECTION", "ttt_basis_pb_new_p10__pba50.urbansim_parcels_v3_geo_county_id = 85", None)
+	arcpy.SelectLayerByAttribute_management(joinFN, "NEW_SELECTION", "ttt_basis_pb_new_p10__pba50.urbansim_parcels_v3_geo_county_id = 85", None)
 	#find parcels to remove 
 	parcelRemoveList = []
 	with arcpy.da.SearchCursor(joinFN,['ttt_basis_pb_new_p10__pba50.parcel_id',
@@ -795,16 +795,16 @@ if __name__ == '__main__':
 	#remove join
 	arcpy.RemoveJoin_management(joinFN, "nonZeroParcel")
 	#remove records
-	with arcpy.da.UpdateCursor(joinFN, "parcel_id") as cursor:
-		for row in cursor:
-			if row[0] in parcelRemoveList:
-				cursor.deleteRow()
-	#arcpy.SelectLayerByAttribute_management(joinFN, "CLEAR_SELECTION")
+	#with arcpy.da.UpdateCursor(joinFN, "parcel_id") as cursor:
+	#	for row in cursor:
+	#		if row[0] in parcelRemoveList:
+	#			cursor.deleteRow()
+	arcpy.SelectLayerByAttribute_management(joinFN, "CLEAR_SELECTION")
 	#count after rows
-	cnt2 = arcpy.GetCount_management(joinFN)
+	#cnt2 = arcpy.GetCount_management(joinFN)
 	#check remove is successful
-	cnt =  int(cnt1[0]) - int(cnt2[0])
-	logger.info("Removed {} records".format(cnt))
+	#cnt =  int(cnt1[0]) - int(cnt2[0])
+	#logger.info("Removed {} records".format(cnt))
 
 	arcpy.AlterField_management(joinFN, "year_built", "n_year_built")
 	arcpy.AlterField_management(joinFN, "building_sqft", "n_building_sqft")
@@ -883,8 +883,15 @@ if __name__ == '__main__':
 	arcpy.CalculateField_management(joinFN, "scen21", 1)
 	arcpy.CalculateField_management(joinFN, "scen22", 1)
 	arcpy.CalculateField_management(joinFN, "scen23", 1)
-	arcpy.CalculateField_management(joinFN, "scen24", 1)
-	arcpy.CalculateField_management(joinFN, "scen25", 1) # these are committed so 1 for all scens 
+	with arcpy.da.UpdateCursor(joinFN, ["PARCEL_ID", "scen24", 'scen25']) as cursor:
+		for row in cursor:
+			if  row[0] in parcelRemoveList:
+				row[1] = 0
+				row[2] = 0
+			else:
+				row[1] = 1
+				row[2] = 1
+			cursor.updateRow(row)
 	arcpy.CalculateField_management(joinFN, "action", "'build'")
 	arcpy.CalculateField_management(joinFN, "city", '!urbansim_parcels_v3_geo_city!')
 	with arcpy.da.UpdateCursor(joinFN, ["urbansim_parcels_v3_geo_county", "county"]) as cursor:
