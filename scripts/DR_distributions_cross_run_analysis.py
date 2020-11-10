@@ -18,7 +18,17 @@ os.chdir(run_dir)
 
 # run_id dictionary
 runid = {'run325': 'v2.2.1',
-         'run241': 'v2.3'}
+         'run241': 'v2.3',
+         'run242': 'v2.3.1',
+         'run152': 'v2.4',
+         'run327': 'v2.5',
+         'run243': 'v2.6',
+         'run158': 'v2.7',
+         'run335': 'v2.8',
+         'run160': 'v2.9',
+         'run253': 'v2.10',
+         'run161': 'v2.11',
+         'run340': 'v2.12'}
 
 
 if __name__ == '__main__':
@@ -30,7 +40,8 @@ if __name__ == '__main__':
                         usecols = ['PARCEL_ID', 'juris',
                                    #'fbpzoningm', 'fbp_gg_id', 'pda_id_pba50_fb', 'fbp_tra_id', 
                                    'fbp_sesit_id'])
-    juris_county = pd.read_csv('util\\juris_county_id.csv', usecols = ['juris_name_full', 'county_name'])
+    juris_county = pd.read_csv('util\\juris_county_id.csv', 
+                               usecols = ['juris_name_full', 'baus_output_juris_name', 'county_name'])
 
     p_taz = pd.read_csv('util\\2020_08_17_parcel_to_taz1454sub.csv',
                         usecols = ['PARCEL_ID', 'ZONE_ID'],
@@ -65,7 +76,7 @@ if __name__ == '__main__':
     dis = ['DIS','non-DIS']
     county = juris_county.county_name.unique()
     year = list(range(2015, 2055, 5))
-    dr_type = ['deed_restricted_units', 'inclusionary_units','preserved_units', 'subsidized_units']
+    dr_type = ['deed_restricted_units', 'inclusionary_units', 'preserved_units', 'subsidized_units']
 
 
     # set up tables for all DR cross-year comparison
@@ -112,47 +123,41 @@ if __name__ == '__main__':
 
             # DR counts by county
             dr_county = df.groupby(['county_name'])['deed_restricted_units'].sum()
-            dr_county.rename('dr_units_'+file.split('_')[0]+'_'+runid[file.split('_')[0]], inplace=True)
-            print(dr_county)
+            dr_county.rename('dr_units_'+runid[file.split('_')[0]], inplace=True)
             dr_county_all = files['dr_county_all']
             dr_county_all = pd.concat([dr_county_all, dr_county], axis=1)
             files['dr_county_all'] = dr_county_all
                    
             # DR counts by jurisdiction
             dr_juris = df.groupby(['juris'])['deed_restricted_units'].sum()
-            dr_juris.rename('dr_units_'+file.split('_')[0]+'_'+runid[file.split('_')[0]], inplace=True)
-            print(dr_juris)
+            dr_juris.rename('dr_units_'+runid[file.split('_')[0]], inplace=True)
             dr_juris_all = files['dr_juris_all']
             dr_juris_all = pd.concat([dr_juris_all, dr_juris], axis=1)
             files['dr_juris_all'] = dr_juris_all
      
             # DR counts by superdistrict
             dr_sd = df.groupby(['superdistrict'])['deed_restricted_units'].sum()
-            dr_sd.rename('dr_units_'+file.split('_')[0]+'_'+runid[file.split('_')[0]], inplace=True)
-            print(dr_sd)
+            dr_sd.rename('dr_units_'+runid[file.split('_')[0]], inplace=True)
             dr_sd_all = files['dr_sd_all']
             dr_sd_all = pd.concat([dr_sd_all, dr_sd], axis=1)
             files['dr_sd_all'] = dr_sd_all
 
             # DR counts by taz
             dr_taz = df.groupby(['zone'])['deed_restricted_units'].sum()
-            dr_taz.rename('dr_units_'+file.split('_')[0]+'_'+runid[file.split('_')[0]], inplace=True)
-            print(dr_taz)
+            dr_taz.rename('dr_units_'+runid[file.split('_')[0]], inplace=True)
             dr_taz_all = files['dr_taz_all']
             dr_taz_all = pd.concat([dr_taz_all, dr_taz], axis=1)
             files['dr_taz_all'] = dr_taz_all
 
 
             dr_hra = df.groupby(['HRA'])['deed_restricted_units'].sum()
-            dr_hra.rename('dr_units_'+file.split('_')[0]+'_'+runid[file.split('_')[0]], inplace=True)
-            print(dr_hra)
+            dr_hra.rename('dr_units_'+runid[file.split('_')[0]], inplace=True)
             dr_hra_all = files['dr_hra_all']
             dr_hra_all = pd.concat([dr_hra_all, dr_hra], axis=1)
             files['dr_hra_all'] = dr_hra_all
             
             dr_dis = df.groupby(['DIS'])['deed_restricted_units'].sum()
-            dr_dis.rename('dr_units_'+file.split('_')[0]+'_'+runid[file.split('_')[0]], inplace=True)
-            print(dr_dis)
+            dr_dis.rename('dr_units_'+runid[file.split('_')[0]], inplace=True)
             dr_dis_all = files['dr_dis_all']
             dr_dis_all = pd.concat([dr_dis_all, dr_dis], axis=1)
             files['dr_dis_all'] = dr_dis_all
@@ -161,23 +166,43 @@ if __name__ == '__main__':
             
             # set up tables for single-year DR breakdown
             county_year = pd.DataFrame([[ct, yr] for ct in county for yr in year], 
-                                       columns = ['county_name','year_built'])
+                                       columns = ['county_name','year'])
            
-            dr_breakdown = df.groupby(['county_name','year_built'])['deed_restricted_units', 'inclusionary_units',
-                                                                    'preserved_units', 'subsidized_units'].sum().reset_index()
-            
+            # public-land DR
             dr_pub = df.loc[df.source == 'pub'].groupby(['county_name','year_built'])['deed_restricted_units'].sum().reset_index()
-            dr_pub.rename(columns={'deed_restricted_units': 'dr_units_publicLand'}, inplace=True)
-            
-            county_year = county_year.merge(dr_breakdown, 
-                                            on=['county_name', 'year_built'],
-                                            how='outer').merge(dr_pub,
-                                                               on=['county_name', 'year_built'],
-                                                               how='outer')
-            print(county_year)
+            dr_pub.rename(columns={'year_built': 'year',
+                                   'deed_restricted_units': 'dr_units_publicLand'}, inplace=True)
+
+            # all DR, preserved_units, inclusionary_units, subsidized_units
+            dr_all = pd.DataFrame(columns =['juris','year', 'deed_restricted_units', 'preserved_units',
+                                            'inclusionary_units', 'subsidized_units'])
+
+            for filename in list(glob.glob('*.csv')):
+                if file.split('_')[0]+'_juris_summaries' in filename:
+                    print(filename)
+                    df2 = pd.read_csv(filename,
+                                      usecols = ['juris','deed_restricted_units', 'preserved_units',
+                                                 'inclusionary_units', 'subsidized_units'])
+                    df2['year'] = int(filename.split('.')[0].split('_')[-1])
+                    dr_all = pd.concat([dr_all, df2])
+
+            dr_all = dr_all.merge(juris_county[['baus_output_juris_name', 'county_name']],
+                                  left_on = 'juris',
+                                  right_on = 'baus_output_juris_name',
+                                  how='left')
+
+            dr_all_county = dr_all.groupby(['county_name', 'year'])['deed_restricted_units', 'preserved_units',
+                                                                    'inclusionary_units', 'subsidized_units'].sum().reset_index()
+
+            # merge
+            county_year = county_year.merge(dr_all_county,
+                                            on=['county_name', 'year'],
+                                            how='left').merge(dr_pub,
+                                                              on=['county_name', 'year'],
+                                                              how='left')
 
             # write to the excel
-            county_year.to_excel(writer, sheet_name='breakdown_'+file.split('_')[0]+'_'+runid[file.split('_')[0]], index=False)
+            county_year.to_excel(writer, sheet_name='breakdown_'+runid[file.split('_')[0]], index=False)
             
 
     ###### step 4: write all DR cross-run comparisons to excel
