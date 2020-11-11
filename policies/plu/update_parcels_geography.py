@@ -84,7 +84,7 @@ if __name__ == '__main__':
     logger.info(pg_pba40.dtypes)
 
     ## Read PBA50 attributes
-    pba50_attrs_file = os.path.join(PBA50_ZONINGMOD_DIR, 'p10_pba50_FBP_attr_20201023.csv')
+    pba50_attrs_file = os.path.join(PBA50_ZONINGMOD_DIR, 'p10_pba50_FBP_attr_20201110.csv')
     pba50_attrs_cols = ['geom_id_s', 'juris_id', 'juris', 'gg_id', 'tra_id', 'sesit_id', 'ppa_id', 
                         'exp2020_id', 'pba50chcat', 'exsfd_id', 'chcatwsfd', 'pba50zonin', 'nodev',
                         'fbp_gg_id', 'fbp_tra_id', 'fbp_sesit_', 'fbp_ppa_id', 'fbp_exp202', 
