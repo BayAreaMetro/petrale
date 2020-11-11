@@ -8,7 +8,7 @@ In Draft Blueprint, this is done by calculating capacity effects for each variab
 and then creating a heuristic-based hybrid index (via [script 3](../3_create_heuristic_hybrid_idx.py), which indicates using BASIS data for a
 given variable and a given jurisdiction if (and only if) the capacity is not affected too much (determined by a threshold for percentage change).
 
-In Final Blueprint, the BASIS team received feedback from stakeholders and, along with updating BASIS BOC lookup table, made [recommendations](hybrid_idx_update_10192020.csv) on updating the hybrid index used in Draft Blueprint. Based on this, we created a new set of hybrid index (via [hybrid_index_fb_revision](../hybrid_index_fb_revision.ipynb) which updates the hybrid index and tracks if a jurisdiction's following zoning attributes have been updated: max_far, max_dua, residential_devType, nonresidential_devType).
+In Final Blueprint, the BASIS team received feedback from stakeholders and, along with updating BASIS BOC lookup table, made [recommendations](hybrid_idx_update_10192020.csv) on updating the hybrid index used in Draft Blueprint. Based on this, we created a new set of hybrid index (via [hybrid_index_fb_revision](../hybrid_index_fb_revision.ipynb) which updates the hybrid index and tracks if a jurisdiction's following zoning attributes have been updated: max_far, max_dua, residential_devType, nonresidential_devType). This is then used to create UrbanSim inputs `zoning_parcels.csv` and `zoning_lookup.csv` (via [script 4](../4_create_hybrid_urbansim_input.py)) for test runs. Based on the test run results and base zoning comparison maps (created via [create_jurisdiction_map.py](../create_jurisdiction_map.py), we manually edited the hybrid indexes for several jurisdictions.
 
 Thus, the files in this directory are:
 
@@ -17,5 +17,6 @@ Thus, the files in this directory are:
 * [idx_urbansim.csv](idx_urbansim.csv): the same as idx_urbansim_heuristic.csv but with manual edits. This is used to build the hybrid base zoning as Draft Blueprint input.
 * [hybrid_idx_update_10192020.csv](hybrid_idx_update_10192020.csv): recommendations from the BASIS team on updating Draft Blueprint hybrid index.
 * [idx_urbansim_fb_10192020.csv](idx_urbansim_fb_10192020.csv): created by [hybrid_index_fb_revision](../hybrid_index_fb_revision.ipynb), updating [idx_urbansim.csv](idx_urbansim.csv) based on [recommendations](hybrid_idx_update_10192020.csv). The fields 'updated_max_dua_idx', 'updated_max_far_idx', 'updated_res_blgType_idx', 'updated_nonres_blgType_idx' indicate if the relevant zoning attributes were updated. 'updated_res_blgType_idx' being True indicates one or more updates in 'HS_idx', 'HT_idx', 'HM_idx', or 'MR_idx'; 'updated_nonres_blgType_idx' being True indicates one or more updates in the 'OF_idx', 'HO_idx', 'SC_idx', 'IL_idx', 'IW_idx', 'IH_idx', 'RS_idx', 'RB_idx', 'MR_idx', 'MT_idx', 'ME_idx'.
+* [idx_urbansim_fb_11052020.csv](idx_urbansim_fb_11052020.csv): the same as `idx_urbansim_fb_10192020.csv` but with manual edits. This is used to build the hybrid base zoning as Final Blueprint input.
 
 
