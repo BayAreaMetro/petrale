@@ -25,10 +25,14 @@ runid = {'run325': 'v2.2.1',
          'run243': 'v2.6',
          'run158': 'v2.7',
          'run335': 'v2.8',
-         'run160': 'v2.9',
-         'run253': 'v2.10',
-         'run161': 'v2.11',
-         'run340': 'v2.12'}
+         #'run160': 'v2.9',
+         #'run253': 'v2.10',
+         #'run161': 'v2.11',
+         #'run340': 'v2.12',
+         'run254': 'v2.13',
+         'run171': 'v2.14',
+         'run347': 'v2.15',
+         'run261': 'v2.16'}
 
 
 if __name__ == '__main__':
@@ -99,6 +103,8 @@ if __name__ == '__main__':
     today = time.strftime('%Y_%m_%d')
     writer = pd.ExcelWriter('deed_restricted_units_summary_{}.xlsx'.format(today), engine='xlsxwriter')
 
+    dr_breakdonw = pd.DataFrame(columns = ['county_name', 'year', 'deed_restricted_units', 'inclusionary_units', 
+                                            'preserved_units', 'subsidized_units', 'dr_units_publicLand', 'version'])
 
     ###### step 3: loop through all building_data_2050.csv outputs
 
@@ -203,7 +209,9 @@ if __name__ == '__main__':
 
             # write to the excel
             county_year.to_excel(writer, sheet_name='breakdown_'+runid[file.split('_')[0]], index=False)
-            
+
+            county_year['version'] = runid[file.split('_')[0]]
+            dr_breakdonw = pd.concat([dr_breakdonw, county_year])
 
     ###### step 4: write all DR cross-run comparisons to excel
 
@@ -213,6 +221,8 @@ if __name__ == '__main__':
         table.to_excel(writer, sheet_name=tablename)
 
     writer.save()
+
+    dr_breakdonw.to_csv('dr_breakdonw_{}.csv'.format(today), index=False)
 
 
 
