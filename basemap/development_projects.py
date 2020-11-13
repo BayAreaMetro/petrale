@@ -84,7 +84,7 @@ MTC_ONLINE_MANUAL_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hoste
 
 MTC_ONLINE_OPPSITE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/opportunity_sites_20201026/FeatureServer/0?token=Pl_DJ4-veoG357sbtVCk4Ui-0dM681BNSTxnQp6k-Dxg_2LjX7NHbDocTGJfXal8DKu35WkzKXr69ker1T5jtgRp4YF0rhNepcTDvuhMNaaDR6iBlJmWJAy86Io2qVJHorl71ZnkT5GfJf2EXblhTMiCNz4AOyA5PtBJKDjJPvXmuqffhgo7R3eaC4G_NRJDDdE7rg2MugcenXCEUw8YtBWYx1G36DreyKq1qXF5mx8.'
 
-MTC_ONLINE_PUBLAND_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/public_land_1110/FeatureServer/0?token=JTZekaGr2ADfHah-X2Obrn2uLwvwF9zhg8nOaeE5EMsU9NMetdxAhOMXk7DnESNk1rUZ6L7L0ZV3WKE0NViWLSOG8o1lUY9WUkKQjQ9b0kCPsxrIfBUFM5HSfUedra_X4j0XP-HFpIzFBo1Mq1viW09vajcqK054eHAAmGRXzf57xka6Sx1E3N3w1a05E0hrs6zwdZVFwlXi1tKRrQn68nh4Pyz9u6U6qrMjj88Q4Mk.'
+MTC_ONLINE_PUBLAND_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/public_land_1110/FeatureServer/0?token=NBTkkzYVt0d1nRuq32xku5sthGmR9yZun5I6cS8zilPvxFLm7EJlQxLTrCIqALKhiKzWK_B5f-i6gGq7kOuHMRbeJeOyB1yifgNUZq952Jv2VnHwhqWydSJ1KW47IDB4E6jKJMl16pLv6jHiYGBOveybXcryQiMn21i6xp5dy7bB29-M9xt4MZ2MEKqfkUD44feBoFg7YMqxtKugx458Lu0eQSpwl_nNnhahh5WoCHk.'
 
 manual_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MANUAL_URL,'manual_sites')
 
@@ -781,7 +781,7 @@ if __name__ == '__main__':
 	nonZero = arcpy.SelectLayerByAttribute_management('b10_unitSUM', "NEW_SELECTION", '"SUM_residential_units" > 0')#choose only parcels with residential units already
 	arcpy.CopyRows_management(nonZero, 'nonZeroParcel')
 	arcpy.AddJoin_management(joinFN, "parcel_id", "nonZeroParcel", "parcel_id","KEEP_COMMON")
-	arcpy.SelectLayerByAttribute_management(joinFN, "NEW_SELECTION", "ttt_basis_pb_new_p10__pba50.urbansim_parcels_v3_geo_county_id = 85", None)
+	#arcpy.SelectLayerByAttribute_management(joinFN, "NEW_SELECTION", "ttt_basis_pb_new_p10__pba50.urbansim_parcels_v3_geo_county_id = 85", None)
 	#find parcels to remove 
 	parcelRemoveList = []
 	with arcpy.da.SearchCursor(joinFN,['ttt_basis_pb_new_p10__pba50.parcel_id',
@@ -799,7 +799,7 @@ if __name__ == '__main__':
 	#	for row in cursor:
 	#		if row[0] in parcelRemoveList:
 	#			cursor.deleteRow()
-	arcpy.SelectLayerByAttribute_management(joinFN, "CLEAR_SELECTION")
+	#arcpy.SelectLayerByAttribute_management(joinFN, "CLEAR_SELECTION")
 	#count after rows
 	#cnt2 = arcpy.GetCount_management(joinFN)
 	#check remove is successful
@@ -1171,12 +1171,10 @@ if __name__ == '__main__':
 		logger.info("Creating layer {} by spatial joining pub sites data ({}) and parcels ({})".format(joinFN, pub_sites, p10_pba50))
 		arcpy.SpatialJoin_analysis(pub_sites, p10_pba50, joinFN)
 		
-		arcpy.AlterField_management(joinFN, "PARCEL_ID_1", "p_parcel_id")
-		arcpy.AlterField_management(joinFN, "parcel_id", "p_parcel_id_2")
+		arcpy.AlterField_management(joinFN, "PARCEL_ID", "pb_parcel_id")
 		arcpy.AlterField_management(joinFN, "X", "p_x")
 		arcpy.AlterField_management(joinFN, "Y", "p_y")
-		arcpy.AlterField_management(joinFN, "GEOM_ID_1", "p_geom_id")
-		arcpy.AlterField_management(joinFN, "geom_id", "p_geom_id_2")
+		arcpy.AlterField_management(joinFN, "GEOM_ID", "pb_geom_id")
 		arcpy.AlterField_management(joinFN, "scen25", "p_scen25")
 
 		arcpy.AddField_management(joinFN, "development_projects_id", "LONG")
@@ -1203,8 +1201,8 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "scen25", 0)
 		arcpy.CalculateField_management(joinFN, "x", '!p_x!') 
 		arcpy.CalculateField_management(joinFN, "y", '!p_y!') 
-		arcpy.CalculateField_management(joinFN, "geom_id", '!p_geom_id!')
-		arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!p_parcel_id!')
+		arcpy.CalculateField_management(joinFN, "geom_id", '!pb_geom_id!')
+		arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!pb_parcel_id!')
 		arcpy.CalculateField_management(joinFN, "building_type", "'MR'")
 		arcpy.CalculateField_management(joinFN, "building_sqft", "!building_s!")
 		arcpy.CalculateField_management(joinFN, "non_residential_sqft", "!non_reside!")
