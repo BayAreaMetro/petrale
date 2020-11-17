@@ -467,8 +467,9 @@ if __name__ == '__main__':
     FBP_v12                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.10/run253"
     FBP_v13                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.11/run161"
     FBP_v14                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.12/run340"
-
-    list_us_runid = [us_2050_DBP_Plus_runid, FBP_v12, FBP_v13, FBP_v14]
+    FBP_v19                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.19/run262"
+    
+    list_us_runid = [us_2050_DBP_Plus_runid, FBP_v19]
 
 
       # Set external inputs
