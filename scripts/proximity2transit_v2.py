@@ -28,9 +28,12 @@ ruCJpsNDb9TPyyyrJ13Vl9LtZ-xZDqyZ5762Kju_a-nydWOqk0tB6ri9fPHh67sElVVA.'
 
 ###Urbansim Setup
 urbansim_run_location           = 'C:/Users/{}/Box/Modeling and Surveys/Urban Modeling/Bay Area UrbanSim/PBA50/'.format(os.getenv('USERNAME'))
-us_2050_DBP_Plus_runid_cleaner  = 'Draft Blueprint runs/Blueprint Plus Crossing (s23)/v1.8 - final cleaner/run1020'
-us_2050_FBP_Sept_runid          = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.0/run140'
-list_us_runid = [us_2050_DBP_Plus_runid_cleaner, us_2050_FBP_Sept_runid]
+us_2050_DBP_Plus_runid         = 'Draft Blueprint runs/Blueprint Plus Crossing (s23)/v1.7.1- FINAL DRAFT BLUEPRINT/run98'
+us_2050_FBP_Nov      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.19/run262'
+#us_2050_FBP_Oct_v11      = 'Final Blueprint runs/Final Blueprint (s24)/BAUS v2.9/run160'
+
+list_us_runid = [us_2050_DBP_Plus_runid,us_2050_FBP_Nov] 
+
 
 def log_workspace_contents(logger):
 
@@ -191,10 +194,20 @@ def create_transit_features(logger, transit_type):
                             prefix+"_majorbuf"],
                             prefix+"_cat5", add_source="ADD_SOURCE_INFO")
     # create Service_Level from MERGE_SRC
-    arcpy.CalculateField_management(in_table=prefix+"_cat5", 
-                                    field="Service_Level",
-                                    expression="!MERGE_SRC![{}:]".format(len(arcpy.env.workspace)+len(prefix)+2),
-                                    expression_type="PYTHON3")
+    arcpy.AddField_management(prefix +"_cat5", "Service_Level", "TEXT","","", 200)
+    with arcpy.da.UpdateCursor(prefix +"_cat5", ["Service_Level", "MERGE_SRC"]) as cursor:
+            for row in cursor:
+                if 'none' in row[1]:
+                    row[0] = 'No_Fixed_Route_Transit'
+                elif 'hdwy30plusbuf' in row[1]:
+                    row[0] = 'Bus_31plus_min'
+                elif 'hdwy30buf' in row[1]:
+                    row[0] = 'Bus_15_30min'
+                elif 'hdwy15buf' in row[1]:
+                    row[0] = 'Bus_<15min'
+                elif 'majorbuf' in row[1]:
+                    row[0] = 'Major_Transit_Stop'
+                cursor.updateRow(row) 
 
 if __name__ == '__main__':
     
