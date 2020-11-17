@@ -34,9 +34,12 @@ FBP_v11                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2
 FBP_v12                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.10"
 FBP_v13                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.11"
 FBP_v14                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.12"
+FBP_v15                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.15"
+FBP_v16                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.16"
+FBP_v19                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.19"
 # A list of paths of runs, which would be read and produce summaries altogether
-PATH_LIST                  = [DBP_DIR, FBP_v11,FBP_v12,FBP_v13,FBP_v14] # ---Add new run paths to this list---
-PATH_LIST_PARCEL           = [DBP_DIR, FBP_v11,FBP_v12,FBP_v13,FBP_v14]
+PATH_LIST                  = [PBA40_DIR, DBP_DIR, FBP_v19] # ---Add new run paths to this list---
+PATH_LIST_PARCEL           = [DBP_DIR, FBP_v19]
 
 #Visualization folder
 VIZ                        = "Visualizations"
@@ -585,9 +588,7 @@ if __name__ == "__main__":
         summary_baseyear = data_summary[0]
         summary_endyear  = data_summary[1]
         summary_runid    = data_summary[2]
-        summary_runid    = data_summary[2]
         
-    
         #calculate growth and combine files
         DF  = taz_calculator(summary_baseyear, summary_endyear)
         if summary_runid == 'run7224c':
@@ -603,15 +604,23 @@ if __name__ == "__main__":
         DF_LIST.append(DF)
         
         DF_COUNTY = county_calculator(summary_baseyear, summary_endyear)
-        DF_COUNTY['VERSION'] = summary_runid
+        if summary_runid == 'run7224c':
+            new_names = [(i,'PBA40_'+ i) for i in DF_COUNTY.iloc[:, 1:].columns.values]
+            DF_COUNTY.rename(columns = dict(new_names), inplace=True)
+        elif summary_runid == 'run98':
+            new_names = [(i,'DBP_'+ i) for i in DF_COUNTY.iloc[:, 1:].columns.values]
+            DF_COUNTY.rename(columns = dict(new_names), inplace=True)
+        else:
+            new_names = [(i,summary_runid +'_'+ i) for i in DF_COUNTY.iloc[:, 1:].columns.values]
+            DF_COUNTY.rename(columns = dict(new_names), inplace=True)
+
         DF_COUNTY_LIST.append(DF_COUNTY)
         
     DF_MERGE = reduce(lambda left,right: pd.merge(left, right, on = 'TAZ', how='outer'), DF_LIST)
     DF_MERGE.to_csv(OUTPUT_FILE.format(GEO), index = False)
-    
-    DF_COUNTY_UNION = pd.concat(DF_COUNTY_LIST)
-    DF_COUNTY_UNION.set_index(['VERSION','county'], inplace=True)
-    DF_COUNTY_UNION.to_csv(OUTPUT_FILE.format('county'))
+
+    DF_COUNTY_MERGE = reduce(lambda left,right: pd.merge(left, right, on = 'county', how='outer'), DF_COUNTY_LIST)
+    DF_COUNTY_MERGE.to_csv(OUTPUT_FILE.format('county'), index = False)
     
     #then process other geography summaries     
     GEO = ['juris','superdistrict']
