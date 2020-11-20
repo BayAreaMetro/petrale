@@ -86,11 +86,16 @@ MTC_ONLINE_OPPSITE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Host
 
 MTC_ONLINE_PUBLAND_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/public_land_1110/FeatureServer/0?token=NBTkkzYVt0d1nRuq32xku5sthGmR9yZun5I6cS8zilPvxFLm7EJlQxLTrCIqALKhiKzWK_B5f-i6gGq7kOuHMRbeJeOyB1yifgNUZq952Jv2VnHwhqWydSJ1KW47IDB4E6jKJMl16pLv6jHiYGBOveybXcryQiMn21i6xp5dy7bB29-M9xt4MZ2MEKqfkUD44feBoFg7YMqxtKugx458Lu0eQSpwl_nNnhahh5WoCHk.'
 
+MTC_ONLINE_MALLOFFICE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/Mall_Office_oppsites/FeatureServer/0?token=dZp8Gg8Cs4Ntepu4PI8B4Vipcvwlt4RhwFUr0NbGetYZQeHi5vZWneSvNpKtxHWmfm_0ofgUPeEj_umtvRm4bFjwf68IYRho3AGjh-cyZaHp8ymP-xOke2jwBHV39L4Im3Fy0VdUf260Ma7yo6SJnYqN9yXic4IxXE8y-AyMEmKzaKlzxfWFv34AGUYm6gtyQqpHaD1W0fvLjuw1GCnkxST7KyHiPunm2qaLB8gSl6U.'
+
 manual_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MANUAL_URL,'manual_sites')
 
 opportunity_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_OPPSITE_URL,'opportunity_sites',)
 
 publicland_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_PUBLAND_URL,'publicland_sites',)
+
+malloffice_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MALLOFFICE_URL,'malloffice_sites',)
+
 
 arcpy.env.workspace = SMELT_GDB
 arcpy.env.overwriteOutput = True
@@ -101,9 +106,12 @@ if arcpy.Exists('opportunity_dp'):
 	arcpy.Delete_management('opportunity_dp')
 if arcpy.Exists('pubsites_dp'):
 	arcpy.Delete_management('pubsites_dp')
+if arcpy.Exists('mallsites_dp'):
+	arcpy.Delete_management('mallsites_dp')
 arcpy.FeatureClassToFeatureClass_conversion(manual_sites, SMELT_GDB,'manual_dp')
 arcpy.FeatureClassToFeatureClass_conversion(opportunity_sites, SMELT_GDB,'opportunity_dp')
 arcpy.FeatureClassToFeatureClass_conversion(publicland_sites, SMELT_GDB,'pubsites_dp')
+arcpy.FeatureClassToFeatureClass_conversion(malloffice_sites, SMELT_GDB,'mallsites_dp')
 
 ### manually maintained pipeline data
 manual_dp   = os.path.join(SMELT_GDB, "manual_dp")
@@ -115,6 +123,8 @@ opp_sites   = os.path.join(SMELT_GDB, "opportunity_dp")
 # public land sites that keep their scen status from gis file
 pub_sites   = os.path.join(SMELT_GDB, "pubsites_dp")
 
+# public land sites that keep their scen status from gis file
+mall_sites   = os.path.join(SMELT_GDB, "mallsites_dp")
 
 #set up a process to make sure all incl = 1 records are in the results (also need to make sure that the feature class has column "incl")
 def countRow (fc):
@@ -723,10 +733,16 @@ if __name__ == '__main__':
 		for row in cursor:
 			if row[0] != 1:
 				cursor.deleteRow()
+
+	#remove Vallco project pointed out by Mark: parcel_id 1445028
+	with arcpy.da.UpdateCursor(joinFN, "PARCEL_ID") as cursor:
+		for row in cursor:
+			if row[0] == 1445028:
+				cursor.deleteRow()	
 	
 	#check all incl = 1 records are included 
 	countTwo = countRow(joinFN)
-	if countTwo == countOne:
+	if countTwo == countOne - 1: #deleting one project
 		logger.info("All records with incl = 1 in feature class {} are included in the temp file".format(basis_pipeline))
 	else:
 		logger.fatal("Something is wrong in the code, please check")
@@ -1234,6 +1250,85 @@ if __name__ == '__main__':
 		gList = [row[0] for row in arcpy.da.SearchCursor(joinFN, 'PARCEL_ID')]
 		for geo in gList:
 			geoList.append(geo)
+
+	joinFN = 'ttt_mallsites_p10_pba50'
+	dev_projects_temp_layers.append(joinFN)
+	
+	try:
+		count = arcpy.GetCount_management(joinFN)
+		if int(count[0]) > 100:
+			logger.info("Found layer {} with {} rows -- skipping creation".format(joinFN, int(count[0])))
+	except:
+		# go ahead and create it
+		logger.info("Creating layer {} by spatial joining mall office sites data ({}) and parcels ({})".format(joinFN, mall_sites, p10_pba50))
+		arcpy.SpatialJoin_analysis(mall_sites, p10_pba50, joinFN)
+		
+		arcpy.AlterField_management(joinFN, "PARCEL_ID", "pb_parcel_id")
+		arcpy.AlterField_management(joinFN, "X", "p_x")
+		arcpy.AlterField_management(joinFN, "Y", "p_y")
+		arcpy.AlterField_management(joinFN, "GEOM_ID", "pb_geom_id")
+		arcpy.AlterField_management(joinFN, "scen25", "p_scen25")
+
+		arcpy.AddField_management(joinFN, "development_projects_id", "LONG")
+		arcpy.AddField_management(joinFN, "building_name", "TEXT","","",200)
+		arcpy.AddField_management(joinFN, "scen25", "SHORT") 
+		arcpy.AddField_management(joinFN, "PARCEL_ID", "LONG")
+		arcpy.AddField_management(joinFN, "x", "FLOAT")
+		arcpy.AddField_management(joinFN, "y", "FLOAT")
+		arcpy.AddField_management(joinFN, "geom_id", "DOUBLE")
+		arcpy.AddField_management(joinFN, "building_type", "TEXT","","",4)
+		arcpy.AddField_management(joinFN, "building_sqft", "LONG")
+		arcpy.AddField_management(joinFN, "non_residential_sqft", "LONG")
+		arcpy.AddField_management(joinFN, "residential_units", "SHORT")
+		arcpy.AddField_management(joinFN, "unit_ave_sqft", "FLOAT")
+		arcpy.AddField_management(joinFN, "parking_spaces", "SHORT")
+		arcpy.AddField_management(joinFN, "average_weighted_rent", "TEXT")
+		arcpy.AddField_management(joinFN, "last_sale_year", "DATE") 
+		arcpy.AddField_management(joinFN, "last_sale_price", "DOUBLE")
+		arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
+		
+		# NOTE THAT OPPSITES HAS SCEN SET IN GIS FILE
+		arcpy.CalculateField_management(joinFN, "development_projects_id", '!developmen!')
+		arcpy.CalculateField_management(joinFN, "building_name", '!building_n!')
+		arcpy.CalculateField_management(joinFN, "scen25", 0)
+		arcpy.CalculateField_management(joinFN, "x", '!p_x!') 
+		arcpy.CalculateField_management(joinFN, "y", '!p_y!') 
+		arcpy.CalculateField_management(joinFN, "geom_id", '!pb_geom_id!')
+		arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!pb_parcel_id!')
+		arcpy.CalculateField_management(joinFN, "building_type", "'MR'")
+		arcpy.CalculateField_management(joinFN, "building_sqft", "!building_s!")
+		arcpy.CalculateField_management(joinFN, "non_residential_sqft", "!non_reside!")
+		arcpy.CalculateField_management(joinFN, "residential_units", "!residentia!")
+		arcpy.CalculateField_management(joinFN, "unit_ave_sqft", "!unit_ave_s!")
+		arcpy.CalculateField_management(joinFN, "deed_restricted_units", "!deed_restr!")
+		
+		FCfields = [f.name for f in arcpy.ListFields(joinFN)]
+		#add "rent_ave_sqft", "rent_ave_unit","version", "duration", "building_type_id" if needed
+		DontDeleteFields = ["OBJECTID","Shape","development_projects_id", "raw_id", "building_name", "site_name",  "action", 
+		"scen0", "scen1", "scen2", "scen3", "scen4", "scen5", "scen6", "scen7", "scen10", "scen11", "scen12", "scen15", "scen20", "scen21", "scen22", "scen23", "scen24", "scen25",
+		"address",  "city",  "zip",  "county", "x", "y", "geom_id", "year_built","building_type", "building_sqft", "non_residential_sqft", "residential_units", "unit_ave_sqft", 
+		"tenure", "rent_type", "stories", "parking_spaces", "average_weighted_rent", "last_sale_year", "last_sale_price", "deed_restricted_units","source", "PARCEL_ID", "ZONE_ID", "edit_date", "editor", "Shape_Length", "Shape_Area"]
+		fields2Delete = list(set(FCfields) - set(DontDeleteFields))
+		arcpy.DeleteField_management(joinFN, fields2Delete)
+
+		gidnull = 'gidnull'
+		arcpy.MakeTableView_management(joinFN,gidnull,"geom_id is NULL")
+		nullcount = arcpy.GetCount_management(gidnull)
+		logger.info("{} list has {} records with geom_id info missing".format(joinFN, nullcount))
+		arcpy.Delete_management(gidnull)
+		###4 REMOVE DUPLICATES
+		#check again existing geomList and remove duplicates
+		#for malls, changing those into add to make sure every mall project is in, per Mark's comment
+		with arcpy.da.UpdateCursor(joinFN, ["PARCEL_ID","action"]) as cursor:
+			for row in cursor:
+				if row[0] in geoList:
+					if row[1] == 'build':
+						row[1] == 'add'
+				cursor.updateRow(row)
+		#then add the geoms in the geomList
+		gList = [row[0] for row in arcpy.da.SearchCursor(joinFN, 'PARCEL_ID')]
+		for geo in gList:
+			geoList.append(geo)
 	
 	#opportunity sites
 	joinFN = 'ttt_opp_p10_pba50'
@@ -1362,14 +1457,17 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "non_residential_sqft", '!o_non_residential_sqft!')
 		arcpy.CalculateField_management(joinFN, "residential_units", '!o_residential_units!')
 		arcpy.CalculateField_management(joinFN, "unit_ave_sqft", '!o_unit_ave_sqft!')
-		with arcpy.da.UpdateCursor(joinFN, ["source","type","building_name","o_source"]) as cursor:
+		#remove mall_office in opp layer by removing pb50_opp
+		with arcpy.da.UpdateCursor(joinFN, "type") as cursor:
 			for row in cursor:
-				if row[2] == 'incubator':
+				if row[0] == 'pb50_opp':
+					cursor.deleteRow()
+		with arcpy.da.UpdateCursor(joinFN, ["source","building_name","o_source"]) as cursor:
+			for row in cursor:
+				if row[1] == 'incubator':
+					row[0] = row[1]
+				elif row[2] == 'ppa':
 					row[0] = row[2]
-				elif row[1] == 'pb50_opp':
-					row[0] = 'mall_office'
-				elif row[3] == 'ppa':
-					row[0] = row[3]
 				else:
 					row[0] = 'opp'
 				cursor.updateRow(row)
