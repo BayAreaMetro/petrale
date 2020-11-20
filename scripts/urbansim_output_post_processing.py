@@ -645,17 +645,20 @@ if __name__ == "__main__":
     
                 #calculate growth and combine files
             DF  = nontaz_calculator(summary_baseyear, summary_endyear)
-            if summary_runid == 'run7224':
-                DF['VERSION'] = 'PBA40'
+            if summary_runid == 'run7224c':
+              new_names = [(i,'PBA40_'+ i) for i in DF.iloc[:, 1:].columns.values]
+              DF.rename(columns = dict(new_names), inplace=True)
             elif summary_runid == 'run98':
-                DF['VERSION'] = 'DBP'
+              new_names = [(i,'DBP_'+ i) for i in DF.iloc[:, 1:].columns.values]
+              DF.rename(columns = dict(new_names), inplace=True)
             else:
-                DF['VERSION'] = summary_runid
+              new_names = [(i,summary_runid +'_'+ i) for i in DF.iloc[:, 1:].columns.values]
+              DF.rename(columns = dict(new_names), inplace=True)
+
             DF_LIST.append(DF)
             
-        DF_UNION = pd.concat(DF_LIST)
-        DF_UNION.set_index('VERSION', inplace=True)
-        DF_UNION.to_csv(OUTPUT_FILE.format(geo))
+        DF_MERGE = reduce(lambda left,right: pd.merge(left, right, on = geo, how='outer'), DF_LIST)
+        DF_MERGE.to_csv(OUTPUT_FILE.format(geo), index = False)
         DF_LIST = []
     
     #summary from parcel data
