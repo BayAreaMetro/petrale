@@ -38,11 +38,14 @@ FBP_v15                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2
 FBP_v16                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.16"
 FBP_v19                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.19"
 FBP_v20                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.20.1 (adds project to devproj)"
-FBP_v22                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.22"
 FBP_v23                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.23"
+FBP_v24                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.24"
+FBP_v25                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.25"
+FBP_v26                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.26"
+
 # A list of paths of runs, which would be read and produce summaries altogether
-PATH_LIST                  = [PBA40_DIR, DBP_DIR, FBP_v20,FBP_v22,FBP_v23  ] # ---Add new run paths to this list---
-PATH_LIST_PARCEL           = [DBP_DIR, FBP_v20,FBP_v22,FBP_v23]
+PATH_LIST                  = [PBA40_DIR, DBP_DIR, FBP_v26] # ---Add new run paths to this list---
+PATH_LIST_PARCEL           = [DBP_DIR, FBP_v26]
 
 #Visualization folder
 VIZ                        = "Visualizations"
