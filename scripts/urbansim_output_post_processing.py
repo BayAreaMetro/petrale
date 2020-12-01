@@ -44,8 +44,8 @@ FBP_v25                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2
 FBP_v26                    = "Final Blueprint runs/Final Blueprint (s24)/BAUS v2.26"
 
 # A list of paths of runs, which would be read and produce summaries altogether
-PATH_LIST                  = [PBA40_DIR, DBP_DIR, FBP_v26] # ---Add new run paths to this list---
-PATH_LIST_PARCEL           = [DBP_DIR, FBP_v26]
+PATH_LIST                  = [PBA40_DIR, DBP_DIR, FBP_v25, FBP_v26] # ---Add new run paths to this list---
+PATH_LIST_PARCEL           = [DBP_DIR, FBP_v25, FBP_v26]
 
 #Visualization folder
 VIZ                        = "Visualizations"
