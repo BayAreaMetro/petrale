@@ -43,9 +43,9 @@ if os.getenv("USERNAME")=="lzorn":
 	SMELT_GDB		   = os.path.join(WORKING_DIR,"smelt.gdb")
 	WORKSPACE_GDB       = "workspace_{}.GDB".format(NOW) # scratch
 elif os.getenv("USERNAME")=="MTCPB":
-	WORKING_DIR		 = "C:\\Users\\MTCPB\\Documents\\ArcGIS\\Projects\\Pipeline\\2020 07 16"
+	WORKING_DIR		 = "C:\\Users\\MTCPB\\Documents\\ArcGIS\\Projects\\DevelopmentProjects\\2020 07 16"
 	LOG_FILE		    = os.path.join(WORKING_DIR,"devproj_{}.log".format(NOW))
-	SMELT_GDB		   = "C:\\Users\\MTCPB\\Documents\\ArcGIS\\Projects\\Pipeline\\2020 07 16\\smelt.gdb"
+	SMELT_GDB		   = "C:\\Users\\MTCPB\\Documents\\ArcGIS\\Projects\\DevelopmentProjects\\2020 07 16\\smelt.gdb"
 	WORKSPACE_GDB       = "workspace_{}.GDB".format(NOW) # scratch
 else:
 	WORKING_DIR		 = "E:\\baydata"
@@ -796,11 +796,12 @@ if __name__ == '__main__':
 	arcpy.analysis.Statistics(b10, 'b10_unitSUM',"residential_units SUM", "parcel_id")
 	nonZero = arcpy.SelectLayerByAttribute_management('b10_unitSUM', "NEW_SELECTION", '"SUM_residential_units" > 0')#choose only parcels with residential units already
 	arcpy.CopyRows_management(nonZero, 'nonZeroParcel')
-	arcpy.AddJoin_management(joinFN, "parcel_id", "nonZeroParcel", "parcel_id","KEEP_COMMON")
+	arcpy.MakeFeatureLayer_management(joinFN, 'basis_join','', arcpy.env.workspace)
+	arcpy.AddJoin_management('basis_join', "PARCEL_ID", "nonZeroParcel", "parcel_id","KEEP_COMMON")
 	#arcpy.SelectLayerByAttribute_management(joinFN, "NEW_SELECTION", "ttt_basis_pb_new_p10__pba50.urbansim_parcels_v3_geo_county_id = 85", None)
 	#find parcels to remove 
 	parcelRemoveList = []
-	with arcpy.da.SearchCursor(joinFN,['ttt_basis_pb_new_p10__pba50.parcel_id',
+	with arcpy.da.SearchCursor('basis_join',['ttt_basis_pb_new_p10__pba50.parcel_id',
 										"ttt_basis_pb_new_p10__pba50.residential_units",
 										"nonZeroParcel.SUM_residential_units"]) as cursor:
 		for row in cursor:
@@ -809,18 +810,8 @@ if __name__ == '__main__':
 					parcelRemoveList.append(row[0])
 	logger.info("There are {} records in basis_pb_new that do not see increase in residential unit counts on the parcel".format(len(parcelRemoveList)))			
 	#remove join
-	arcpy.RemoveJoin_management(joinFN, "nonZeroParcel")
-	#remove records
-	#with arcpy.da.UpdateCursor(joinFN, "parcel_id") as cursor:
-	#	for row in cursor:
-	#		if row[0] in parcelRemoveList:
-	#			cursor.deleteRow()
+	#arcpy.RemoveJoin_management(joinFN, "nonZeroParcel")
 	#arcpy.SelectLayerByAttribute_management(joinFN, "CLEAR_SELECTION")
-	#count after rows
-	#cnt2 = arcpy.GetCount_management(joinFN)
-	#check remove is successful
-	#cnt =  int(cnt1[0]) - int(cnt2[0])
-	#logger.info("Removed {} records".format(cnt))
 
 	arcpy.AlterField_management(joinFN, "year_built", "n_year_built")
 	arcpy.AlterField_management(joinFN, "building_sqft", "n_building_sqft")
