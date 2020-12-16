@@ -907,8 +907,11 @@ if __name__ == '__main__':
 	arcpy.CalculateField_management(joinFN, "scen11", 1)
 	arcpy.CalculateField_management(joinFN, "scen12", 1)
 	arcpy.CalculateField_management(joinFN, "scen15", 1)
+	arcpy.CalculateField_management(joinFN, "scen21", 1)
+	arcpy.CalculateField_management(joinFN, "scen22", 1)
+	arcpy.CalculateField_management(joinFN, "scen23", 1)
 	#instead of deleting remodel projects records, do not include them in the scenarios
-	with arcpy.da.UpdateCursor(joinFN, ["PARCEL_ID", "scen20","scen21", "scen22","scen23","scen24", 'scen25']) as cursor:
+	with arcpy.da.UpdateCursor(joinFN, ["PARCEL_ID", "scen20","scen24", 'scen25']) as cursor:
 		for row in cursor:
 			if  row[0] in parcelRemoveList:
 				row[1] = 0
