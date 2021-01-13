@@ -167,3 +167,7 @@ input with Draft Blueprint value while keeping other Horizon zoning information 
 #### [check_conservation_easement_parcels.ipynb](check_conservation_easement_parcels.ipynb)
 Identify parcels that are within California Conservation Easement but were still considered as "developable" in UrbanSim (reflected in the 'nodev' field of parcels_geography.csv input).
 The output of this script will be an input of [update_parcels_geography.py](update_parcels_geography.py) to update the 'nodev' field.
+
+#### [final_mix_zoning.ipynb](final_mix_zoning.ipynb)
+Create parcel-level final zoning info that reflects the max_dua applied in the developer model in UrbanSim - the higher of basezoning max_dua and zoningmods dua_up; also label the source of final max_dua - 'base zoning' or 'zoningmods'.
+The output can be joined to parcel geospacial layers to create maps.
