@@ -163,3 +163,7 @@ Outputs (M:\Data\GIS layers\Blueprint Land Use Strategies\ID_idx):
 #### [update_zoning_parcels.py](update_zoning_parcels.py) 
 Update the 'nodev' and 'juris_id' fields of Horizon 'zoning_parcels.csv'
 input with Draft Blueprint value while keeping other Horizon zoning information (e.g. development types, development intensities). The output is used for Draft Blueprint runs until a new zoning_parcels input is created based on BASIS BOC data. (For more, please see [base_zoning folder](https://github.com/BayAreaMetro/petrale/tree/master/policies/plu/base_zoning)).
+
+#### [check_conservation_easement_parcels.ipynb](check_conservation_easement_parcels.ipynb)
+Identify parcels that are within California Conservation Easement but were still considered as "developable" in UrbanSim (reflected in the 'nodev' field of parcels_geography.csv input).
+The output of this script will be an input of [update_parcels_geography.py](update_parcels_geography.py) to update the 'nodev' field.
