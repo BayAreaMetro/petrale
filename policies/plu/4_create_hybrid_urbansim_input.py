@@ -31,7 +31,7 @@ PREV_ZONING_PARCELS_FILE    = os.path.join(M_DIR, 'Horizon', 'Large General Inpu
 PLU_BOC_M_DIR               = os.path.join(M_DIR, 'Final_Blueprint', 'Base zoning', 'output')
 PLU_BOC_FILE                = os.path.join(PLU_BOC_M_DIR, '2020_10_20_p10_plu_boc_allAttrs.csv')
 HYBRID_INDEX_DIR            = os.path.join(GITHUB_PETRALE_DIR, 'policies\\plu\\hybrid_index')
-PARCEL_UGB_TYPE_FILE        = os.path.join(M_DIR, 'Final_Blueprint', 'Zoning Modifications', 'parcels_UGB_type_FBP.csv')
+PARCEL_UGB_TYPE_FILE        = os.path.join(M_DIR, 'Final_Blueprint', 'Large General Input Data', '2020_11_10_parcels_geography.csv')
 # TODO: change to idx_urbansim.csv when we have one
 HYBRID_INDEX_FILE           = os.path.join(HYBRID_INDEX_DIR, "idx_urbansim_fb_11052020.csv")
 
@@ -99,8 +99,15 @@ if __name__ == '__main__':
     # two options: 
     #   option 1: for parcels outside of UGB and don't allow residential development, force max_dua_urbansim to 0
     #   option 2: for parcels that don't allow residential development, force max_dua_urbansim to 0
-    parcel_UBG_type = pd.read_csv(PARCEL_UGB_TYPE_FILE)
+    parcel_UBG_type = pd.read_csv(PARCEL_UGB_TYPE_FILE,
+                                  usecols = ['PARCEL_ID', 'fbp_exp2020_id'])
     logger.info('Read {} lines from {}'.format(len(parcel_UBG_type), PARCEL_UGB_TYPE_FILE))
+
+    parcel_UBG_type['UGB_type'] = 'outside UGB'
+    parcel_UBG_type.loc[(parcel_UBG_type.fbp_exp2020_id == 'in') | (parcel_UBG_type.fbp_exp2020_id == 'inun'), 
+                        'UGB_type'] = 'inside UGB'
+    logger.info(parcel_UBG_type.UGB_type.value_counts())
+
     plu_boc_hybrid = pd.merge(left = plu_boc_hybrid,
                               right= parcel_UBG_type,
                               on   = 'PARCEL_ID',
