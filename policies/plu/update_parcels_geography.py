@@ -166,6 +166,7 @@ if __name__ == '__main__':
                 pg_pba50_merge = pg_pba50_merge.merge(nodev_parcel[['PARCEL_ID','nodev_update']],
                                                       on='PARCEL_ID',
                                                       how='left')
+                logger.info(pg_pba50_merge.loc[pg_pba50_merge.nodev_update.notnull()][['PARCEL_ID','nodev','nodev_update']])
                 pg_pba50_merge.loc[pg_pba50_merge.nodev_update.notnull(), 'nodev'] = \
                     pg_pba50_merge.loc[pg_pba50_merge.nodev_update.notnull(), 'nodev_update']
                 pg_pba50_merge.drop(columns=['nodev_update'], inplace=True)
@@ -176,6 +177,7 @@ if __name__ == '__main__':
                 pg_pba50_merge = pg_pba50_merge.merge(nodev_parcel[['geom_id','nodev_update']],
                                                       on='geom_id',
                                                       how='left')
+                logger.info(pg_pba50_merge.loc[pg_pba50_merge.nodev_update.notnull()][['geom_id','nodev','nodev_update']])
                 pg_pba50_merge.loc[pg_pba50_merge.nodev_update.notnull(), 'nodev'] = \
                     pg_pba50_merge.loc[pg_pba50_merge.nodev_update.notnull(), 'nodev_update']
                 pg_pba50_merge.drop(columns=['nodev_update'], inplace=True)
