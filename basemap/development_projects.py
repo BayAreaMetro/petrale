@@ -917,16 +917,10 @@ if __name__ == '__main__':
 				row[1] = 0
 				row[2] = 0
 				row[3] = 0
-				row[4] = 0
-				row[5] = 0
-				row[6] = 0
 			else:
 				row[1] = 1
 				row[2] = 1
 				row[3] = 1
-				row[4] = 1
-				row[5] = 1
-				row[6] = 1
 			cursor.updateRow(row)
 	arcpy.CalculateField_management(joinFN, "scen26", "!scen25!")
 	arcpy.CalculateField_management(joinFN, "scen27", "!scen25!")
