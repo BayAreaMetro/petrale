@@ -300,7 +300,8 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "scen25", "SHORT")
 		arcpy.AddField_management(joinFN, "scen26", "SHORT")
 		arcpy.AddField_management(joinFN, "scen27", "SHORT")
-		arcpy.AddField_management(joinFN, "scen28", "SHORT") 
+		arcpy.AddField_management(joinFN, "scen28", "SHORT")
+		arcpy.AddField_management(joinFN, "scen29", "SHORT") 
 		arcpy.AddField_management(joinFN, "zip", "TEXT","","",50)
 		arcpy.AddField_management(joinFN, "x", "FLOAT")
 		arcpy.AddField_management(joinFN, "y", "FLOAT")
@@ -347,7 +348,8 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "scen25", 1)
 		arcpy.CalculateField_management(joinFN, "scen26", 1)
 		arcpy.CalculateField_management(joinFN, "scen27", 1)
-		arcpy.CalculateField_management(joinFN, "scen28", 1)  # these are committed so 1 for all scens 
+		arcpy.CalculateField_management(joinFN, "scen28", 1) 
+		arcpy.CalculateField_management(joinFN, "scen29", 1) # these are committed so 1 for all scens 
 		#not sure how to change zip field type
 		#arcpy.CalculateField_management(joinFN, "zip", '!m_zip!')
 		arcpy.CalculateField_management(joinFN, "x", '!X_1!') #use spatial info from parcel file
@@ -458,7 +460,8 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "scen25", "SHORT")
 		arcpy.AddField_management(joinFN, "scen26", "SHORT")
 		arcpy.AddField_management(joinFN, "scen27", "SHORT")
-		arcpy.AddField_management(joinFN, "scen28", "SHORT")  
+		arcpy.AddField_management(joinFN, "scen28", "SHORT")
+		arcpy.AddField_management(joinFN, "scen29", "SHORT") 
 		arcpy.AddField_management(joinFN, "address", "TEXT","","",200)
 		arcpy.AddField_management(joinFN, "city", "TEXT","","",50)
 		arcpy.AddField_management(joinFN, "zip",  "TEXT","","",50) ## this is changed from LONG to TEXT because cs1115 file has some text formatted zipcode with "-"
@@ -517,7 +520,8 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "scen25", 1)
 		arcpy.CalculateField_management(joinFN, "scen26", 1)
 		arcpy.CalculateField_management(joinFN, "scen27", 1)
-		arcpy.CalculateField_management(joinFN, "scen28", 1)		  # these are committed so 1 for all scens 
+		arcpy.CalculateField_management(joinFN, "scen28", 1)
+		arcpy.CalculateField_management(joinFN, "scen29", 1)		  # these are committed so 1 for all scens 
 		arcpy.CalculateField_management(joinFN, "address", '!Building_Address!')
 		arcpy.CalculateField_management(joinFN, "city", '!cs_city!')
 		arcpy.CalculateField_management(joinFN, "zip", '!cs_zip!')
@@ -674,6 +678,7 @@ if __name__ == '__main__':
 	arcpy.AddField_management(joinFN, "scen26", "SHORT")
 	arcpy.AddField_management(joinFN, "scen27", "SHORT")
 	arcpy.AddField_management(joinFN, "scen28", "SHORT")
+	arcpy.AddField_management(joinFN, "scen29", "SHORT")
 	arcpy.AddField_management(joinFN, "address", "TEXT","","",200)
 	arcpy.AddField_management(joinFN, "city", "TEXT","","",50)
 	arcpy.AddField_management(joinFN, "zip", "TEXT","","",50)
@@ -727,7 +732,8 @@ if __name__ == '__main__':
 	arcpy.CalculateField_management(joinFN, "scen25", 1)
 	arcpy.CalculateField_management(joinFN, "scen26", 1)
 	arcpy.CalculateField_management(joinFN, "scen27", 1)
-	arcpy.CalculateField_management(joinFN, "scen28", 1)  # these are committed so 1 for all scens 
+	arcpy.CalculateField_management(joinFN, "scen28", 1)
+	arcpy.CalculateField_management(joinFN, "scen29", 1) # these are committed so 1 for all scens 
 	arcpy.CalculateField_management(joinFN, "address", '!street_address!')
 	arcpy.CalculateField_management(joinFN, "city", '!mailing_city_name!')
 	##arcpy.CalculateField_management(joinFN, "zip", '!b_zip!') ##not sure how to convert text to long data type
@@ -865,7 +871,8 @@ if __name__ == '__main__':
 	arcpy.AddField_management(joinFN, "scen25", "SHORT")
 	arcpy.AddField_management(joinFN, "scen26", "SHORT")
 	arcpy.AddField_management(joinFN, "scen27", "SHORT")
-	arcpy.AddField_management(joinFN, "scen28", "SHORT")  
+	arcpy.AddField_management(joinFN, "scen28", "SHORT")
+	arcpy.AddField_management(joinFN, "scen29", "SHORT")
 	arcpy.AddField_management(joinFN, "address", "TEXT","","",200)
 	arcpy.AddField_management(joinFN, "city", "TEXT","","",50)
 	arcpy.AddField_management(joinFN, "zip",  "TEXT","","",50) ## this is changed from LONG to TEXT because cs1115 file has some text formatted zipcode with "-"
@@ -925,6 +932,7 @@ if __name__ == '__main__':
 	arcpy.CalculateField_management(joinFN, "scen26", "!scen25!")
 	arcpy.CalculateField_management(joinFN, "scen27", "!scen25!")
 	arcpy.CalculateField_management(joinFN, "scen28", "!scen25!")
+	arcpy.CalculateField_management(joinFN, "scen29", "!scen25!")
 	arcpy.CalculateField_management(joinFN, "action", "'build'")
 	arcpy.CalculateField_management(joinFN, "city", '!urbansim_parcels_v3_geo_city!')
 	with arcpy.da.UpdateCursor(joinFN, ["urbansim_parcels_v3_geo_county", "county"]) as cursor:
@@ -1062,6 +1070,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "scen26", "SHORT")
 		arcpy.AddField_management(joinFN, "scen27", "SHORT")
 		arcpy.AddField_management(joinFN, "scen28", "SHORT")
+		arcpy.AddField_management(joinFN, "scen29", "SHORT")
 		arcpy.AddField_management(joinFN, "address", "TEXT","","",200)
 		arcpy.AddField_management(joinFN, "city", "TEXT","","",50)
 		arcpy.AddField_management(joinFN, "zip", "TEXT","","",50)
@@ -1117,7 +1126,8 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "scen25", 1)
 		arcpy.CalculateField_management(joinFN, "scen26", 1)
 		arcpy.CalculateField_management(joinFN, "scen27", 1)
-		arcpy.CalculateField_management(joinFN, "scen28", 1)  # these are committed so 1 for all scens 
+		arcpy.CalculateField_management(joinFN, "scen28", 1)
+		arcpy.CalculateField_management(joinFN, "scen29", 1)  # these are committed so 1 for all scens 
 		arcpy.CalculateField_management(joinFN, "address", '!rf_address!')
 		arcpy.CalculateField_management(joinFN, "city", '!rf_city!')
 		arcpy.CalculateField_management(joinFN, "county", '!rf_county!')
@@ -1223,7 +1233,8 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "scen25", "SHORT")
 		arcpy.AddField_management(joinFN, "scen26", "SHORT")
 		arcpy.AddField_management(joinFN, "scen27", "SHORT")
-		arcpy.AddField_management(joinFN, "scen28", "SHORT")   
+		arcpy.AddField_management(joinFN, "scen28", "SHORT")
+		arcpy.AddField_management(joinFN, "scen29", "SHORT")   
 		arcpy.AddField_management(joinFN, "PARCEL_ID", "LONG")
 		arcpy.AddField_management(joinFN, "x", "FLOAT")
 		arcpy.AddField_management(joinFN, "y", "FLOAT")
@@ -1247,6 +1258,7 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "scen26", 0)
 		arcpy.CalculateField_management(joinFN, "scen27", 0)
 		arcpy.CalculateField_management(joinFN, "scen28", 0)
+		arcpy.CalculateField_management(joinFN, "scen29", 0)
 		arcpy.CalculateField_management(joinFN, "x", '!p_x!') 
 		arcpy.CalculateField_management(joinFN, "y", '!p_y!') 
 		arcpy.CalculateField_management(joinFN, "geom_id", '!pb_geom_id!')
@@ -1307,7 +1319,8 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "scen25", "SHORT")
 		arcpy.AddField_management(joinFN, "scen26", "SHORT")
 		arcpy.AddField_management(joinFN, "scen27", "SHORT")
-		arcpy.AddField_management(joinFN, "scen28", "SHORT")   
+		arcpy.AddField_management(joinFN, "scen28", "SHORT")
+		arcpy.AddField_management(joinFN, "scen29", "SHORT")   
 		arcpy.AddField_management(joinFN, "PARCEL_ID", "LONG")
 		arcpy.AddField_management(joinFN, "x", "FLOAT")
 		arcpy.AddField_management(joinFN, "y", "FLOAT")
@@ -1331,6 +1344,7 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "scen26", 0)
 		arcpy.CalculateField_management(joinFN, "scen27", 0)
 		arcpy.CalculateField_management(joinFN, "scen28", 0)
+		arcpy.CalculateField_management(joinFN, "scen29", 0)
 		arcpy.CalculateField_management(joinFN, "x", '!p_x!') 
 		arcpy.CalculateField_management(joinFN, "y", '!p_y!') 
 		arcpy.CalculateField_management(joinFN, "geom_id", '!m_geom_id!')
@@ -1448,7 +1462,8 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "scen25", "SHORT")
 		arcpy.AddField_management(joinFN, "scen26", "SHORT")
 		arcpy.AddField_management(joinFN, "scen27", "SHORT")
-		arcpy.AddField_management(joinFN, "scen28", "SHORT")   
+		arcpy.AddField_management(joinFN, "scen28", "SHORT")
+		arcpy.AddField_management(joinFN, "scen29", "SHORT")   
 		arcpy.AddField_management(joinFN, "zip", "TEXT","","",50)
 		arcpy.AddField_management(joinFN, "x", "FLOAT")
 		arcpy.AddField_management(joinFN, "y", "FLOAT")
@@ -1495,6 +1510,7 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "scen26", 0)
 		arcpy.CalculateField_management(joinFN, "scen27", 0)
 		arcpy.CalculateField_management(joinFN, "scen28", 0)
+		arcpy.CalculateField_management(joinFN, "scen29", 0)
 		arcpy.CalculateField_management(joinFN, "x", '!X_1!') 
 		arcpy.CalculateField_management(joinFN, "y", '!Y_1!') 
 		arcpy.CalculateField_management(joinFN, "geom_id", '!o_geom_id2!')
