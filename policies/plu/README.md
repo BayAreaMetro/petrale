@@ -96,6 +96,24 @@ Inputs:
 Outputs:
 * [``hybrid_index/idx_urbansim_fb_10192020.csv``](hybrid_index/idx_urbansim_fb_10192020.csv), updated hybrid index based on BASIS team's recommendation. To be used to construct Final Blueprint hybrid base zoning input. In addition to indexes, this file also has the following fields: 'updated_max_dua_idx', 'updated_max_far_idx', 'updated_res_blgType_idx', 'updated_nonres_blgType_idx'. They indicate if the relevant zoning attributes were updated. 'updated_res_blgType_idx' being True suggests one or more updates in 'HS_idx', 'HT_idx', 'HM_idx', or 'MR_idx'; 'updated_nonres_blgType_idx' being True indicates one or more updates in 'OF_idx', 'HO_idx', 'SC_idx', 'IL_idx', 'IW_idx', 'IH_idx', 'RS_idx', 'RB_idx', 'MR_idx', 'MT_idx', or 'ME_idx'.
 
+## Scripts to build new zoningmods for certain scenarios
+
+#### [build_EIR_zoningmods.ipynb](build_EIR_zoningmods.ipynb)
+
+Generate new zoningmods for EIR based on Final Blueprint zoningmods files and new EIR assumptions.
+
+Input:
+* ``EIR_zoningmods.gdb\p10_pba50_coc_tbl_v2_02172021``, dBASE table of p10 parcels with 'coc_id' tagging indicating if the parcel is located within communities of concern
+* ``p10_pba50_FBP_attr_20201110.csv``, parcel-level geographies tagging for Final Blueprint
+* ``zoning_mods_24.csv``, Final Blueprint zoningmods lookup table
+* ``juris_county_id.csv``, jurisdiction name - county_id crosswalk
+
+Output:
+* ``p10_pba50_cocid.csv``, p10 parcel_id - coc_id tagging crosswalk
+* ``p10_pba50_EIR_attr_[date].csv``, parcel-level geographies tagging for EIR (note that this file still contains the taggings for previous plans and scenarios)
+* ``zoning_mods_26_[date].csv``, zoningmods lookup table for EIR Alt1 (s26)
+
+
 ## Scripts/files to visualize zoningmod and compare development capacity between different zoningmod scenarios/versions
 
 #### [calculate_upzoning_capacity.py](calculate_upzoning_capacity.py)
