@@ -80,51 +80,70 @@ basis_pipeline = os.path.join(SMELT_GDB, "basis_pipeline_20200228")
 basis_pb_new = os.path.join(SMELT_GDB, "basis_pb_new_20200312")
 
 
-MTC_ONLINE_MANUAL_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/manual_dp_20200716/FeatureServer/0?token=5qV1qgKLXC7Uoum0N1sSTZSV2-eF9SG0PhR682PbAHyrmoc69codzAagWRYOM9Xypcu6KW61Fh6o_gxarcGObsAf07pS0cbvlK-VgakqgY8-DCShwsQ0v1G_O9JQdMPxYfkR7kr6SfjX-00qoRqCF5KOdLiPsgpzbw6gcm6AWWeGZ_d1Hh2smCJV6ShoeyVo1pKLEki3s0r8gZbhXAn6yPAIsWyoTblgsTYRIZsp2Pk.'
+MTC_ONLINE_MANUAL_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/manual_dp_20200716/\
+FeatureServer/0?token=5qV1qgKLXC7Uoum0N1sSTZSV2-eF9SG0PhR682PbAHyrmoc69codzAagWRYOM9Xypcu6KW6\
+1Fh6o_gxarcGObsAf07pS0cbvlK-VgakqgY8-DCShwsQ0v1G_O9JQdMPxYfkR7kr6SfjX-00qoRqCF5KOdLiPsgpzbw6gcm\
+6AWWeGZ_d1Hh2smCJV6ShoeyVo1pKLEki3s0r8gZbhXAn6yPAIsWyoTblgsTYRIZsp2Pk.'
 
-MTC_ONLINE_OPPSITE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/opportunity_sites_20201026/FeatureServer/0?token=Pl_DJ4-veoG357sbtVCk4Ui-0dM681BNSTxnQp6k-Dxg_2LjX7NHbDocTGJfXal8DKu35WkzKXr69ker1T5jtgRp4YF0rhNepcTDvuhMNaaDR6iBlJmWJAy86Io2qVJHorl71ZnkT5GfJf2EXblhTMiCNz4AOyA5PtBJKDjJPvXmuqffhgo7R3eaC4G_NRJDDdE7rg2MugcenXCEUw8YtBWYx1G36DreyKq1qXF5mx8.'
+MTC_ONLINE_OPPSITE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/opportunity_sites_20201026/\
+FeatureServer/0?token=Pl_DJ4-veoG357sbtVCk4Ui-0dM681BNSTxnQp6k-Dxg_2LjX7NHbDocTGJfXal8DKu35WkzK\
+Xr69ker1T5jtgRp4YF0rhNepcTDvuhMNaaDR6iBlJmWJAy86Io2qVJHorl71ZnkT5GfJf2EXblhTMiCNz4AOyA5PtBJKDjJP\
+vXmuqffhgo7R3eaC4G_NRJDDdE7rg2MugcenXCEUw8YtBWYx1G36DreyKq1qXF5mx8.'
 
-MTC_ONLINE_PUBLAND_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/public_land_1110/FeatureServer/0?token=NBTkkzYVt0d1nRuq32xku5sthGmR9yZun5I6cS8zilPvxFLm7EJlQxLTrCIqALKhiKzWK_B5f-i6gGq7kOuHMRbeJeOyB1yifgNUZq952Jv2VnHwhqWydSJ1KW47IDB4E6jKJMl16pLv6jHiYGBOveybXcryQiMn21i6xp5dy7bB29-M9xt4MZ2MEKqfkUD44feBoFg7YMqxtKugx458Lu0eQSpwl_nNnhahh5WoCHk.'
+MTC_ONLINE_PUBLAND_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/public_land_1110/FeatureServer/0\
+?token=NBTkkzYVt0d1nRuq32xku5sthGmR9yZun5I6cS8zilPvxFLm7EJlQxLTrCIqALKhiKzWK_B5f-i6gGq7kOuHMRbeJ\
+eOyB1yifgNUZq952Jv2VnHwhqWydSJ1KW47IDB4E6jKJMl16pLv6jHiYGBOveybXcryQiMn21i6xp5dy7bB29-M9xt4MZ2MEKq\
+fkUD44feBoFg7YMqxtKugx458Lu0eQSpwl_nNnhahh5WoCHk.'
 
-MTC_ONLINE_MALLOFFICE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/Mall_Office_oppsites/FeatureServer/0?token=dZp8Gg8Cs4Ntepu4PI8B4Vipcvwlt4RhwFUr0NbGetYZQeHi5vZWneSvNpKtxHWmfm_0ofgUPeEj_umtvRm4bFjwf68IYRho3AGjh-cyZaHp8ymP-xOke2jwBHV39L4Im3Fy0VdUf260Ma7yo6SJnYqN9yXic4IxXE8y-AyMEmKzaKlzxfWFv34AGUYm6gtyQqpHaD1W0fvLjuw1GCnkxST7KyHiPunm2qaLB8gSl6U.'
+MTC_ONLINE_MALLOFFICE_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/Mall_Office_oppsites/\
+FeatureServer/0?token=dZp8Gg8Cs4Ntepu4PI8B4Vipcvwlt4RhwFUr0NbGetYZQeHi5vZWneSvNpKtxHWmfm_0ofgUP\
+eEj_umtvRm4bFjwf68IYRho3AGjh-cyZaHp8ymP-xOke2jwBHV39L4Im3Fy0VdUf260Ma7yo6SJnYqN9yXic4IxXE8y-AyME\
+mKzaKlzxfWFv34AGUYm6gtyQqpHaD1W0fvLjuw1GCnkxST7KyHiPunm2qaLB8gSl6U.'
 
-manual_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MANUAL_URL,'manual_sites')
+MTC_ONLINE_GROWTHGEO_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/pba2050_growth_geographies_2020/\
+FeatureServer/0?token=9eFgZEiet4h-R4Eu8hybXs8kpH_D0SQoFRgpf5XpIUNzYyBnmRd1I6LASP9u3w2mrFHQ\
+dhvdIS2fadS2c5O5Qx2UwbmUBdYP3Lo8QNZKqZmobKFkmkScThbUg6Txkj-ZgiaIJv_v4iOdQGe5RsuYEIntxjF2cwD\
+KvzWyO9Y-pep_tePdhFR0SBMByR0N_sWwGldJkadkTch1SLJLaL3aruWoSMTCv7Dkq_I2vRxMZb4.'
 
-opportunity_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_OPPSITE_URL,'opportunity_sites',)
-
-publicland_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_PUBLAND_URL,'publicland_sites',)
-
-malloffice_sites = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MALLOFFICE_URL,'malloffice_sites',)
-
+manual_portal = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MANUAL_URL,'manual_portal')
+oppsites_portal = arcpy.MakeFeatureLayer_management(MTC_ONLINE_OPPSITE_URL,'oppsites_portal')
+publicland_portal = arcpy.MakeFeatureLayer_management(MTC_ONLINE_PUBLAND_URL,'publicland_portal')
+malloffice_portal = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MALLOFFICE_URL,'malloffice_portal')
+growth_geo_portal = arcpy.MakeFeatureLayer_management(MTC_ONLINE_GROWTHGEO_URL,'growth_geo_portal')
 
 arcpy.env.workspace = SMELT_GDB
 arcpy.env.overwriteOutput = True
 
-if arcpy.Exists('manual_dp'):
-	arcpy.Delete_management('manual_dp')
-if arcpy.Exists('opportunity_dp'):
-	arcpy.Delete_management('opportunity_dp')
-if arcpy.Exists('pubsites_dp'):
-	arcpy.Delete_management('pubsites_dp')
-if arcpy.Exists('mallsites_dp'):
-	arcpy.Delete_management('mallsites_dp')
-arcpy.FeatureClassToFeatureClass_conversion(manual_sites, SMELT_GDB,'manual_dp')
-arcpy.FeatureClassToFeatureClass_conversion(opportunity_sites, SMELT_GDB,'opportunity_dp')
-arcpy.FeatureClassToFeatureClass_conversion(publicland_sites, SMELT_GDB,'pubsites_dp')
-arcpy.FeatureClassToFeatureClass_conversion(malloffice_sites, SMELT_GDB,'mallsites_dp')
-
-### manually maintained pipeline data
+# manually maintained pipeline data
 manual_dp   = os.path.join(SMELT_GDB, "manual_dp")
-
-
 # opportunity sites that keep their scen status from gis file
 opp_sites   = os.path.join(SMELT_GDB, "opportunity_dp")
-
 # public land sites that keep their scen status from gis file
 pub_sites   = os.path.join(SMELT_GDB, "pubsites_dp")
-
 # public land sites that keep their scen status from gis file
-mall_sites   = os.path.join(SMELT_GDB, "mallsites_dp")
+mall_sites  = os.path.join(SMELT_GDB, "mallsites_dp")
+# growth geo for filtering mall and pub sites for eir alt
+growth_geo  = os.path.join(SMELT_GDB, "growth_geo")
+
+if arcpy.Exists(manual_dp):
+	arcpy.Delete_management(manual_dp)
+if arcpy.Exists(opp_sites):
+	arcpy.Delete_management(opp_sites)
+if arcpy.Exists(pub_sites):
+	arcpy.Delete_management(pub_sites)
+if arcpy.Exists(mall_sites):
+	arcpy.Delete_management(mall_sites)
+if arcpy.Exists(growth_geo ):
+	arcpy.Delete_management(growth_geo)
+
+arcpy.FeatureClassToFeatureClass_conversion(manual_portal, SMELT_GDB,'manual_dp')
+arcpy.FeatureClassToFeatureClass_conversion(oppsites_portal, SMELT_GDB,'opportunity_dp')
+arcpy.FeatureClassToFeatureClass_conversion(publicland_portal, SMELT_GDB,'pubsites_dp')
+arcpy.FeatureClassToFeatureClass_conversion(malloffice_portal, SMELT_GDB,'mallsites_dp')
+arcpy.FeatureClassToFeatureClass_conversion(growth_geo_portal, SMELT_GDB,'growth_geo')
+
+GGtra = arcpy.SelectLayerByAttribute_management(growth_geo, "NEW_SELECTION", "designatio <> 'High-Resource Area (16-30 min bus)' And designatio <> 'Priority Production Area'")
+arcpy.CopyFeatures_management(GGtra, 'GGtra')
 
 #set up a process to make sure all incl = 1 records are in the results (also need to make sure that the feature class has column "incl")
 def countRow (fc):
@@ -1256,6 +1275,9 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "scen20", 0)
 		arcpy.CalculateField_management(joinFN, "scen25", 0)
 		arcpy.CalculateField_management(joinFN, "scen26", 0)
+		arcpy.SelectLayerByLocation_management(joinFN, "WITHIN", GGtra, None, "NEW_SELECTION", "NOT_INVERT")
+		arcpy.CalculateField_management(joinFN, "scen26", 1)
+		arcpy.SelectLayerByAttribute_management(joinFN, "CLEAR_SELECTION")
 		arcpy.CalculateField_management(joinFN, "scen27", 0)
 		arcpy.CalculateField_management(joinFN, "scen28", 0)
 		arcpy.CalculateField_management(joinFN, "scen29", 0)
@@ -1342,6 +1364,9 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "scen20", 0)
 		arcpy.CalculateField_management(joinFN, "scen25", 0)
 		arcpy.CalculateField_management(joinFN, "scen26", 0)
+		arcpy.SelectLayerByLocation_management(joinFN, "WITHIN", GGtra, None, "NEW_SELECTION", "NOT_INVERT")
+		arcpy.CalculateField_management(joinFN, "scen26", 1)
+		arcpy.SelectLayerByAttribute_management(joinFN, "CLEAR_SELECTION")
 		arcpy.CalculateField_management(joinFN, "scen27", 0)
 		arcpy.CalculateField_management(joinFN, "scen28", 0)
 		arcpy.CalculateField_management(joinFN, "scen29", 0)
