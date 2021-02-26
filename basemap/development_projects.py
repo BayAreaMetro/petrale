@@ -1274,10 +1274,21 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "building_name", '!building_n!')
 		arcpy.CalculateField_management(joinFN, "scen20", 0)
 		arcpy.CalculateField_management(joinFN, "scen25", 0)
-		arcpy.CalculateField_management(joinFN, "scen26", 0)
-		arcpy.SelectLayerByLocation_management(joinFN, "WITHIN", GGtra, None, "NEW_SELECTION", "NOT_INVERT")
-		arcpy.CalculateField_management(joinFN, "scen26", 1)
+
+		# create a list of parcel id of public land projects that are in GGtra
+		# because just using select and update doesn't work somehow
+		pub_GGtra = arcpy.SelectLayerByLocation_management(joinFN, "WITHIN", GGtra, None, "NEW_SELECTION", "NOT_INVERT")
+		arcpy.CopyFeatures_management(pub_GGtra, 'pub_GGtra')
 		arcpy.SelectLayerByAttribute_management(joinFN, "CLEAR_SELECTION")
+		pubTraList = [row[0] for row in arcpy.da.SearchCursor(pub_GGtra, 'PARCEL_ID')]
+		with arcpy.da.UpdateCursor(joinFN, ["PARCEL_ID", "scen26"]) as cursor:
+			for row in cursor:
+				if row[0] in pubTraList:
+					row[1] = 1
+				else:
+					row[1] = 0
+				cursor.updateRow(row)
+
 		arcpy.CalculateField_management(joinFN, "scen27", 0)
 		arcpy.CalculateField_management(joinFN, "scen28", 0)
 		arcpy.CalculateField_management(joinFN, "scen29", 0)
@@ -1363,10 +1374,21 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "building_name", '!building_n!')
 		arcpy.CalculateField_management(joinFN, "scen20", 0)
 		arcpy.CalculateField_management(joinFN, "scen25", 0)
-		arcpy.CalculateField_management(joinFN, "scen26", 0)
-		arcpy.SelectLayerByLocation_management(joinFN, "WITHIN", GGtra, None, "NEW_SELECTION", "NOT_INVERT")
-		arcpy.CalculateField_management(joinFN, "scen26", 1)
+
+		# create a list of parcel id of public land projects that are in GGtra
+		# because just using select and update doesn't work somehow
+		pub_GGtra = arcpy.SelectLayerByLocation_management(joinFN, "WITHIN", GGtra, None, "NEW_SELECTION", "NOT_INVERT")
+		arcpy.CopyFeatures_management(pub_GGtra, 'pub_GGtra')
 		arcpy.SelectLayerByAttribute_management(joinFN, "CLEAR_SELECTION")
+		pubTraList = [row[0] for row in arcpy.da.SearchCursor(pub_GGtra, 'PARCEL_ID')]
+		with arcpy.da.UpdateCursor(joinFN, ["PARCEL_ID", "scen26"]) as cursor:
+			for row in cursor:
+				if row[0] in pubTraList:
+					row[1] = 1
+				else:
+					row[1] = 0
+				cursor.updateRow(row)
+				
 		arcpy.CalculateField_management(joinFN, "scen27", 0)
 		arcpy.CalculateField_management(joinFN, "scen28", 0)
 		arcpy.CalculateField_management(joinFN, "scen29", 0)
