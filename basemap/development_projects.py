@@ -1270,6 +1270,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
 		
 		# NOTE THAT OPPSITES HAS SCEN SET IN GIS FILE
+		arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!pb_parcel_id!')
 		arcpy.CalculateField_management(joinFN, "development_projects_id", '!developmen!')
 		arcpy.CalculateField_management(joinFN, "building_name", '!building_n!')
 		arcpy.CalculateField_management(joinFN, "scen20", 0)
@@ -1295,7 +1296,6 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "x", '!p_x!') 
 		arcpy.CalculateField_management(joinFN, "y", '!p_y!') 
 		arcpy.CalculateField_management(joinFN, "geom_id", '!pb_geom_id!')
-		arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!pb_parcel_id!')
 		arcpy.CalculateField_management(joinFN, "building_type", "'MR'")
 		arcpy.CalculateField_management(joinFN, "building_sqft", "!building_s!")
 		arcpy.CalculateField_management(joinFN, "non_residential_sqft", "!non_reside!")
@@ -1318,7 +1318,7 @@ if __name__ == '__main__':
 		logger.info("{} list has {} records with geom_id info missing".format(joinFN, nullcount))
 		arcpy.Delete_management(gidnull)
 
-		
+
 		scen26count = 'scen26count'
 		arcpy.MakeTableView_management(joinFN,scen26count,"scen26 = 1")
 		onecount = arcpy.GetCount_management(scen26count)
@@ -1377,6 +1377,7 @@ if __name__ == '__main__':
 		arcpy.AddField_management(joinFN, "deed_restricted_units", "SHORT")
 		
 		# NOTE THAT OPPSITES HAS SCEN SET IN GIS FILE
+		arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!m_parcel_id!')		
 		arcpy.CalculateField_management(joinFN, "development_projects_id", '!developmen!')
 		arcpy.CalculateField_management(joinFN, "building_name", '!building_n!')
 		arcpy.CalculateField_management(joinFN, "scen20", 0)
@@ -1402,7 +1403,6 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "x", '!p_x!') 
 		arcpy.CalculateField_management(joinFN, "y", '!p_y!') 
 		arcpy.CalculateField_management(joinFN, "geom_id", '!m_geom_id!')
-		arcpy.CalculateField_management(joinFN, "PARCEL_ID", '!m_parcel_id!')
 		arcpy.CalculateField_management(joinFN, "building_type", "'MR'")
 		arcpy.CalculateField_management(joinFN, "building_sqft", "!building_s!")
 		arcpy.CalculateField_management(joinFN, "non_residential_sqft", "!non_reside!")
