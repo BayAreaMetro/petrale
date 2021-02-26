@@ -1317,6 +1317,13 @@ if __name__ == '__main__':
 		nullcount = arcpy.GetCount_management(gidnull)
 		logger.info("{} list has {} records with geom_id info missing".format(joinFN, nullcount))
 		arcpy.Delete_management(gidnull)
+
+		
+		scen26count = 'scen26count'
+		arcpy.MakeTableView_management(joinFN,scen26count,"scen26 = 1")
+		onecount = arcpy.GetCount_management(scen26count)
+		logger.info("{} list has {} records with scen26 is 1".format(joinFN, onecount))
+		arcpy.Delete_management(scen26count)
 		###4 REMOVE DUPLICATES
 		#check again existing geomList and remove duplicates
 		with arcpy.da.UpdateCursor(joinFN, "PARCEL_ID") as cursor:
@@ -1417,6 +1424,12 @@ if __name__ == '__main__':
 		nullcount = arcpy.GetCount_management(gidnull)
 		logger.info("{} list has {} records with geom_id info missing".format(joinFN, nullcount))
 		arcpy.Delete_management(gidnull)
+
+		scen26count = 'scen26count'
+		arcpy.MakeTableView_management(joinFN,scen26count,"scen26 = 1")
+		onecount = arcpy.GetCount_management(scen26count)
+		logger.info("{} list has {} records with scen26 is 1".format(joinFN, onecount))
+		arcpy.Delete_management(scen26count)
 		###4 REMOVE DUPLICATES
 		#check again existing geomList and remove duplicates
 		#for malls, changing those into add to make sure every mall project is in, per Mark's comment
