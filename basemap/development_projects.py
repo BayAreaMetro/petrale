@@ -1567,7 +1567,7 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "scen23", "!o_scen23!")
 		arcpy.CalculateField_management(joinFN, "scen24", "!o_scen23!")
 		arcpy.CalculateField_management(joinFN, "scen25", 0)
-		arcpy.CalculateField_management(joinFN, "scen26", 0)
+		arcpy.CalculateField_management(joinFN, "scen26", "!o_scen23!")
 		arcpy.CalculateField_management(joinFN, "scen27", 0)
 		arcpy.CalculateField_management(joinFN, "scen28", 0)
 		arcpy.CalculateField_management(joinFN, "scen29", 0)
