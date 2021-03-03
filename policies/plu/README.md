@@ -96,6 +96,23 @@ Inputs:
 Outputs:
 * [``hybrid_index/idx_urbansim_fb_10192020.csv``](hybrid_index/idx_urbansim_fb_10192020.csv), updated hybrid index based on BASIS team's recommendation. To be used to construct Final Blueprint hybrid base zoning input. In addition to indexes, this file also has the following fields: 'updated_max_dua_idx', 'updated_max_far_idx', 'updated_res_blgType_idx', 'updated_nonres_blgType_idx'. They indicate if the relevant zoning attributes were updated. 'updated_res_blgType_idx' being True suggests one or more updates in 'HS_idx', 'HT_idx', 'HM_idx', or 'MR_idx'; 'updated_nonres_blgType_idx' being True indicates one or more updates in 'OF_idx', 'HO_idx', 'SC_idx', 'IL_idx', 'IW_idx', 'IH_idx', 'RS_idx', 'RB_idx', 'MR_idx', 'MT_idx', or 'ME_idx'.
 
+## Scripts to build new zoningmods for certain scenarios
+
+#### [build_EIR_zoningmods.ipynb](build_EIR_zoningmods.ipynb)
+
+Generate new zoningmods for EIR based on Final Blueprint zoningmods files and new EIR zoningmods assumptions.
+
+Input: 
+* ``p10_pba50_cocid.csv``, p10 parcels tagged with 'coc_id' indicating if the parcel is located within communities of concern
+* ``p10_existing_res_bldg.csv``, p10 parcels tagged with 'ex_res_bldg' indicating if existing residential building is present (residential_sqft > 0)
+* ``p10_pba50_FBP_attr_20201110.csv``, parcel-level geographies tagging for Final Blueprint
+* ``zoning_mods_24.csv``, Final Blueprint zoningmods lookup table
+* ``juris_county_id.csv``, jurisdiction name - county_id crosswalk
+
+Output:
+* ``p10_pba50_EIR_attr_[date].csv``, parcel-level geographies tagging for EIR (note that this file still contains the taggings for previous plans and scenarios)
+* ``zoning_mods_26_[date].csv``, zoningmods lookup table for EIR Alt1 (s26)
+
 ## Scripts/files to visualize zoningmod and compare development capacity between different zoningmod scenarios/versions
 
 #### [calculate_upzoning_capacity.py](calculate_upzoning_capacity.py)
@@ -137,18 +154,37 @@ Output:
 
 ## Scripts to update other plu-related UrbanSim input files
 
+#### [p10_tagging.ipynb](p10_tagging.ipynb) 
+Tag p10 parcels with "coc_id" and "ex_res_bldg".
+
+Inputs:
+* ``EIR_zoningmods.gdb\p10_pba50_coc_tbl_v2_02172021``, dBASE table of p10 parcels with 'coc_id' tagging indicating if the parcel is located within communities of concern
+* ``p10.csv``, p10 parcels
+* ``p10.csv``, b10 buildings
+Output:
+* [``p10_pba50_cocid.csv``](https://mtcdrive.box.com/s/2e5zjdlnuwmqdh09556ci5t5rilndti8), p10 parcels tagged with 'coc_id' indicating if the parcel is located within communities of concern ('CoC' in and 'NA' outside)
+* [``p10_existing_res_bldg.csv``](https://mtcdrive.box.com/s/dyv4252oxhzilkbnzxgs1gmh5kw2rv3h), p10 parcels tagged with 'ex_res_bldg' indicating if existing residential building is present ('res' with existing residential sqft and 'NA' without)
+
 #### [update_parcels_geography.py](update_parcels_geography.py) 
 Update the 'parcels_geography' file to incorporate [upzoning parameters](https://github.com/BayAreaMetro/bayarea_urbansim/blob/datatypes_dict/data/%5Bmod_date%5D_parcels_geography_dict.csv) into Draft Blueprint.
 
 Inputs:
 * [jurisId.csv](https://github.com/BayAreaMetro/petrale/blob/master/zones/jurisdictions/juris_county_id.csv): map jurisdiction name to jurisdiction ID
 * [07_11_2019_parcels_geography.csv](https://mtcdrive.app.box.com/file/653711913275): Horizon parcels_geography.csv input
-* [p10_pba50_attr_20200416](https://mtcdrive.box.com/s/zkxaf4gxn47oe716r4wqrp1raqfq8lhy): Draft Blueprint strategy geographies mapped to p10 PARCEL_ID
+* parcel-level geographies tagging
+  * [p10_pba50_attr_20200416](https://mtcdrive.box.com/s/zkxaf4gxn47oe716r4wqrp1raqfq8lhy): Draft Blueprint strategy geographies mapped to p10 PARCEL_ID
+  * [p10_pba50_attr_20201110](https://mtcdrive.box.com/s/myabnxtrd8raaxztrr3yev207fz3ckmr): Final Blueprint strategy geographies mapped to p10 PARCEL_ID
+  * [p10_pba50_attr_20210224](https://mtcdrive.box.com/s/371x126aj5s80du1edrvm77hj42aj1l9): EIR Alt1 strategy geographies mapped to p10 PARCEL_ID
+* additional 'no_dev' parcels that should be tagged
+  * noDev_parcels_golfClub_medCenter.csv
+  * noDev_parcels_CPAD_CCED.csv
+  * noDev_parcels_conservation_easement.csv
 * pda_id_2020.csv (M:\Data\GIS layers\Blueprint Land Use Strategies\ID_idx): PARCEL_ID mapped to the most recent Draft Blueprint PDAs (see below **parcel_BlueprintGeos_index.py**).
 
 Output: 
 * [2020_04_17_parcels_geography.csv](https://mtcdrive.box.com/s/ryolqxotqq2wh805vfjqhf0a7xf29051) - without the new pda_id. This file was used in Draft Blueprint runs.
 * [2020_07_10_parcels_geography.csv](https://mtcdrive.box.com/s/kh1xccmwwq8unqx699i3hgw0jwusyj49) - with the new pda_id named as 'pda_id_pba50' while the old pda_id was kept and named as 'pda_id_pba40'.
+* [2021_02_25_parcels_geography.csv](https://mtcdrive.box.com/s/rfvo8d5bu81avunzc5y58htpfd9l7tvh) - EIR version
 
 #### [parcel_BlueprintGeos_index.py](parcel_BlueprintGeos_index.py)
 Map p10 PARCEL_ID to Draft Blueprint strategy geographies. Used for generating geography-level Urbansim output summaries based on parcel-level output.

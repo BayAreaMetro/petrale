@@ -23,14 +23,17 @@ if os.getenv('USERNAME')=='ywang':
 # input file locations
 HORIZON_ZONING_BOX_DIR  = os.path.join(M_WORKING_DIR, 'Horizon', 'Large General Input Data')
 PBA50_ZONINGMOD_DIR     = os.path.join(M_WORKING_DIR, 'Final_Blueprint', 'Zoning Modifications')
+EIR_ZONINGMOD_DIR       = os.path.join(M_WORKING_DIR, 'EIR', 'Zoning Modifications')
 JURIS_CODE_DIR          = os.path.join(GITHUB_PETRALE_DIR, 'zones', 'jurisdictions')
 M_ID_DB_DIR             = os.path.join(M_ID_DIR, 'Draft Blueprint')
 M_ID_FB_DIR             = os.path.join(M_ID_DIR, 'Final Blueprint')
+M_ID_EIR_DIR            = os.path.join(M_ID_DIR, 'EIR')
 
 # outputs locations
 PBA50_LARGE_INPUT_DIR   = os.path.join(BOX_DIR, 'PBA50', 'Current PBA50 Large General Input Data')
-M_LARGE_INPUT_DIR       = os.path.join(M_WORKING_DIR, 'Final_Blueprint', 'Large General Input Data')
-LOG_FILE                = os.path.join(M_LARGE_INPUT_DIR,'{}_update_parcels_geography.log'.format(today))
+M_LARGE_INPUT_FB_DIR    = os.path.join(M_WORKING_DIR, 'Final_Blueprint', 'Large General Input Data')
+M_LARGE_INPUT_EIR_DIR   = os.path.join(M_WORKING_DIR, 'EIR', 'Large General Input Data')
+LOG_FILE                = os.path.join(M_LARGE_INPUT_EIR_DIR,'{}_update_parcels_geography.log'.format(today))
 
 
 if __name__ == '__main__':
@@ -84,11 +87,14 @@ if __name__ == '__main__':
     logger.info(pg_pba40.dtypes)
 
     ## Read PBA50 attributes
-    pba50_attrs_file = os.path.join(PBA50_ZONINGMOD_DIR, 'p10_pba50_FBP_attr_20201110.csv')
+    #pba50_attrs_file = os.path.join(PBA50_ZONINGMOD_DIR, 'p10_pba50_FBP_attr_20201110.csv')
+    pba50_attrs_file = os.path.join(EIR_ZONINGMOD_DIR, 'p10_pba50_EIR_attr_20210217.csv')
     pba50_attrs_cols = ['geom_id_s', 'juris_id', 'juris', 'gg_id', 'tra_id', 'sesit_id', 'ppa_id', 
                         'exp2020_id', 'pba50chcat', 'exsfd_id', 'chcatwsfd', 'pba50zonin', 'nodev',
                         'fbp_gg_id', 'fbp_tra_id', 'fbp_sesit_', 'fbp_ppa_id', 'fbp_exp202', 
-                        'fbpchcat', 'fbp_exsfd_', 'fbpchcatws', 'fbpzoningm']
+                        'fbpchcat', 'fbp_exsfd_', 'fbpchcatws', 'fbpzoningm',
+                        'eir_gg_id', 'eir_tra_id', 'eir_sesit_', 'eir_ppa_id',
+                        'eir_exp202', 'eir_exsfd_', 'eir_coc_id', 'eirzoningm']
     pba50_attrs = pd.read_csv(pba50_attrs_file,
                               usecols = pba50_attrs_cols)
     pba50_attrs.geom_id_s = pba50_attrs.geom_id_s.apply(lambda x: int(round(x)))
@@ -98,7 +104,12 @@ if __name__ == '__main__':
                                   'fbp_sesit_': 'fbp_sesit_id',
                                   'fbp_exp202': 'fbp_exp2020_id',
                                   'fbp_exsfd_': 'fbp_exsfd_id',
-                                  'fbpchcatws': 'fbpchcatwsfd'}, inplace=True)
+                                  'fbpchcatws': 'fbpchcatwsfd',
+
+                                  'eir_sesit_': 'eir_sesit_id',
+                                  'eir_exp202': 'eir_exp2020_id',
+                                  'eir_exsfd_': 'eir_exsfd_id',
+                                  'eirzoningm': 'eirzoningmodcat'}, inplace=True)
 
     logger.info('Read {} records from {}, with header: \n {}'.format(
             len(pba50_attrs),
@@ -206,11 +217,16 @@ if __name__ == '__main__':
     pba50_fb_att = ['fbp_gg_id', 'pda_id_pba50_fb', 'fbp_tra_id', 'fbp_sesit_id', 'fbp_ppa_id', 
                     'fbp_exp2020_id', 'fbp_exsfd_id', 'fbpzoningmodcat', 'fbpchcat']
 
+    # PBA50 EIR fields:
+    pba50_eir_att = ['eir_gg_id', 'pda_id_pba50_fb', 'eir_tra_id', 'eir_sesit_id', 'eir_coc_id',
+                     'eir_ppa_id', 'eir_exp2020_id', 'eir_exsfd_id', 'eirzoningmodcat']
+
+
     # PBA50 shared fields:
     pba50_att_both = ['nodev']
 
     # export:
-    pg_all = pg_pba50_merge[p_att + pba40_att + hor_att + pba50_db_att + pba50_fb_att + pba50_att_both]
+    pg_all = pg_pba50_merge[p_att + pba40_att + hor_att + pba50_db_att + pba50_fb_att + pba50_eir_att + pba50_att_both]
     pg_pba50_fb_only = pg_pba50_merge[p_att + pba50_fb_att + pba50_att_both]
 
     logger.info('Export {} records with {} unique PARCEL IDs to {} with the following fields: \n {}'.format(len(pg_all),
