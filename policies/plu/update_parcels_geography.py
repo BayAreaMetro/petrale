@@ -1,9 +1,4 @@
-# Notes:
-# Part 1 is to update the 'parcels_geography.csv' file with the new zoningmods and nodev attributes
-# Part 2 is to generate geospacial files to use in GIS. The output file dissolves parcels on 'pba50zoningmodcat', 
-# and contains "parcel count" and "total acres" for each dissolved geometry. The script enables two approaches for dissolving: 
-#     1) Load the 'UrbanSim_input_Zoning\outputs\parcel_zoningmods.shp' into ArcGIS and dissolve.
-#     2) Dissolve in geopands and then export. 
+# Update the 'parcels_geography.csv' file with the new zoningmods and nodev attributes
 
 import pandas as pd
 import numpy as np
@@ -88,13 +83,13 @@ if __name__ == '__main__':
 
     ## Read PBA50 attributes
     #pba50_attrs_file = os.path.join(PBA50_ZONINGMOD_DIR, 'p10_pba50_FBP_attr_20201110.csv')
-    pba50_attrs_file = os.path.join(EIR_ZONINGMOD_DIR, 'p10_pba50_EIR_attr_20210217.csv')
+    pba50_attrs_file = os.path.join(EIR_ZONINGMOD_DIR, 'p10_pba50_EIR_attr_20210224.csv')
     pba50_attrs_cols = ['geom_id_s', 'juris_id', 'juris', 'gg_id', 'tra_id', 'sesit_id', 'ppa_id', 
                         'exp2020_id', 'pba50chcat', 'exsfd_id', 'chcatwsfd', 'pba50zonin', 'nodev',
                         'fbp_gg_id', 'fbp_tra_id', 'fbp_sesit_', 'fbp_ppa_id', 'fbp_exp202', 
                         'fbpchcat', 'fbp_exsfd_', 'fbpchcatws', 'fbpzoningm',
                         'eir_gg_id', 'eir_tra_id', 'eir_sesit_', 'eir_ppa_id',
-                        'eir_exp202', 'eir_exsfd_', 'eir_coc_id', 'eirzoningm']
+                        'eir_exp202', 'eir_coc_id', 'ex_res_bldg', 'eirzoningm']
     pba50_attrs = pd.read_csv(pba50_attrs_file,
                               usecols = pba50_attrs_cols)
     pba50_attrs.geom_id_s = pba50_attrs.geom_id_s.apply(lambda x: int(round(x)))
@@ -108,7 +103,6 @@ if __name__ == '__main__':
 
                                   'eir_sesit_': 'eir_sesit_id',
                                   'eir_exp202': 'eir_exp2020_id',
-                                  'eir_exsfd_': 'eir_exsfd_id',
                                   'eirzoningm': 'eirzoningmodcat'}, inplace=True)
 
     logger.info('Read {} records from {}, with header: \n {}'.format(
@@ -219,7 +213,7 @@ if __name__ == '__main__':
 
     # PBA50 EIR fields:
     pba50_eir_att = ['eir_gg_id', 'pda_id_pba50_fb', 'eir_tra_id', 'eir_sesit_id', 'eir_coc_id',
-                     'eir_ppa_id', 'eir_exp2020_id', 'eir_exsfd_id', 'eirzoningmodcat']
+                     'eir_ppa_id', 'eir_exp2020_id', 'ex_res_bldg', 'eirzoningmodcat']
 
 
     # PBA50 shared fields:
