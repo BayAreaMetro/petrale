@@ -105,11 +105,18 @@ FeatureServer/0?token=9eFgZEiet4h-R4Eu8hybXs8kpH_D0SQoFRgpf5XpIUNzYyBnmRd1I6LASP
 dhvdIS2fadS2c5O5Qx2UwbmUBdYP3Lo8QNZKqZmobKFkmkScThbUg6Txkj-ZgiaIJv_v4iOdQGe5RsuYEIntxjF2cwD\
 KvzWyO9Y-pep_tePdhFR0SBMByR0N_sWwGldJkadkTch1SLJLaL3aruWoSMTCv7Dkq_I2vRxMZb4.'
 
+MTC_ONLINE_MALLPUB_ALT2_URL = 'https://arcgis.ad.mtc.ca.gov/server/rest/services/Hosted/mallpub_alt2_Merge_copy/\
+FeatureServer/0?token=jrR0pAmL_AY0QOs4XW3m9gwz2e5EpTVST_B62xVzOYocmL2zClzhFKg-Up13eLUknbCGY6KfP\
+0mkyETquYBr5CIXngPz3U02O_WkLnY6-q7GVnaI86amPU1eOO_kymNAIZgOEMKbCIfSEbVT4AQWMzLNN79DWPX85dDmsviL-\
+aMtButq-SWeYgwycCGK-DUdxcODH17ZlH_ln9iLkItLzLgTsfx_SR6CfD0_1dncemY.'
+
 manual_portal = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MANUAL_URL,'manual_portal')
 oppsites_portal = arcpy.MakeFeatureLayer_management(MTC_ONLINE_OPPSITE_URL,'oppsites_portal')
 publicland_portal = arcpy.MakeFeatureLayer_management(MTC_ONLINE_PUBLAND_URL,'publicland_portal')
 malloffice_portal = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MALLOFFICE_URL,'malloffice_portal')
 growth_geo_portal = arcpy.MakeFeatureLayer_management(MTC_ONLINE_GROWTHGEO_URL,'growth_geo_portal')
+mallpub_alt2_portal = arcpy.MakeFeatureLayer_management(MTC_ONLINE_MALLPUB_ALT2_URL,'mallpub_alt2_portal')
+
 
 arcpy.env.workspace = SMELT_GDB
 arcpy.env.overwriteOutput = True
@@ -125,6 +132,8 @@ mall_sites  = os.path.join(SMELT_GDB, "mallsites_dp")
 # growth geo for filtering mall and pub sites for eir alt
 growth_geo  = os.path.join(SMELT_GDB, "growth_geo")
 
+mallpub_alt2  = os.path.join(SMELT_GDB, "mallpub_alt2")
+
 if arcpy.Exists(manual_dp):
 	arcpy.Delete_management(manual_dp)
 if arcpy.Exists(opp_sites):
@@ -133,14 +142,17 @@ if arcpy.Exists(pub_sites):
 	arcpy.Delete_management(pub_sites)
 if arcpy.Exists(mall_sites):
 	arcpy.Delete_management(mall_sites)
-if arcpy.Exists(growth_geo ):
+if arcpy.Exists(growth_geo):
 	arcpy.Delete_management(growth_geo)
+if arcpy.Exists(mallpub_alt2):
+	arcpy.Delete_management(mallpub_alt2)
 
 arcpy.FeatureClassToFeatureClass_conversion(manual_portal, SMELT_GDB,'manual_dp')
 arcpy.FeatureClassToFeatureClass_conversion(oppsites_portal, SMELT_GDB,'opportunity_dp')
 arcpy.FeatureClassToFeatureClass_conversion(publicland_portal, SMELT_GDB,'pubsites_dp')
 arcpy.FeatureClassToFeatureClass_conversion(malloffice_portal, SMELT_GDB,'mallsites_dp')
 arcpy.FeatureClassToFeatureClass_conversion(growth_geo_portal, SMELT_GDB,'growth_geo')
+arcpy.FeatureClassToFeatureClass_conversion(mallpub_alt2_portal, SMELT_GDB,'mallpub_alt2')
 
 GGtra = arcpy.SelectLayerByAttribute_management(growth_geo, "NEW_SELECTION", "designatio <> 'High-Resource Area (16-30 min bus)' And designatio <> 'Priority Production Area'")
 arcpy.CopyFeatures_management(GGtra, 'GGtra')
@@ -1569,7 +1581,7 @@ if __name__ == '__main__':
 		arcpy.CalculateField_management(joinFN, "scen25", 0)
 		arcpy.CalculateField_management(joinFN, "scen26", "!o_scen23!")
 		arcpy.CalculateField_management(joinFN, "scen27", 0)
-		arcpy.CalculateField_management(joinFN, "scen28", 0)
+		arcpy.CalculateField_management(joinFN, "scen28", "!o_scen23!")
 		arcpy.CalculateField_management(joinFN, "scen29", 0)
 		arcpy.CalculateField_management(joinFN, "x", '!X_1!') 
 		arcpy.CalculateField_management(joinFN, "y", '!Y_1!') 
@@ -2070,6 +2082,21 @@ if __name__ == '__main__':
 	devproj_fc_reordered = 'devproj_reordered'
 	reorder_fields(pipeline_fc, pipeline_fc_reordered, new_field_order)
 	reorder_fields(devproj_fc, devproj_fc_reordered, new_field_order)
+
+	# append the alt2 mallpub projects into the devproj list
+	arcpy.CalculateField_management(mallpub_alt2, "edit_date", 20210308)
+	arcpy.CalculateField_management(mallpub_alt2, "editor", "'BL'")
+	arcpy.DeleteField_management(mallpub_alt2, 'globalid')
+	arcpy.Append_management(mallpub_alt2, devproj_fc_reordered, 'NO_TEST')
+
+	count = arcpy.GetCount_management(devproj_fc_reordered)
+	i = 1
+	with arcpy.da.UpdateCursor(devproj_fc_reordered, "development_projects_id") as cursor:
+			for row in cursor:
+				if i <= int(count[0]) :
+					row[0] = i
+					i  = i + 1
+					cursor.updateRow(row)
 
 	#we are only keeping one set of data. move this blolock of code to the end
 	#export csv to folder -- remember to change fold path when run on other machines
