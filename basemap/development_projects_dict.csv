@@ -32,7 +32,7 @@ zip,zipcode of project location,String,no
 county,county of project location,String,no
 x,longitude,Double,no
 y,latitude,Double,no
-geom_id,,Double,yes
+geom_id,,Integer,yes
 year_built,year in which the project is built or expected to be built,Integer,yes
 building_type_det,detailed building type,String,yes
 building_type,building type,String,yes
@@ -49,7 +49,7 @@ parking_spaces,number of park spaces,String,no
 average_weighted_rent,average rent of residential units or non_residential,String,no
 last_sale_year,year in which the building is sold,Date,no
 last_sale_price,sale price of the project,Date,no
-deed_restricted_units ,total number of deed-restricted units,Integer,yes
+deed_restricted_unitsÂ ,total number of deed-restricted units,Integer,yes
 source,data source,String,yes
 parcel_id,,Integer,yes
 zone_id,traffic analysis zone id,Double,no
