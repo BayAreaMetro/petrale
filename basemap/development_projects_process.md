@@ -1,6 +1,6 @@
 # Development Projects Process
 
-1. Data sources:
+## 1. Data sources:
 * Basemap parcels (p10_pba50 at m:\ )
 * Costar data ( and at m:\
 * Redfin data ( and and and at m:\
@@ -14,7 +14,7 @@
 *  ppa
 *  manual oppsites
 
-2. Process
+## 2. Process
 The overall approach of producing the development project file is to:
 * spatially join parcels to each point file of new buildings --[code](https://github.com/BayAreaMetro/petrale/blob/55f714d5353e345ca8c0955e32c7694cad6c8d50/basemap/development_projects.py#L286)--
 * recompute all fields in each point file so that they exactly the same schema --[code](https://github.com/BayAreaMetro/petrale/blob/55f714d5353e345ca8c0955e32c7694cad6c8d50/basemap/development_projects.py#L289-L402)--
