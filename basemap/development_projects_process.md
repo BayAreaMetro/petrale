@@ -2,17 +2,17 @@
 
 ## 1. Data sources:
 * Basemap parcels (p10_pba50 at m:\ )
+* MTC manual pipeline (at [portal](https://arcgis.ad.mtc.ca.gov/portal/home/item.html?id=3a85a3dbfbbb44f3b9250930b685f570))
 * Costar data ( and at m:\
 * Redfin data ( and and and at m:\
 * Parcel processing data ( at m:\ )
 * BASIS pipeline data (at portal)
-* MTC manual pipeline (at [portal](https://arcgis.ad.mtc.ca.gov/portal/home/item.html?id=3a85a3dbfbbb44f3b9250930b685f570))
 * Opportunity Sites:
-* *  public land 
-* * mall & office parks
+* * public land (at [portal](https://arcgis.ad.mtc.ca.gov/portal/home/item.html?id=8a9dfd54baaa4955b9f3dbbb4f757c64))
+* * mall & office parks (at [portal](https://arcgis.ad.mtc.ca.gov/portal/home/item.html?id=04c1c2ffee824239bffa9ec9a27504a8))
 * * incubator
 * * ppa
-* * manual oppsites
+* * manual oppsites (at [portal](https://arcgis.ad.mtc.ca.gov/portal/home/item.html?id=1a875fe466114482ad6847a925433512))
 
 ## 2. Process
 The overall approach of producing the development project file is to:
