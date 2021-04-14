@@ -1,12 +1,12 @@
 # Development Projects Process
 
 ## 1. Data sources:
-* Basemap parcels (p10_pba50 at m:\ )
+* Basemap parcels (p10_pba50 at [smelt](https://mtcdrive.box.com/s/036crj8h6naqg016l079g0coybv8jsal) geodatabase)
 * MTC manual pipeline (at [portal](https://arcgis.ad.mtc.ca.gov/portal/home/item.html?id=3a85a3dbfbbb44f3b9250930b685f570))
-* Costar data ( and at m:\
-* Redfin data ( and and and at m:\
-* Parcel processing data ( at m:\ )
-* BASIS pipeline data (at portal)
+* Costar data (cs1115 and cs1620 at [smelt](https://mtcdrive.box.com/s/036crj8h6naqg016l079g0coybv8jsal) geodatabase)
+* Redfin data (rf19_sfr1115, rf19_condounits1115, rf19_othertypes1115, rf19_sfr1619, and rf19_multiunit1619 at [smelt](https://mtcdrive.box.com/s/036crj8h6naqg016l079g0coybv8jsal) geodatabase)
+* Parcel processing data (basis_pb_new_20200312 at [smelt](https://mtcdrive.box.com/s/036crj8h6naqg016l079g0coybv8jsal) geodatabase)
+* BASIS pipeline data (basis_pipeline_20200228 at [smelt](https://mtcdrive.box.com/s/036crj8h6naqg016l079g0coybv8jsal) geodatabase)
 * Opportunity Sites:
 * * public land (at [portal](https://arcgis.ad.mtc.ca.gov/portal/home/item.html?id=8a9dfd54baaa4955b9f3dbbb4f757c64))
 * * mall & office parks (at [portal](https://arcgis.ad.mtc.ca.gov/portal/home/item.html?id=04c1c2ffee824239bffa9ec9a27504a8))
