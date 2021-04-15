@@ -1,4 +1,4 @@
-﻿variable, definition, type
+variable, definition, type
 PARCEL_ID,,Double
 DEVELOPMEN,,Double
 LAND_VALUE,land value of parcel,Double
@@ -10,7 +10,7 @@ TAX_EXEMPT,0: not exempted; 1: exempted,Double
 APN,Assessor's parcel number,Text
 GEOM_ID,,Double
 IMPUTATION,imputation of parcel characteristics,Text
-ID,,Double
+ID,unique sequential number,Double
 CENTROID,parcel centroid,Text
 X,Longitude,Double
 Y,Latitude,Double
