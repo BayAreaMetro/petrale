@@ -1,0 +1,16 @@
+﻿variable, definition, type
+PARCEL_ID,,Double
+DEVELOPMEN,,Double
+LAND_VALUE,land value of parcel,Double
+ACRES,parcel acreage,Double
+COUNTY_ID,1: Alameda; 13: Contra Costa; 41: Marin; 55: Napa; 75: San Francisco; 81: San Mateo; 85: Santa Clara; 95: Solano; 97: Sonoma,Double
+ZONE_ID,Traffic analaysis zone id,Double
+PROPORTION,,Double
+TAX_EXEMPT,0: not exempted; 1: exempted,Double
+APN,Assessor's parcel number,Text
+GEOM_ID,,Double
+IMPUTATION,imputation of parcel characteristics,Text
+ID,,Double
+CENTROID,parcel centroid,Text
+X,Longitude,Double
+Y,Latitude,Double
