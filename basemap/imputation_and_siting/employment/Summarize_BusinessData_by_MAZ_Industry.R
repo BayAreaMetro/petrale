@@ -15,6 +15,7 @@
 # See M:\Data\BusinessData\Employment_by_TAZ_industry for output 
 
 suppressMessages(library(tidyverse))
+library(sf)
 library(readxl)
 
 # Data locations
@@ -26,26 +27,22 @@ bizdata_location        <- file.path(BIZDATA_DIR, paste0("Businesses_",BIZDATA_Y
 # MAZ geography location
 f_tm2_maz_shp_path      <- "M:/Data/GIS layers/TM2_maz_taz_v2.2/mazs_TM2_v2_2.shp"
 
-# regional totals
-SCENARIO_NUM            <- 24 # final blueprint
-reg_total_location      <- paste0("X:/regional_forecast/to_baus/s",SCENARIO_NUM,"/employment_controls_s",SCENARIO_NUM,".csv")
-taz_county_location     <- "X:/travel-model-one-master/utilities/geographies/taz-superdistrict-county.csv"
-
-# incommute processsing
-SCRIPT_PATH             <- "X:/petrale/applications/travel_model_lu_inputs/2015/Employment"
-incommute_eq_location   <- file.path(SCRIPT_PATH, "Incommute","2012-2016 CTPP Places to Superdistrict Equivalency.xlsx")
-incommute_tot_location  <- file.path(SCRIPT_PATH, "Incommute","ACS 2013-2017 Incommute by Industry.xlsx")
+# Bring in industry crosswalk
+userprofile          <- gsub("\\\\","/", Sys.getenv("USERPROFILE"))
+github               <- file.path(userprofile,"Documents","GitHub")
+crosswalk_dir        <- file.path(github,"petrale","economy","2020_naics_recode.csv")
+crosswalk            <- read.csv(crosswalk_dir)
 
 # output files
 output_taz_industry_file  <- paste0("BusinessData_",BIZDATA_YEAR,"_TAZ_industry.csv")
 
-# Bring in business data and MAZ shapefile and match MAZ geography to file
-bizdata <- read_csv(bizdata_location)
+# Bring in business data and MAZ shapefile and match MAZ geography to file, then remove geography field
+bizdata <- read_csv(bizdata_location) %>% mutate(naicssix=as.integer(substr(NAICS,0,6)))
 bizdata <- st_as_sf(bizdata, coords = c("POINT_X", "POINT_Y"), crs = 4326)
 bizdata <- st_transform(bizdata, crs = 2230)
 
 tm2_maz_shp <- st_read(f_tm2_maz_shp_path) %>%
-  select(tm2_maz = maz)
+  select(TM2_MAZ = maz)
    
 tm2_maz_shp <- st_transform(tm2_maz_shp, 2230)
 
@@ -54,28 +51,29 @@ bizdata_maz <- bizdata %>%
 
 st_geometry(bizdata_maz) <- NULL
 
+# Join employment data to crosswalk and create codes for missing crosswalk cells
+# The crosswalk is current for 2020, but will need updating for later years
+# Missing crosswalk cells are indicated by "-99" for numeric taxonomies and "unclassified" for text-based
 
-# Read business data, create naics2 string
-bizdata <- read_csv(bizdata_location) 
-
-%>%
-  mutate(naics_str = as.character(NAICS),
-         naics2    = substr(naics_str, 0, 2),
-         naics2    = recode(naics2,  # combine a few
-                            "31"="3133","32"="3133","33"="3133",
-                            "44"="4445","45"="4445",
-                            "48"="4849","49"="4849"),
-         naics2    = paste0("emp_sec",naics2))
-print("Business data NAICS2:")
-print(table(bizdata$naics2))
-
-
-
+bizdata_joined <- left_join(bizdata_maz,crosswalk,by="naicssix") %>% 
+  mutate(steelhead   =if_else(is.na(steelhead),"Unclassified",steelhead),
+         naics2      =if_else(is.na(naics2),-99L,naics2),
+         remi70      =if_else(is.na(remi70),-99L,remi70),
+         US2detailed =if_else(is.na(US2detailed),"Unclassified",US2detailed),
+         sixcat      =if_else(is.na(sixcat),"Unclassified",sixcat))
+                           
 # Summarize by naics2, spread to matrix format
-bizdata_taz_naics2 <- bizdata %>% 
-  group_by(TAZ1454,naics2) %>% 
-  summarize(employment=sum(EMPNUM)) %>% 
-  spread(naics2,employment,fill=0)
+bizdata_maz_steelhead <- bizdata_joined %>% 
+  group_by(TM2_MAZ,steelhead) %>% 
+  summarize(employment=sum(EMPNUM)) 
+
+tm2_maz <- tm2_maz_shp %>% 
+  mutate(steelhead="delete",employment=-99)
+
+st_geometry(tm2_maz) <- NULL
+
+bizdata_maz_steelhead <- rbind(bizdata_maz_steelhead,tm2_maz) %>%
+  spread(steelhead,employment,fill=0) 
 
 # # emp_sec_cols = emp_sec11, emp_sec21, ...
 emp_sec_cols     <- colnames(bizdata_taz_naics2)
