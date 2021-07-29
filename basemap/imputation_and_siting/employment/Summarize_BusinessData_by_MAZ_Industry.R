@@ -1,22 +1,9 @@
 # Summarize_BusinessData_by_MAZ_Industry.R
 # Sum ESRI Business Analyst data to MAZ level for several employment taxonomy schemes
-# Scale to regional total from
-# https://github.com/BayAreaMetro/regional_forecast/blob/master/to_baus/s24/employment_controls_s24.csv
-#
-# Output: 
-#  0) BusinessData_{BIZDATA_YEAR}_TAZ_industry_unscaled.csv
-#        business data summed to TAZ by industry (NAICS2 & ABAG6), not scaled to regional total
-#  1) BusinessData_{BIZDATA_YEAR}_TAZ_industry.csv
-#        same as 0, but scaled to regional total
-#        NOTE: these are not rounded, so values are float
-#  2) BusinessData_{BIZDATA_YEAR}_TAZ_industry_noincommute.csv 
-#       same as 1, but with incommute jobs removed, using incommute shares to superdistricts to account
-#       for non-uniform incommuting rates around region
-# See M:\Data\BusinessData\Employment_by_TAZ_industry for output 
+# Input data year should be set - e.g., Sys.setenv(BIZDATA_YEAR="2020")
 
 suppressMessages(library(tidyverse))
 library(sf)
-library(readxl)
 
 # Data locations
 BIZDATA_DIR             <- "M:/Data/BusinessData"
@@ -34,9 +21,10 @@ crosswalk_dir        <- file.path(github,"petrale","economy","2020_naics_recode.
 crosswalk            <- read.csv(crosswalk_dir)
 
 # output files
-output_taz_industry_file  <- paste0("BusinessData_",BIZDATA_YEAR,"_TAZ_industry.csv")
+output_location           <- file.path(github,"petrale","basemap","imputation_and_siting","employment","2015")
+output_maz_industry_file  <- paste0("BusinessData_",BIZDATA_YEAR,"_MAZ_industry.csv")
 
-# Bring in business data and MAZ shapefile and match MAZ geography to file, then remove geography field
+# Bring in business data and MAZ shapefile and match MAZ geography to file, then remove geography field - leaving a dataframe
 bizdata <- read_csv(bizdata_location) %>% mutate(naicssix=as.integer(substr(NAICS,0,6)))
 bizdata <- st_as_sf(bizdata, coords = c("POINT_X", "POINT_Y"), crs = 4326)
 bizdata <- st_transform(bizdata, crs = 2230)
@@ -53,167 +41,80 @@ st_geometry(bizdata_maz) <- NULL
 
 # Join employment data to crosswalk and create codes for missing crosswalk cells
 # The crosswalk is current for 2020, but will need updating for later years
-# Missing crosswalk cells are indicated by "-99" for numeric taxonomies and "unclassified" for text-based
+# Missing crosswalk cells are indicated by "-999" for numeric taxonomies and "unclassified" for text-based
+# Rename category from "sixcat" to "abag6" for later summaries
 
 bizdata_joined <- left_join(bizdata_maz,crosswalk,by="naicssix") %>% 
   mutate(steelhead   =if_else(is.na(steelhead),"Unclassified",steelhead),
-         naics2      =if_else(is.na(naics2),-99L,naics2),
-         remi70      =if_else(is.na(remi70),-99L,remi70),
+         naics2      =if_else(is.na(naics2),-999L,naics2),
+         remi70      =if_else(is.na(remi70),-999L,remi70),
          US2detailed =if_else(is.na(US2detailed),"Unclassified",US2detailed),
-         sixcat      =if_else(is.na(sixcat),"Unclassified",sixcat))
+         sixcat      =if_else(is.na(sixcat),"Unclassified",sixcat)) %>% 
+  rename(abag6=sixcat)
+
+# Sum total employment for later joining
+
+bizdata_maz_total <- bizdata_joined %>% 
+  group_by(TM2_MAZ)%>% 
+  summarize(Total=sum(EMPNUM)) 
                            
-# Summarize by naics2, spread to matrix format
+# Summarize by steelhead categories, create dummy maz file to rbind for full maz coverage, spread to matrix format, delete dummy variable
+
 bizdata_maz_steelhead <- bizdata_joined %>% 
   group_by(TM2_MAZ,steelhead) %>% 
   summarize(employment=sum(EMPNUM)) 
 
-tm2_maz <- tm2_maz_shp %>% 
-  mutate(steelhead="delete",employment=-99)
+tm2_maz_dummy <- tm2_maz_shp %>% 
+  mutate(steelhead="dummy",employment=-999)
+st_geometry(tm2_maz_dummy) <- NULL                                        
 
-st_geometry(tm2_maz) <- NULL
-
-bizdata_maz_steelhead <- rbind(bizdata_maz_steelhead,tm2_maz) %>%
+bizdata_maz_steelhead <- rbind(bizdata_maz_steelhead,tm2_maz_dummy) %>%
   spread(steelhead,employment,fill=0) 
 
-# # emp_sec_cols = emp_sec11, emp_sec21, ...
-emp_sec_cols     <- colnames(bizdata_taz_naics2)
-emp_sec_cols     <- emp_sec_cols[ emp_sec_cols != "TAZ1454" ]
+bizdata_maz_steelhead <- bizdata_maz_steelhead %>% 
+  select(-dummy)
 
-# and get total
-bizdata_taz <- bizdata %>% 
-  group_by(TAZ1454) %>% 
-  summarize(TOTEMP=sum(EMPNUM))
+# Now do the same summary for naics2 categories, adding "emp_sec" to the front of category names
 
-# put them together
-bizdata_taz_naics2 <- merge(bizdata_taz_naics2, bizdata_taz, all=TRUE)
+bizdata_maz_naics2 <- bizdata_joined %>% 
+  group_by(TM2_MAZ,naics2) %>% 
+  summarize(employment=sum(EMPNUM)) %>% 
+  mutate(naics2=paste0("emp_sec",naics2))
 
-# Ensure all TAZs covered by joining to full TAZ list
-taz_county <- read_csv(taz_county_location) %>% 
-  rename(TAZ1454=ZONE, County_Name=COUNTY_NAME) %>% 
-  subset(COUNTY<10) # create list of bay area TAZs to ensure coverage
-bizdata_taz_naics2 <- merge(bizdata_taz_naics2, select(taz_county, TAZ1454, County_Name), all=TRUE)
-bizdata_taz_naics2[is.na(bizdata_taz_naics2)] <- 0
+tm2_maz_dummy <- tm2_maz_dummy %>% 
+  rename(naics2=steelhead) 
 
-# Drop TAZ 0 (or bizdata with no TAZ)
-print(paste("Dropping employment with no TAZ: ",subset(bizdata_taz_naics2, TAZ1454==0)))
-bizdata_taz_naics2 <- subset(bizdata_taz_naics2, TAZ1454 > 0)
+bizdata_maz_naics2 <- rbind(bizdata_maz_naics2,tm2_maz_dummy) %>%
+  spread(naics2,employment,fill=0) 
 
-# Calculate ABAG6 values from NAICS2 industries (equivalency comes from NAICS_to_EMPSIX.xlsx in folder)
-abag6_from_naics2 <- function(df) {
-  df %>% 
-    mutate(AGREMPN = emp_sec11 + emp_sec21, 
-           FPSEMPN = emp_sec52 + emp_sec53   + emp_sec54 + emp_sec55   + emp_sec56,
-           HEREMPN = emp_sec61 + emp_sec62   + emp_sec71 + emp_sec72   + emp_sec81,
-           MWTEMPN = emp_sec22 + emp_sec3133 + emp_sec42 + emp_sec4849,
-           OTHEMPN = emp_sec23 + emp_sec51   + emp_sec92 + emp_sec99,
-           RETEMPN = emp_sec4445)
-}
-bizdata_taz_naics2 <- abag6_from_naics2(bizdata_taz_naics2)
-# write this result
-unscaled_output <- sub(".csv", "_unscaled.csv", output_taz_industry_file)
-write.csv(bizdata_taz_naics2, unscaled_output, row.names = FALSE, quote = T)
-print(paste("Wrote",unscaled_output))
+bizdata_maz_naics2 <- bizdata_maz_naics2 %>% 
+  select(-dummy)
 
-# Now create scale function to apply to all ESRI employment categories
+# Now the summary for ABAG6, appending Total employment (changing NA values to zero) for final dataset output
 
-regional_totals   <- read_csv(reg_total_location) %>%
-  mutate(TOTEMP=AGREMPN + MWTEMPN + RETEMPN + FPSEMPN + HEREMPN + OTHEMPN)
+bizdata_maz_abag6 <- bizdata_joined %>% 
+  group_by(TM2_MAZ,abag6) %>% 
+  summarize(employment=sum(EMPNUM)) 
 
-CONTROL_YEAR <- 2015
-if (BIZDATA_YEAR > 2017) CONTROL_YEAR <- 2020
+tm2_maz_dummy <- tm2_maz_dummy %>% 
+  rename(abag6=naics2) 
 
-# get TOTEMP control for the CONTROL_YEAR
-TOTEMP_CONTROL <- subset(regional_totals, year==CONTROL_YEAR)$TOTEMP
+bizdata_maz_abag6 <- rbind(bizdata_maz_abag6,tm2_maz_dummy) %>%
+  spread(abag6,employment,fill=0) %>% 
+  left_join(.,bizdata_maz_total,by="TM2_MAZ") 
 
-# Scale regional total from REMI over ESRI employment
-EMP_SCALE <- TOTEMP_CONTROL/sum(bizdata_taz_naics2$TOTEMP)
-print(paste("Scaling TOTAL EMPLOYMENT by", EMP_SCALE, "to hit regional control of",TOTEMP_CONTROL,"for year",CONTROL_YEAR))
+bizdata_maz_abag6 <- bizdata_maz_abag6 %>% 
+  mutate(Total=if_else(is.na(Total),0,Total)) %>% 
+  select(-dummy)
 
-# scale all the columns to that TOTEMP sums to TOTEMP_CONTROL
-bizdata_taz_scaled <- bizdata_taz_naics2
-for (col in c(emp_sec_cols, "TOTEMP")) {
-  bizdata_taz_scaled[col] <- EMP_SCALE*bizdata_taz_naics2[col]
-}
+# Now join all three into a single dataframe
 
-bizdata_taz_scaled <- abag6_from_naics2(bizdata_taz_scaled)
+bizdata_maz_all <- left_join(bizdata_maz_steelhead,bizdata_maz_naics2,by="TM2_MAZ") %>% 
+  left_join(.,bizdata_maz_abag6, by="TM2_MAZ")
 
-# join to county names
-bizdata_taz_scaled <- left_join(bizdata_taz_scaled, select(taz_county, TAZ1454, County_Name))
+# Output file
 
-# write this result
-write.csv(bizdata_taz_scaled, output_taz_industry_file, row.names = FALSE, quote = T)
-print(paste("Wrote",output_taz_industry_file))
+write.csv(bizdata_maz_all, file.path(output_location,output_maz_industry_file), row.names = FALSE, quote = T)
 
-# Distribute incommute and reduce regional employment totals by incommute total
-# CTPP data were used to distribute the incommute - place-to-place data were smallest home-to-work geo available
-# Tract-to-tract data have missing geocoded data and are unreliable
-# Workers at work at the place level minus regional workers at work equals incommuters, roughly
-# Places were matched to superdistricts or "composite superdistricts" - groups of superdistricts
-# Incommuters were distributed across superdistricts or composite superdistricts according to calculated shares
-
-incommute_eq      <- read_excel (incommute_eq_location,sheet="TAZ Incommute Equivalence") 
-incommute_share   <- read_excel (incommute_eq_location,sheet="Comp_SD Incommute Equivalence")
-incommute_total   <- read_excel (incommute_tot_location,sheet="5. Net_Incommute") %>% 
-  select(Net_Incommute) # Keep just the net incommute value
-
-# add SD, Comp_SD columns (Comp_SD looks like 1_2_3_4)
-bizdata_taz_scale_eq <- left_join(bizdata_taz_scaled,incommute_eq, by=c("TAZ1454" = "ZONE")) # Join equivalency
-
-# Calculate number of incommuters by composite superdistrict 
-# cols: Comp_SD, Share_Incommute, Net_Incommute, Incommute_Portion
-temp_incommute <- cbind(incommute_share,incommute_total) %>%    
-  mutate(Incommute_Portion=Share_Incommute*Net_Incommute)       
-
-# Sum total employment by composite superdistrict
-# cols: Comp_SD, Comp_SD_Total
-temp_bizdata_sum <- bizdata_taz_scale_eq %>% 
-  group_by(Comp_SD) %>%                 # Calculate scaling factors for each TAZ within a SD or composite SD
-  summarize(Comp_SD_Total=sum(TOTEMP))  # Within respective SDs or composite SDs, TAZ factors are uniform                        
-
-# Calculate Incommute_Factor for each composite superdistrict, where factor = proportion of employees *not incommuters*
-# cols: Comp_SD, Incommute_Factor
-incommute_factors <- left_join(temp_incommute,temp_bizdata_sum,by="Comp_SD") %>% mutate(
- Incommute_Factor =1-(Incommute_Portion/Comp_SD_Total)) %>%     # Join factors to TAZs
-  select(Comp_SD,Incommute_Factor)
-
-# Apply factors to emp_sec* and TOTEMP and round resultant values
-bizdata_taz_incommute <- left_join(bizdata_taz_scale_eq,incommute_factors,by="Comp_SD")
-for (col in c(emp_sec_cols, "TOTEMP")) {
-  bizdata_taz_incommute[col] <- round(bizdata_taz_incommute[col]*bizdata_taz_incommute$Incommute_Factor)
-}
-
-# Find max column for later adjustment to ensure that marginal employment matches subtotals
-bizdata_taz_incommute <- mutate(bizdata_taz_incommute,
-  max_naics2      = emp_sec_cols[max.col(select(bizdata_taz_incommute,emp_sec_cols), ties.method="first")],
-  naics2_subtotal = rowSums(select(bizdata_taz_incommute, emp_sec_cols)),
-  naics2_diff     = TOTEMP - naics2_subtotal)   
-
-# If naics2_subtotal is off, make up the difference in the largest category
-for (col in emp_sec_cols) {
-  bizdata_taz_incommute[col] <- if_else(bizdata_taz_incommute$max_naics2==col, 
-                                        bizdata_taz_incommute[[col]] + bizdata_taz_incommute[["naics2_diff"]],
-                                        bizdata_taz_incommute[[col]])
-}
-
-# verify
-bizdata_taz_incommute <- mutate(bizdata_taz_incommute,
-                                naics2_subtotal = rowSums(select(bizdata_taz_incommute, emp_sec_cols)),
-                                naics2_diff     = TOTEMP - naics2_subtotal)
-stopifnot(all(bizdata_taz_incommute$naics2_diff == 0))
-  
-# Clean up extraneous variables
-
-bizdata_taz_incommute <- select(bizdata_taz_incommute,
-                                -SD,-Comp_SD,-Incommute_Factor,-max_naics2,-naics2_subtotal, -naics2_diff)
-  
-# Calculate ABAG6 values from NAICS2 industries (equivalency comes from NAICS_to_EMPSIX.xlsx in folder)
-
-bizdata_taz_incommute <- abag6_from_naics2(bizdata_taz_incommute)
-
-# Export to csv
-
-noincommute_output <- sub(".csv", "_noincommute.csv", output_taz_industry_file)
-write.csv(bizdata_taz_incommute, noincommute_output, row.names = FALSE, quote = T)
-print(paste("Wrote",noincommute_output))
 
 
