@@ -14,6 +14,17 @@ bizdata_location        <- file.path(BIZDATA_DIR, paste0("Businesses_",BIZDATA_Y
 # MAZ geography location
 f_tm2_maz_shp_path      <- "M:/Data/GIS layers/TM2_maz_taz_v2.2/mazs_TM2_v2_2.shp"
 
+# Bring in regional totals, using 
+SCENARIO_NUM            <- 24 # final blueprint
+reg_total_location      <- paste0("X:/regional_forecast/to_baus/s",SCENARIO_NUM,"/employment_controls_s",SCENARIO_NUM,".csv")
+regional_totals         <- read_csv(reg_total_location) %>%
+  mutate(TOTEMP=AGREMPN + MWTEMPN + RETEMPN + FPSEMPN + HEREMPN + OTHEMPN)
+
+regional_2015 <- regional_totals %>% filter(year==2015) %>% .$TOTEMP
+regional_2020 <- regional_totals %>% filter(year==2020) %>% .$TOTEMP
+regional_2017 <- regional_2015
+regional_2019 <- regional_2020
+
 # Bring in industry crosswalk
 userprofile          <- gsub("\\\\","/", Sys.getenv("USERPROFILE"))
 github               <- file.path(userprofile,"Documents","GitHub")
@@ -24,23 +35,43 @@ crosswalk            <- read.csv(crosswalk_dir)
 output_location           <- file.path(github,"petrale","basemap","imputation_and_siting","employment","2015")
 output_maz_industry_file  <- paste0("BusinessData_",BIZDATA_YEAR,"_MAZ_industry.csv")
 
-# Bring in business data and MAZ shapefile and match MAZ geography to file, then remove geography field - leaving a dataframe
+# Bring in business data and MAZ shapefile and match MAZ geography to file
+# Create a version of MAZ shapefile without geometry for later index matching
+# Start by matching employment within MAZ shapes, then (for poor matches, due to MAZ delineation) select closest MAZ 
+# Concatenate "good" and "bad" datasets, remove geography field - leaving a dataframe
+
 bizdata <- read_csv(bizdata_location) %>% mutate(naicssix=as.integer(substr(NAICS,0,6)))
 bizdata <- st_as_sf(bizdata, coords = c("POINT_X", "POINT_Y"), crs = 4326)
 bizdata <- st_transform(bizdata, crs = 2230)
 
 tm2_maz_shp <- st_read(f_tm2_maz_shp_path) %>%
   select(TM2_MAZ = maz)
+
+tm2_maz <- tm2_maz_shp
+st_geometry(tm2_maz)<-NULL
    
 tm2_maz_shp <- st_transform(tm2_maz_shp, 2230)
 
 bizdata_maz <- bizdata %>%
   st_join(tm2_maz_shp, join = st_within)
 
+bizdata_maz_good <- bizdata_maz %>% filter(!is.na(TM2_MAZ))
+
+bizdata_maz_bad <- bizdata_maz %>% filter(is.na(TM2_MAZ)) 
+
+bizdata_maz_bad <- bizdata_maz_bad %>% 
+  mutate(TM2_MAZ_index=st_nearest_feature(bizdata_maz_bad,tm2_maz_shp))
+
+bizdata_maz_bad <- bizdata_maz_bad %>% 
+  mutate(TM2_MAZ=tm2_maz[.$TM2_MAZ_index,"TM2_MAZ"]) %>% 
+  select(-TM2_MAZ_index)
+
+bizdata_maz <- rbind(bizdata_maz_good,bizdata_maz_bad)
+
 st_geometry(bizdata_maz) <- NULL
 
 # Join employment data to crosswalk and create codes for missing crosswalk cells
-# The crosswalk is current for 2020, but will need updating for later years
+# The crosswalk is current for 2020 (so no missing crosswalk values should appear now), but will need updating for later years
 # Missing crosswalk cells are indicated by "-999" for numeric taxonomies and "unclassified" for text-based
 # Rename category from "sixcat" to "abag6" for later summaries
 
