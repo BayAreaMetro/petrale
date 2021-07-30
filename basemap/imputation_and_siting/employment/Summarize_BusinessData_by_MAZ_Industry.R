@@ -14,16 +14,16 @@ bizdata_location        <- file.path(BIZDATA_DIR, paste0("Businesses_",BIZDATA_Y
 # MAZ geography location
 f_tm2_maz_shp_path      <- "M:/Data/GIS layers/TM2_maz_taz_v2.2/mazs_TM2_v2_2.shp"
 
-# Bring in regional totals, using 
+# Bring in regional totals
 SCENARIO_NUM            <- 24 # final blueprint
 reg_total_location      <- paste0("X:/regional_forecast/to_baus/s",SCENARIO_NUM,"/employment_controls_s",SCENARIO_NUM,".csv")
 regional_totals         <- read_csv(reg_total_location) %>%
   mutate(TOTEMP=AGREMPN + MWTEMPN + RETEMPN + FPSEMPN + HEREMPN + OTHEMPN)
 
-regional_2015 <- regional_totals %>% filter(year==2015) %>% .$TOTEMP
-regional_2020 <- regional_totals %>% filter(year==2020) %>% .$TOTEMP
-regional_2017 <- regional_2015
-regional_2019 <- regional_2020
+CONTROL_YEAR <- 2015
+if (BIZDATA_YEAR > 2017) CONTROL_YEAR <- 2020
+
+REMI_employment <- regional_totals %>% filter(year==CONTROL_YEAR) %>% .$TOTEMP
 
 # Bring in industry crosswalk
 userprofile          <- gsub("\\\\","/", Sys.getenv("USERPROFILE"))
@@ -37,7 +37,8 @@ output_maz_industry_file  <- paste0("BusinessData_",BIZDATA_YEAR,"_MAZ_industry.
 
 # Bring in business data and MAZ shapefile and match MAZ geography to file
 # Create a version of MAZ shapefile without geometry for later index matching
-# Start by matching employment within MAZ shapes, then (for poor matches, due to MAZ delineation) select closest MAZ 
+# Start by matching employment within MAZ shapes, then (for poor matches, due to MAZ delineation) select closest MAZ
+# st_nearest_feature provides an index (line#) to later match for dataframe MAZ value
 # Concatenate "good" and "bad" datasets, remove geography field - leaving a dataframe
 
 bizdata <- read_csv(bizdata_location) %>% mutate(naicssix=as.integer(substr(NAICS,0,6)))
@@ -67,7 +68,6 @@ bizdata_maz_bad <- bizdata_maz_bad %>%
   select(-TM2_MAZ_index)
 
 bizdata_maz <- rbind(bizdata_maz_good,bizdata_maz_bad)
-
 st_geometry(bizdata_maz) <- NULL
 
 # Join employment data to crosswalk and create codes for missing crosswalk cells
@@ -87,13 +87,14 @@ bizdata_joined <- left_join(bizdata_maz,crosswalk,by="naicssix") %>%
 
 bizdata_maz_total <- bizdata_joined %>% 
   group_by(TM2_MAZ)%>% 
-  summarize(Total=sum(EMPNUM)) 
+  summarize(TOTEMP=sum(EMPNUM)) 
                            
 # Summarize by steelhead categories, create dummy maz file to rbind for full maz coverage, spread to matrix format, delete dummy variable
 
 bizdata_maz_steelhead <- bizdata_joined %>% 
   group_by(TM2_MAZ,steelhead) %>% 
-  summarize(employment=sum(EMPNUM)) 
+  summarize(employment=sum(EMPNUM)) %>% 
+  ungroup
 
 tm2_maz_dummy <- tm2_maz_shp %>% 
   mutate(steelhead="dummy",employment=-999)
@@ -110,7 +111,8 @@ bizdata_maz_steelhead <- bizdata_maz_steelhead %>%
 bizdata_maz_naics2 <- bizdata_joined %>% 
   group_by(TM2_MAZ,naics2) %>% 
   summarize(employment=sum(EMPNUM)) %>% 
-  mutate(naics2=paste0("emp_sec",naics2))
+  mutate(naics2=paste0("emp_sec",naics2)) %>% 
+  ungroup
 
 tm2_maz_dummy <- tm2_maz_dummy %>% 
   rename(naics2=steelhead) 
@@ -121,11 +123,12 @@ bizdata_maz_naics2 <- rbind(bizdata_maz_naics2,tm2_maz_dummy) %>%
 bizdata_maz_naics2 <- bizdata_maz_naics2 %>% 
   select(-dummy)
 
-# Now the summary for ABAG6, appending Total employment (changing NA values to zero) for final dataset output
+# Now the summary for ABAG6, appending Total employment (changing NA values to zero) for final dataset
 
 bizdata_maz_abag6 <- bizdata_joined %>% 
   group_by(TM2_MAZ,abag6) %>% 
-  summarize(employment=sum(EMPNUM)) 
+  summarize(employment=sum(EMPNUM)) %>% 
+  ungroup
 
 tm2_maz_dummy <- tm2_maz_dummy %>% 
   rename(abag6=naics2) 
@@ -135,17 +138,104 @@ bizdata_maz_abag6 <- rbind(bizdata_maz_abag6,tm2_maz_dummy) %>%
   left_join(.,bizdata_maz_total,by="TM2_MAZ") 
 
 bizdata_maz_abag6 <- bizdata_maz_abag6 %>% 
-  mutate(Total=if_else(is.na(Total),0,Total)) %>% 
+  mutate(TOTEMP=if_else(is.na(TOTEMP),0,TOTEMP)) %>% 
   select(-dummy)
 
 # Now join all three into a single dataframe
 
 bizdata_maz_all <- left_join(bizdata_maz_steelhead,bizdata_maz_naics2,by="TM2_MAZ") %>% 
-  left_join(.,bizdata_maz_abag6, by="TM2_MAZ")
+  left_join(.,bizdata_maz_abag6, by="TM2_MAZ") 
+
+# Calculate scale to factor ESRI data up to regional REMI total
+
+REMI_scale <- REMI_employment/sum(bizdata_maz_all$TOTEMP)
+
+# Create column set of employment sectors and total employment to scale
+# scale all columns to match REMI employment totals
+
+emp_sec_cols     <- names(bizdata_maz_all)
+emp_sec_cols     <- emp_sec_cols[ emp_sec_cols != "TM2_MAZ" ]
+
+bizdata_maz_scaled <- bizdata_maz_all
+
+for (col in emp_sec_cols) {
+  bizdata_maz_scaled[col] <- round(REMI_scale*bizdata_maz_all[col])
+}
+
+# Balance the columns so they subtotal to TOTEMP within each employment taxonomy
+# Start by subsetting columns
+
+steelhead_cols <- c("ag", "art_rec", "constr", "eat", "ed_high", "ed_k12", "ed_other", 
+                    "fire", "gov", "health", "hotel", "info", "lease", "logis", "man_bio", 
+                    "man_hvy", "man_lgt", "man_tech", "mis", "natres", "prof", "ret_loc", 
+                    "ret_reg", "serv_bus", "serv_pers", "serv_soc", "transp", "util")
+
+naics2_cols    <- c("emp_sec0", "emp_sec11", "emp_sec21", "emp_sec22", "emp_sec23", 
+                    "emp_sec3133", "emp_sec42", "emp_sec4445", "emp_sec4849", "emp_sec51", 
+                    "emp_sec52", "emp_sec53", "emp_sec54", "emp_sec55", "emp_sec56", 
+                    "emp_sec61", "emp_sec62", "emp_sec71", "emp_sec72", "emp_sec81", 
+                    "emp_sec92")
+
+abag6_cols     <- c("AGREMPN", "FPSEMPN", "HEREEMPN", "MISSING", "MWTEMPN", 
+                    "OTHEMPN", "RETEMPN")
+
+# Find max column for each taxonomy for later adjustment to ensure that marginal employment matches subtotals
+# Make up the difference with the largest category for each taxonomy
+
+bizdata_maz_scaled <-bizdata_maz_scaled %>% 
+  mutate(max_steelhead = steelhead_cols[max.col(select(bizdata_maz_scaled,steelhead_cols), ties.method="first")],
+         steelhead_subtotal = rowSums(select(bizdata_maz_scaled,steelhead_cols)),
+         steelhead_diff     = TOTEMP - steelhead_subtotal,
+         max_naics2 = naics2_cols[max.col(select(bizdata_maz_scaled,naics2_cols), ties.method="first")],
+         naics2_subtotal = rowSums(select(bizdata_maz_scaled,naics2_cols)),
+         naics2_diff     = TOTEMP - naics2_subtotal,
+         max_abag6 = abag6_cols[max.col(select(bizdata_maz_scaled,abag6_cols), ties.method="first")],
+         abag6_subtotal = rowSums(select(bizdata_maz_scaled,abag6_cols)),
+         abag6_diff     = TOTEMP - abag6_subtotal) 
+
+for (col in steelhead_cols) {
+  bizdata_maz_scaled[col] <- if_else(bizdata_maz_scaled$max_steelhead==col, 
+                                     bizdata_maz_scaled[[col]] + bizdata_maz_scaled[["steelhead_diff"]],
+                                     bizdata_maz_scaled[[col]])
+}
+
+for (col in naics2_cols) {
+  bizdata_maz_scaled[col] <- if_else(bizdata_maz_scaled$max_naics2==col, 
+                                     bizdata_maz_scaled[[col]] + bizdata_maz_scaled[["naics2_diff"]],
+                                     bizdata_maz_scaled[[col]])
+}
+
+for (col in abag6_cols) {
+  bizdata_maz_scaled[col] <- if_else(bizdata_maz_scaled$max_abag6==col, 
+                                     bizdata_maz_scaled[[col]] + bizdata_maz_scaled[["abag6_diff"]],
+                                     bizdata_maz_scaled[[col]])
+}
+
+# verify rounded and scaled subtotals sum to total
+
+bizdata_maz_scaled <- bizdata_maz_scaled %>% 
+  mutate(steelhead_subtotal = rowSums(select(bizdata_maz_scaled, steelhead_cols)),
+         naics2_subtotal    = rowSums(select(bizdata_maz_scaled, naics2_cols)),
+         abag6_subtotal     = rowSums(select(bizdata_maz_scaled, abag6_cols)),
+         
+         steelhead_diff  = TOTEMP - steelhead_subtotal,
+         naics2_diff     = TOTEMP - naics2_subtotal,
+         abag6_diff      = TOTEMP - abag6_subtotal,
+         )
+
+stopifnot(all(bizdata_maz_scaled$steelhead_diff == 0 & bizdata_maz_scaled$naics2_diff == 0 &
+                bizdata_maz_scaled$abag6_diff == 0))
+
+# Clean up file for final export
+
+final <- bizdata_maz_scaled %>% 
+  select(-"max_steelhead", -"steelhead_subtotal", -"steelhead_diff", -"max_naics2", 
+         -"naics2_subtotal", -"naics2_diff", -"max_abag6", -"abag6_subtotal", 
+         -"abag6_diff") 
 
 # Output file
 
-write.csv(bizdata_maz_all, file.path(output_location,output_maz_industry_file), row.names = FALSE, quote = T)
+write.csv(final, file.path(output_location,output_maz_industry_file), row.names = FALSE, quote = T)
 
 
 
