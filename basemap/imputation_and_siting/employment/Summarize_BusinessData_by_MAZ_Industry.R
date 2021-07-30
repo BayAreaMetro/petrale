@@ -94,7 +94,7 @@ bizdata_maz_total <- bizdata_joined %>%
 bizdata_maz_steelhead <- bizdata_joined %>% 
   group_by(TM2_MAZ,steelhead) %>% 
   summarize(employment=sum(EMPNUM)) %>% 
-  ungroup
+  ungroup()
 
 tm2_maz_dummy <- tm2_maz_shp %>% 
   mutate(steelhead="dummy",employment=-999)
@@ -112,7 +112,7 @@ bizdata_maz_naics2 <- bizdata_joined %>%
   group_by(TM2_MAZ,naics2) %>% 
   summarize(employment=sum(EMPNUM)) %>% 
   mutate(naics2=paste0("emp_sec",naics2)) %>% 
-  ungroup
+  ungroup()
 
 tm2_maz_dummy <- tm2_maz_dummy %>% 
   rename(naics2=steelhead) 
@@ -128,7 +128,7 @@ bizdata_maz_naics2 <- bizdata_maz_naics2 %>%
 bizdata_maz_abag6 <- bizdata_joined %>% 
   group_by(TM2_MAZ,abag6) %>% 
   summarize(employment=sum(EMPNUM)) %>% 
-  ungroup
+  ungroup()
 
 tm2_maz_dummy <- tm2_maz_dummy %>% 
   rename(abag6=naics2) 
