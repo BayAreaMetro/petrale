@@ -10,9 +10,8 @@
    be updated by changing the *ACS_year* variable. 
 
 2. 2010 decennial census household data at the block level were used to develop the share of households by
-   each maz/block group combination relative to the block group total. That share was then applied to each
-   household income category. Data were then totaled, rounded, with the largest income column adjusted so subtotals
-   equal totals. 
+   maz to block group. That share was then applied to each household income category. Data were then totaled, 
+   rounded, with the largest income column (i.e., column with the most hhs) adjusted so subtotals equal totals. 
    
 "
 # Import Libraries
@@ -28,54 +27,20 @@ baycounties          <- c("01","13","41","55","75","81","85","95","97")
 
 
 ACS_year <- 2017
-sf1_year <- 2010
 ACS_product="5"
 state_code ="06"
 
 # Set input path locations and working directory
 
-USERPROFILE          <- gsub("\\\\","/", Sys.getenv("USERPROFILE"))
-block_MAZ_TAZ_in     <- file.path(USERPROFILE,"Documents","GitHub","travel-model-two","maz_taz","blocks_mazs_tazs_v2.2.csv")
-
+USERPROFILE     <- gsub("\\\\","/", Sys.getenv("USERPROFILE"))
 wd <- paste0(USERPROFILE,"/Box/Modeling and Surveys/Development/Travel Model Two Development/Model Inputs/Land Use")
 setwd(wd)
 
-# Make decennial census calls, configure file for later joining
+# Bring in maz to blockgroup share file
 
-totalhhs <- "H016001"           # 2010 variable for decennial total households
+maz_to_bg_in    <- file.path(USERPROFILE,"Documents","GitHub","travel-model-two","maz_taz","crosswalks","Census 2010 hhs maz share of blockgroups.csv")
 
-sf1_block_hhs <- get_decennial(geography = "block", variables = totalhhs,
-                               state = state_code, county=baycounties,
-                               year=2010,
-                               output="wide",
-                               key=censuskey) %>% 
-  rename(GEOID10 = GEOID,hhs=H016001) %>% 
-  mutate(GEOID10 = as.numeric(GEOID10)) %>% 
-  select(-NAME)
-
-# Bring in block to MAZ/TAZ equivalence and join with census HH file
-
-block_MAZ_TAZ    <- read.csv(block_MAZ_TAZ_in,header = T) %>% 
-  left_join(.,sf1_block_hhs,by="GEOID10")
-
-# Generate block group ID from block strings (note that leading zero for state FIPS falls off in numeric conversion)
-# Summarize household total by block group 
-# Calculate block share of total block group hhs 
-# The calculated shares will be used to apportion block group households to MAZs
-# Watch for divide-by-zero error when calculating shares in if/else statement
-
-bg_MAZ    <- block_MAZ_TAZ %>% 
-  mutate(bg=as.numeric(substr(GEOID10,1,11))) %>% 
-  select(-taz)
-
-bg_total <- bg_MAZ %>% 
-  group_by(bg) %>% 
-  summarize(total_bg_hhs=sum(hhs)) %>% 
-  ungroup() 
-
-block_share <- bg_MAZ %>% 
-  left_join(.,bg_total,by="bg") %>% 
-  mutate(sharebg=if_else(total_bg_hhs==0,0,hhs/total_bg_hhs))
+maz_to_bg       <- read.csv(maz_to_bg_in,header = T)
               
 # ACS household income variables
 # Make ACS API call, rename variables, and select estimates to remove margin-of-error values
@@ -121,72 +86,62 @@ acs_income <- get_acs(geography = "block group", variables = hh_income_vars,
                     hhinc125_150E = B19001_015E,
                     hhinc150_200E = B19001_016E,
                     hhinc200pE = B19001_017E) %>% 
-  mutate(bg=as.numeric(GEOID))
+  mutate(blockgroup=as.numeric(GEOID))
 
 # Income table - Guidelines for HH income values used from ACS
-# Use CPI values from 2017 and 2000 to get inflation values right
+# Use CPI values from 2017 and 2010 to get inflation values right
 
 "
 
 CPI_current <- 274.92                             # CPI value for 2017
-CPI_reference <- 180.20                           # CPI value for 2000
-CPI_ratio <- CPI_current/CPI_reference = 1.525638 # 2017 CPI/2000 CPI
+CPI_current <- 227.47                             # CPI value for 2010
+CPI_ratio2010 <- CPI_current/CPI_reference = 1.208599 # 2017 CPI/2010 CPI
 
-
-    2000 income breaks 2017 CPI equivalent   Nearest 2017 ACS breakpoint
+    2010 income breaks 2017 CPI equivalent   Nearest 2017 ACS breakpoint
     ------------------ -------------------   ---------------------------
-    $30,000            $45,769               $45,000
-    $60,000            $91,538               $91,538* 
-    $100,000           $152,564              $150,000
+    $30,000            $36,258               $35,000
+    $60,000            $72,516               $75,000 
+    $100,000           $120,860              $125,000
     ------------------ -------------------   ---------------------------
 
-    * Because the 2017$ equivalent of $60,000 in 2000$ ($91,538) doesn't closely align with 2017 ACS income 
-      categories, households within the $75,000-$99,999 category will be apportioned above and below $91,538. 
-      Using the ACS 2013-2017 PUMS data, the share of Bay Area households above $91,538 within the $75,000-$99,999 
-      category is 0.3113032.That is, approximately 30 percent of HHs in the $75,000-$99,999 category will be 
-      apportioned above this value (Q3) and 70 percent below it (Q2). The table below compares 2000$ and 2017$.
-
-Household Income Category Equivalency, 2000$ and 2017$
+Household Income Category Equivalency, 2010$ and 2017$
 
           Year      Lower Bound     Upper Bound
           ----      ------------    -----------
-HHINCQ1   2000      $-inf           $29,999
-          2017      $-inf           $44,999
-HHINCQ2   2000      $30,000         $59,999
-          2017      $45,000         $91,537
-HHINCQ3   2000      $60,000         $99,999
-          2017      $91,538         $149,999
-HHINCQ4   2000      $100,000        $inf
-          2017      $150,000        $inf
+HHINCQ1   2010      $-inf           $29,999
+          2017      $-inf           $34,999
+HHINCQ2   2010      $30,000         $59,999
+          2017      $35,000         $74,999
+HHINCQ3   2010      $60,000         $99,999
+          2017      $75,000         $124,999
+HHINCQ4   2010      $100,000        $inf
+          2017      $125,000        $inf
           ----      -------------   -----------
 
 "
 
-shareabove91538 <- 0.3113032 # Use this value to later divvy up HHs in the 30-60k and 60-100k respective quartiles.
-
-
-# Join 2013-2017 ACS block group and block group/MAZ combination datasets
+# Join 2013-2017 ACS block group and maz to block group shares files
 # Combine and collapse ACS categories to get appropriate TM2 categories
-# Apply share of 2013-2017 ACS variables using block group/MAZ combination share of 2010 total households
+# Apply shares of 2013-2017 ACS variables from maz to block group file
 
-workingdata <- left_join(block_share,acs_income, by="bg") %>% 
+workingdata <- left_join(maz_to_bg,acs_income, by="blockgroup") %>% 
   mutate(
   HHINCQ1=(hhinc0_10E+
              hhinc10_15E+
              hhinc15_20E+
              hhinc20_25E+
              hhinc25_30E+
-             hhinc30_35E+
-             hhinc35_40E+
-             hhinc40_45E)*sharebg,
-  HHINCQ2=(hhinc45_50E+
+             hhinc30_35E)*maz_share,
+  HHINCQ2=(hhinc35_40E+
+             hhinc40_45E+
+             hhinc45_50E+
              hhinc50_60E+
-             hhinc60_75E+
-             (hhinc75_100E*(1-shareabove91538)))*sharebg, # Apportions HHs below $91,538 within $75,000-$100,000
-  HHINCQ3=((hhinc75_100E*shareabove91538)+                # Apportions HHs above $91,538 within $75,000-$100,000
-             hhinc100_125E+
-             hhinc125_150E)*sharebg,
-  HHINCQ4=(hhinc150_200E+hhinc200pE)*sharebg)
+             hhinc60_75E)*maz_share,
+  HHINCQ3=(hhinc75_100E+                
+             hhinc100_125E)*maz_share,
+  HHINCQ4=(hhinc125_150E+
+             hhinc150_200E+
+             hhinc200pE)*maz_share)
 
 # Summarize data by MAZ
 # Now set up dataset to round and adjust column values such that subtotals match totals
