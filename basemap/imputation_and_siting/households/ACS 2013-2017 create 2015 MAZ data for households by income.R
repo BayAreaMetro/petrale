@@ -38,7 +38,7 @@ setwd(wd)
 
 # Bring in maz to blockgroup share file
 
-maz_to_bg_in    <- file.path(USERPROFILE,"Documents","GitHub","travel-model-two","maz_taz","crosswalks","Census 2010 hhs maz share of blockgroups.csv")
+maz_to_bg_in    <- file.path(USERPROFILE,"Documents","GitHub","travel-model-two","maz_taz","crosswalks","Census 2010 hhs maz share of blockgroups_ACS2017.csv")
 
 maz_to_bg       <- read.csv(maz_to_bg_in,header = T)
               
