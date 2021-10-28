@@ -2,17 +2,18 @@ USAGE = """
 
 Create zoning_mods-level spatial data in three steps:
 1) join p10 parcel data with parcel-level zoningmods_attributes.csv
-2) dissolve the joined layer by zoning_mods geography (fbpzoningm for Final Blueprint)
+2) dissolve the joined layer by zoning_mods geography (fbpzoningmodcat for Final Blueprint)
 3) join the dissolved layer with zoning_mods.csv which contains upzoning information
 
-Run the script in ArcGIS env. Example directory: 
-C:\\Users\\ywang\\AppData\\Local\\Programs\\ArcGIS\\Pro\\bin\\Python\\envs\\arcgispro-py3
-or
-C:\\Program Files\\ArcGIS\\Pro\\bin\\Python\\envs\\arcgispro-py3
+Run the script in the desired folder for the output .gdb
+
+Use ArcGIS python for arcpy:
+set PATH=C:\\Program Files\\ArcGIS\\Pro\\bin\\Python\\envs\\arcgispro-py3
+   or set PATH=C:\\Users\\ywang\\AppData\\Local\\Programs\\ArcGIS\\Pro\\bin\\Python\\envs\\arcgispro-py3
 
 """
 
-# example run: 
+# example run:
 # set BAUS_DIR=%USERPROFILE%\Documents\bayarea_urbansim
 # set FBP_DIR=%USERPROFILE%\Box\Modeling and Surveys\Urban Modeling\Bay Area UrbanSim\PBA50\Current PBA50 Large General Input Data
 # python zoningmods_map.py -folder .
@@ -20,7 +21,7 @@ C:\\Program Files\\ArcGIS\\Pro\\bin\\Python\\envs\\arcgispro-py3
 #                          -p10_layer p10
 #                          -parcels_geography "%FBP_DIR%\2020_09_21_parcels_geography.csv" 
 #                          -zmods_csv "%BAUS_DIR%\data\zoning_mods_24.csv"
-#                          -zmodcat_col fbpzoningm
+#                          -zmodcat_col fbpzoningmodcat
 #                          -join_field PARCEL_ID 
 #                          -join_type KEEP_ALL
 #                          -output_gdb "FinalBlueprint_ZoningMods_20201002.gdb" 
@@ -60,7 +61,7 @@ if __name__ == '__main__':
     parser.add_argument("-p10_layer",      metavar="p10_layer",   help="p10 parcel layer")
     parser.add_argument("-parcels_geography", help="Parcels geography layer (maps parcels to zoning mod category)")
     parser.add_argument("-zmods_csv",      metavar="zmods.csv",   help="Zoning mods definition for zoning mod categories")
-    parser.add_argument("-zmodcat_col",    help="Zoning mod category column. e.g. pba50zoningmodcat or fbpzoningm")
+    parser.add_argument("-zmodcat_col",    help="Zoning mod category column. e.g. pba50zoningmodcat or fbpzoningmodcat")
     parser.add_argument("-join_field",     metavar="join_field",  help="Join field for parcel-zmods join")
     parser.add_argument("-join_type",      choices=["KEEP_ALL","KEEP_COMMON"], default="KEEP_ALL", 
                         help="Outer join vs inner join.  Default is KEEP_ALL, or outer")
@@ -115,7 +116,8 @@ if __name__ == '__main__':
     zmod_attr_values.dtype.names = tuple(zmod_attr.dtypes.index.tolist())
     zmod_attr_table_path = os.path.join(args.folder, args.output_gdb, zmod_attr_table)
     arcpy.da.NumPyArrayToTable(zmod_attr_values, zmod_attr_table_path)
-    print("Created {}".format(zmod_attr_table_path))
+    print("Created {} with {} records".format(zmod_attr_table_path,
+                                              arcpy.GetCount_management(zmod_attr_table_path)))
 
     # target layer
     p10 = os.path.join(args.folder, args.input_gdb, args.p10_layer)
@@ -142,8 +144,7 @@ if __name__ == '__main__':
                                                 zmod_attr_table, args.join_field,
                                                 join_type=args.join_type)
 
-    zmod_attr_version = args.parcels_geography.split('.')[0].split('_')[-1]
-    p_zmod_attr_joined = "p10_zmod_attr_joined_{}".format(zmod_attr_version)
+    p_zmod_attr_joined = "p10_zmod_attr_joined"
 
     # delete the layer if it already exists in the output gdb
     if arcpy.Exists(p_zmod_attr_joined):
@@ -161,7 +162,8 @@ if __name__ == '__main__':
 
     print("Dissolve {} on field: {}".format(p_zmod_attr_joined,
                                             [zmod_attr_table+'_'+args.zmodcat_col]))
-    p_zmod_dissolved = 'p10_zmods_dissolved_{}'.format(zmod_attr_version)
+    #p_zmod_dissolved = 'p10_zmods_dissolved_{}'.format(zmod_attr_version)
+    p_zmod_dissolved = 'p10_zmods_dissolved'
 
     # delete the layer if it already exists in the output gdb
     if arcpy.Exists(p_zmod_dissolved):
