@@ -14,20 +14,21 @@ This assessors data provides the map the integrates all building data and the at
 ## Add Additional Building Information
 We then bring in addiitonal building info from other sources. Some of this data is so good that we may just replace the assessors data. Other times each source has info the others lack. Ideally, all data from all sources is brought together and then compared for similarity, holes, etc so that the best choices can be made for building a single best integrated map of buildings and their attributes. (Unfortunately, this is complicated by temporal and spatial mismatches among other problems).
 ### Bring in CoStar data for commercial buildings and apartments
-So far, these replace assessor values completely. This database is proprietary and of fairly high quality though some locations require manual editing to ensure a partial match.
+CoStar is a high quality, proprietary database that cover almost everything that "can be rented." So it has office, retail, industrial, warehouse, etc, with almost every commercial building in the region. It also has apartments but no condos or SFDs. So far, we've replaced assessor values almost completely when Costar exists. The only big problem with this seems to be a small rentable space at an institution like UC Berkeley. Don't want to repalce a lot of classrooms and labs with one small restaurant. 
 ### Bring in Redfin residential transaction data for ownership housing
-This is a subset of recent sales. Can be about the same quality as assessors or a bit better. Have played with a mix of replacing assessors’ data (where a Redfin record exists) or replacing only missing values or assessors’ records. Sales values are useful to buil hedonic model
+This is a subset of recent sales. Can be about the same quality as assessors or a bit better. Have played with a mix of replacing assessors’ data (where a Redfin record exists) or replacing only missing values or assessors’ records. Sales values are useful to build the residential ownership hedonic model.
 ### Add in additional buildings (government, schools, institutional). 
 These are not represented by any of the above datasets; Mike has built a custom list. 
 
-
 ## Impute and Clean
+After trying to build the best "raw" map of the baseyear by combining datasets, the next step is to impute missing values and records. This could be filling in missing data using nearby records or adding units or records to match zonal totals. 
 ### Impute missing housing unit values 
 (Currently in pre-processing module in BAUS) 
 ### Impute missing commercial space values 
 in pre-processing module in BAUS
 ### Impute housing units
 add additional units to existing residential buildings to meet adjusted zonal census totals
+Ideally, this step and the previous ones can be repeated: when there aren't enough units 
 ### Impute commercial space
 add additional square feet using the additional buildings table to meet zonal job totals (this is more rare but matters in a few spots)
 
