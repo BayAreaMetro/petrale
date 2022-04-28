@@ -21,7 +21,7 @@ This is a subset of recent sales. Can be about the same quality as assessors or 
 These are not represented by any of the above datasets; Mike has built a custom list. 
 
 ## Impute and Zonal QA/QC
-After trying to build the best "raw" map of the baseyear by combining datasets, the next step is to impute missing values and records. This could be filling in missing data using nearby records or adding units or records to match zonal totals. Any of thes imputations could be made uneccessary by returning to the raw data to add information from other datasets, process refinement, or new research (i.e., look up online one-off information to fill in holes. 
+After trying to build the best "raw" map of the baseyear by combining datasets, the next step is to impute missing values and records. This could be filling in missing data using nearby records or adding units or records to match zonal totals. Any of thes imputations could be made uneccessary by returning to the raw data to add information from other datasets, process refinement, or new research (i.e., look up online one-off information to fill in holes)  So this isna key part of the QA/QC process: you will emd up needing to add some values, HUs, and commercial space to martch zonal totals but it is better to spend some time trying to fix the biggest gaps by looking for bus or bringing in manual research.
 ### Impute missing housing unit values 
 (Currently in pre-processing module in BAUS) 
 ### Impute missing commercial space values 
