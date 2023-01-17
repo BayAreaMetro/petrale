@@ -386,21 +386,21 @@ if __name__ == '__main__':
         logger.warning('parcel_output not exist for {}'.format(RUN_ID))
 
 
-############ TODO: process model input and interim data
+    ############ TODO: process model input and interim data
 
 
-############ update run inventory log
+    ############ update run inventory log
 
-logger.info('adding the new run to model run inventory')
-model_run_inventory = pd.read_csv(MODEL_RUN_INVENTORY_FILE)
-logger.info('previous runs: {}'.format(model_run_inventory))
+    logger.info('adding the new run to model run inventory')
+    model_run_inventory = pd.read_csv(MODEL_RUN_INVENTORY_FILE)
+    logger.info('previous runs: {}'.format(model_run_inventory))
 
-# append the info of the new run
-NEW_RUN_INFO = [int(RUN_ID.split('run')[1]), RUN_SCENARIO, SCENARIO_GROUP, RUN_DESCRIPTION, LAST_RUN, MOEDL_RUN_DIR]
-logger.info('adding info of the new run: {}'.format(NEW_RUN_INFO))
-model_run_inventory.loc[len(model_run_inventory.index)] = NEW_RUN_INFO
+    # append the info of the new run
+    NEW_RUN_INFO = [int(RUN_ID.split('run')[1]), RUN_SCENARIO, SCENARIO_GROUP, RUN_DESCRIPTION, LAST_RUN, MOEDL_RUN_DIR]
+    logger.info('adding info of the new run: {}'.format(NEW_RUN_INFO))
+    model_run_inventory.loc[len(model_run_inventory.index)] = NEW_RUN_INFO
 
-# TODO: if a new run of the same scenario was added, update previous runs of the same scenario to 'last_run' = 'no'
+    # TODO: if a new run of the same scenario was added, update previous runs of the same scenario to 'last_run' = 'no'
 
-# write out the updated inventory table
-model_run_inventory.to_csv(UPDATED_MODEL_RUN_INVENTORY_FILE, index=False)
+    # write out the updated inventory table
+    model_run_inventory.to_csv(UPDATED_MODEL_RUN_INVENTORY_FILE, index=False)
