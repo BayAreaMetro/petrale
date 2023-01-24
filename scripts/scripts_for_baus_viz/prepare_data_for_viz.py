@@ -76,6 +76,29 @@ if __name__ == '__main__':
     DR_UNITS_GROWTH_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_dr_units_growth.csv'.format(RUN_ID))
     UPDATED_MODEL_RUN_INVENTORY_FILE = 'M:\\Data\\Urban\\BAUS\\visualization_design\\data\\model_run_inventory.csv'
 
+
+    ############ helpers
+
+    # dictionary to recode building 'source' - appear both in 'parcel_output' and 'development_projects_list'
+    building_source_recode = {
+        'manual'            : 'Pipeline',
+        'cs'                : 'Pipeline',
+        'basis'             : 'Pipeline',
+        'bas_bp_new'        : 'Pipeline', 
+        'rf'                : 'Pipeline',
+        'opp'               : 'Pipeline',
+
+        'developer_model'   : 'Developer Model',
+        
+        'h5_inputs'         : 'H5 Inputs',
+        
+        'pub'               : 'Public Land',
+        'mall_office'       : 'Mall & Office Park',
+        'incubator'         : 'Incubator',
+        'ppa'               : 'PPA'
+    }
+
+
     ############ set up logging
     # create logger
     logger = logging.getLogger(__name__)
@@ -365,12 +388,15 @@ if __name__ == '__main__':
         'job_spaces', 'non_residential_sqft', 'residential', 'residential_sqft', 'residential_units', 
         'source', 'total_residential_units', 'total_sqft', 
         'x', 'y', 'year_built']
-    
+
     try:
         parcel_output_df = pd.read_csv(
             file_dir,
             usecols = keep_cols)
         logger.info('parcel_output has {} rows'.format(parcel_output_df.shape[0]))
+
+        # recode 'source' to be consistent with 
+        parcel_output_df['source_cat'] = parcel_output_df['source'].map(building_source_recode)
 
         # TODO: modify field types - e.g. year_built integer
         logger.debug('field types: \n{}'.format(parcel_output_df.dtypes))
@@ -392,13 +418,18 @@ if __name__ == '__main__':
     ############ update run inventory log
 
     logger.info('adding the new run to model run inventory')
-    model_run_inventory = pd.read_csv(MODEL_RUN_INVENTORY_FILE)
+    model_run_inventory = pd.read_csv(
+        MODEL_RUN_INVENTORY_FILE,
+        dtype = {'runid': int})
     logger.info('previous runs: {}'.format(model_run_inventory))
 
     # append the info of the new run
-    NEW_RUN_INFO = [int(RUN_ID.split('run')[1]), RUN_SCENARIO, SCENARIO_GROUP, RUN_DESCRIPTION, LAST_RUN, MOEDL_RUN_DIR]
-    logger.info('adding info of the new run: {}'.format(NEW_RUN_INFO))
-    model_run_inventory.loc[len(model_run_inventory.index)] = NEW_RUN_INFO
+    if int(RUN_ID.split('run')[1]) not in model_run_inventory['runid']:
+        NEW_RUN_INFO = [int(RUN_ID.split('run')[1]), RUN_SCENARIO, SCENARIO_GROUP, RUN_DESCRIPTION, LAST_RUN, MOEDL_RUN_DIR]
+        logger.info('adding info of the new run: {}'.format(NEW_RUN_INFO))
+        model_run_inventory.loc[len(model_run_inventory.index)] = NEW_RUN_INFO
+    else:
+        logger.info('run already in the inventory')
 
     # TODO: if a new run of the same scenario was added, update previous runs of the same scenario to 'last_run' = 'no'
 
