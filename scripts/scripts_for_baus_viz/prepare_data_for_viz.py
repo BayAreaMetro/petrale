@@ -63,12 +63,26 @@ if __name__ == '__main__':
     JURIS_NAME_CROSSWALK_FILE = 'M:\\Data\\Urban\\BAUS\\visualization_design\\data\\data_viz_ready\\crosswalks\\juris_county_id.csv'
     MODEL_RUN_INVENTORY_FILE = 'M:\\Data\\Urban\\BAUS\\visualization_design\\data\\model_run_inventory.csv'
 
-    # OUTPUT - data for visualization
+    # OUTPUT - folder for visualization data
     VIZ_DIR = 'M:\\Data\\Urban\\BAUS\\visualization_design'
     VIA_DATA_DIR = os.path.join(VIZ_DIR, 'data')
     VIZ_READY_DATA_DIR = os.path.join(VIA_DATA_DIR, 'data_viz_ready', 'csv_v2')
     LOG_FILE = os.path.join(VIZ_READY_DATA_DIR, "prepare_data_for_viz_{}_{}.log".format(RUN_ID, today))
 
+    # OUTPUT - model inputs
+    REGIONAL_CONTROLS_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_regional_controls.csv'.format(RUN_ID))
+    PIPELINE_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_pipeline.csv'.format(RUN_ID))
+    STRATEGY_PROJECT_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_projects.csv'.format(RUN_ID))
+    STRATEGY_UPZONING_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_upzoning.csv'.format(RUN_ID))
+    STRATEGY_INCLUSIONARY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_IZ.csv'.format(RUN_ID))
+    STRATEGY_HOUSING_BOND_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_housingBond.csv'.format(RUN_ID))
+    STRATEGY_DEV_COST_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_devCost.csv'.format(RUN_ID))
+    STRATEGY_PRESERVE_TARGET_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_unitPreserve_target.csv'.format(RUN_ID))
+    STRATEGY_PRESERVE_QUALIFY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_unitPreserve.csv'.format(RUN_ID))
+
+    # OUTPUT - model interim data
+
+    # OUTPUT - model outputs
     TAZ_SUMMARY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_taz_summary.csv'.format(RUN_ID))
     JURIS_SUMMARY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_juris_summary.csv'.format(RUN_ID))
     GROWTH_GEOS_SUMMARY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_growth_geos_summary.csv'.format(RUN_ID))
@@ -412,7 +426,176 @@ if __name__ == '__main__':
         logger.warning('parcel_output not exist for {}'.format(RUN_ID))
 
 
-    ############ TODO: process model input and interim data
+    ############ process model input and interim data
+    logger.info('start processing model inputs')
+
+    ## pipeline projects and strategy-based asserted projects
+    # NOTE: the two datasets now are in one table; they will be in separately tables per the BASIS process
+    dev_project_file = os.path.join(RAW_INPUT_DIR, 'basis_inputs', 'parcels_buildings_agents', '2021_0309_1939_development_projects.csv')
+    dev_project_df = pd.read_csv(dev_project_file)  
+    logger.info(
+        'loaded {} rows of development projects, containing the following source: \n{}'.format(
+            dev_project_df.shape[0],
+            dev_project_df['source'].unique()))
+
+    # split the data by two categories of "source"
+    pipeline_df = dev_project_df.loc[dev_project_df.source.isin(['manual', 'cs', 'basis', 'bas_bp_new', 'rf', 'opp'])][[
+                    'development_projects_id', 'site_name', 'action',
+                    'x', 'y', 'year_built', 'building_type', 'source',
+                    'building_sqft', 'non_residential_sqft', 'residential_units',
+                    'tenure', 'deed_restricted_units']]
+    pipeline_df['source_cat'] = pipeline_df['source'].map(building_source_recode)
+
+    strategy_projects_df = dev_project_df.loc[dev_project_df.source.isin(['pub', 'mall_office', 'incubator', 'ppa'])][[
+                    'development_projects_id', 'site_name', 'action',
+                    'x', 'y', 'year_built', 'building_type', 'source',
+                    'building_sqft', 'non_residential_sqft', 'residential_units',
+                    'tenure', 'deed_restricted_units']]
+    strategy_projects_df['source_cat'] = strategy_projects_df['source'].map(building_source_recode)
+
+    # export
+    pipeline_df.to_csv(PIPELINE_FILE, index=False)
+    logger.info('wrote out {} rows of pipeline data to {}'.format(pipeline_df.shape[0], PIPELINE_FILE))
+    strategy_projects_df.to_csv(STRATEGY_PROJECT_FILE, index=False)
+    logger.info('wrote out {} rows of strategy-based projects data to {}'.format(strategy_projects_df.shape[0], STRATEGY_PROJECT_FILE))
+
+    ## regional controls
+    hh_control_df = os.path.join(RAW_INPUT_DIR, 'regional_controls', 'household_controls.csv')
+    emp_control_df = os.path.join(RAW_INPUT_DIR, 'regional_controls', 'employment_controls.csv')
+
+    def consolidate_regional_control(hh_control_df_raw, emp_control_df_raw):
+        """
+        stack and consolidate regional household controls and employment controls for Tableau viz
+        """
+        hh_control_df_raw.set_index('year', inplace=True)
+        hh_control_df = hh_control_df_raw.stack().reset_index()
+        hh_control_df.columns = ['year', 'breakdown', 'hh_control']
+
+        emp_control_df_raw.set_index('year', inplace=True)
+        emp_control_df = emp_control_df_raw.stack().reset_index()
+        emp_control_df.columns = ['year', 'breakdown', 'emp_control']
+
+        control_df = pd.concat([hh_control_df, emp_control_df])
+        control_df.fillna(0, inplace=True)
+
+        return control_df
+
+    regional_controls_df = consolidate_regional_control(hh_control_df, emp_control_df)
+    # write out
+    regional_controls_df.to_csv(REGIONAL_CONTROLS_FILE, index=False)
+    logger.info('wrote out {} rows of regional controls data to {}'.format(regional_controls_df.shape[0], REGIONAL_CONTROLS_FILE))
+
+    ## strategy - upzoning
+    logger.info('process strategy zoming_mods')
+    # load the data
+    zmod_df = pd.read_csv(os.path.join(RAW_INPUT_DIR, 'plan_strategies', 'zoning_mods.csv'))
+    # only keep needed fields
+    zmod_df = zmod_df[['fbpzoningmodcat', 'dua_up', 'far_up', 'dua_down', 'far_down']]
+    # make column names Plan-/scenario-agnostic
+    zmod_df.rename(columns = {'fbpzoningmodcat': 'zoningmodcat'}, inplace=True)
+    zmod_df['geo_type'] = 'zoningmodcat_fbp'
+    # write out
+    zmod_df.to_csv(STRATEGY_UPZONING_FILE, index=False)
+
+    ## strategies in the yaml file
+    logger.info('process strategies in policy.yaml')
+    policy_input = os.path.join(RAW_INPUT_DIR, 'plan_strategies', 'policy.yaml')
+
+    # policy_input = os.path.join(r'C:\Users\ywang\Box\Modeling and Surveys\Urban Modeling\Bay Area UrbanSim\PBA50Plus_Development\Clean Code PR #3\inputs', 'plan_strategies', 'policy.yaml')
+
+    with open(policy_input, 'r') as stream:
+        try:
+            f = yaml.safe_load(stream)
+            print(f)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+    # strategy - inclusionary zoning
+
+    def explode_df_list_col_to_rows(df, list_col):
+        """
+        Explode dataframe where one column contains list values.
+        
+        list_col: name of the column whose values are lists
+
+        Example:
+        - input df : pd.DataFrame({'non_list_col': [1, 2], 'list_col': [['a', 'b'], 'c']})
+        - output df: pd.DataFrame({'non_list_col': [1, 1, 2], 'list_col': ['a', 'b', 'c']})
+
+        """
+        # get columns whose values will be repeated for each item in the list of the list column
+        repeating_cols = list(df)
+        # print(list_col)
+        repeating_cols.remove(list_col)
+        # print(repeating_cols)
+
+        tmp_dict = {}
+        # iterate through rows and each item of each list; add the values to a temp dictionary
+        for i in range(df.shape[0]):
+            # print(i)
+            # print(df.iloc[i, :][list_col])
+            for list_item in df.iloc[i, :][list_col]:
+                # print(list_item)
+                # print(df.iloc[i, :][repeating_cols])
+                tmp_dict[list_item] = df.iloc[i, :][repeating_cols]
+        
+        exploded_df = pd.DataFrame.from_dict(tmp_dict, orient='index').reset_index()
+
+        return exploded_df
+
+
+    def inclusionary_yaml_to_df(yaml_f):
+        """
+        Extract inclusionary settings in yaml based on scenario and convert to dataframe.
+        
+        Args:
+        - yaml_f: yaml file
+        - scen: scenarions in string, including 'default' for NoProject
+        - geo_type: 'jurisdiction' or 'fbpchcat' in string
+        
+        Return:
+        - inclusionary_df: a dataframe of two columns: 
+            geo_type: type of inclusionary-zoning policy geography, to be joined to policy-geographies
+            'geography': inclusionary-zoning policy geography,
+            scenario: scenario,
+            'value': the inclusionary zoning value in percentage.
+        """
+        
+        # get the inclusionary setting of the target scenario
+        IZ_raw = yaml_f['inclusionary_housing_settings']
+        print('inclusionary data contains the following scenarios: {}'.format(IZ_raw.keys()))
+    #     print(inclusionary_raw)
+        
+        # convert default and strategy into dataframes
+        try:
+            print('process default IZ data')
+            IZ_default_raw_df = pd.DataFrame(IZ_raw['default'])
+            IZ_default_df = explode_df_list_col_to_rows(IZ_default_raw_df, 'values')
+            IZ_default_df.rename(columns = {'type': 'geo_type',
+                                            'index': 'geo_category'}, inplace=True)
+
+        except:
+            print('no default IZ data')
+
+        try:
+            print('process strategy IZ data')
+            IZ_strategy_raw_df = pd.DataFrame(IZ_raw['inclusionary_strategy'])
+            IZ_strategy_df = explode_df_list_col_to_rows(IZ_strategy_raw_df, 'values')
+            IZ_strategy_df.rename(columns = {'type': 'geo_type',
+                                            'index': 'geo_category'}, inplace=True)
+        except:
+            print('no strategy IZ data')
+
+        return (IZ_default_df, IZ_strategy_df)
+
+
+    # get default IZ and IZ strategy tables
+    IZ_default_df, IZ_strategy_df = inclusionary_yaml_to_df(f)
+
+    # strategy - housing bond subsidies
+
+
+
 
 
     ############ update run inventory log
