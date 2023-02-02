@@ -59,6 +59,11 @@ if __name__ == '__main__':
     else:
         LAST_RUN = 'yes'
 
+    # INPUT - growth geometries
+    # FBP growth geographies
+    FBPZONINGMODCAT_SYSTEM_FILE = 'M:\\Data\\Urban\\BAUS\\visualization_design\\data\\data_viz_ready\\crosswalks\\fbpzoningmodcat_attrs.csv'
+    EIRZONINGMODCAT_SYSTEM_FILE = 'M:\\Data\\Urban\\BAUS\\visualization_design\\data\\data_viz_ready\\crosswalks\\eirzoningmodcat_attrs.csv'
+
     # INPUT - other helper data
     JURIS_NAME_CROSSWALK_FILE = 'M:\\Data\\Urban\\BAUS\\visualization_design\\data\\data_viz_ready\\crosswalks\\juris_county_id.csv'
     MODEL_RUN_INVENTORY_FILE = 'M:\\Data\\Urban\\BAUS\\visualization_design\\data\\model_run_inventory.csv'
@@ -74,6 +79,7 @@ if __name__ == '__main__':
     PIPELINE_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_pipeline.csv'.format(RUN_ID))
     STRATEGY_PROJECT_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_projects.csv'.format(RUN_ID))
     STRATEGY_UPZONING_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_upzoning.csv'.format(RUN_ID))
+    BASELINE_INCLUSIONARY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_baseline_upzoning.csv'.format(RUN_ID))
     STRATEGY_INCLUSIONARY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_IZ.csv'.format(RUN_ID))
     STRATEGY_HOUSING_BOND_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_housingBond.csv'.format(RUN_ID))
     STRATEGY_DEV_COST_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_devCost.csv'.format(RUN_ID))
@@ -112,6 +118,8 @@ if __name__ == '__main__':
         'ppa'               : 'PPA'
     }
 
+    # dictionary to map strategy/policy geographies into the 'geo_type' tag, e.g. 
+    geo_type_dict = {}
 
     ############ set up logging
     # create logger
@@ -487,31 +495,39 @@ if __name__ == '__main__':
 
     ## strategy - upzoning
     logger.info('process strategy zoming_mods')
+
     # load the data
     zmod_df = pd.read_csv(os.path.join(RAW_INPUT_DIR, 'plan_strategies', 'zoning_mods.csv'))
+
     # only keep needed fields
     zmod_df = zmod_df[['fbpzoningmodcat', 'dua_up', 'far_up', 'dua_down', 'far_down']]
+
     # make column names Plan-/scenario-agnostic
-    zmod_df.rename(columns = {'fbpzoningmodcat': 'zoningmodcat'}, inplace=True)
-    zmod_df['geo_type'] = 'zoningmodcat_fbp'
+    if 'fbpzoningmodcat' in list(zmod_df):
+        zmod_df.rename(columns = {'fbpzoningmodcat': 'zoningmodcat'}, inplace=True)
+        zmod_df['geo_type'] = 'zoningmodcat_fbp'
+    elif 'eirzoningmodcat' in list(zmod_df):
+        zmod_df.rename(columns = {'fbpzoningmodcat': 'zoningmodcat'}, inplace=True)
+        zmod_df['geo_type'] = 'zoningmodcat_eir'
+    elif 'zoningmodcat' in list(zmod_df):
+        zmod_df['geo_type'] = 'zoningmodcat_generic'
+
     # write out
     zmod_df.to_csv(STRATEGY_UPZONING_FILE, index=False)
 
     ## strategies in the yaml file
-    logger.info('process strategies in policy.yaml')
     policy_input = os.path.join(RAW_INPUT_DIR, 'plan_strategies', 'policy.yaml')
-
+    logger.info('process inclusionary zoning existing policy and strategy from {}'.format(policy_input))
     # policy_input = os.path.join(r'C:\Users\ywang\Box\Modeling and Surveys\Urban Modeling\Bay Area UrbanSim\PBA50Plus_Development\Clean Code PR #3\inputs', 'plan_strategies', 'policy.yaml')
 
     with open(policy_input, 'r') as stream:
         try:
-            f = yaml.safe_load(stream)
-            print(f)
+            policy_yaml = yaml.safe_load(stream)
+            # print(policy_yaml)
         except yaml.YAMLError as exc:
             print(exc)
 
-    # strategy - inclusionary zoning
-
+    # a helper function to reformat the IZ data, called by 'inclusionary_yaml_to_df()'
     def explode_df_list_col_to_rows(df, list_col):
         """
         Explode dataframe where one column contains list values.
@@ -543,7 +559,7 @@ if __name__ == '__main__':
 
         return exploded_df
 
-
+    # a helper function to extract IZ data from policy.yaml
     def inclusionary_yaml_to_df(yaml_f):
         """
         Extract inclusionary settings in yaml based on scenario and convert to dataframe.
@@ -588,15 +604,126 @@ if __name__ == '__main__':
 
         return (IZ_default_df, IZ_strategy_df)
 
-
     # get default IZ and IZ strategy tables
-    IZ_default_df, IZ_strategy_df = inclusionary_yaml_to_df(f)
+    IZ_default_df, IZ_strategy_df = inclusionary_yaml_to_df(policy_yaml)
+    IZ_default_df.to_csv(BASELINE_INCLUSIONARY_FILE, index=False)
+    IZ_strategy_df.to_csv(STRATEGY_INCLUSIONARY_FILE, index=False)
 
     # strategy - housing bond subsidies
+    # first load the strategy geometry categories and attach strategy info as new columns
+    if RUN_SCENARIO in ['s24', 's25']:
+        zoningmodcat_df = pd.read_csv(FBPZONINGMODCAT_SYSTEM_FILE)
+    if RUN_SCENARIO in ['s28']:
+        zoningmodcat_df = pd.read_csv(EIRZONINGMODCAT_SYSTEM_FILE)
+    
+    # add column 'housing_bonds' to tag geography categories based on eligibility to receive bond subsidies
+    strategy_housing_bonds = zoningmodcat_df[['zoningmodcat', 'geo_type', 'shapefile_juris_name']].copy()
 
+    # baseline scenario with no strategy
+    strategy_housing_bonds['housing_bonds'] = 'Not qualify'
 
+    # scenarios with strategies
+    if RUN_SCENARIO in ['s24']:
+        qualify_idx = "gg_id == 'GG'"
+    elif RUN_SCENARIO in ['s28']:
+        qualify_idx = "gg_id == 'GG' and tra_id == 'NA' and sesit_id in ('HRA', 'HRADIS')"
+    strategy_housing_bonds.loc[strategy_housing_bonds.eval(qualify_idx), 'housing_bonds'] = 'Qualify'
+    logger.debug('housing_bond value counts: \n{}'.format(strategy_housing_bonds['housing_bonds'].value_counts(dropna=False)))
 
+    # write out
+    strategy_housing_bonds.to_csv(STRATEGY_HOUSING_BOND_FILE, index=False)
 
+    # strategy - development cost reduction, represented by columns 'housing_devCost_reduction_cat' and 'housing_devCost_reduction_amt'
+    strategy_devcost = zoningmodcat_df[['zoningmodcat', 'geo_type', 'shapefile_juris_name']].copy()
+
+    # baseline scenario with no strategy
+    strategy_devcost['housing_devCost_reduction_cat'] = 'None'
+    strategy_devcost['housing_devCost_reduction_amt'] = 0
+
+    # scenarios with strategies - 3 cost reduction tiers
+    if RUN_SCENARIO in ['s24', 's28']:
+        # tier 1: reduce dev cost by 0.025
+        cost_tier1_idx  = "gg_id == 'GG' and tra_id in ('tra1', 'tra2a', 'tra2b', 'tra2c') and sesit_id in ('HRA', 'HRADIS')"
+
+        # tier 2: reduce dev cost by 0.019
+        cost_tier2_idx_part1 = "gg_id == 'GG' and tra_id in ('tra1') and sesit_id in ('DIS', 'NA')"      # GG and tra1 and non-HRA
+        cost_tier2_idx_part2 = "gg_id == 'GG' and tra_id in ('tra3') and sesit_id in ('HRA', 'HRADIS')"  # GG and tra3 and HRA
+
+        # tier 3: reduce dev cost by 0.013
+        cost_tier3_idx_part1 = "gg_id == 'GG' and tra_id in ('tra3') and sesit_id in ('DIS', 'NA')"      # GG and tra3 and non-HRA
+        cost_tier3_idx_part2 = "gg_id == 'GG' and tra_id == 'NA' and sesit_id in ('HRA', 'HRADIS')"      # GG and non-TRA and HRA
+
+        # tag the columns base on cost reduction tier
+        strategy_devcost.loc[strategy_devcost.eval(cost_tier1_idx), 'housing_devCost_reduction_cat'] = 'Tier 1'
+        strategy_devcost.loc[strategy_devcost.eval(cost_tier1_idx), 'housing_devCost_reduction_amt'] = 0.025
+
+        strategy_devcost.loc[strategy_devcost.eval(cost_tier2_idx_part1), 'housing_devCost_reduction_cat'] = 'Tier 2'
+        strategy_devcost.loc[strategy_devcost.eval(cost_tier2_idx_part1), 'housing_devCost_reduction_amt'] = 0.019
+        strategy_devcost.loc[strategy_devcost.eval(cost_tier2_idx_part2), 'housing_devCost_reduction_cat'] = 'Tier 2'
+        strategy_devcost.loc[strategy_devcost.eval(cost_tier2_idx_part2), 'housing_devCost_reduction_amt'] = 0.019
+
+        strategy_devcost.loc[strategy_devcost.eval(cost_tier3_idx_part1), 'housing_devCost_reduction_cat'] = 'Tier 3'
+        strategy_devcost.loc[strategy_devcost.eval(cost_tier3_idx_part1), 'housing_devCost_reduction_amt'] = 0.013
+        strategy_devcost.loc[strategy_devcost.eval(cost_tier3_idx_part2), 'housing_devCost_reduction_cat'] = 'Tier 3'
+        strategy_devcost.loc[strategy_devcost.eval(cost_tier3_idx_part2), 'housing_devCost_reduction_amt'] = 0.013
+
+    logger.debug(
+        'devCost reduction amt value counts: \n{}'.format(
+            strategy_devcost['housing_devCost_reduction_amt'].value_counts(dropna=False)))
+
+    # strategy - naturally-occuring  affordable housing preservation
+
+    # get preservation target amount from policy.yaml
+    strategy_preserveTarget = pd.DataFrame(columns = ['geo_category', 'geo_type', 'batch1', 'batch2', 'batch3', 'batch4'])
+    # also, tag geographies based on whether housing in a geography would be candicates for housing preservation
+    strategy_preserveQualify = zoningmodcat_df[['zoningmodcat', 'geo_type', 'shapefile_juris_name']].copy()
+
+    # baseline scenario with no strategy
+    strategy_preserveQualify['preserve_candidate'] = ''
+
+    # if strategy scenario, policy.yaml should contain the strategy
+    try:
+        # extract preservation target
+        strategy_geo_type = policy_yaml['housing_preservation']['geography']
+
+        for geo_category in policy_yaml['housing_preservation']['settings']:
+        #     print(county)
+            config = policy_yaml['housing_preservation']['settings'][geo_category]
+            first_batch_target = config['first_unit_target']
+            second_unit_target = config['second_unit_target']
+            third_unit_target = config['third_unit_target']
+            fourth_unit_target = config['fourth_unit_target']
+            
+            strategy_preserveTarget.loc[len(strategy_preserveTarget.index)] = \
+                [geo_category, strategy_geo_type, first_batch_target, second_unit_target, third_unit_target, fourth_unit_target]
+        
+        # tag geographies
+        batch1_idx = "sesit_id in ('DIS', 'HRADIS') and tra_id != 'NA'"
+        batch2_idx = "sesit_id in ('DIS', 'HRADIS') and tra_id == 'NA'"
+        batch3_idx = "tra_id != 'NA' and sesit_id in ('HRA', 'NA')"
+        batch4_idx = "gg_id == 'GG'"
+
+        strategy_preserveQualify.loc[strategy_preserveQualify.eval(batch1_idx), 'preserve_candidate'] = 'batch 1'
+        strategy_preserveQualify.loc[strategy_preserveQualify.eval(batch2_idx) & strategy_preserveQualify['preserve_candidate'].isnull(), 'preserve_candidate'] = 'batch 2'
+        strategy_preserveQualify.loc[strategy_preserveQualify.eval(batch3_idx) & strategy_preserveQualify['preserve_candidate'].isnull(), 'preserve_candidate'] = 'batch 3'
+        strategy_preserveQualify.loc[strategy_preserveQualify.eval(batch4_idx) & strategy_preserveQualify['preserve_candidate'].isnull(), 'preserve_candidate'] = 'batch 4'
+        
+
+    except:
+        logger.info('no housing_preservation strategy in policy.yaml for this model run')
+    
+    # fillna with 0 or '' (when no target for a county in a batch)
+    strategy_preserveTarget.fillna(0, inplace=True)
+    strategy_preserveQualify['preserve_candidate'].fillna('', inplace=True)
+
+    logger.debug(
+        'housing preserve_candidate value counts: \n{}'.format(
+            strategy_preserveQualify['preserve_candidate'].value_counts(dropna=False)))
+
+    # write out
+    strategy_preserveTarget.to_csv(STRATEGY_PRESERVE_TARGET_FILE, index=False)
+    strategy_preserveQualify.to_csv(STRATEGY_PRESERVE_QUALIFY_FILE, index=False)
+    
 
     ############ update run inventory log
 
