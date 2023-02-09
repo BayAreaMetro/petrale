@@ -21,12 +21,29 @@ Returns:
 """
 
 import pandas as pd
+from pandas import DataFrame
 import numpy as np
 import geopandas as gpd
 import argparse, sys, logging, time, os, glob
 import yaml
+from typing import Any, Dict, Optional
 
+# the following packages and config is used to upload data to Redshift AWS
+import getpass
+import boto3
 
+user = getpass.getuser()
+sys.dont_write_bytecode = True
+
+# for Windows - assuming the 'dvutils' repo has been cloned to local drive, the following location
+# TODO: make this directory a user input instead of hard-coded
+util_repo_path = os.path.join('C:\\Users',
+                        user,
+                        'OneDrive - Metropolitan Transportation Commission\\Documents\\GitHub\\dvutils')
+sys.path.insert(0, util_repo_path)
+from utils_io import *
+
+# get date for the logging file
 today = time.strftime("%Y_%m_%d")
 
 ############ helpers
@@ -100,11 +117,20 @@ juris_dr_units_atrr_cols = ['deed_restricted_units', 'preserved_units', 'inclusi
 
 ############ functions
 
-def extract_modeling_settings(setting_yaml_file, write_out_file_dir,
-                              get_cost_shifter=True):
-    """
-    A catch-all function to get all needed model settings from settings.yaml.
-    """
+def extract_modeling_settings(setting_yaml_file: str,
+                              write_out_file_dir: str,
+                              get_cost_shifter: bool=True):
+    """A catch-all function to get all needed model settings from settings.yaml.
+
+    Args:
+        setting_yaml_file (str): setting yaml file path
+        write_out_file_dir (str): write-to-csv file path
+        get_cost_shifter (bool, optional): if to extract cost_shifter setting
+
+    Returns:
+        cost_shifter_df: cost_shifter setting
+    """    
+    
     logger.info('Process model settings')
     with open(setting_yaml_file, 'r') as stream:
         try:
@@ -124,18 +150,31 @@ def extract_modeling_settings(setting_yaml_file, write_out_file_dir,
     return cost_shifter_df
 
 
-def process_dev_proj_list(dev_project_file,
-                            pipeline_write_out_file_dir, 
-                            strategy_porj_write_out_file_dir,
-                            bldg_source_recode,
-                            pipeline_bldg_src,
-                            strategy_proj_bldg_src,
-                            keepcols):
-    """
+def process_dev_proj_list(dev_project_file: str,
+                          pipeline_write_out_file_dir: str, 
+                          strategy_porj_write_out_file_dir: str,
+                          bldg_source_recode: dict,
+                          pipeline_bldg_src: list,
+                          strategy_proj_bldg_src: list,
+                          keepcols: list):
+    """Converts development_projects_list into a pipeline df and a strategy-project df.
     NOTE: currently pipeline projects and strategy-based asserted projects are in the same file;
     they will be in separately tables per the BASIS process
 
-    """
+    Args:
+        dev_project_file (str): development_projects_list file path
+        pipeline_write_out_file_dir (str): pipeline data write-to-csv file path
+        strategy_porj_write_out_file_dir (str): strategy-project data write-to-csv file path
+        bldg_source_recode (dict): dictionary to code project sources into pipeline/strategy categories
+        pipeline_bldg_src (list): pipeline projects sources
+        strategy_proj_bldg_src (list): strategy projects sources
+        keepcols (list): columns to include in visualization
+
+    Returns:
+        pipeline_df: pipeline projects
+        strategy_projects_df: strategy-based projects
+    """                          
+
     logger.info('start processing development project list')
 
     dev_project_df = pd.read_csv(dev_project_file)
@@ -165,9 +204,21 @@ def process_dev_proj_list(dev_project_file,
     return pipeline_df, strategy_projects_df
 
 
-def consolidate_regional_control(hh_control_file, emp_control_file, write_out_file_dir):
+def consolidate_regional_control(hh_control_file: str,
+                                 emp_control_file: str,
+                                 write_out_file_dir: str):
+    """Consolidate and stack regional household controls and employment controls into one table
+
+    Args:
+        hh_control_file (str): hh control file path
+        emp_control_file (str): hh control file path
+        write_out_file_dir (str): write-to-csv file path
+
+    Returns:
+        control_df: stacked hh and emp controls
+    """                                 
     """
-    stack and consolidate regional household controls and employment controls for Tableau viz
+    
     """
 
     # load the files
@@ -196,7 +247,20 @@ def consolidate_regional_control(hh_control_file, emp_control_file, write_out_fi
     return control_df
 
 
-def process_zmods(zmods_file, keep_cols, write_out_file_dir):
+def process_zmods(zmods_file: str,
+                  keep_cols: list,
+                  write_out_file_dir: str):
+    """Simplify zoning strategy data.
+
+    Args:
+        zmods_file (str): zmods strategy file path
+        keep_cols (list): columns to include in visualization
+        write_out_file_dir (str): write-to-csv file path
+
+    Returns:
+        zmod_df: zoning strategy data, only including geographies with selected zoning strategy attributes;
+                 geographies without strategy intervention are dropped to reduce file size.
+    """                  
     """
     """
     logger.info('process strategy zoming_mods')
@@ -228,8 +292,8 @@ def process_zmods(zmods_file, keep_cols, write_out_file_dir):
     return zmod_df
 
 
-def extract_strategy_from_yaml(policy_yaml_file,
-                               get_IZ_policy = True,
+def extract_strategy_from_yaml(policy_yaml_file: str,
+                               get_IZ_policy: bool=True,
                                ):
     """
     A catch-all function to get all strategies from policy.yaml
@@ -238,17 +302,18 @@ def extract_strategy_from_yaml(policy_yaml_file,
 
 
 # a helper function to reformat the inclusionary zoning data in policy.yaml, called by 'inclusionary_yaml_to_df()'
-def explode_df_list_col_to_rows(df, list_col):
-    """
-    Explode dataframe where one column contains list values.
-    
-    list_col: name of the column whose values are lists
+def explode_df_list_col_to_rows(df: DataFrame,
+                                list_col: str):
+    """Explode dataframe where one column contains list values.
 
-    Example:
-    - input df : pd.DataFrame({'non_list_col': [1, 2], 'list_col': [['a', 'b'], 'c']})
-    - output df: pd.DataFrame({'non_list_col': [1, 1, 2], 'list_col': ['a', 'b', 'c']})
+    Args:
+        df (DataFrame): dataframe to be exploded, e.g. pd.DataFrame({'non_list_col': [1, 2], 'list_col': [['a', 'b'], 'c']})
+        list_col (str): name of the column whose values are lists
 
-    """
+    Returns:
+        exploded_df: exploded dataframe, e.g. pd.DataFrame({'non_list_col': [1, 1, 2], 'list_col': ['a', 'b', 'c']})
+    """    
+
     # get columns whose values will be repeated for each item in the list of the list column
     repeating_cols = list(df)
     # print(list_col)
@@ -270,22 +335,26 @@ def explode_df_list_col_to_rows(df, list_col):
     return exploded_df
 
 
-def inclusionary_yaml_to_df(yaml_f, default_write_out_file_dir, strategy_write_out_file_dir):
-    """
-    Extract inclusionary zoning policy in yaml based on scenario and convert to dataframe.
-    
+def inclusionary_yaml_to_df(yaml_f: dict,
+                            default_write_out_file_dir: str,
+                            strategy_write_out_file_dir: str):
+                            
+    """Extract inclusionary zoning policy in yaml based on scenario and convert to dataframe.
+
     Args:
-    - yaml_f: yaml file
-    - scen: scenarions in string, including 'default' for NoProject
-    - geo_type: 'jurisdiction' or 'fbpchcat' in string
+        yaml_f (DataFrame): loaded policy yaml file in dictionary format
+        default_write_out_file_dir (str): default inclusionary zoning policy write-to-csv file path
+        strategy_write_out_file_dir (str): inclusionary zoning strategy write-to-csv file path
     
-    Return:
-    - inclusionary_df: a dataframe of two columns: 
-        geo_type: type of inclusionary-zoning policy geography, to be joined to policy-geographies
-        'geography': inclusionary-zoning policy geography,
-        scenario: scenario,
-        'value': the inclusionary zoning value in percentage.
+    Returns:
+        IZ_default_df: default inclusionary zoning policy with columns:
+            - 'geo_type': type of inclusionary-zoning policy geography, e.g. jurisdiction
+            - 'geo_category': inclusionary-zoning policy geography, e.g. San Francisco
+            - 'IZ_level': high/median/low
+            - 'IZ_amt': the inclusionary zoning value in percentage
+        IZ_strategy_df: inclusionary zoning strategy with same columns
     """
+
     logger.info('process inclusionary zoning existing policy and strategy from {}'.format(POLICY_INPUT_FILE))
     # policy_input = os.path.join(r'C:\Users\ywang\Box\Modeling and Surveys\Urban Modeling\Bay Area UrbanSim\PBA50Plus_Development\Clean Code PR #3\inputs', 'plan_strategies', 'policy.yaml')
 
@@ -300,7 +369,9 @@ def inclusionary_yaml_to_df(yaml_f, default_write_out_file_dir, strategy_write_o
         IZ_default_raw_df = pd.DataFrame(IZ_raw['default'])
         IZ_default_df = explode_df_list_col_to_rows(IZ_default_raw_df, 'values')
         IZ_default_df.rename(columns = {'type': 'geo_type',
-                                        'index': 'geo_category'}, inplace=True)
+                                        'index': 'geo_category',
+                                        'description': 'IZ_level',
+                                        'amount': 'IZ_amt'}, inplace=True)
         # write out
         IZ_default_df.to_csv(default_write_out_file_dir, index=False)
 
@@ -312,7 +383,9 @@ def inclusionary_yaml_to_df(yaml_f, default_write_out_file_dir, strategy_write_o
         IZ_strategy_raw_df = pd.DataFrame(IZ_raw['inclusionary_strategy'])
         IZ_strategy_df = explode_df_list_col_to_rows(IZ_strategy_raw_df, 'values')
         IZ_strategy_df.rename(columns = {'type': 'geo_type',
-                                        'index': 'geo_category'}, inplace=True)
+                                        'index': 'geo_category',
+                                        'description': 'IZ_level',
+                                        'amount': 'IZ_amt'}, inplace=True)
         # write out
         IZ_strategy_df.to_csv(strategy_write_out_file_dir, index=False)
     except:
@@ -321,19 +394,31 @@ def inclusionary_yaml_to_df(yaml_f, default_write_out_file_dir, strategy_write_o
     return (IZ_default_df, IZ_strategy_df)
 
 
-def housing_preserve_yaml_to_df(yaml_f, zoningmodcat_df,
-                                preserve_target_wirte_out_file_dir, preserve_qualify_wirte_out_file_dir):
-    """
-    Extract housing preservation strategy from policy.yaml into 2 dataframes.
+def housing_preserve_yaml_to_df(yaml_f: dict,
+                                zoningmodcat_df: DataFrame,
+                                preserve_target_wirte_out_file_dir: str,
+                                preserve_qualify_wirte_out_file_dir: str):
+    """Extract housing preservation strategy from policy.yaml into 2 dataframes.
+
+    Args:
+        yaml_f (dict): loaded policy yaml file
+        zoningmodcat_df (DataFrame): zoningmodcat definition
+        preserve_target_wirte_out_file_dir (str): preservation strategy target part write-to-csv file path
+        preserve_qualify_wirte_out_file_dir (str): preservation strategy qualification part write-to-csv file path
+
+    Returns:
+        strategy_preserveTarget_df: preservation target, number of units to be preserved by geography 
+        strategy_preserveQualify_df: preservation qualification, whether a housing unit is a candidate for preservation based on
+            its growth geography designations
     """
 
     # get preservation target amount from policy.yaml
-    strategy_preserveTarget = pd.DataFrame(columns = ['geo_category', 'geo_type', 'batch1', 'batch2', 'batch3', 'batch4'])
+    strategy_preserveTarget_df = pd.DataFrame(columns = ['geo_category', 'geo_type', 'batch1', 'batch2', 'batch3', 'batch4'])
     # also, tag geographies based on whether housing in a geography would be candicates for housing preservation
-    strategy_preserveQualify = zoningmodcat_df.copy()
+    strategy_preserveQualify_df = zoningmodcat_df.copy()
 
     # baseline scenario with no strategy
-    strategy_preserveQualify['preserve_candidate'] = ''
+    strategy_preserveQualify_df['preserve_candidate'] = ''
 
     # if strategy scenario, policy.yaml should contain the strategy
     try:
@@ -353,27 +438,27 @@ def housing_preserve_yaml_to_df(yaml_f, zoningmodcat_df,
             batch4_idx = config['fourth_unit_filter']
             
             # add the target data to target df
-            strategy_preserveTarget.loc[len(strategy_preserveTarget.index)] = \
+            strategy_preserveTarget_df.loc[len(strategy_preserveTarget_df.index)] = \
                 [geo_category, strategy_geo_type, batch1_target, batch2_target, batch3_target, batch4_target]
             
             # add the qualify criteria data to qualify df
             if strategy_geo_type == 'county_name':
-                strategy_preserveQualify.loc[
-                    (strategy_preserveQualify['county_name'] == geo_category) & \
-                    (strategy_preserveQualify['preserve_candidate'] == '') & \
-                    strategy_preserveQualify.eval(batch1_idx), 'preserve_candidate'] = 'batch1'
-                strategy_preserveQualify.loc[
-                    (strategy_preserveQualify['county_name'] == geo_category) & \
-                    (strategy_preserveQualify['preserve_candidate'] == '') & \
-                    strategy_preserveQualify.eval(batch2_idx), 'preserve_candidate'] = 'batch2'
-                strategy_preserveQualify.loc[
-                    (strategy_preserveQualify['county_name'] == geo_category) & \
-                    (strategy_preserveQualify['preserve_candidate'] == '') & \
-                    strategy_preserveQualify.eval(batch3_idx), 'preserve_candidate'] = 'batch3'
-                strategy_preserveQualify.loc[
-                    (strategy_preserveQualify['county_name'] == geo_category) & \
-                    (strategy_preserveQualify['preserve_candidate'] == '') & \
-                    strategy_preserveQualify.eval(batch4_idx), 'preserve_candidate'] = 'batch4'
+                strategy_preserveQualify_df.loc[
+                    (strategy_preserveQualify_df['county_name'] == geo_category) & \
+                    (strategy_preserveQualify_df['preserve_candidate'] == '') & \
+                    strategy_preserveQualify_df.eval(batch1_idx), 'preserve_candidate'] = 'batch1'
+                strategy_preserveQualify_df.loc[
+                    (strategy_preserveQualify_df['county_name'] == geo_category) & \
+                    (strategy_preserveQualify_df['preserve_candidate'] == '') & \
+                    strategy_preserveQualify_df.eval(batch2_idx), 'preserve_candidate'] = 'batch2'
+                strategy_preserveQualify_df.loc[
+                    (strategy_preserveQualify_df['county_name'] == geo_category) & \
+                    (strategy_preserveQualify_df['preserve_candidate'] == '') & \
+                    strategy_preserveQualify_df.eval(batch3_idx), 'preserve_candidate'] = 'batch3'
+                strategy_preserveQualify_df.loc[
+                    (strategy_preserveQualify_df['county_name'] == geo_category) & \
+                    (strategy_preserveQualify_df['preserve_candidate'] == '') & \
+                    strategy_preserveQualify_df.eval(batch4_idx), 'preserve_candidate'] = 'batch4'
             
             elif strategy_geo_type == 'jurisdiction':
                 # NOTE: if the strategy is coded by jurisdiction, fill out the following code block
@@ -383,26 +468,28 @@ def housing_preserve_yaml_to_df(yaml_f, zoningmodcat_df,
         logger.info('no housing_preservation strategy in policy.yaml for this model run')
     
     # fillna with 0 or '' (when no target for a county in a batch)
-    strategy_preserveTarget.fillna(0, inplace=True)
-    strategy_preserveQualify['preserve_candidate'].fillna('', inplace=True)
+    strategy_preserveTarget_df.fillna(0, inplace=True)
+    strategy_preserveQualify_df['preserve_candidate'].fillna('', inplace=True)
 
     logger.debug(
         'housing preserve_candidate value counts: \n{}'.format(
-            strategy_preserveQualify['preserve_candidate'].value_counts(dropna=False)))
+            strategy_preserveQualify_df['preserve_candidate'].value_counts(dropna=False)))
 
     # drop rows with no strategy to reduce file size
-    strategy_preserveQualify = \
-        strategy_preserveQualify.loc[strategy_preserveQualify['preserve_candidate'] != '']
-    logger.debug('keep {:,} rows with strategy'.format(strategy_preserveQualify.shape[0]))
+    strategy_preserveQualify_df = \
+        strategy_preserveQualify_df.loc[strategy_preserveQualify_df['preserve_candidate'] != '']
+    logger.debug('keep {:,} rows with strategy'.format(strategy_preserveQualify_df.shape[0]))
 
     # write out
-    strategy_preserveTarget.to_csv(preserve_target_wirte_out_file_dir, index=False)
-    strategy_preserveQualify.to_csv(preserve_qualify_wirte_out_file_dir, index=False)
+    strategy_preserveTarget_df.to_csv(preserve_target_wirte_out_file_dir, index=False)
+    strategy_preserveQualify_df.to_csv(preserve_qualify_wirte_out_file_dir, index=False)
 
-    return strategy_preserveTarget, strategy_preserveQualify
+    return strategy_preserveTarget_df, strategy_preserveQualify_df
 
 
-def housing_bond_subsidy_yaml_to_df(yaml_f, zoningmodcat_df, housing_bond_write_out_file_dir):
+def housing_bond_subsidy_yaml_to_df(yaml_f: dict,
+                                    zoningmodcat_df: DataFrame,
+                                    housing_bond_write_out_file_dir: str):
     """
     Extract housing bond subsidy strategy.
     """
@@ -441,7 +528,9 @@ def housing_bond_subsidy_yaml_to_df(yaml_f, zoningmodcat_df, housing_bond_write_
     return strategy_housing_bonds
 
 
-def dev_cost_reduction_yaml_to_df(yaml_f, zoningmodcat_df, write_out_file_dir):
+def dev_cost_reduction_yaml_to_df(yaml_f: dict, 
+                                  zoningmodcat_df: DataFrame,
+                                  write_out_file_dir: str):
     """
     Extract housing development cost reduction strategy.
     """
@@ -481,14 +570,26 @@ def dev_cost_reduction_yaml_to_df(yaml_f, zoningmodcat_df, write_out_file_dir):
     return strategy_devcost
 
 
-def consolidate_TAZ_summaries(model_run_output_dir, model_run_id, write_out_file_dir,
-                              growth_attr_cols, 
-                              hh_attr_cols, 
-                              emp_attr_cols):
-    """
-    Consolidate TAZ summaries (output) of base year and all forecast years, with only key metrics that need visualization.
+def consolidate_TAZ_summaries(model_run_output_dir: str,
+                              model_run_id: str,
+                              write_out_file_dir: str,
+                              growth_attr_cols: list, 
+                              hh_attr_cols: list, 
+                              emp_attr_cols: list):
+    """Consolidate TAZ summaries (output) of base year and all forecast years, with only key metrics that need visualization.
 
-    """
+    Args:
+        model_run_output_dir (str): model output folder path
+        model_run_id (str): model run id, e.g. 'run182'
+        write_out_file_dir (str): columns in BAUS output juris_summaries for employment by sector
+        growth_attr_cols (list): columns in BAUS output taz_summaries for key growth metrics to be visualized
+        hh_attr_cols (list): columns in BAUS output taz_summaries for household by income group
+        emp_attr_cols (list): _description_
+
+    Returns:
+        all_taz_summaries_df: TAZ-level key household and employment metrics for all years
+    """    
+
     # collect all TAZ summaries outputs
     all_taz_files = glob.glob(model_run_output_dir + "\{}_taz_summaries*.csv".format(model_run_id))
     # NOTE: remove 2010 data since 2015 is the base year for PBA50
@@ -532,15 +633,29 @@ def consolidate_TAZ_summaries(model_run_output_dir, model_run_id, write_out_file
     return all_taz_summaries_df
 
 
-def consolidate_juris_summaries(model_run_output_dir, model_run_id, write_out_file_dir,
-                                growth_attr_cols, 
-                                hh_attr_cols, 
-                                emp_attr_cols,
-                                juris_name_crosswalk):
-    """
-    Consolidate jurisdiction summaries (output) of base year and all forecast years, with only key metrics that need visualization.
+def consolidate_juris_summaries(model_run_output_dir: str, 
+                                model_run_id: str,
+                                write_out_file_dir: str,
+                                growth_attr_cols: list, 
+                                hh_attr_cols: list, 
+                                emp_attr_cols: list,
+                                juris_name_crosswalk: DataFrame):
+    """Consolidate jurisdiction summaries (output) of base year and all forecast years,
+            with only key metrics that need visualization.
 
-    """
+    Args:
+        model_run_output_dir (str): model output folder path
+        model_run_id (str): model run id, e.g. 'run182'
+        write_out_file_dir (str):
+        growth_attr_cols (list): columns in BAUS output juris_summaries for key growth metrics to be visualized
+        hh_attr_cols (list): columns in BAUS output juris_summaries for household by income group
+        emp_attr_cols (list): columns in BAUS output juris_summaries for employment by sector
+        juris_name_crosswalk (DataFrame): a crosswalk betwen BAUS jurisdiction naming convention and spatial data's naming convention
+
+    Returns:
+        all_juris_summaries_df: jurisdiction-level key household and employment metrics for all years
+    """    
+
     # collect all juris summaries outputs
     all_juris_files = glob.glob(model_run_output_dir + "\{}_juris_summaries*.csv".format(model_run_id))
     # NOTE: remove 2010 data since 2015 is the base year for PBA50
@@ -591,12 +706,24 @@ def consolidate_juris_summaries(model_run_output_dir, model_run_id, write_out_fi
     return all_juris_summaries_df
 
 
-def summarize_deed_restricted_units(model_run_output_dir, model_run_id, write_out_file_dir,
-                                    dr_units_atrr_cols, juris_name_crosswalk):
-    """
-    Calculates the growth of deed-restricted housing units in each forecast year over the base year.
+def summarize_deed_restricted_units(model_run_output_dir: str,
+                                    model_run_id: str,
+                                    write_out_file_dir: str,
+                                    dr_units_atrr_cols: list,
+                                    juris_name_crosswalk: DataFrame):
+    """Calculates the growth of deed-restricted housing units in each forecast year over the base year by source, including strategies.
 
-    """
+    Args:
+        model_run_output_dir (str): model output folder path
+        model_run_id (str): model run id, e.g. 'run182'
+        write_out_file_dir (str): 
+        dr_units_atrr_cols (list): columns in BAUS output juris_summaries for deed-restricted unit info
+        juris_name_crosswalk (DataFrame): a crosswalk betwen BAUS jurisdiction naming convention and spatial data's naming convention
+
+    Returns:
+        all_juris_dr_growth_df: dataframe of deed-restricted units growth (each forecast year against base year 2015) by unit source
+    """    
+
     logger.info('processing juris_summaries files to calculate deed-restricted housing growth')
 
     # get base year 2015 data
@@ -685,9 +812,22 @@ def summarize_deed_restricted_units(model_run_output_dir, model_run_id, write_ou
     return all_juris_dr_growth_df
 
 
-def summarize_growth_by_growth_geographies(model_run_output_dir, model_run_id, write_out_file_dir,
-                                            geo_tag_types, geos_tag_recode):
-    """
+def summarize_growth_by_growth_geographies(model_run_output_dir: str,
+                                           model_run_id: str,
+                                           write_out_file_dir: str,
+                                           geo_tag_types: dict,
+                                           geos_tag_recode: dict):
+    """Aggregate and stack baus output files representing growth by key growth geography designations.
+
+    Args:
+        model_run_output_dir (str): model output folder path
+        model_run_id (str): model run id, e.g. 'run182'
+        write_out_file_dir (str): 
+        geo_tag_types (dict): recode abbreviated growth geography type into full name, e.g. 'TRA' -> 'Transit-rich'
+        geos_tag_recode (dict): recode growth geography designation into full name, e.g. 'no_tra' -> 'outside_TRA'
+
+    Returns:
+        all_growth_GEOs_df: a long dataframe with growth by all growth geography designations stacked, ready for Tableau viz
     """
 
     # get all growth-geography-based growth summary output
@@ -737,13 +877,27 @@ def summarize_growth_by_growth_geographies(model_run_output_dir, model_run_id, w
     return all_growth_GEOs_df
 
 
-def simplify_parcel_output(model_run_output_dir, model_run_id, write_out_file_dir,
-                            keep_cols = ['development_id', 'SDEM', 'building_sqft', 'building_type',
+def simplify_parcel_output(model_run_output_dir: str,
+                           model_run_id: str,
+                           write_out_file_dir: str,
+                           keep_cols: Optional[list] = ['development_id', 'SDEM', 'building_sqft', 'building_type',
                                         'job_spaces', 'non_residential_sqft', 'residential', 
                                         'residential_sqft', 'residential_units', 
                                         'source', 'total_residential_units', 'total_sqft', 
                                         'x', 'y', 'year_built']):
-    """
+    """Simplify baus output file parcel_output, keeping only needed columns
+
+    Args:
+        model_run_output_dir (str): model output folder path
+        model_run_id (str): model run id, e.g. 'run182'
+        write_out_file_dir (str): 
+        keep_cols (Optional[list], optional): columns in the parcel_output table to keep for visualization.
+            Defaults to ['development_id', 'SDEM', 'building_sqft', 'building_type', 'job_spaces',
+            'non_residential_sqft', 'residential', 'residential_sqft', 'residential_units', 'source',
+            'total_residential_units', 'total_sqft', 'x', 'y', 'year_built'].
+
+    Returns:
+        _type_: _description_
     """
 
     file_dir = os.path.join(model_run_output_dir, '{}_parcel_output.csv'.format(model_run_id))
@@ -774,6 +928,41 @@ def simplify_parcel_output(model_run_output_dir, model_run_id, write_out_file_di
         logger.warning('parcel_output not exist for {}'.format(model_run_id))
 
         return None
+
+
+def upload_df_to_redshift(df: DataFrame,
+                          table_name: str,
+                          s3_bucket: Optional[str] = 'fms-urbansim',
+                          s3_key_prefix: Optional[str] = '2022/',
+                          redshift_schema: Optional[str] = 'urbansim_fms'):
+    """Uploads dataframe to Redshift AWS.
+
+    Args:
+        df (DataFrame): dataframe to be uploaded
+        table_name (str): table name to show in Redshift, e.g. 'test_data'
+        s3_key (Optional[str], optional): defaults to '2022/', used to construct s3_key with df name, e.g. '2022/test_data.csv'
+        s3_bucket (Optional[str], optional): S3 bucket name. Defaults to 'fms-urbansim'.
+        redshift_schema (Optional[str], optional): _description_. Defaults to 'urbansim_fms'.
+    """                                     
+
+    logger.info('uploading {}'.format(df_name))
+
+    # get dataframe ctypes
+    ctypes = create_column_type_dict(df)
+    logger.debug('ctypes: \n{}'.format(ctypes))
+
+    # post data to S3
+    s3_key = '{}{}.csv'.format(s3_key_prefix, table_name)
+    logger.debug('s3 key: {}'.format(s3_key))
+    post_df_to_s3(df, s3_bucket, s3_key)
+
+    # post data from S3 to Redshift
+    redshift_tablename = '{}.{}'.format(redshift_schema, table_name)  # schema.table format
+    create_redshift_table_via_s3(tablename=redshift_tablename,  # schema.table format
+                                 s3_path='s3://{}/{}'.format(s3_bucket, s3_key),
+                                 ctypes=ctypes)
+
+    logger.info('finished uploading')
 
 
 if __name__ == '__main__':
@@ -831,7 +1020,7 @@ if __name__ == '__main__':
     VIZ_DIR = 'M:\\Data\\Urban\\BAUS\\visualization_design'
     VIA_DATA_DIR = os.path.join(VIZ_DIR, 'data')
     # VIZ_READY_DATA_DIR = os.path.join(VIA_DATA_DIR, 'data_viz_ready', 'csv_v2')
-    VIZ_READY_DATA_DIR = os.path.join(VIA_DATA_DIR, 'data_viz_ready', 'csv_testScript')
+    VIZ_READY_DATA_DIR = os.path.join(VIA_DATA_DIR, 'data_viz_ready', 'csv_single_run')
     LOG_FILE = os.path.join(VIZ_READY_DATA_DIR, "prepare_data_for_viz_{}_{}.log".format(RUN_ID, today))
 
     # OUTPUT - model inputs
@@ -891,7 +1080,7 @@ if __name__ == '__main__':
     # definition of strategy geometry categories
     if RUN_SCENARIO in ['s24', 's25']:
         zoningmodcat_df = pd.read_csv(FBPZONINGMODCAT_SYSTEM_FILE)
-    if RUN_SCENARIO in ['s28']:
+    elif RUN_SCENARIO in ['s28']:
         zoningmodcat_df = pd.read_csv(EIRZONINGMODCAT_SYSTEM_FILE)
 
 
@@ -988,7 +1177,87 @@ if __name__ == '__main__':
                                            RUN_ID,
                                            PARCEL_OUTPUT_SUMMARY_FILE)
 
-    # ############ update run inventory log
+  
+    ############ TODO: uploading the files to Redshift for Tableau visualization
+    
+    upload_df_to_redshift(cost_shifter,
+                          os.path.basename(MODEL_SETTING_FILE).split('.csv')[0])
+
+    upload_df_to_redshift(growth_summary_GEOS,
+                          os.path.basename(GROWTH_GEOS_SUMMARY_FILE).split('.csv')[0])
+
+
+    ############ TODO: consolidate, create shapefile, and upload to ArcGIS online for ArcGIS visualization
+    shapefile_dir = 'M:\\Data\\Urban\\BAUS\\visualization_design\\data\\data_viz_ready\\spatial'
+    
+    ## growth geography-level data (zoningmodcat_df)
+    # zoningmodcat shapefile
+    if RUN_SCENARIO in ['s24', 's25']:
+        zoningmodcat_gdf_file = os.path.join(shapefile_dir, 'zoningmodcat_fbp.shp')  
+    elif RUN_SCENARIO in ['s28']:
+        zoningmodcat_gdf_file = os.path.join(shapefile_dir, 'zoningmodcat_eir.shp')
+    
+    zoningmodcat_gdf = gpd.read_file(zoningmodcat_gdf_file)
+
+    # add other growth geography tags, e.g. gg_id, jurisdiction, etc.
+    zoningmodcat_gdf = pd.merge(zoningmodcat_gdf,
+                                zoningmodcat_df,
+                                left_on=['zmodscat', 'geo_type'],
+                                right_on=['zoningmodcat', 'geo_type'],
+                                how='inner')
+    # double check growth geography categories
+    if zoningmodcat_gdf.shape[0] != zoningmodcat_df.shape[0]:
+        logger.warning('growth geography categories not match!')
+    zoningmodcat_strategy = pd.merge(zoningmodcat_gdf,
+                                     zmod_df[['zoningmodcat'] + zmods_cols],
+                                     on='zoningmodcat',
+                                     how='left')
+    zoningmodcat_strategy = pd.merge(zoningmodcat_strategy,
+                                     housing_bond_subsidy[['zoningmodcat', 'housing_bonds']],
+                                     on='zoningmodcat',
+                                     how='left')
+    zoningmodcat_strategy = pd.merge(zoningmodcat_strategy,
+                                     housing_dev_cost_reduction[['zoningmodcat', 'housing_devCost_reduction_cat', 'housing_devCost_reduction_amt']],
+                                     on='zoningmodcat',
+                                     how='left')
+    zoningmodcat_strategy = pd.merge(zoningmodcat_strategy,
+                                     housing_reserve_qualify[['zoningmodcat', 'preserve_candidate']],
+                                     on='zoningmodcat',
+                                     how='left')
+    
+    ## fbpchcat geography - IZ strategy
+    fbpchcat_gdf_file = os.path.join(shapefile_dir, 'fbpchcat_gdf.shp')
+    fbpchcat_gdf = gpd.read_file(fbpchcat_gdf_file)
+    fbpchcat_strategy = pd.merge(fbpchcat_gdf,
+                                 IZ_strategy_df[['geo_category', 'IZ_amt']],
+                                 left_on='fbpchcat',
+                                 right_on='geo_category',
+                                 how='left')
+    
+
+    # ## TAZ-level data
+    # # TAZ shapefile
+
+    # taz_shp = gpd.read_file(os.path.join(shapefile_dir, 'Travel Analysis Zones.shp'))
+    # taz_shp = taz_shp[['TAZ1454', 'geometry']]
+
+    # # taz-level data
+    # taz_summaries_df
+
+    # ## jurisdiction-level data
+    # # jurisdiction shapefile
+
+    # # juris data
+    # cost_shifter
+    # IZ_default_df
+    # juris_summaries_df
+
+    # ## parcel-level data
+    # pipeline
+    # strategy_projects
+    # parcel_output
+
+    ############ update run inventory log
 
     logger.info('adding the new run to model run inventory')
     model_run_inventory = pd.read_csv(
