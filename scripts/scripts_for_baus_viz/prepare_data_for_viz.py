@@ -1,7 +1,7 @@
 USAGE = """
 Prepares UrbanSim model run data (output, key input, interim) for (Tableau) dashboard visualization.
 
-Example call: python prepare_data_for_viz.py "C:\Users\ywang\Box\Modeling and Surveys\Urban Modeling\Bay Area UrbanSim\PBA50Plus_Development\Clean Code PR #3" "C:\Users\ywang\Box\Modeling and Surveys\Urban Modeling\Bay Area UrbanSim\PBA50Plus_Development\Clean Code PR #3\bayarea_urbansim" "s24" "Model Dev PR3" "model development test run for PR #3" "run143" False False
+Example call: TODO
 
 Args: 
     run_dir: directory of model run data
@@ -10,8 +10,8 @@ Args:
     scenario_group: e.g. Final Blueprint, EIR Alt2, DevRun
     run_description: description of the scenario and/or run group
     run_id: model run_id from the output, e.g. 'run182' for the official Final Blueprint run
-    upload_to_redshift: True/False to upload data to Redshift
-    upload_to_agol: True/False to upload data to ArcGIS Online
+    --upload_to_redshift: whether to upload data to Redshift, defaults to False unless calls it
+    --upload_to_agol: whether to upload data to ArcGIS Online, defaults to False unless calls it
     --last_run: 'yes'/'no' if the run is the latest run of the same scenario
 
 
@@ -294,7 +294,7 @@ def process_zmods(zmods_file: str,
         zmod_df.rename(columns = {'fbpzoningmodcat': 'zoningmodcat'}, inplace=True)
         zmod_df['geo_type'] = 'zoningmodcat_fbp'
     elif 'eirzoningmodcat' in list(zmod_df):
-        zmod_df.rename(columns = {'fbpzoningmodcat': 'zoningmodcat'}, inplace=True)
+        zmod_df.rename(columns = {'eirzoningmodcat': 'zoningmodcat'}, inplace=True)
         zmod_df['geo_type'] = 'zoningmodcat_eir'
     elif 'zoningmodcat' in list(zmod_df):
         zmod_df['geo_type'] = 'zoningmodcat_generic'
@@ -378,7 +378,7 @@ def inclusionary_yaml_to_df(yaml_f: dict,
 #     print(inclusionary_raw)
     
     # convert default and strategy into dataframes
-    try:
+    if 'default' in inclusionary_raw:
         logger.info('process default IZ data')
         inclusionary_default_raw_df = pd.DataFrame(inclusionary_raw['default'])
         inclusionary_default_df = explode_df_list_col_to_rows(inclusionary_default_raw_df, 'values')
@@ -398,12 +398,13 @@ def inclusionary_yaml_to_df(yaml_f: dict,
         # write out
         inclusionary_default_df.to_csv(default_viz_file_dir, index=False)
 
-    except:
+    else:
         logger.warning('no default inclusionary data')
+        inclusionary_default_df = None
 
-    try:
+    if 'inclusionary_strategy' in inclusionary_raw:
         logger.info('process strategy inclusionary data')
-        inclusionary_strategy_raw_df = pd.DataFrame(IZ_raw['inclusionary_strategy'])
+        inclusionary_strategy_raw_df = pd.DataFrame(inclusionary_raw['inclusionary_strategy'])
         inclusionary_strategy_df = explode_df_list_col_to_rows(inclusionary_strategy_raw_df, 'values')
         inclusionary_strategy_df.rename(columns = {'type': 'geo_type',
                                                    'index': 'geo_category',
@@ -411,8 +412,9 @@ def inclusionary_yaml_to_df(yaml_f: dict,
                                                    'amount': 'IZ_amt'}, inplace=True)
         # write out
         inclusionary_strategy_df.to_csv(strategy_viz_file_dir, index=False)
-    except:
+    else:
         logger.warning('no strategy inclusionary data')
+        inclusionary_strategy_df = None
 
     return (inclusionary_default_df, inclusionary_strategy_df)
 
@@ -538,13 +540,18 @@ def housing_bond_subsidy_yaml_to_df(yaml_f: dict,
         if '_housing_bond_strategy' in residential_lump_sum_accts_setting[acct_setting]['name']:
             # get the strategy info
             qualify = residential_lump_sum_accts_setting[acct_setting]['receiving_buildings_filter']
-            qualify_county = qualify.split(' & ')[0].split('== ')[1].strip("\'")
-            qualify_geos_idx = qualify.split(' & ')[1]
+            
+            # if there is the strategy
+            if not qualify is None:
+                qualify_county = qualify.split(' & ')[0].split('== ')[1].strip("\'")
+                qualify_geos_idx = qualify.split(' & ')[1]
 
-            # add the info to strategy_housing_bonds_df dataframe
-            strategy_housing_bonds_df.loc[
-                (strategy_housing_bonds_df['county_name'] == qualify_county) & \
-                strategy_housing_bonds_df.eval(qualify_geos_idx), 'housing_bonds'] = 'Qualify'
+                # add the info to strategy_housing_bonds_df dataframe
+                strategy_housing_bonds_df.loc[
+                    (strategy_housing_bonds_df['county_name'] == qualify_county) & \
+                    strategy_housing_bonds_df.eval(qualify_geos_idx), 'housing_bonds'] = 'Qualify'
+            else:
+                logger.warning('no housing bond subsidy strategy data')
 
     logger.debug('housing_bond value counts: \n{}'.format(strategy_housing_bonds_df['housing_bonds'].value_counts(dropna=False)))
 
@@ -586,12 +593,14 @@ def dev_cost_reduction_yaml_to_df(yaml_f: dict,
             # get strategy info: cost reduction: tier, criteria, amount
             adjust_tier = profit_adjust_setting[strategy_name]['name'].split('_')[-2]
             formula = profit_adjust_setting[strategy_name]['profitability_adjustment_formula']
-            adjust_idx = formula.split('*')[0]
-            adjust_amt = formula.split('*')[1]
-
-            # add the info to dataframe strategy_devcost_df
-            strategy_devcost_df.loc[strategy_devcost_df.eval(adjust_idx), 'housing_devCost_reduction_cat'] = adjust_tier
-            strategy_devcost_df.loc[strategy_devcost_df.eval(adjust_idx), 'housing_devCost_reduction_amt'] = adjust_amt
+            if not formula is None:
+                adjust_idx = formula.split('*')[0]
+                adjust_amt = formula.split('*')[1]
+                # add the info to dataframe strategy_devcost_df
+                strategy_devcost_df.loc[strategy_devcost_df.eval(adjust_idx), 'housing_devCost_reduction_cat'] = adjust_tier
+                strategy_devcost_df.loc[strategy_devcost_df.eval(adjust_idx), 'housing_devCost_reduction_amt'] = adjust_amt
+            else:
+                logger.warning('no housing bond subsidy strategy data')
 
     logger.debug(
         'devCost reduction amt value counts: \n{}'.format(
@@ -906,6 +915,9 @@ def summarize_growth_by_growth_geographies(model_run_output_dir: str,
     logger.debug('aggregated geo-growth summary table fields: \n{}'.format(all_growth_GEOs_df.dtypes))
     logger.debug('header: \n{}'.format(all_growth_GEOs_df.head()))
 
+    # clean up: remove space from column names
+    all_growth_GEOs_df.columns = all_growth_GEOs_df.columns.str.replace(' ', '_')
+
     # write out
     logger.info(
         'writing out {} rows of geo-growth summary data to {}'.format(
@@ -977,24 +989,28 @@ def upload_df_to_redshift(df: DataFrame,
         redshift_schema (Optional[str], optional): _description_. Defaults to 'urbansim_fms'.
     """                                     
 
-    logger.info('uploading {}'.format(df_name))
+    logger.info('uploading {}'.format(table_name))
 
-    # get dataframe ctypes
-    ctypes = create_column_type_dict(df)
-    logger.debug('ctypes: \n{}'.format(ctypes))
+    if (df is None) or (df.shape[0] == 0):
+        logger.warning('no data to upload')
 
-    # post data to S3
-    s3_key = '{}{}.csv'.format(s3_key_prefix, table_name)
-    logger.debug('s3 key: {}'.format(s3_key))
-    post_df_to_s3(df, s3_bucket, s3_key)
+    else:
+        # get dataframe ctypes
+        ctypes = create_column_type_dict(df)
+        logger.debug('ctypes: \n{}'.format(ctypes))
 
-    # post data from S3 to Redshift
-    redshift_tablename = '{}.{}'.format(redshift_schema, table_name)  # schema.table format
-    create_redshift_table_via_s3(tablename=redshift_tablename,  # schema.table format
-                                 s3_path='s3://{}/{}'.format(s3_bucket, s3_key),
-                                 ctypes=ctypes)
+        # post data to S3
+        s3_key = '{}{}.csv'.format(s3_key_prefix, table_name)
+        logger.debug('s3 key: {}'.format(s3_key))
+        post_df_to_s3(df, s3_bucket, s3_key)
 
-    logger.info('finished uploading')
+        # post data from S3 to Redshift
+        redshift_tablename = '{}.{}'.format(redshift_schema, table_name)  # schema.table format
+        create_redshift_table_via_s3(tablename=redshift_tablename,
+                                    s3_path='s3://{}/{}'.format(s3_bucket, s3_key),
+                                    ctypes=ctypes)
+
+        logger.info('finished uploading')
 
 
 def upload_gdf_to_agol(gdf: DataFrame,
@@ -1017,8 +1033,8 @@ if __name__ == '__main__':
     parser.add_argument('scenario_group', help='Provide the run scenario group name, e.g. Final Blueprint')
     parser.add_argument('run_description', help='Provide the run description, e.g. Model development test runs using s24 assumptions')
     parser.add_argument('run_id', help='Provide the run id, e.g. run182')
-    parser.add_argument('upload_to_redshift', choices=[True,False], help='If upload the data to Redshift')
-    parser.add_argument('upload_to_agol', choices=[True,False], help='If upload the data to ArcGIS Online')
+    parser.add_argument('--upload_to_redshift', help='If upload the data to Redshift', action='store_true')
+    parser.add_argument('--upload_to_agol', help='If upload the data to ArcGIS Online', action='store_true')
     parser.add_argument('--last_run', required=False, choices=['yes', 'no'], help='indicating if it is the most recent run of a scenario. Default to yes')
     
     args = parser.parse_args()
@@ -1072,10 +1088,11 @@ if __name__ == '__main__':
     VIZ_DIR = 'M:\\Data\\Urban\\BAUS\\visualization_design'
     VIA_DATA_DIR = os.path.join(VIZ_DIR, 'data')
     # VIZ_READY_DATA_DIR = os.path.join(VIA_DATA_DIR, 'data_viz_ready', 'csv_v2')
-    VIZ_READY_DATA_DIR = os.path.join(VIA_DATA_DIR, 'data_viz_ready', 'csv_single_run')
+    VIZ_READY_DATA_DIR = os.path.join(VIA_DATA_DIR, 'data_viz_ready', 'csv_test_script')
+    # TODO: write viz-reday data into existing run folder
     LOG_FILE = os.path.join(VIZ_READY_DATA_DIR, "prepare_data_for_viz_{}_{}.log".format(RUN_ID, today))
 
-    # OUTPUT - model inputs
+    # OUTPUT - baus model inputs
     VIZ_MODEL_SETTING_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_model_settings.csv'.format(RUN_ID))
     VIZ_REGIONAL_CONTROLS_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_regional_controls.csv'.format(RUN_ID))
     VIZ_PIPELINE_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_pipeline.csv'.format(RUN_ID))
@@ -1088,9 +1105,9 @@ if __name__ == '__main__':
     VIZ_STRATEGY_PRESERVE_TARGET_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_unitPreserve_target.csv'.format(RUN_ID))
     VIZ_STRATEGY_PRESERVE_QUALIFY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_unitPreserve.csv'.format(RUN_ID))
 
-    # OUTPUT - model interim data
+    # OUTPUT - baus model interim data
 
-    # OUTPUT - model outputs
+    # OUTPUT - baus model outputs
     VIZ_TAZ_SUMMARY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_taz_summary.csv'.format(RUN_ID))
     VIZ_JURIS_SUMMARY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_juris_summary.csv'.format(RUN_ID))
     VIZ_GROWTH_GEOS_SUMMARY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_growth_geos_summary.csv'.format(RUN_ID))
@@ -1146,6 +1163,7 @@ if __name__ == '__main__':
     cost_shifter = extract_modeling_settings(SETTING_INPUT_FILE,
                                                 VIZ_MODEL_SETTING_FILE,
                                                 get_cost_shifter=True)
+    
 
     # pipeline projects and strategy-based asserted projects
     pipeline, strategy_projects = process_dev_proj_list(DEV_PROJ_FILE,
@@ -1155,7 +1173,7 @@ if __name__ == '__main__':
                                                         pipeline_src,
                                                         strategy_proj_src,
                                                         dev_proj_list_cols)
-                                                        
+
     # regional controls
     regional_controls_df = consolidate_regional_control(HH_CONTROL_FILE,
                                                         EMP_CONTROL_FILE,
@@ -1175,7 +1193,8 @@ if __name__ == '__main__':
     # get default inclusionary and inclusionary strategy tables
     inclusionary_default, inclusionary_strategy = inclusionary_yaml_to_df(policy_yaml,
                                                                           VIZ_BASELINE_INCLUSIONARY_FILE,
-                                                                          VIZ_STRATEGY_INCLUSIONARY_FILE)
+                                                                          VIZ_STRATEGY_INCLUSIONARY_FILE,
+                                                                          juris_name_crosswalk_df)
     
     # strategy - housing bond subsidies
     housing_bond_subsidy = housing_bond_subsidy_yaml_to_df(policy_yaml,
@@ -1192,7 +1211,7 @@ if __name__ == '__main__':
                                                                                    zoningmodcat_df,
                                                                                    VIZ_STRATEGY_PRESERVE_TARGET_FILE,
                                                                                    VIZ_STRATEGY_PRESERVE_QUALIFY_FILE)
-    
+
 
     ############ process model output data
     
@@ -1235,17 +1254,34 @@ if __name__ == '__main__':
   
     ############ uploading the files to Redshift for Tableau visualization
     
-    # TODO: write a loop to upload all datasets
     if UPLOAD_TO_REDSHIFT:
         
-        upload_df_to_redshift(cost_shifter,
-                            os.path.basename(VIZ_MODEL_SETTING_FILE).split('.csv')[0])
+        # all datasets to upload, along with the file name (used to construct Redshift table name)
+        to_upload_to_redshift = {
+            VIZ_MODEL_SETTING_FILE: cost_shifter,
+            VIZ_REGIONAL_CONTROLS_FILE: regional_controls_df,
+            VIZ_PIPELINE_FILE: pipeline,
+            VIZ_STRATEGY_PROJECT_FILE: strategy_projects,
+            VIZ_STRATEGY_UPZONING_FILE: zmod_df,
+            VIZ_BASELINE_INCLUSIONARY_FILE: inclusionary_default,
+            VIZ_STRATEGY_INCLUSIONARY_FILE: inclusionary_strategy,
+            VIZ_STRATEGY_HOUSING_BOND_FILE: housing_bond_subsidy,
+            VIZ_STRATEGY_DEV_COST_FILE: housing_dev_cost_reduction,
+            VIZ_STRATEGY_PRESERVE_TARGET_FILE: housing_preserve_target,
+            VIZ_STRATEGY_PRESERVE_QUALIFY_FILE: housing_reserve_qualify,
+            VIZ_TAZ_SUMMARY_FILE: taz_summaries_df,
+            VIZ_JURIS_SUMMARY_FILE: juris_summaries_df,
+            VIZ_DR_UNITS_GROWTH_FILE: juris_dr_units_growth_df,
+            VIZ_GROWTH_GEOS_SUMMARY_FILE: growth_summary_GEOS,
+            VIZ_PARCEL_OUTPUT_SUMMARY_FILE: parcel_output
+            }
+        # loop through the list and upload
+        for dataset_name in to_upload_to_redshift:
+            redshift_table_name = os.path.basename(dataset_name).split('.csv')[0]
+            upload_df_to_redshift(to_upload_to_redshift[dataset_name],
+                                  redshift_table_name)
 
-        upload_df_to_redshift(growth_summary_GEOS,
-                            os.path.basename(VIZ_GROWTH_GEOS_SUMMARY_FILE).split('.csv')[0])
-
-
-    ############ TODO: consolidate, create shapefile, and upload to ArcGIS online for ArcGIS visualization
+    ############ consolidate, create shapefile, and upload to ArcGIS online for ArcGIS visualization
     
     if UPLOAD_TO_AGOL:
 
@@ -1365,15 +1401,18 @@ if __name__ == '__main__':
         dtype = {'runid': int})
     logger.info('previous runs: {}'.format(model_run_inventory))
 
-    # append the info of the new run
-    if int(RUN_ID.split('run')[1]) not in model_run_inventory['runid']:
+    # append the info of the new run if not already there
+    if int(RUN_ID.split('run')[1]) not in list(model_run_inventory['runid']):
         NEW_RUN_INFO = [int(RUN_ID.split('run')[1]), RUN_SCENARIO, SCENARIO_GROUP, RUN_DESCRIPTION, LAST_RUN, MOEDL_RUN_DIR]
         logger.info('adding info of the new run: {}'.format(NEW_RUN_INFO))
         model_run_inventory.loc[len(model_run_inventory.index)] = NEW_RUN_INFO
+
+        # for previous runs of the same scenario, update 'last_run' to 'no'
+        model_run_inventory.loc[
+            (model_run_inventory['scenario'] == RUN_SCENARIO) & (model_run_inventory['runid'] != int(RUN_ID.split('run')[1])), 'last_run'] = 'no'
+
     else:
         logger.info('run already in the inventory')
-
-    # TODO: if a new run of the same scenario was added, update previous runs of the same scenario to 'last_run' = 'no'
 
     # write out the updated inventory table
     model_run_inventory.to_csv(UPDATED_MODEL_RUN_INVENTORY_FILE, index=False)
