@@ -1081,8 +1081,8 @@ if __name__ == '__main__':
     VIZ_PIPELINE_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_pipeline.csv'.format(RUN_ID))
     VIZ_STRATEGY_PROJECT_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_projects.csv'.format(RUN_ID))
     VIZ_STRATEGY_UPZONING_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_upzoning.csv'.format(RUN_ID))
-    VIZ_BASELINE_INCLUSIONARY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_baseline_IZ.csv'.format(RUN_ID))
-    VIZ_STRATEGY_INCLUSIONARY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_IZ.csv'.format(RUN_ID))
+    VIZ_BASELINE_INCLUSIONARY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_baseline_inclusionary.csv'.format(RUN_ID))
+    VIZ_STRATEGY_INCLUSIONARY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_inclusionary.csv'.format(RUN_ID))
     VIZ_STRATEGY_HOUSING_BOND_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_housingBond.csv'.format(RUN_ID))
     VIZ_STRATEGY_DEV_COST_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_devCost.csv'.format(RUN_ID))
     VIZ_STRATEGY_PRESERVE_TARGET_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_unitPreserve_target.csv'.format(RUN_ID))
@@ -1172,10 +1172,10 @@ if __name__ == '__main__':
         except yaml.YAMLError as exc:
             logger.warning(exc)
     
-    # get default IZ and IZ strategy tables
-    IZ_default_df, IZ_strategy_df = inclusionary_yaml_to_df(policy_yaml,
-                                                            VIZ_BASELINE_INCLUSIONARY_FILE,
-                                                            VIZ_STRATEGY_INCLUSIONARY_FILE)
+    # get default inclusionary and inclusionary strategy tables
+    inclusionary_default, inclusionary_strategy = inclusionary_yaml_to_df(policy_yaml,
+                                                                          VIZ_BASELINE_INCLUSIONARY_FILE,
+                                                                          VIZ_STRATEGY_INCLUSIONARY_FILE)
     
     # strategy - housing bond subsidies
     housing_bond_subsidy = housing_bond_subsidy_yaml_to_df(policy_yaml,
@@ -1251,7 +1251,7 @@ if __name__ == '__main__':
 
         dataset_to_upload = []
         
-        ## growth geography-level data, fbpchcat for IZ strategy and zoningmodcat for other strategies
+        ## growth geography-level data, fbpchcat for inclusionary strategy and zoningmodcat for other strategies
         
         # zoningmodcat shapefile, to join to non-spatial data and then upload
         if RUN_SCENARIO in ['s24', 's25']:
@@ -1289,13 +1289,13 @@ if __name__ == '__main__':
         # add to uploading list
         dataset_to_upload.append(zoningmodcat_strategy)
 
-        # fbpchcat geography - IZ strategy
+        # fbpchcat geography - inclusionary strategy
         fbpchcat_gdf = gpd.read_file(FBPCHCAT_SHP_FILE)
         fbpchcat_strategy = pd.merge(fbpchcat_gdf,
-                                    IZ_strategy_df[['geo_category', 'IZ_amt']],
-                                    left_on='fbpchcat',
-                                    right_on='geo_category',
-                                    how='left')
+                                     inclusionary_strategy[['geo_category', 'IZ_amt']],
+                                     left_on='fbpchcat',
+                                     right_on='geo_category',
+                                     how='left')
         # add to uploading list
         dataset_to_upload.append(fbpchcat_strategy)
         
@@ -1326,9 +1326,9 @@ if __name__ == '__main__':
                                    cost_shifter.reset_index().rename(columns={'index': 'county'}),
                                    on='county',
                                    how='left')
-        # attach default IZ policy
+        # attach default inclusionary policy
         juris_input_gdf = pd.merge(juris_input_gdf,
-                                   IZ_default_df,
+                                   inclusionary_default,
                                    left_on='jurisdicti',
                                    right_on='geo_category',
                                    how='left')
