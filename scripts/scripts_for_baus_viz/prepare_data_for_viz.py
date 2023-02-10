@@ -361,60 +361,60 @@ def inclusionary_yaml_to_df(yaml_f: dict,
         strategy_viz_file_dir (str): inclusionary zoning strategy viz-ready file path
     
     Returns:
-        IZ_default_df: default inclusionary zoning policy with columns:
+        inclusionary_default_df: default inclusionary zoning policy with columns:
             - 'geo_type': type of inclusionary-zoning policy geography, e.g. jurisdiction, fbpchcat
             - 'geo_category': inclusionary-zoning policy geography, e.g. San Francisco
             - 'IZ_level': high/median/low
             - 'IZ_amt': the inclusionary zoning value in percentage
-        IZ_strategy_df: inclusionary zoning strategy with same columns
+        inclusionary_strategy_df: inclusionary zoning strategy with same columns
     """
 
     logger.info('process inclusionary zoning existing policy and strategy from {}'.format(POLICY_INPUT_FILE))
     # policy_input = os.path.join(r'C:\Users\ywang\Box\Modeling and Surveys\Urban Modeling\Bay Area UrbanSim\PBA50Plus_Development\Clean Code PR #3\inputs', 'plan_strategies', 'policy.yaml')
 
     # get the inclusionary setting of the target scenario
-    IZ_raw = yaml_f['inclusionary_housing_settings']
-    logger.info('inclusionary data contains the following scenarios: {}'.format(IZ_raw.keys()))
+    inclusionary_raw = yaml_f['inclusionary_housing_settings']
+    logger.info('inclusionary data contains the following scenarios: {}'.format(inclusionary_raw.keys()))
 #     print(inclusionary_raw)
     
     # convert default and strategy into dataframes
     try:
         logger.info('process default IZ data')
-        IZ_default_raw_df = pd.DataFrame(IZ_raw['default'])
-        IZ_default_df = explode_df_list_col_to_rows(IZ_default_raw_df, 'values')
-        IZ_default_df.rename(columns = {'type': 'geo_type',
-                                        'index': 'BAUS_geo_category',
-                                        'description': 'IZ_level',
-                                        'amount': 'IZ_amt'}, inplace=True)
+        inclusionary_default_raw_df = pd.DataFrame(inclusionary_raw['default'])
+        inclusionary_default_df = explode_df_list_col_to_rows(inclusionary_default_raw_df, 'values')
+        inclusionary_default_df.rename(columns = {'type': 'geo_type',
+                                                  'index': 'BAUS_geo_category',
+                                                  'description': 'IZ_level',
+                                                  'amount': 'IZ_amt'}, inplace=True)
         # convert the naming convention to the standard
-        IZ_default_df = pd.merge(
-            IZ_default_df,
+        inclusionary_default_df = pd.merge(
+            inclusionary_default_df,
             juris_name_crosswalk.rename(columns = {'shapefile_juris_name': 'geo_category'}),
             left_on='BAUS_geo_category',
             right_on='JURIS',
             how='left')
-        IZ_default_df = IZ_default_df[['geo_category', 'geo_type', 'IZ_level', 'IZ_amt']]
+        inclusionary_default_df = inclusionary_default_df[['geo_category', 'geo_type', 'IZ_level', 'IZ_amt']]
         
         # write out
-        IZ_default_df.to_csv(default_viz_file_dir, index=False)
+        inclusionary_default_df.to_csv(default_viz_file_dir, index=False)
 
     except:
-        logger.warning('no default IZ data')
+        logger.warning('no default inclusionary data')
 
     try:
-        logger.info('process strategy IZ data')
-        IZ_strategy_raw_df = pd.DataFrame(IZ_raw['inclusionary_strategy'])
-        IZ_strategy_df = explode_df_list_col_to_rows(IZ_strategy_raw_df, 'values')
-        IZ_strategy_df.rename(columns = {'type': 'geo_type',
-                                        'index': 'geo_category',
-                                        'description': 'IZ_level',
-                                        'amount': 'IZ_amt'}, inplace=True)
+        logger.info('process strategy inclusionary data')
+        inclusionary_strategy_raw_df = pd.DataFrame(IZ_raw['inclusionary_strategy'])
+        inclusionary_strategy_df = explode_df_list_col_to_rows(inclusionary_strategy_raw_df, 'values')
+        inclusionary_strategy_df.rename(columns = {'type': 'geo_type',
+                                                   'index': 'geo_category',
+                                                   'description': 'IZ_level',
+                                                   'amount': 'IZ_amt'}, inplace=True)
         # write out
-        IZ_strategy_df.to_csv(strategy_viz_file_dir, index=False)
+        inclusionary_strategy_df.to_csv(strategy_viz_file_dir, index=False)
     except:
-        logger.warning('no strategy IZ data')
+        logger.warning('no strategy inclusionary data')
 
-    return (IZ_default_df, IZ_strategy_df)
+    return (inclusionary_default_df, inclusionary_strategy_df)
 
 
 def housing_preserve_yaml_to_df(yaml_f: dict,
@@ -1188,10 +1188,10 @@ if __name__ == '__main__':
     
     
     # strategy - naturally-occurring affordable housing preservation
-    (housing_preserve_target, housing_reserve_qualify) = housing_preserve_yaml_to_df(policy_yaml,
-                                                                                     zoningmodcat_df,
-                                                                                     VIZ_STRATEGY_PRESERVE_TARGET_FILE,
-                                                                                     VIZ_STRATEGY_PRESERVE_QUALIFY_FILE)
+    housing_preserve_target, housing_reserve_qualify = housing_preserve_yaml_to_df(policy_yaml,
+                                                                                   zoningmodcat_df,
+                                                                                   VIZ_STRATEGY_PRESERVE_TARGET_FILE,
+                                                                                   VIZ_STRATEGY_PRESERVE_QUALIFY_FILE)
     
 
     ############ process model output data
