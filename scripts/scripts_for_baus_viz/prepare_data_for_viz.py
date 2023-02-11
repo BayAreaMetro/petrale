@@ -272,12 +272,14 @@ def consolidate_regional_control(hh_control_file: str,
 
 def process_zmods(zmods_file: str,
                   keep_cols: list,
+                  zoningmodcat_df: DataFrame,
                   viz_file_dir: str):
     """Simplify zoning strategy data.
 
     Args:
         zmods_file (str): zmods strategy file path
         keep_cols (list): columns to include in visualization
+        zoningmodcat_df (DataFrame): zoningmodcat definition
         viz_file_dir (str): viz-ready file path
 
     Returns:
@@ -301,6 +303,12 @@ def process_zmods(zmods_file: str,
 
     # keep needed fields
     zmod_df = zmod_df[keep_cols + ['zoningmodcat', 'geo_type']]
+
+    zmod_df = pd.merge(
+        zoningmodcat_df[['shapefile_juris_name', 'county_name', 'zoningmodcat', 'geo_type']],
+        zmod_df,
+        on=['zoningmodcat', 'geo_type'],
+        how='right')
 
     # drop rows with no strategy to reduce file size
     logger.debug('zmod_df has {:,} rows'.format(zmod_df.shape[0]))
@@ -499,6 +507,10 @@ def housing_preserve_yaml_to_df(yaml_f: dict,
     logger.debug(
         'housing preserve_candidate value counts: \n{}'.format(
             strategy_preserveQualify_df['preserve_candidate'].value_counts(dropna=False)))
+    
+    # drop accessory fields
+    strategy_preserveQualify_df.drop(
+        ['gg_id', 'tra_id', 'sesit_id', 'ppa_id', 'exp2020_id', 'simpler_geo_cat'], axis=1, inplace=True)
 
     # drop rows with no strategy to reduce file size
     strategy_preserveQualify_df = \
@@ -555,6 +567,10 @@ def housing_bond_subsidy_yaml_to_df(yaml_f: dict,
 
     logger.debug('housing_bond value counts: \n{}'.format(strategy_housing_bonds_df['housing_bonds'].value_counts(dropna=False)))
 
+    # drop accessory fields
+    strategy_housing_bonds_df.drop(
+        ['gg_id', 'tra_id', 'sesit_id', 'ppa_id', 'exp2020_id', 'simpler_geo_cat'], axis=1, inplace=True)
+    
     # drop rows with no strategy to reduce file size
     strategy_housing_bonds_df = \
         strategy_housing_bonds_df.loc[strategy_housing_bonds_df['housing_bonds'] == 'Qualify']
@@ -606,6 +622,10 @@ def dev_cost_reduction_yaml_to_df(yaml_f: dict,
         'devCost reduction amt value counts: \n{}'.format(
             strategy_devcost_df['housing_devCost_reduction_amt'].value_counts(dropna=False)))
     
+    # drop accessory fields
+    strategy_devcost_df.drop(
+        ['gg_id', 'tra_id', 'sesit_id', 'ppa_id', 'exp2020_id', 'simpler_geo_cat'], axis=1, inplace=True)
+
     # drop rows with no strategy to reduce file size
     strategy_devcost_df = \
         strategy_devcost_df.loc[strategy_devcost_df['housing_devCost_reduction_cat'] != '']
@@ -628,10 +648,10 @@ def consolidate_TAZ_summaries(model_run_output_dir: str,
     Args:
         model_run_output_dir (str): model output folder path
         model_run_id (str): model run id, e.g. 'run182'
-        viz_file_dir (str): columns in BAUS output juris_summaries for employment by sector
+        viz_file_dir (str): viz-ready file path
         growth_attr_cols (list): columns in BAUS output taz_summaries for key growth metrics to be visualized
         hh_attr_cols (list): columns in BAUS output taz_summaries for household by income group
-        emp_attr_cols (list): _description_
+        emp_attr_cols (list): columns in BAUS output juris_summaries for employment by sector
 
     Returns:
         all_taz_summaries_df: TAZ-level key household and employment metrics for all years
@@ -693,7 +713,7 @@ def consolidate_juris_summaries(model_run_output_dir: str,
     Args:
         model_run_output_dir (str): model output folder path
         model_run_id (str): model run id, e.g. 'run182'
-        viz_file_dir (str):
+        viz_file_dir (str): viz-ready file path
         growth_attr_cols (list): columns in BAUS output juris_summaries for key growth metrics to be visualized
         hh_attr_cols (list): columns in BAUS output juris_summaries for household by income group
         emp_attr_cols (list): columns in BAUS output juris_summaries for employment by sector
@@ -763,7 +783,7 @@ def summarize_deed_restricted_units(model_run_output_dir: str,
     Args:
         model_run_output_dir (str): model output folder path
         model_run_id (str): model run id, e.g. 'run182'
-        viz_file_dir (str): 
+        viz_file_dir (str): viz-ready file path
         dr_units_atrr_cols (list): columns in BAUS output juris_summaries for deed-restricted unit info
         juris_name_crosswalk (DataFrame): a crosswalk betwen BAUS jurisdiction naming convention and spatial data's naming convention
 
@@ -869,7 +889,7 @@ def summarize_growth_by_growth_geographies(model_run_output_dir: str,
     Args:
         model_run_output_dir (str): model output folder path
         model_run_id (str): model run id, e.g. 'run182'
-        viz_file_dir (str): 
+        viz_file_dir (str): viz-ready file path
         geo_tag_types (dict): recode abbreviated growth geography type into full name, e.g. 'TRA' -> 'Transit-rich'
         geos_tag_recode (dict): recode growth geography designation into full name, e.g. 'no_tra' -> 'outside_TRA'
 
@@ -936,7 +956,7 @@ def simplify_parcel_output(model_run_output_dir: str,
     Args:
         model_run_output_dir (str): model output folder path
         model_run_id (str): model run id, e.g. 'run182'
-        viz_file_dir (str): 
+        viz_file_dir (str): viz-ready file path
         keep_cols (Optional[list], optional): columns in the parcel_output table to keep for visualization.
             Defaults to parcel_output_cols.
 
@@ -972,6 +992,41 @@ def simplify_parcel_output(model_run_output_dir: str,
         logger.warning('parcel_output not exist for {}'.format(model_run_id))
 
         return None
+
+
+def consolidate_taz_logsum(model_run_interim_dir: str,
+                           model_run_id: str,
+                           viz_file_dir: str):
+    """Consolidate TAZ logsum data used in rsh model.
+
+    Args:
+        model_run_output_dir (str): model output folder path
+        model_run_id (str): model run id, e.g. 'run182'
+        viz_file_dir (str): viz-ready file path
+    """
+    # collect all TAZ logsum files
+    all_logsum_files = glob.glob(model_run_interim_dir + "\{}_taz_logsums_*.csv".format(model_run_id))
+
+    # only need 2015 (for 2015-2025 simulation), and 2030 (for 2030-2050 similation)
+    keep_logsum_files = [file for file in all_logsum_files if ('_2015' in file) or ('_2030' in file)]
+
+    agg_taz_logsum_df = pd.DataFrame()
+
+    for file in keep_logsum_files:
+        # print(i)
+        filename = os.path.basename(file)
+        year_tag = filename.split('.csv')[0][-4:]
+        # print(year_tag)
+        
+        taz_logsum_df = pd.read_csv(file)
+        taz_logsum_df['year'] = year_tag
+        
+        agg_taz_logsum_df = pd.concat([agg_taz_logsum_df, taz_logsum_df])
+        
+    # write out
+    agg_taz_logsum_df.to_csv(viz_file_dir, index=False)
+
+    return agg_taz_logsum_df
 
 
 def upload_df_to_redshift(df: DataFrame,
@@ -1043,6 +1098,7 @@ if __name__ == '__main__':
     # INPUT - model run data
     MOEDL_RUN_DIR = args.run_dir
     RAW_INPUT_DIR = os.path.join(MOEDL_RUN_DIR, 'inputs')
+    RAW_INTERIM_DIR = os.path.join(MOEDL_RUN_DIR, 'interim')
     RAW_OUTPUT_DIR = os.path.join(MOEDL_RUN_DIR, 'outputs')
     MODEL_CODE_DIR = args.model_code_dir
     # 'C:\\Users\\{}\\Box\\Modeling and Surveys\\Urban Modeling\\Bay Area UrbanSim\\PBA50Plus_Development\\Clean Code PR #3\\bayarea_urbansim'.format(os.getenv('USERNAME'))
@@ -1106,6 +1162,7 @@ if __name__ == '__main__':
     VIZ_STRATEGY_PRESERVE_QUALIFY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_strategy_unitPreserve.csv'.format(RUN_ID))
 
     # OUTPUT - baus model interim data
+    VIZ_TAZ_LOGSUM_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_taz_logsum.csv'.format(RUN_ID))
 
     # OUTPUT - baus model outputs
     VIZ_TAZ_SUMMARY_FILE = os.path.join(VIZ_READY_DATA_DIR, '{}_taz_summary.csv'.format(RUN_ID))
@@ -1180,7 +1237,10 @@ if __name__ == '__main__':
                                                         VIZ_REGIONAL_CONTROLS_FILE)
 
     # strategy - upzoning
-    zmod_df = process_zmods(ZMODS_FILE, zmods_cols, VIZ_STRATEGY_UPZONING_FILE)
+    zmod_df = process_zmods(ZMODS_FILE,
+                            zmods_cols,
+                            zoningmodcat_df,
+                            VIZ_STRATEGY_UPZONING_FILE)
     
     ## strategies in the yaml file
     with open(POLICY_INPUT_FILE, 'r') as stream:
@@ -1212,6 +1272,12 @@ if __name__ == '__main__':
                                                                                    VIZ_STRATEGY_PRESERVE_TARGET_FILE,
                                                                                    VIZ_STRATEGY_PRESERVE_QUALIFY_FILE)
 
+    ############ process model interim data
+
+    # TAZ logsum data
+    taz_logsum = consolidate_taz_logsum(RAW_INTERIM_DIR,
+                                        RUN_ID,
+                                        VIZ_TAZ_LOGSUM_FILE)
 
     ############ process model output data
     
@@ -1269,6 +1335,9 @@ if __name__ == '__main__':
             VIZ_STRATEGY_DEV_COST_FILE: housing_dev_cost_reduction,
             VIZ_STRATEGY_PRESERVE_TARGET_FILE: housing_preserve_target,
             VIZ_STRATEGY_PRESERVE_QUALIFY_FILE: housing_reserve_qualify,
+
+            VIZ_TAZ_LOGSUM_FILE: taz_logsum,
+
             VIZ_TAZ_SUMMARY_FILE: taz_summaries_df,
             VIZ_JURIS_SUMMARY_FILE: juris_summaries_df,
             VIZ_DR_UNITS_GROWTH_FILE: juris_dr_units_growth_df,
