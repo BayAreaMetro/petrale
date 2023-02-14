@@ -439,9 +439,8 @@ def inclusionary_yaml_to_df(yaml_f: dict,
         inclusionary_strategy_df.loc[inclusionary_strategy_df.eval(medium_level_filter), 'IZ_amt'] = medium_level_value
         inclusionary_strategy_df.loc[inclusionary_strategy_df.eval(low_level_filter), 'IZ_amt'] = low_level_value
 
-        # drop accessory fields
-        inclusionary_strategy_df.drop(
-            ['gg_id', 'tra_id', 'sesit_id', 'ppa_id', 'exp2020_id', 'simpler_geo_cat'], axis=1, inplace=True)
+        # keep only needed fields
+        inclusionary_strategy_df = inclusionary_strategy_df[['shapefile_juris_name', 'county_name', 'zoningmodcat', 'geo_type', 'IZ_amt']]
         # drop rows with no strategy to reduce file size
         inclusionary_strategy_df = inclusionary_strategy_df.loc[inclusionary_strategy_df['IZ_amt'].notnull()]
 
@@ -535,9 +534,9 @@ def housing_preserve_yaml_to_df(yaml_f: dict,
         'housing preserve_candidate value counts: \n{}'.format(
             strategy_preserveQualify_df['preserve_candidate'].value_counts(dropna=False)))
     
-    # drop accessory fields
-    strategy_preserveQualify_df.drop(
-        ['gg_id', 'tra_id', 'sesit_id', 'ppa_id', 'exp2020_id', 'simpler_geo_cat'], axis=1, inplace=True)
+    # keep only need fields
+    strategy_preserveQualify_df = \
+        strategy_preserveQualify_df[['shapefile_juris_name', 'county_name', 'zoningmodcat', 'geo_type', 'preserve_candidate']]
 
     # drop rows with no strategy to reduce file size
     strategy_preserveQualify_df = \
@@ -594,10 +593,10 @@ def housing_bond_subsidy_yaml_to_df(yaml_f: dict,
 
     logger.debug('housing_bond value counts: \n{}'.format(strategy_housing_bonds_df['housing_bonds'].value_counts(dropna=False)))
 
-    # drop accessory fields
-    strategy_housing_bonds_df.drop(
-        ['gg_id', 'tra_id', 'sesit_id', 'ppa_id', 'exp2020_id', 'simpler_geo_cat'], axis=1, inplace=True)
-    
+    # keep only need fields
+    strategy_housing_bonds_df = \
+        strategy_housing_bonds_df[['shapefile_juris_name', 'county_name', 'zoningmodcat', 'geo_type', 'housing_bonds']]
+
     # drop rows with no strategy to reduce file size
     strategy_housing_bonds_df = \
         strategy_housing_bonds_df.loc[strategy_housing_bonds_df['housing_bonds'] == 'Qualify']
@@ -649,9 +648,10 @@ def dev_cost_reduction_yaml_to_df(yaml_f: dict,
         'devCost reduction amt value counts: \n{}'.format(
             strategy_devcost_df['housing_devCost_reduction_amt'].value_counts(dropna=False)))
     
-    # drop accessory fields
-    strategy_devcost_df.drop(
-        ['gg_id', 'tra_id', 'sesit_id', 'ppa_id', 'exp2020_id', 'simpler_geo_cat'], axis=1, inplace=True)
+    # keep only need fields
+    strategy_devcost_df = \
+        strategy_devcost_df[['shapefile_juris_name', 'county_name', 'zoningmodcat', 'geo_type',
+                             'housing_devCost_reduction_cat', 'housing_devCost_reduction_amt']]
 
     # drop rows with no strategy to reduce file size
     strategy_devcost_df = \
@@ -1241,7 +1241,6 @@ if __name__ == '__main__':
     # just in case - fill NA and modify capital letter to be consistent with strategy queries
     for colname in list(zoningmodcat_df):
         zoningmodcat_df[colname].fillna('', inplace=True)
-        zoningmodcat_df[colname] = zoningmodcat_df[colname].apply(lambda x: x.lower())
 
     ############ process model input data
 
