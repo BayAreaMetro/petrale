@@ -359,6 +359,7 @@ def explode_df_list_col_to_rows(df: DataFrame,
 def inclusionary_yaml_to_df(yaml_f: dict,
                             default_viz_file_dir: str,
                             strategy_viz_file_dir: str,
+                            zoningmodcat_df: DataFrame,
                             juris_name_crosswalk: DataFrame):
                             
     """Extract inclusionary zoning policy in yaml based on scenario and convert to dataframe.
@@ -401,7 +402,7 @@ def inclusionary_yaml_to_df(yaml_f: dict,
             left_on='BAUS_geo_category',
             right_on='JURIS',
             how='left')
-        inclusionary_default_df = inclusionary_default_df[['geo_category', 'geo_type', 'IZ_level', 'IZ_amt']]
+        inclusionary_default_df = inclusionary_default_df[['geo_category', 'geo_type', 'IZ_amt']]
         
         # write out
         inclusionary_default_df.to_csv(default_viz_file_dir, index=False)
@@ -412,12 +413,38 @@ def inclusionary_yaml_to_df(yaml_f: dict,
 
     if 'inclusionary_strategy' in inclusionary_raw:
         logger.info('process strategy inclusionary data')
+
+        """
         inclusionary_strategy_raw_df = pd.DataFrame(inclusionary_raw['inclusionary_strategy'])
         inclusionary_strategy_df = explode_df_list_col_to_rows(inclusionary_strategy_raw_df, 'values')
         inclusionary_strategy_df.rename(columns = {'type': 'geo_type',
                                                    'index': 'geo_category',
                                                    'description': 'IZ_level',
                                                    'amount': 'IZ_amt'}, inplace=True)
+        """
+        # NOTE: the above code applies to the current inclusionary strategy coding syntax, which will be
+        # changed to be consistent with other strategies, using a query instead of a list of growth geography
+        # concatenations. Before that change, use the hard-coded query as follows:
+        
+        inclusionary_strategy_df = zoningmodcat_df.copy()
+        
+        high_level_value = 0.2
+        high_level_filter = "(gg_id > '') and (tra_id in ('tra1', 'tra2a', 'tra2b', 'tra2c', 'tra3')) and (sesit_id in ('hra', 'hradis'))"
+        medium_level_value = 0.15
+        medium_level_filter = "((gg_id > '') and (tra_id in ('tra1', 'tra2a', 'tra2b', 'tra2c')) and (sesit_id in ('dis', ''))) or ((gg_id > '') and (tra_id=='') and (sesit_id in ('hra', 'hradis')))"
+        low_level_value = 0.1
+        low_level_filter = "((gg_id > '') and (tra_id in ('tra3', '')) and (sesit_id in ('dis', ''))) or (gg_id == '')"
+
+        inclusionary_strategy_df.loc[inclusionary_strategy_df.eval(high_level_filter), 'IZ_amt'] = high_level_value
+        inclusionary_strategy_df.loc[inclusionary_strategy_df.eval(medium_level_filter), 'IZ_amt'] = medium_level_value
+        inclusionary_strategy_df.loc[inclusionary_strategy_df.eval(low_level_filter), 'IZ_amt'] = low_level_value
+
+        # drop accessory fields
+        inclusionary_strategy_df.drop(
+            ['gg_id', 'tra_id', 'sesit_id', 'ppa_id', 'exp2020_id', 'simpler_geo_cat'], axis=1, inplace=True)
+        # drop rows with no strategy to reduce file size
+        inclusionary_strategy_df = inclusionary_strategy_df.loc[inclusionary_strategy_df['IZ_amt'].notnull()]
+
         # write out
         inclusionary_strategy_df.to_csv(strategy_viz_file_dir, index=False)
     else:
@@ -1211,7 +1238,10 @@ if __name__ == '__main__':
         zoningmodcat_df = pd.read_csv(FBPZONINGMODCAT_SYSTEM_FILE)
     elif RUN_SCENARIO in ['s28']:
         zoningmodcat_df = pd.read_csv(EIRZONINGMODCAT_SYSTEM_FILE)
-
+    # just in case - fill NA and modify capital letter to be consistent with strategy queries
+    for colname in list(zoningmodcat_df):
+        zoningmodcat_df[colname].fillna('', inplace=True)
+        zoningmodcat_df[colname] = zoningmodcat_df[colname].apply(lambda x: x.lower())
 
     ############ process model input data
 
@@ -1254,6 +1284,7 @@ if __name__ == '__main__':
     inclusionary_default, inclusionary_strategy = inclusionary_yaml_to_df(policy_yaml,
                                                                           VIZ_BASELINE_INCLUSIONARY_FILE,
                                                                           VIZ_STRATEGY_INCLUSIONARY_FILE,
+                                                                          zoningmodcat_df,
                                                                           juris_name_crosswalk_df)
     
     # strategy - housing bond subsidies
