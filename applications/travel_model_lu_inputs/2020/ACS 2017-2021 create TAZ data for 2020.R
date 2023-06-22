@@ -1,7 +1,5 @@
 # ACS 2013-2017 create TAZ data for 2015.R
 # Create "2015" TAZ data from ACS 2013-2017 
-# SI
-# Updated 4/24/20 with new employment data
 
 # Notes
 
