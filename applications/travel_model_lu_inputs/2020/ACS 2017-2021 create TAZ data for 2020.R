@@ -32,8 +32,6 @@ library(readxl)
 
 # Set up directories, import TAZ/census block equivalence, install census key, set ACS year,set CPI inflation
 
-employment_2015_data           <- "M:/Data/BusinessData/Employment_by_TAZ_industry/BusinessData_2015_TAZ_industry_noincommute.csv"
-
 blockTAZ2020_in      <- "M:/Data/GIS layers/TM1_taz_census2020/2020block_to_TAZ1454.csv"
 censuskey            <- readLines("M:/Data/Census/API/api-key.txt")
 baycounties          <- c("01","13","41","55","75","81","85","95","97")
@@ -46,7 +44,17 @@ ACS_product="5"
 
 USERPROFILE          <- gsub("\\\\","/", Sys.getenv("USERPROFILE"))
 BOX_TM               <- file.path(USERPROFILE, "Box", "Modeling and Surveys")
+GITHUB_DIR           <- file.path(USERPROFILE,"Documents","GitHub")
+if (Sys.getenv("USERNAME") %in% c("lzorn")) {
+  GITHUB_DIR         <- file.path("E://GitHub")
+  BOX_TM             <- file.path("E://Box/Modeling and Surveys")
+}
 PBA_TAZ_2015         <- file.path(BOX_TM, "Share Data", "plan-bay-area-2050", "tazdata","PBA50_FinalBlueprintLandUse_TAZdata.xlsx")
+
+# Bring in 2020 TAZ employment data
+
+PETRALE              <- file.path(GITHUB_DIR,"petrale","applications","travel_model_lu_inputs")
+employment_2020      <- read.csv(file.path(PETRALE,"2020","Employment","lodes_wac_employment.csv"),header = T)
 
 # County FIPS codes for ACS tract API calls
 
@@ -72,6 +80,12 @@ PBA2015_county <- PBA2015 %>%                                    # Create and jo
     COUNTY==9 ~ "Marin"
   ))
 
+# Bring in superdistrict name for joining
+
+superdistrict <- read_excel(file.path(PETRALE,"2015","TAZ1454 2015 Land Use.xlsx"),sheet="2010 District Summary") %>% 
+                              select("DISTRICT","DISTRICT_NAME"="DISTRICT NAME") %>% 
+                              filter(!(DISTRICT=="Bay Area")) %>% 
+                              mutate(DISTRICT=as.numeric(DISTRICT))
 
 # Income table - Guidelines for HH income values used from ACS
 "
@@ -498,6 +512,8 @@ workingdata <- interim %>% mutate(
           unit10_19+
           unit20_49+
           unit50p)*sharebg,
+  hh_own=(own1+own2+own3+own4+own5+own6+own7p)*sharebg,
+  hh_rent=(rent1+rent2+rent3+rent4+rent5+rent6+rent7p)*sharebg,
   hh_size_1=(own1+rent1)*sharebg,
   hh_size_2=(own2+rent2)*sharebg,
   hh_size_3=(own3+rent3)*sharebg,
@@ -571,6 +587,8 @@ temp0 <- workingdata %>%
               AGE65P                  =sum(AGE65P),
               SFDU                    =sum(SFDU),
               MFDU                    =sum(MFDU),
+              hh_own                  =sum(hh_own),
+              hh_rent                 =sum(hh_rent),
               hh_size_1               =sum(hh_size_1),
               hh_size_2               =sum(hh_size_2),
               hh_size_3               =sum(hh_size_3),
@@ -634,8 +652,9 @@ temp1 <- temp0 %>%
 
 temp_rounded_adjusted <- temp1 %>%
   mutate (
-    sum_age            = AGE0004 + AGE0519 + AGE2044  +AGE4564 + AGE65P,       # First person totals by age
+    sum_age            = AGE0004 + AGE0519 + AGE2044  +AGE4564 + AGE65P,       # Person totals by age
     sum_groupquarters  = gq_type_univ + gq_type_mil + gq_type_othnon,          # GQ by type
+    sum_tenure         = hh_own + hh_rent,                                     # Households by tenure
     sum_size           = hh_size_1 + hh_size_2 + hh_size_3 + hh_size_4_plus,   # Now housing totals
     sum_hhworkers      = hh_wrks_0 + hh_wrks_1 + hh_wrks_2 + hh_wrks_3_plus,   # HHs by number of workers
     sum_kids           = hh_kids_yes + hh_kids_no,                             # HHs by kids or not
@@ -655,6 +674,7 @@ temp_rounded_adjusted <- temp1 %>%
     
     age_factor         = if_else(sum_age==0,0,TOTPOP/sum_age),
     gq_factor          = if_else(sum_groupquarters==0,0,gqpop/sum_groupquarters),
+    tenure_factor      = if_else(sum_tenure==0,0,TOTHH/sum_tenure),
     size_factor        = if_else(sum_size==0,0,TOTHH/sum_size),
     hhworkers_factor   = if_else(sum_hhworkers==0,0,TOTHH/sum_hhworkers),
     kids_factor        = if_else(sum_kids==0,0,TOTHH/sum_kids),
@@ -691,6 +711,9 @@ temp_rounded_adjusted <- temp1 %>%
     gq_type_mil           = gq_type_mil      * gq_factor,
     gq_type_othnon        = gq_type_othnon   * gq_factor,
 
+    hh_own                = hh_own           * tenure_factor,      # Households by tenure
+    hh_rent               = hh_rent          * tenure_factor,      
+
     hh_size_1             = hh_size_1        * size_factor,        # Households by size
     hh_size_2             = hh_size_2        * size_factor,
     hh_size_3             = hh_size_3        * size_factor,
@@ -720,7 +743,7 @@ temp_rounded_adjusted <- temp1 %>%
 # Round Data, remove sum variables and factors
 # Add in population over age 62 variable that is also needed (but should not be rounded, so added at the end)
   
-    select (-age_factor,-gq_factor,-size_factor,-hhworkers_factor,-kids_factor,-income_factor,-empres_init_factor,
+    select (-age_factor,-gq_factor,-tenure_factor, -size_factor,-hhworkers_factor,-kids_factor,-income_factor,-empres_init_factor,
             -empres_factor,-sum_age,-sum_groupquarters,-sum_size,-sum_hhworkers,-sum_kids,-sum_income,-sum_empres, 
             -sum_ethnicity,-ethnicity_factor) %>% 
     mutate_if(is.numeric,round,0) %>%
@@ -734,6 +757,7 @@ temp_rounded_adjusted <- temp1 %>%
    mutate (
     max_age    = max.col(.[c("AGE0004","AGE0519","AGE2044","AGE4564","AGE65P")],     ties.method="first"),
     max_gq     = max.col(.[c("gq_type_univ","gq_type_mil","gq_type_othnon")],        ties.method="first"),
+    max_tenure = max.col(.[c("hh_own","hh_rent")],                                   ties.method="first"),
     max_size   = max.col(.[c("hh_size_1","hh_size_2","hh_size_3","hh_size_4_plus")], ties.method="first"),
     max_workers= max.col(.[c("hh_wrks_0","hh_wrks_1","hh_wrks_2","hh_wrks_3_plus")], ties.method="first"),
     max_kids   = max.col(.[c("hh_kids_yes","hh_kids_no")],                           ties.method="first"),
@@ -775,7 +799,12 @@ temp_rounded_adjusted <- temp1 %>%
     gq_type_mil    = if_else(max_gq==2,gq_type_mil+(gqpop-(gq_type_univ+gq_type_mil+gq_type_othnon)),gq_type_mil),
     gq_type_othnon = if_else(max_gq==3,gq_type_othnon+(gqpop-(gq_type_univ+gq_type_mil+gq_type_othnon)),gq_type_othnon),
    
-    #Balance HH size categories
+    #Balance HH tenure categories
+    
+    hh_own         = if_else(max_tenure==1,hh_own       +(TOTHH-(hh_own+hh_rent)),hh_own),
+    hh_rent        = if_else(max_tenure==2,hh_rent      +(TOTHH-(hh_own+hh_rent)),hh_rent),
+
+     #Balance HH size categories
     
     hh_size_1      = if_else(max_size==1,hh_size_1     +(TOTHH-(hh_size_1+hh_size_2+hh_size_3+hh_size_4_plus)),hh_size_1),
     hh_size_2      = if_else(max_size==2,hh_size_2     +(TOTHH-(hh_size_1+hh_size_2+hh_size_3+hh_size_4_plus)),hh_size_2),
@@ -819,7 +848,7 @@ temp_rounded_adjusted <- temp1 %>%
   
 # Remove max variables
   
-  select(-max_age,-max_gq,-max_size,-max_workers,-max_kids,-max_income,-max_occ, -max_eth)
+  select(-max_age,-max_gq,-max_tenure,-max_size,-max_workers,-max_kids,-max_income,-max_occ, -max_eth)
 
 ### End of recoding
 
@@ -830,19 +859,16 @@ ethnic <- temp_rounded_adjusted %>%
 
 write.csv (ethnic,file = "TAZ1454_Ethnicity.csv",row.names = FALSE)
 
-# Read in old PBA data sets and select variables for joining to new 2015 dataset
-# Bring in updated 2020 employment for joining
-# Bring in school and parking data from PBA 2040, 2015 TAZ data 
+# Read in old PBA data sets and select variables for joining to new 2020 dataset
+# Join 2020 employment data
+# Bring in school and parking data from 2015 TAZ data 
 # Add HHLDS variable (same as TOTHH), select new 2015 output
 
 PBA2015_joiner <- PBA2015%>%
   select(ZONE,DISTRICT,SD,TOTACRE,RESACRE,CIACRE,PRKCST,OPRKCST,AREATYPE,HSENROLL,COLLFTE,COLLPTE,TOPOLOGY,TERMINAL, ZERO)
 
-#employment_2015 <- read.csv(employment_2015_data,header=TRUE) 
-
-
 joined_15_20      <- left_join(PBA2015_joiner,temp_rounded_adjusted, by=c("ZONE"="TAZ1454")) # Join 2015 topology, parking, enrollment
-joined_employment <- left_join(joined_15_20,employment_2015, by=c("ZONE"="TAZ1454","County_Name"))        # Join employment
+joined_employment <- left_join(joined_15_20,employment_2020, by=c("ZONE"="TAZ1454"))        # Join employment
 
 # Save R version of data for 2020 to later inflate to 2023
 
@@ -888,7 +914,7 @@ write.csv(summed20, "TAZ1454 2020 District Summary.csv", row.names = FALSE, quot
 
 popsim_vars <- temp_rounded_adjusted %>% 
   rename(TAZ=TAZ1454,gq_tot_pop=gqpop)%>%
-  select(TAZ,TOTHH,TOTPOP,hh_size_1,hh_size_2,hh_size_3,hh_size_4_plus,hh_wrks_0,hh_wrks_1,hh_wrks_2,hh_wrks_3_plus,
+  select(TAZ,TOTHH,TOTPOP,hh_own,hh_rent,hh_size_1,hh_size_2,hh_size_3,hh_size_4_plus,hh_wrks_0,hh_wrks_1,hh_wrks_2,hh_wrks_3_plus,
          hh_kids_no,hh_kids_yes,HHINCQ1,HHINCQ2,HHINCQ3,HHINCQ4,AGE0004,AGE0519,AGE2044,AGE4564,AGE65P,
          gq_tot_pop,gq_type_univ,gq_type_mil,gq_type_othnon)
 
@@ -914,4 +940,26 @@ popsim_vars_county <- joined_15_20 %>%
 
 write.csv(popsim_vars_county, "TAZ1454 2020 Popsim Vars County.csv", row.names = FALSE, quote = T)
 
+# Output into Tableau-friendly format
 
+Tableau2015 <- PBA2015 %>%
+  mutate(gqpop=TOTPOP-HHPOP) %>% 
+  left_join(.,PBA2015_county,by=c("ZONE","COUNTY")) %>% 
+  left_join(.,superdistrict,by="DISTRICT") %>% 
+  mutate(Year=2015) %>% 
+  select(ZONE,DISTRICT,DISTRICT_NAME,COUNTY, County_Name,Year,TOTHH,HHPOP,TOTPOP,EMPRES,SFDU,MFDU,HHINCQ1,HHINCQ2,HHINCQ3,HHINCQ4,SHPOP62P,TOTEMP,AGE0004,AGE0519,AGE2044,AGE4564,AGE65P,RETEMPN,FPSEMPN,HEREMPN,AGREMPN,
+         MWTEMPN,OTHEMPN,PRKCST,OPRKCST,HSENROLL,COLLFTE,COLLPTE,gqpop) %>%
+  gather(Variable,Value,TOTHH,HHPOP,TOTPOP,EMPRES,SFDU,MFDU,HHINCQ1,HHINCQ2,HHINCQ3,HHINCQ4,SHPOP62P,TOTEMP,AGE0004,AGE0519,AGE2044,AGE4564,AGE65P,RETEMPN,FPSEMPN,HEREMPN,AGREMPN,
+         MWTEMPN,OTHEMPN,PRKCST,OPRKCST,HSENROLL,COLLFTE,COLLPTE,gqpop)
+
+Tableau2020 <- New2020 %>%
+  left_join(.,PBA2015_county,by=c("ZONE","COUNTY")) %>% 
+  left_join(.,superdistrict,by="DISTRICT") %>% 
+  mutate(Year=2020) %>% 
+  select(ZONE,DISTRICT,DISTRICT_NAME,COUNTY,County_Name,Year,TOTHH,HHPOP,TOTPOP,EMPRES,SFDU,MFDU,HHINCQ1,HHINCQ2,HHINCQ3,HHINCQ4,SHPOP62P,TOTEMP,AGE0004,AGE0519,AGE2044,AGE4564,AGE65P,RETEMPN,FPSEMPN,HEREMPN,AGREMPN,
+         MWTEMPN,OTHEMPN,PRKCST,OPRKCST,HSENROLL,COLLFTE,COLLPTE,gqpop) %>%
+  gather(Variable,Value,TOTHH,HHPOP,TOTPOP,EMPRES,SFDU,MFDU,HHINCQ1,HHINCQ2,HHINCQ3,HHINCQ4,SHPOP62P,TOTEMP,AGE0004,AGE0519,AGE2044,AGE4564,AGE65P,RETEMPN,FPSEMPN,HEREMPN,AGREMPN,
+         MWTEMPN,OTHEMPN,PRKCST,OPRKCST,HSENROLL,COLLFTE,COLLPTE,gqpop)
+
+write.csv(Tableau2015,file.path(PETRALE,"2015","TAZ1454_2015_Tableau_Version.csv"),row.names = F)
+write.csv(Tableau2020,"TAZ1454_2020_Tableau_Version.csv",row.names = F)
